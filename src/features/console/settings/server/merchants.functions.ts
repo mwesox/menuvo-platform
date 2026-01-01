@@ -3,10 +3,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { merchants } from "@/db/schema.ts";
-import {
-	merchantGeneralSchema,
-	merchantLanguageSchema,
-} from "../validation.ts";
+import { merchantGeneralSchema, merchantLanguageSchema } from "../validation";
 
 export const getMerchant = createServerFn({ method: "GET" })
 	.inputValidator(z.object({ merchantId: z.number() }))

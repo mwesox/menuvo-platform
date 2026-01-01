@@ -1,14 +1,17 @@
-export type { CartItem } from "./cart-context";
-export { CartProvider, useCart, useCartOptional } from "./cart-context";
-export { CartDrawer } from "./components/cart-drawer";
-export { CartItem as CartItemComponent } from "./components/cart-item";
-export { CartSummary } from "./components/cart-summary";
-export { CategoryNav } from "./components/category-nav";
-export { FloatingCart } from "./components/floating-cart";
-export { ItemDrawer } from "./components/item-drawer";
-export { MenuItemCard } from "./components/menu-item-card";
-export { OptionGroup } from "./components/option-group";
-export { QuantityStepper } from "./components/quantity-stepper";
-export { ShopHeader } from "./components/shop-header";
-export { StoreCard } from "./components/store-card";
-export { StoreHero } from "./components/store-hero";
+// Sub-features
+
+export * from "./cart";
+export * from "./constants";
+export * from "./discovery";
+export * from "./layout";
+export * from "./menu";
+// Queries and validation
+export { shopKeys, shopQueries } from "./queries";
+export * from "./shared";
+// Shared utilities
+export {
+	enrichMenuItemWithDefaults,
+	formatPrice,
+	generateCartItemId,
+} from "./utils";
+export * from "./validation";

@@ -1,0 +1,37 @@
+{
+	"page": {
+		"title": "Discover",
+		"subtitle": "Find restaurants near you",
+		"metaTitle": "Discover Restaurants",
+		"metaDescription": "Find and explore restaurants near you"
+	},
+	"search": {
+		"placeholder": "Search restaurants...",
+		"clearSearch": "Clear search",
+		"allCities": "All",
+		"filterByCity": "Filter by city"
+	},
+	"storeCard": {
+		"openNow": "Open now",
+		"closed": "Closed"
+	},
+	"emptyState": {
+		"noStores": {
+			"title": "No restaurants yet",
+			"description": "Restaurants will appear here once they're added to the platform."
+		},
+		"noResults": {
+			"title": "No restaurants found",
+			"description": "Try adjusting your filters or search term to find what you're looking for.",
+			"clearFilters": "Clear filters"
+		}
+	},
+	"error": {
+		"title": "Something went wrong",
+		"description": "We couldn't load the restaurants. Please try again.",
+		"tryAgain": "Try again"
+	},
+	"loading": {
+		"searchPlaceholder": "Search restaurants..."
+	}
+}

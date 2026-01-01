@@ -14,14 +14,19 @@ import {
 } from "@/components/ui/dialog.tsx";
 import {
 	Field,
-	FieldContent,
-	FieldDescription,
 	FieldError,
 	FieldGroup,
 	FieldLabel,
 } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Switch } from "@/components/ui/switch.tsx";
+import { PriceInput } from "@/components/ui/price-input.tsx";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select.tsx";
 import {
 	Tabs,
 	TabsContent,
@@ -29,7 +34,11 @@ import {
 	TabsTrigger,
 } from "@/components/ui/tabs.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
-import type { OptionChoice, OptionGroup } from "@/db/schema.ts";
+import type {
+	OptionChoice,
+	OptionGroup,
+	OptionGroupType,
+} from "@/db/schema.ts";
 import { optionGroupFormSchema } from "../options.validation.ts";
 
 interface OptionGroupDialogProps {
@@ -39,21 +48,21 @@ interface OptionGroupDialogProps {
 	onSave: (data: {
 		name: string;
 		description?: string;
-		isRequired: boolean;
+		type: OptionGroupType;
 		minSelections: number;
 		maxSelections: number | null;
-		choices: Array<{ id?: number; name: string; priceModifier: number }>;
+		numFreeOptions: number;
+		aggregateMinQuantity: number | null;
+		aggregateMaxQuantity: number | null;
+		choices: Array<{
+			id?: number;
+			name: string;
+			priceModifier: number;
+			isDefault: boolean;
+			minQuantity: number;
+			maxQuantity: number | null;
+		}>;
 	}) => Promise<void>;
-}
-
-function centsToEuros(cents: number): string {
-	return (cents / 100).toFixed(2);
-}
-
-function eurosToCents(euros: string): number {
-	const parsed = Number.parseFloat(euros);
-	if (Number.isNaN(parsed)) return 0;
-	return Math.round(parsed * 100);
 }
 
 export function OptionGroupDialog({
@@ -73,14 +82,20 @@ export function OptionGroupDialog({
 		defaultValues: {
 			name: "",
 			description: "",
-			isRequired: false,
+			type: "multi_select" as OptionGroupType,
 			minSelections: 0,
 			maxSelections: null as number | null,
 			isUnlimited: true,
+			numFreeOptions: 0,
+			aggregateMinQuantity: null as number | null,
+			aggregateMaxQuantity: null as number | null,
 			choices: [] as Array<{
 				id?: number;
 				name: string;
-				priceModifier: string;
+				priceModifier: number;
+				isDefault: boolean;
+				minQuantity: number;
+				maxQuantity: number | null;
 			}>,
 		},
 		validators: {
@@ -90,13 +105,19 @@ export function OptionGroupDialog({
 			await onSave({
 				name: value.name,
 				description: value.description || undefined,
-				isRequired: value.isRequired,
+				type: value.type,
 				minSelections: value.minSelections,
 				maxSelections: value.isUnlimited ? null : value.maxSelections,
+				numFreeOptions: value.numFreeOptions,
+				aggregateMinQuantity: value.aggregateMinQuantity,
+				aggregateMaxQuantity: value.aggregateMaxQuantity,
 				choices: value.choices.map((choice) => ({
 					id: choice.id,
 					name: choice.name,
-					priceModifier: eurosToCents(choice.priceModifier),
+					priceModifier: choice.priceModifier,
+					isDefault: choice.isDefault,
+					minQuantity: choice.minQuantity,
+					maxQuantity: choice.maxQuantity,
 				})),
 			});
 			onOpenChange(false);
@@ -111,16 +132,28 @@ export function OptionGroupDialog({
 			if (optionGroup) {
 				form.setFieldValue("name", optionGroup.name);
 				form.setFieldValue("description", optionGroup.description ?? "");
-				form.setFieldValue("isRequired", optionGroup.isRequired);
+				form.setFieldValue("type", optionGroup.type);
 				form.setFieldValue("minSelections", optionGroup.minSelections);
 				form.setFieldValue("maxSelections", optionGroup.maxSelections);
 				form.setFieldValue("isUnlimited", optionGroup.maxSelections === null);
+				form.setFieldValue("numFreeOptions", optionGroup.numFreeOptions);
+				form.setFieldValue(
+					"aggregateMinQuantity",
+					optionGroup.aggregateMinQuantity,
+				);
+				form.setFieldValue(
+					"aggregateMaxQuantity",
+					optionGroup.aggregateMaxQuantity,
+				);
 				form.setFieldValue(
 					"choices",
 					optionGroup.optionChoices.map((choice) => ({
 						id: choice.id,
 						name: choice.name,
-						priceModifier: centsToEuros(choice.priceModifier),
+						priceModifier: choice.priceModifier,
+						isDefault: choice.isDefault,
+						minQuantity: choice.minQuantity,
+						maxQuantity: choice.maxQuantity,
 					})),
 				);
 			}
@@ -128,9 +161,23 @@ export function OptionGroupDialog({
 		}
 	}, [open, optionGroup]);
 
+	// Helper to get type description
+	const getTypeDescription = (type: OptionGroupType): string => {
+		switch (type) {
+			case "single_select":
+				return t("optionTypes.singleSelectDesc");
+			case "multi_select":
+				return t("optionTypes.multiSelectDesc");
+			case "quantity_select":
+				return t("optionTypes.quantitySelectDesc");
+			default:
+				return "";
+		}
+	};
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-lg">
+			<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
@@ -167,6 +214,7 @@ export function OptionGroupDialog({
 
 						<TabsContent value="settings" className="py-4">
 							<FieldGroup>
+								{/* Name field */}
 								<form.Field name="name">
 									{(field) => {
 										const isInvalid =
@@ -193,6 +241,7 @@ export function OptionGroupDialog({
 									}}
 								</form.Field>
 
+								{/* Description field */}
 								<form.Field name="description">
 									{(field) => {
 										const isInvalid =
@@ -220,209 +269,436 @@ export function OptionGroupDialog({
 									}}
 								</form.Field>
 
-								<form.Field name="isRequired">
-									{(field) => {
-										const isInvalid =
-											field.state.meta.isTouched && !field.state.meta.isValid;
-										return (
-											<Field
-												orientation="horizontal"
-												data-invalid={isInvalid}
-												className="rounded-lg border p-3"
+								{/* Type selector */}
+								<form.Field name="type">
+									{(field) => (
+										<Field>
+											<FieldLabel htmlFor={`${id}-type`}>
+												{t("labels.optionGroupType")}
+											</FieldLabel>
+											<Select
+												value={field.state.value}
+												onValueChange={(value: OptionGroupType) => {
+													field.handleChange(value);
+													// Auto-configure based on type
+													if (value === "single_select") {
+														form.setFieldValue("minSelections", 1);
+														form.setFieldValue("maxSelections", 1);
+														form.setFieldValue("isUnlimited", false);
+													} else if (value === "quantity_select") {
+														form.setFieldValue("minSelections", 0);
+														form.setFieldValue("maxSelections", null);
+														form.setFieldValue("isUnlimited", true);
+													}
+												}}
 											>
-												<FieldContent>
-													<FieldLabel htmlFor={`${id}-required`}>
-														{t("labels.required")}
-													</FieldLabel>
-													<FieldDescription>
-														{t("descriptions.requiredField")}
-													</FieldDescription>
-												</FieldContent>
-												<Switch
-													id={`${id}-required`}
-													checked={field.state.value}
-													onCheckedChange={field.handleChange}
-												/>
-											</Field>
-										);
-									}}
+												<SelectTrigger id={`${id}-type`}>
+													<SelectValue />
+												</SelectTrigger>
+												<SelectContent>
+													<SelectItem value="single_select">
+														{t("optionTypes.singleSelect")}
+													</SelectItem>
+													<SelectItem value="multi_select">
+														{t("optionTypes.multiSelect")}
+													</SelectItem>
+													<SelectItem value="quantity_select">
+														{t("optionTypes.quantitySelect")}
+													</SelectItem>
+												</SelectContent>
+											</Select>
+											<p className="text-xs text-muted-foreground mt-1">
+												{getTypeDescription(field.state.value)}
+											</p>
+										</Field>
+									)}
 								</form.Field>
 
-								<div className="grid grid-cols-2 gap-4">
-									<form.Field name="minSelections">
-										{(field) => {
-											const isInvalid =
-												field.state.meta.isTouched && !field.state.meta.isValid;
-											return (
-												<Field data-invalid={isInvalid}>
-													<FieldLabel htmlFor={`${id}-min-selections`}>
-														{t("labels.minSelections")}
-													</FieldLabel>
-													<Input
-														id={`${id}-min-selections`}
-														name={field.name}
-														type="number"
-														min={0}
-														max={10}
-														value={field.state.value}
-														onBlur={field.handleBlur}
-														onChange={(e) =>
-															field.handleChange(
-																Number.parseInt(e.target.value, 10) || 0,
-															)
-														}
-														aria-invalid={isInvalid}
-													/>
-													{isInvalid && (
-														<FieldError errors={field.state.meta.errors} />
-													)}
-												</Field>
-											);
-										}}
-									</form.Field>
-
-									<form.Subscribe
-										selector={(state) => state.values.isUnlimited}
-									>
-										{(isUnlimited) => (
-											<form.Field name="maxSelections">
-												{(field) => {
-													const isInvalid =
-														field.state.meta.isTouched &&
-														!field.state.meta.isValid;
-													return (
-														<Field data-invalid={isInvalid}>
-															<FieldLabel htmlFor={`${id}-max-selections`}>
-																{t("labels.maxSelections")}
-															</FieldLabel>
-															<Input
-																id={`${id}-max-selections`}
-																name={field.name}
-																type="number"
-																min={1}
-																max={10}
-																value={field.state.value ?? ""}
-																onBlur={field.handleBlur}
-																onChange={(e) =>
-																	field.handleChange(
-																		Number.parseInt(e.target.value, 10) || 1,
-																	)
-																}
-																disabled={isUnlimited}
-																aria-invalid={isInvalid}
-															/>
-															<form.Field name="isUnlimited">
-																{(unlimitedField) => (
-																	<div className="flex items-center gap-2">
-																		<Checkbox
-																			id={`${id}-unlimited`}
-																			checked={unlimitedField.state.value}
-																			onCheckedChange={(checked) => {
-																				unlimitedField.handleChange(
-																					checked === true,
-																				);
-																				if (checked) {
-																					field.handleChange(null);
-																				} else {
-																					field.handleChange(1);
-																				}
-																			}}
+								{/* Conditional fields based on type */}
+								<form.Subscribe selector={(state) => state.values.type}>
+									{(type) => (
+										<>
+											{/* Selection constraints for multi_select */}
+											{type === "multi_select" && (
+												<div className="grid grid-cols-2 gap-4">
+													<form.Field name="minSelections">
+														{(field) => {
+															const isInvalid =
+																field.state.meta.isTouched &&
+																!field.state.meta.isValid;
+															return (
+																<Field data-invalid={isInvalid}>
+																	<FieldLabel htmlFor={`${id}-min-selections`}>
+																		{t("labels.minSelections")}
+																	</FieldLabel>
+																	<Input
+																		id={`${id}-min-selections`}
+																		name={field.name}
+																		type="number"
+																		min={0}
+																		max={10}
+																		value={field.state.value}
+																		onBlur={field.handleBlur}
+																		onChange={(e) =>
+																			field.handleChange(
+																				Number.parseInt(e.target.value, 10) ||
+																					0,
+																			)
+																		}
+																		aria-invalid={isInvalid}
+																	/>
+																	{isInvalid && (
+																		<FieldError
+																			errors={field.state.meta.errors}
 																		/>
-																		<label
-																			htmlFor={`${id}-unlimited`}
-																			className="text-sm font-normal text-muted-foreground"
-																		>
-																			{t("labels.unlimited")}
-																		</label>
-																	</div>
-																)}
+																	)}
+																</Field>
+															);
+														}}
+													</form.Field>
+
+													<form.Subscribe
+														selector={(state) => state.values.isUnlimited}
+													>
+														{(isUnlimited) => (
+															<form.Field name="maxSelections">
+																{(field) => {
+																	const isInvalid =
+																		field.state.meta.isTouched &&
+																		!field.state.meta.isValid;
+																	return (
+																		<Field data-invalid={isInvalid}>
+																			<FieldLabel
+																				htmlFor={`${id}-max-selections`}
+																			>
+																				{t("labels.maxSelections")}
+																			</FieldLabel>
+																			<Input
+																				id={`${id}-max-selections`}
+																				name={field.name}
+																				type="number"
+																				min={1}
+																				max={10}
+																				value={field.state.value ?? ""}
+																				onBlur={field.handleBlur}
+																				onChange={(e) =>
+																					field.handleChange(
+																						Number.parseInt(
+																							e.target.value,
+																							10,
+																						) || 1,
+																					)
+																				}
+																				disabled={isUnlimited}
+																				aria-invalid={isInvalid}
+																			/>
+																			<form.Field name="isUnlimited">
+																				{(unlimitedField) => (
+																					<div className="flex items-center gap-2">
+																						<Checkbox
+																							id={`${id}-unlimited`}
+																							checked={
+																								unlimitedField.state.value
+																							}
+																							onCheckedChange={(checked) => {
+																								unlimitedField.handleChange(
+																									checked === true,
+																								);
+																								if (checked) {
+																									field.handleChange(null);
+																								} else {
+																									field.handleChange(1);
+																								}
+																							}}
+																						/>
+																						<label
+																							htmlFor={`${id}-unlimited`}
+																							className="text-sm font-normal text-muted-foreground"
+																						>
+																							{t("labels.unlimited")}
+																						</label>
+																					</div>
+																				)}
+																			</form.Field>
+																			{isInvalid && (
+																				<FieldError
+																					errors={field.state.meta.errors}
+																				/>
+																			)}
+																		</Field>
+																	);
+																}}
 															</form.Field>
-															{isInvalid && (
-																<FieldError errors={field.state.meta.errors} />
-															)}
-														</Field>
-													);
-												}}
-											</form.Field>
-										)}
-									</form.Subscribe>
-								</div>
+														)}
+													</form.Subscribe>
+												</div>
+											)}
+
+											{/* Aggregate quantity for quantity_select */}
+											{type === "quantity_select" && (
+												<div className="grid grid-cols-2 gap-4">
+													<form.Field name="aggregateMinQuantity">
+														{(field) => (
+															<Field>
+																<FieldLabel
+																	htmlFor={`${id}-aggregate-min-quantity`}
+																>
+																	{t("labels.aggregateMinQuantity")}
+																</FieldLabel>
+																<Input
+																	id={`${id}-aggregate-min-quantity`}
+																	type="number"
+																	min={0}
+																	value={field.state.value ?? ""}
+																	onBlur={field.handleBlur}
+																	onChange={(e) =>
+																		field.handleChange(
+																			e.target.value
+																				? Number.parseInt(e.target.value, 10)
+																				: null,
+																		)
+																	}
+																	placeholder={t(
+																		"placeholders.aggregateMinQuantity",
+																	)}
+																/>
+																<p className="text-xs text-muted-foreground">
+																	{t("hints.aggregateMinQuantity")}
+																</p>
+															</Field>
+														)}
+													</form.Field>
+
+													<form.Field name="aggregateMaxQuantity">
+														{(field) => (
+															<Field>
+																<FieldLabel
+																	htmlFor={`${id}-aggregate-max-quantity`}
+																>
+																	{t("labels.aggregateMaxQuantity")}
+																</FieldLabel>
+																<Input
+																	id={`${id}-aggregate-max-quantity`}
+																	type="number"
+																	min={1}
+																	value={field.state.value ?? ""}
+																	onBlur={field.handleBlur}
+																	onChange={(e) =>
+																		field.handleChange(
+																			e.target.value
+																				? Number.parseInt(e.target.value, 10)
+																				: null,
+																		)
+																	}
+																	placeholder={t(
+																		"placeholders.aggregateMaxQuantity",
+																	)}
+																/>
+																<p className="text-xs text-muted-foreground">
+																	{t("hints.aggregateMaxQuantity")}
+																</p>
+															</Field>
+														)}
+													</form.Field>
+												</div>
+											)}
+										</>
+									)}
+								</form.Subscribe>
+
+								{/* Free options */}
+								<form.Field name="numFreeOptions">
+									{(field) => (
+										<Field>
+											<FieldLabel htmlFor={`${id}-num-free-options`}>
+												{t("labels.numFreeOptions")}
+											</FieldLabel>
+											<Input
+												id={`${id}-num-free-options`}
+												type="number"
+												min={0}
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) =>
+													field.handleChange(
+														Number.parseInt(e.target.value, 10) || 0,
+													)
+												}
+											/>
+											<p className="text-xs text-muted-foreground">
+												{t("hints.numFreeOptions")}
+											</p>
+										</Field>
+									)}
+								</form.Field>
 							</FieldGroup>
 						</TabsContent>
 
 						<TabsContent value="choices" className="py-4">
-							<form.Field name="choices" mode="array">
-								{(field) => (
-									<div className="space-y-3">
-										{field.state.value.length === 0 ? (
-											<p className="text-sm text-muted-foreground text-center py-4">
-												{t("emptyStates.noChoices")}
-											</p>
-										) : (
-											field.state.value.map((choice, index) => (
-												<div
-													key={choice.id ?? `new-${index}`}
-													className="flex items-center gap-2"
-												>
-													<form.Field name={`choices[${index}].name`}>
-														{(nameField) => (
-															<Input
-																placeholder={t("labels.choiceName")}
-																value={nameField.state.value}
-																onBlur={nameField.handleBlur}
-																onChange={(e) =>
-																	nameField.handleChange(e.target.value)
-																}
-																className="flex-1"
-															/>
-														)}
-													</form.Field>
-													<form.Field name={`choices[${index}].priceModifier`}>
-														{(priceField) => (
-															<div className="relative w-24">
-																<span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-																	EUR
-																</span>
-																<Input
-																	type="number"
-																	step="0.01"
-																	placeholder="0.00"
-																	value={priceField.state.value}
-																	onBlur={priceField.handleBlur}
-																	onChange={(e) =>
-																		priceField.handleChange(e.target.value)
-																	}
-																	className="pl-11"
-																/>
+							<form.Subscribe selector={(state) => state.values.type}>
+								{(type) => (
+									<form.Field name="choices" mode="array">
+										{(field) => (
+											<div className="space-y-3">
+												{field.state.value.length === 0 ? (
+													<p className="text-sm text-muted-foreground text-center py-4">
+														{t("emptyStates.noChoices")}
+													</p>
+												) : (
+													field.state.value.map((choice, index) => (
+														<div
+															key={choice.id ?? `new-${index}`}
+															className="space-y-2 p-3 border rounded-lg bg-muted/30"
+														>
+															<div className="flex items-center gap-2">
+																<form.Field name={`choices[${index}].name`}>
+																	{(nameField) => (
+																		<Input
+																			placeholder={t("labels.choiceName")}
+																			value={nameField.state.value}
+																			onBlur={nameField.handleBlur}
+																			onChange={(e) =>
+																				nameField.handleChange(e.target.value)
+																			}
+																			className="flex-1"
+																		/>
+																	)}
+																</form.Field>
+																<form.Field
+																	name={`choices[${index}].priceModifier`}
+																>
+																	{(priceField) => (
+																		<PriceInput
+																			value={priceField.state.value}
+																			onChange={priceField.handleChange}
+																			onBlur={priceField.handleBlur}
+																			className="w-32"
+																		/>
+																	)}
+																</form.Field>
+																<Button
+																	type="button"
+																	variant="ghost"
+																	size="icon"
+																	onClick={() => field.removeValue(index)}
+																	className="shrink-0 text-muted-foreground hover:text-destructive"
+																>
+																	<X className="h-4 w-4" />
+																</Button>
 															</div>
-														)}
-													</form.Field>
-													<Button
-														type="button"
-														variant="ghost"
-														size="icon"
-														onClick={() => field.removeValue(index)}
-														className="shrink-0 text-muted-foreground hover:text-destructive"
-													>
-														<X className="h-4 w-4" />
-													</Button>
-												</div>
-											))
-										)}
 
-										<Button
-											type="button"
-											variant="outline"
-											onClick={() =>
-												field.pushValue({ name: "", priceModifier: "0.00" })
-											}
-											className="w-full"
-										>
-											{t("actions.addChoice")}
-										</Button>
-									</div>
+															{/* Choice options row */}
+															<div className="flex items-center gap-4 pl-2">
+																{/* Default checkbox */}
+																<form.Field
+																	name={`choices[${index}].isDefault`}
+																>
+																	{(defaultField) => (
+																		<div className="flex items-center gap-2 text-sm">
+																			<Checkbox
+																				id={`${id}-choice-${index}-default`}
+																				checked={defaultField.state.value}
+																				onCheckedChange={(checked) =>
+																					defaultField.handleChange(
+																						checked === true,
+																					)
+																				}
+																			/>
+																			<label
+																				htmlFor={`${id}-choice-${index}-default`}
+																			>
+																				{t("labels.defaultSelected")}
+																			</label>
+																		</div>
+																	)}
+																</form.Field>
+
+																{/* Quantity limits for quantity_select type */}
+																{type === "quantity_select" && (
+																	<>
+																		<form.Field
+																			name={`choices[${index}].minQuantity`}
+																		>
+																			{(minQtyField) => (
+																				<div className="flex items-center gap-1">
+																					<span className="text-xs text-muted-foreground">
+																						{t("labels.minQty")}:
+																					</span>
+																					<Input
+																						type="number"
+																						min={0}
+																						className="w-16 h-8"
+																						value={minQtyField.state.value}
+																						onChange={(e) =>
+																							minQtyField.handleChange(
+																								Number.parseInt(
+																									e.target.value,
+																									10,
+																								) || 0,
+																							)
+																						}
+																					/>
+																				</div>
+																			)}
+																		</form.Field>
+																		<form.Field
+																			name={`choices[${index}].maxQuantity`}
+																		>
+																			{(maxQtyField) => (
+																				<div className="flex items-center gap-1">
+																					<span className="text-xs text-muted-foreground">
+																						{t("labels.maxQty")}:
+																					</span>
+																					<Input
+																						type="number"
+																						min={1}
+																						className="w-16 h-8"
+																						value={
+																							maxQtyField.state.value ?? ""
+																						}
+																						onChange={(e) =>
+																							maxQtyField.handleChange(
+																								e.target.value
+																									? Number.parseInt(
+																											e.target.value,
+																											10,
+																										)
+																									: null,
+																							)
+																						}
+																						placeholder="∞"
+																					/>
+																				</div>
+																			)}
+																		</form.Field>
+																	</>
+																)}
+															</div>
+														</div>
+													))
+												)}
+
+												<Button
+													type="button"
+													variant="outline"
+													onClick={() =>
+														field.pushValue({
+															name: "",
+															priceModifier: 0,
+															isDefault: false,
+															minQuantity: 0,
+															maxQuantity: null,
+														})
+													}
+													className="w-full"
+												>
+													{t("actions.addChoice")}
+												</Button>
+											</div>
+										)}
+									</form.Field>
 								)}
-							</form.Field>
+							</form.Subscribe>
 						</TabsContent>
 					</Tabs>
 
@@ -460,3 +736,24 @@ export function OptionGroupDialog({
 		</Dialog>
 	);
 }
+
+// Export form values type for parent component use
+export type OptionGroupFormValues = {
+	name: string;
+	description: string;
+	type: OptionGroupType;
+	minSelections: number;
+	maxSelections: number | null;
+	isUnlimited: boolean;
+	numFreeOptions: number;
+	aggregateMinQuantity: number | null;
+	aggregateMaxQuantity: number | null;
+	choices: Array<{
+		id?: number;
+		name: string;
+		priceModifier: number;
+		isDefault: boolean;
+		minQuantity: number;
+		maxQuantity: number | null;
+	}>;
+};

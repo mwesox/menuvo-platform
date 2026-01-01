@@ -11,6 +11,7 @@ export const env = createEnv({
 		STRIPE_WEBHOOK_SECRET_THIN: z.string().min(1),
 		STRIPE_PRICE_STARTER: z.string().optional(),
 		STRIPE_PRICE_PRO: z.string().optional(),
+		STRIPE_PRICE_MAX: z.string().optional(),
 		// OpenRouter AI
 		OPENROUTER_API_KEY: z.string().min(1),
 		// Redis (Bun reads REDIS_URL automatically)
@@ -48,6 +49,7 @@ export const env = createEnv({
 		STRIPE_WEBHOOK_SECRET_THIN: process.env.STRIPE_WEBHOOK_SECRET_THIN,
 		STRIPE_PRICE_STARTER: process.env.STRIPE_PRICE_STARTER,
 		STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO,
+		STRIPE_PRICE_MAX: process.env.STRIPE_PRICE_MAX,
 		OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
 		// Redis
 		REDIS_URL: process.env.REDIS_URL,

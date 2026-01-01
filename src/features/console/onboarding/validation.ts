@@ -1,54 +1,55 @@
 import { z } from "zod";
 
+// ============================================================================
+// STEP-SPECIFIC FORM SCHEMAS (for step validation)
+// ============================================================================
+
+// Step 1: Merchant Details
+export const merchantStepFormSchema = z.object({
+	name: z
+		.string()
+		.min(2, "Business name must be at least 2 characters")
+		.max(100, "Business name must be less than 100 characters"),
+	email: z.string().email("Please enter a valid email address"),
+	phone: z.string(),
+	primaryLanguage: z.enum(["en", "de", "fr", "es", "it"]),
+});
+export type MerchantStepFormInput = z.infer<typeof merchantStepFormSchema>;
+
+// Step 2: Store Details
+export const storeStepFormSchema = z.object({
+	name: z
+		.string()
+		.min(2, "Store name must be at least 2 characters")
+		.max(100, "Store name must be less than 100 characters"),
+	street: z.string().min(1, "Street address is required"),
+	city: z.string().min(1, "City is required"),
+	postalCode: z.string().min(1, "Postal code is required"),
+	country: z.string().min(1, "Country is required"),
+});
+export type StoreStepFormInput = z.infer<typeof storeStepFormSchema>;
+
+// ============================================================================
+// FULL SCHEMAS (composed from step schemas)
+// ============================================================================
+
+// Server schema - for server function input validation
 export const onboardingSchema = z.object({
-	merchant: z.object({
-		name: z
-			.string()
-			.min(2, "Business name must be at least 2 characters")
-			.max(100, "Business name must be less than 100 characters"),
-		email: z.string().email("Please enter a valid email address"),
+	merchant: merchantStepFormSchema.extend({
 		phone: z.string().optional(),
 		primaryLanguage: z.enum(["en", "de", "fr", "es", "it"]).default("en"),
 	}),
-	store: z.object({
-		name: z
-			.string()
-			.min(2, "Store name must be at least 2 characters")
-			.max(100, "Store name must be less than 100 characters"),
-		street: z.string().min(1, "Street address is required"),
-		city: z.string().min(1, "City is required"),
-		postalCode: z.string().min(1, "Postal code is required"),
-		country: z.string().min(1, "Country is required"),
+	store: storeStepFormSchema.extend({
 		timezone: z.string().default("Europe/Berlin"),
 		currency: z.enum(["EUR", "USD", "GBP", "CHF"]).default("EUR"),
 	}),
 });
-
 export type OnboardingInput = z.infer<typeof onboardingSchema>;
 
-// Client-side form schema with types matching form initial values
+// Form schema - for client-side form validation
 export const onboardingFormSchema = z.object({
-	merchant: z.object({
-		name: z
-			.string()
-			.min(2, "Business name must be at least 2 characters")
-			.max(100, "Business name must be less than 100 characters"),
-		email: z.string().email("Please enter a valid email address"),
-		phone: z.string(),
-		primaryLanguage: z.enum(["en", "de", "fr", "es", "it"]),
-	}),
-	store: z.object({
-		name: z
-			.string()
-			.min(2, "Store name must be at least 2 characters")
-			.max(100, "Store name must be less than 100 characters"),
-		street: z.string().min(1, "Street address is required"),
-		city: z.string().min(1, "City is required"),
-		postalCode: z.string().min(1, "Postal code is required"),
-		country: z.string().min(1, "Country is required"),
-		timezone: z.string(),
-		currency: z.enum(["EUR", "USD", "GBP", "CHF"]),
-	}),
+	merchant: merchantStepFormSchema,
+	store: storeStepFormSchema,
 });
 export type OnboardingFormInput = z.infer<typeof onboardingFormSchema>;
 

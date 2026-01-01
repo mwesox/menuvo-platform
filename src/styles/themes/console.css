@@ -1,12 +1,11 @@
 /**
  * Console Theme - Zinc-based professional admin interface
  *
- * Used by: /console routes (via data-theme="console")
- * Supports: Light mode and Dark mode (.dark)
+ * Used by: /console routes (loaded via console-bundle.css)
+ * Supports: Light mode and Dark mode (.dark class)
  */
 
-:root,
-[data-theme="console"] {
+:root {
 	--radius: 0.625rem;
 
 	/* Core colors */
@@ -58,8 +57,7 @@
 	--font-body: inherit;
 }
 
-.dark,
-[data-theme="console"].dark {
+.dark {
 	--background: oklch(0.141 0.005 285.823);
 	--foreground: oklch(0.985 0 0);
 	--card: oklch(0.141 0.005 285.823);

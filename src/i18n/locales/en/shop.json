@@ -1,0 +1,64 @@
+{
+	"cart": {
+		"title": "Your Cart",
+		"empty": "Your cart is empty",
+		"itemCount_one": "{{count}} item in your cart",
+		"itemCount_other": "{{count}} items in your cart",
+		"emptyTitle": "Your cart is empty",
+		"emptyDescription": "Add some delicious items to get started",
+		"checkout": "Checkout",
+		"checkoutComingSoon": "Checkout coming soon!",
+		"checkoutDescription": "Stripe integration will be added in a future update.",
+		"subtotal": "Subtotal",
+		"tax": "Tax",
+		"taxCalculatedAtCheckout": "Calculated at checkout",
+		"total": "Total",
+		"removeItem": "Remove {{name}} from cart",
+		"openCart": "Open cart with {{count}} items totaling {{total}}"
+	},
+	"menu": {
+		"categoriesNav": "Menu categories",
+		"customize": "Customize",
+		"add": "Add",
+		"addToOrder": "Add to order",
+		"contains": "Contains",
+		"soldOut": "Sold out",
+		"emptyTitle": "Menu coming soon",
+		"emptyDescription": "This restaurant is still setting up their menu. Check back later!",
+		"options": {
+			"required": "Required",
+			"optional": "Optional",
+			"selectAtLeast": "Select at least {{count}}",
+			"selectUpTo": "Select up to {{count}}",
+			"select": "Select {{count}}",
+			"selectRange": "Select {{min}}-{{max}}",
+			"selectQuantities": "Select quantities",
+			"atLeast": "At least {{count}}",
+			"upTo": "Up to {{count}}",
+			"free": "{{count}} free",
+			"selected": "{{count}} selected",
+			"max": "{{count}} max",
+			"decreaseQuantity": "Decrease {{name}} quantity",
+			"increaseQuantity": "Increase {{name}} quantity"
+		}
+	},
+	"header": {
+		"cartWithItems": "Shopping cart with {{count}} items",
+		"backToShop": "Back to shop"
+	},
+	"errors": {
+		"somethingWentWrong": "Something went wrong",
+		"couldNotLoadRestaurant": "We couldn't load this restaurant. Please try again.",
+		"tryAgain": "Try again",
+		"restaurantNotFound": "Restaurant not found",
+		"restaurantNotFoundDescription": "The restaurant you're looking for doesn't exist or is no longer available."
+	},
+	"quantity": {
+		"decrease": "Decrease quantity",
+		"increase": "Increase quantity"
+	},
+	"status": {
+		"openNow": "Open now",
+		"closed": "Closed"
+	}
+}

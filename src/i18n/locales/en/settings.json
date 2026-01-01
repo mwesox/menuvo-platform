@@ -3,13 +3,43 @@
 	"storePageTitle": "Store Settings",
 	"pageDescription": "Settings for {{merchantName}}",
 	"storePageDescription": "Settings for {{storeName}}",
+	"hub": {
+		"pageTitle": "Settings",
+		"pageDescription": "Manage your account and preferences",
+		"merchant": {
+			"title": "Business Settings",
+			"description": "Company details and language preferences"
+		},
+		"staff": {
+			"title": "Staff & Permissions",
+			"description": "Manage team members and access rights"
+		},
+		"payments": {
+			"title": "Payments",
+			"description": "Payment methods and billing"
+		},
+		"subscription": {
+			"title": "Subscription",
+			"description": "Manage your plan and billing"
+		},
+		"brand": {
+			"title": "Branding",
+			"description": "Customize your shop appearance"
+		},
+		"comingSoon": "Coming Soon"
+	},
 	"tabs": {
 		"general": "General",
 		"language": "Language",
+		"subscription": "Subscription",
 		"details": "Details",
 		"regional": "Regional",
 		"hours": "Hours",
 		"closures": "Closures"
+	},
+	"titles": {
+		"storeDetails": "Store Details",
+		"contactSettings": "Contact Information"
 	},
 	"sections": {
 		"merchantSettings": "Merchant Settings",
@@ -29,7 +59,9 @@
 		"regionalSettings": "Timezone and currency settings for this store",
 		"openingHours": "Set your store's opening hours for each day of the week. You can add multiple time slots per day for lunch breaks.",
 		"closures": "Set dates when your store will be closed (holidays, vacations, etc.)",
-		"payments": "Configure payment methods"
+		"payments": "Configure payment methods",
+		"storeDetails": "Basic information about this store location",
+		"contactSettings": "How customers can reach this store"
 	},
 	"labels": {
 		"defaultLanguage": "Default Language",
@@ -39,7 +71,10 @@
 		"acceptCards": "Accept Cards",
 		"startDate": "Start Date",
 		"endDate": "End Date",
-		"reason": "Reason"
+		"reason": "Reason",
+		"manageStore": "Manage Store",
+		"deleteStore": "Delete Store",
+		"noAddressConfigured": "No address configured"
 	},
 	"placeholders": {
 		"closureReason": "e.g., Holiday, Vacation, Renovation",
@@ -54,5 +89,146 @@
 	},
 	"emptyStates": {
 		"noClosures": "No scheduled closures. Add one to set vacation days or holidays."
+	},
+	"navigation": {
+		"backToSettings": "Back to Settings"
+	},
+	"subscription": {
+		"currentPlan": "Current Plan",
+		"currentPlanDescription": "Your current subscription plan and billing status",
+		"currentPlanBadge": "Current",
+		"noSubscription": "You don't have an active subscription. Select a plan below to get started.",
+		"renewsOn": "Renews on {{date}}",
+		"status": {
+			"none": "No Subscription",
+			"trialing": "Trial",
+			"active": "Active",
+			"paused": "Paused",
+			"past_due": "Past Due",
+			"canceled": "Canceled"
+		},
+		"trialEnding": {
+			"title": "Trial Ending Soon",
+			"description": "Your trial ends on {{date}}. Add a payment method to continue using all features."
+		},
+		"pastDue": {
+			"title": "Payment Failed",
+			"description": "Your last payment failed. Please update your payment method to avoid service interruption."
+		},
+		"paused": {
+			"title": "Subscription Paused",
+			"description": "Your subscription is paused because no payment method is on file. Add a payment method to resume."
+		},
+		"canceling": {
+			"title": "Cancellation Scheduled",
+			"description": "Your subscription will be canceled on {{date}}. You can resume anytime before then."
+		},
+		"changePlan": {
+			"title": "Change Plan",
+			"description": "Upgrade or downgrade your subscription plan",
+			"notAvailable": "Plan changes are not available with your current subscription status"
+		},
+		"upgrade": "Upgrade",
+		"downgrade": "Downgrade",
+		"confirm": {
+			"upgradeTitle": "Confirm Upgrade",
+			"upgradeDescription": "You are upgrading from {{from}} to {{to}}. You will be charged the prorated difference immediately.",
+			"downgradeTitle": "Confirm Downgrade",
+			"downgradeDescription": "You are downgrading from {{from}} to {{to}}. The change will take effect at the end of your current billing period.",
+			"continue": "Continue to Checkout",
+			"processing": "Processing..."
+		},
+		"cancel": {
+			"title": "Cancel Subscription",
+			"description": "Are you sure you want to cancel your subscription? You will lose access to premium features.",
+			"immediately": "Cancel immediately (no refund)",
+			"immediatelyWarning": "Warning: Immediate cancellation will end your access today. No refunds will be provided.",
+			"confirm": "Cancel Subscription",
+			"canceling": "Canceling..."
+		},
+		"actions": {
+			"title": "Subscription Management",
+			"description": "Manage your billing and subscription",
+			"manageBilling": "Manage Billing",
+			"resume": "Resume Subscription",
+			"resuming": "Resuming...",
+			"cancel": "Cancel Subscription"
+		}
+	},
+	"payments": {
+		"pageTitle": "Payment Settings",
+		"pageDescription": "Set up your payment account to receive payments from customers",
+		"setup": {
+			"title": "Set Up Payment Account",
+			"description": "To accept payments and receive payouts, you need to connect your payment account.",
+			"benefitsTitle": "What you'll get:",
+			"benefits": {
+				"trial": "30-day free trial — no credit card required",
+				"payments": "Accept card payments from customers",
+				"payouts": "Receive payouts to your bank account"
+			},
+			"button": "Set Up Payment Account",
+			"creating": "Setting up..."
+		},
+		"status": {
+			"title": "Payment Account Status",
+			"description": "Your payment account connection and capabilities",
+			"complete": "Complete",
+			"account": {
+				"label": "Account",
+				"connected": "Connected",
+				"notConnected": "Not Connected"
+			},
+			"onboarding": {
+				"label": "Onboarding",
+				"complete": "Complete",
+				"incomplete": "Incomplete"
+			},
+			"capabilities": {
+				"label": "Capabilities",
+				"active": "Active",
+				"pending": "Pending",
+				"inactive": "Inactive"
+			}
+		},
+		"trial": {
+			"title": "Trial Active",
+			"daysRemaining": "{{days}} days remaining in your trial"
+		},
+		"onboarding": {
+			"title": "Complete Your Account Setup",
+			"description": "To receive payouts and accept live payments, you need to complete your Stripe account verification.",
+			"whyNeeded": "What you'll need to provide:",
+			"requirements": {
+				"identity": {
+					"title": "Identity Verification",
+					"description": "Verify your identity with a government-issued ID"
+				},
+				"banking": {
+					"title": "Bank Account",
+					"description": "Add your bank account details to receive payouts"
+				},
+				"business": {
+					"title": "Business Details",
+					"description": "Provide business information for tax purposes"
+				}
+			},
+			"button": "Complete Onboarding",
+			"redirecting": "Redirecting...",
+			"skipNote": "You can complete this later, but you won't receive payouts until done."
+		},
+		"alerts": {
+			"requirementsDue": {
+				"title": "Action Required",
+				"description": "Complete your account requirements to continue accepting payments."
+			},
+			"requirementsPastDue": {
+				"title": "Urgent Action Required",
+				"description": "Your requirements are overdue. Payouts may be paused until completed."
+			}
+		},
+		"actions": {
+			"refresh": "Refresh Status"
+		}
 	}
 }

@@ -1,5 +1,26 @@
 import { z } from "zod";
 
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+export const countries = [
+	{ value: "DE", label: "Germany" },
+	{ value: "AT", label: "Austria" },
+	{ value: "CH", label: "Switzerland" },
+	{ value: "NL", label: "Netherlands" },
+	{ value: "BE", label: "Belgium" },
+	{ value: "FR", label: "France" },
+	{ value: "IT", label: "Italy" },
+	{ value: "ES", label: "Spain" },
+	{ value: "GB", label: "United Kingdom" },
+	{ value: "US", label: "United States" },
+] as const;
+
+// ============================================================================
+// STORE SERVER SCHEMAS
+// ============================================================================
+
 export const createStoreSchema = z.object({
 	merchantId: z.number().int().positive(),
 	name: z
@@ -20,6 +41,10 @@ export const updateStoreSchema = createStoreSchema
 	.omit({ merchantId: true })
 	.partial();
 
+// ============================================================================
+// STORE FORM SCHEMAS
+// ============================================================================
+
 // Client-side form validation schema (without merchantId)
 export const storeFormSchema = z.object({
 	name: z
@@ -32,10 +57,27 @@ export const storeFormSchema = z.object({
 	country: z.string().min(1, "Country is required"),
 	phone: z.string(),
 	email: z.string(),
-	timezone: z.string(),
-	currency: z.enum(["EUR", "USD", "GBP", "CHF"]),
 });
 export type StoreFormInput = z.infer<typeof storeFormSchema>;
+
+// Store details form schema (settings page)
+export const storeDetailsFormSchema = z.object({
+	name: z
+		.string()
+		.min(2, "Store name must be at least 2 characters")
+		.max(100, "Store name must be less than 100 characters"),
+	street: z.string().min(1, "Street address is required"),
+	city: z.string().min(1, "City is required"),
+	postalCode: z.string().min(1, "Postal code is required"),
+	country: z.string().min(1, "Country is required"),
+	phone: z.string(),
+	email: z.string(),
+});
+export type StoreDetailsFormInput = z.infer<typeof storeDetailsFormSchema>;
+
+// ============================================================================
+// OTHER SCHEMAS
+// ============================================================================
 
 export const storeIdSchema = z.object({
 	storeId: z.number().int().positive(),

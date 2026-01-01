@@ -1,13 +1,18 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { CartProvider } from "@/features/shop/cart-context";
-import { CartDrawer } from "@/features/shop/components/cart-drawer";
-import { CookieBanner } from "@/features/shop/components/cookie-banner";
-import { ShopFooter } from "@/features/shop/components/shop-footer";
-import { ShopHeader } from "@/features/shop/components/shop-header";
-import { CookieConsentProvider } from "@/features/shop/contexts/cookie-consent-context";
-import { ShopProvider, useShop } from "@/features/shop/contexts/shop-context";
+import { CartDrawer } from "@/features/shop/cart";
+import { ShopFooter, ShopHeader } from "@/features/shop/layout";
+import {
+	CookieBanner,
+	CookieConsentProvider,
+	ShopProvider,
+	useShop,
+} from "@/features/shop/shared";
+import shopCss from "@/styles/shop-bundle.css?url";
 
 export const Route = createFileRoute("/shop")({
+	head: () => ({
+		links: [{ rel: "stylesheet", href: shopCss }],
+	}),
 	component: ShopLayout,
 });
 
@@ -15,9 +20,7 @@ function ShopLayout() {
 	return (
 		<ShopProvider>
 			<CookieConsentProvider>
-				<CartProvider>
-					<ShopLayoutContent />
-				</CartProvider>
+				<ShopLayoutContent />
 			</CookieConsentProvider>
 		</ShopProvider>
 	);
@@ -27,7 +30,7 @@ function ShopLayoutContent() {
 	const { isCartDrawerOpen, closeCartDrawer } = useShop();
 
 	return (
-		<div className="flex min-h-screen flex-col bg-background font-body">
+		<div className="flex min-h-screen flex-col bg-background">
 			<ShopHeader />
 			<main className="flex-1">
 				<Outlet />

@@ -1,0 +1,37 @@
+{
+	"page": {
+		"title": "Entdecken",
+		"subtitle": "Finden Sie Restaurants in Ihrer Nähe",
+		"metaTitle": "Restaurants entdecken",
+		"metaDescription": "Finden und erkunden Sie Restaurants in Ihrer Nähe"
+	},
+	"search": {
+		"placeholder": "Restaurants suchen...",
+		"clearSearch": "Suche löschen",
+		"allCities": "Alle",
+		"filterByCity": "Nach Stadt filtern"
+	},
+	"storeCard": {
+		"openNow": "Jetzt geöffnet",
+		"closed": "Geschlossen"
+	},
+	"emptyState": {
+		"noStores": {
+			"title": "Noch keine Restaurants",
+			"description": "Restaurants werden hier angezeigt, sobald sie der Plattform hinzugefügt wurden."
+		},
+		"noResults": {
+			"title": "Keine Restaurants gefunden",
+			"description": "Versuchen Sie, Ihre Filter oder Suchbegriffe anzupassen, um das Gesuchte zu finden.",
+			"clearFilters": "Filter löschen"
+		}
+	},
+	"error": {
+		"title": "Etwas ist schief gelaufen",
+		"description": "Wir konnten die Restaurants nicht laden. Bitte versuchen Sie es erneut.",
+		"tryAgain": "Erneut versuchen"
+	},
+	"loading": {
+		"searchPlaceholder": "Restaurants suchen..."
+	}
+}

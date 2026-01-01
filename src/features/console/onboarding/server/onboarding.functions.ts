@@ -1,14 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/db";
 import { merchants, stores } from "@/db/schema.ts";
+import { generateSlug } from "../logic/slug.ts";
 import { onboardingSchema } from "../validation.ts";
-
-function generateSlug(name: string): string {
-	return name
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/^-|-$/g, "");
-}
 
 export const onboardMerchant = createServerFn({ method: "POST" })
 	.inputValidator(onboardingSchema)

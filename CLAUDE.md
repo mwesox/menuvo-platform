@@ -1,320 +1,134 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## ⚠️ REQUIRED READING
+
+**Before writing ANY code, read these docs:**
+
+1. **`docs/architecture.md`** - Structure & patterns (routes vs features, schemas, state management)
+2. **`docs/coding-guidelines.md`** - Implementation patterns (React 19+ hooks, code conventions)
+
+This file is a quick reference. The docs are the source of truth.
+
+---
+
+## Important 
+- Use ShadCN MCP server to review latest docs and APIs and docs about ShadCN Components and the framework.
+
+
+## Subagent Instructions
+
+All subagents (Task tool) MUST read `docs/architecture.md` and `docs/coding-guidelines.md` before making code changes. This applies to Plan agents, Explore agents, and any agent writing code.
+
+---
+
+## Critical Rules (from architecture.md)
+
+1. **Routes are thin wiring** - Routes connect URLs to features. No business logic, server functions, or complex components in routes.
+
+2. **Features own everything** - Business logic, server functions, components, queries, validation all live in `src/features/{feature}/`
+
+3. **Three Schema Rule** - Every entity has: Form schema (strings), Server schema (typed), Database schema (Drizzle)
+
+4. **Transformations happen in mutation hooks** - Forms collect strings, mutations transform + add context, server validates
+
+5. **State by type**:
+   - Server data → TanStack Query
+   - Persistent client → Zustand + persist (`stores/`)
+   - Transient UI → Context / useState
+
+6. **Never store server data in Zustand**
+
+---
 
 ## Commands
 
 **USE BUN ONLY!**
 
 ```bash
-bun --bun run dev          # Start dev server on port 3000
-bun --bun run build        # Build for production
-bun --bun run start        # Run production build
-bun --bun run test         # Run all tests with Vitest
-bun --bun run check        # Run Biome linting and formatting checks
+bun --bun run dev          # Dev server on port 3000
+bun --bun run build        # Production build
+bun --bun run check        # Biome lint + format
+bun --bun run test         # Vitest tests
 
-# Database (Drizzle)
+# Database
 bun run db:generate        # Generate migrations
 bun run db:migrate         # Run migrations
-bun run db:push            # Push schema to database
-bun run db:studio          # Open Drizzle Studio
+bun run db:push            # Push schema
+bun run db:studio          # Drizzle Studio
 ```
 
-## Architecture
+---
 
-**TanStack Start** full-stack React framework with:
+## Tech Stack
 
+- **TanStack Start** - Full-stack React framework
 - **TanStack Router** - File-based routing (`src/routes/`)
-- **TanStack Query** - Data fetching with SSR
-- **TanStack Form** - Form handling with Zod validation
-- **Drizzle ORM** - PostgreSQL database (`src/db/`)
+- **TanStack Query** - Server state with SSR
+- **TanStack Form** - Forms with Zod validation
+- **Drizzle ORM** - PostgreSQL (`src/db/`)
 - **Tailwind CSS v4** - Styling
 - **Shadcn/ui** - Components (new-york style, zinc base)
-- **Sentry** - Error tracking
-- **T3 Env** - Type-safe env vars (`src/env.ts`)
+- **Zustand** - Client state with persist middleware
+- **Biome** - Linting/formatting (tabs, double quotes)
 
-### Project Structure
+---
 
-Features are organized by user domain:
-
-- **Console** (`src/features/console/`) - Merchant admin interface for managing menus, stores, settings
-- **Shop** (`src/features/shop/`) - Customer-facing storefront for browsing and ordering
+## Project Structure
 
 ```
 src/
 ├── features/
-│   ├── console/                 # Admin features (menu, stores, settings, images, onboarding, service-points)
+│   ├── console/              # Merchant admin
 │   │   └── {feature}/
-│   │       ├── components/      # Feature components
-│   │       ├── server/          # Server functions
-│   │       ├── queries.ts       # Query options & mutations
-│   │       └── validation.ts    # Zod schemas
-│   └── shop/                    # Customer-facing feature
-│       ├── components/          # UI components
-│       ├── contexts/            # React Context providers (cart, cookie consent)
-│       ├── server/              # Server functions
-│       ├── queries.ts
-│       └── validation.ts
-├── routes/
-│   ├── console/                 # Admin routes
-│   └── shop/                    # Storefront routes
-├── components/
-│   ├── ui/                      # Shadcn components
-│   └── layout/                  # Layout components
-└── db/
-    ├── schema.ts                # Drizzle schema
-    └── index.ts                 # Database connection
+│   │       ├── components/
+│   │       ├── server/       # *.functions.ts
+│   │       ├── stores/       # Zustand stores
+│   │       ├── logic/        # Pure functions
+│   │       ├── queries.ts
+│   │       └── validation.ts
+│   └── shop/                 # Customer storefront
+├── routes/                   # Thin wiring only
+├── components/ui/            # Shadcn primitives
+└── db/schema.ts              # Database schema
 ```
 
-### Key Files
+---
 
-- `src/router.tsx` - Router with Query integration and Sentry
-- `src/routes/__root.tsx` - Root layout
-- `src/db/schema.ts` - Database schema
-- `src/env.ts` - Environment variables (VITE_ prefix for client)
+## Theming
 
-### Theming
+Two themes via `data-theme` attribute:
 
-Two independent themes using `data-theme` attribute on `<html>`:
+| Theme | Attribute | Style |
+|-------|-----------|-------|
+| Console | `data-theme="console"` | Zinc, dark mode support |
+| Shop | `data-theme="shop"` | Warm brown/cream, light only |
 
-- **Console** (`data-theme="console"`) - Zinc-based admin UI with dark mode
-- **Shop** (`data-theme="shop"`) - Warm brown/cream storefront (light only)
-
-Theme is auto-detected in `beforeLoad` via `src/lib/theme.ts`:
-- Hostname: `menuvo.app` → shop, `console.menuvo.app` → console
-- Path fallback: `/shop/*` → shop, else → console
+Auto-detected by hostname/path in `src/lib/theme.ts`.
 
 CSS files:
-- `src/styles/base.css` - Tailwind + `@theme inline` mappings
-- `src/styles/themes/console.css` - `:root, [data-theme="console"]`
-- `src/styles/themes/shop.css` - `[data-theme="shop"]`
+- `src/styles/base.css` - Tailwind + theme mappings
+- `src/styles/themes/console.css`
+- `src/styles/themes/shop.css`
 
-## TanStack Form Patterns
+---
 
-**Always use TanStack Form with Zod for form handling.**
-
-### Basic Form with Zod Validation
-
-```tsx
-import { useForm } from "@tanstack/react-form"
-import { z } from "zod"
-import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-
-const userSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-})
-
-function UserForm() {
-  const form = useForm({
-    defaultValues: { name: "", email: "" },
-    validators: {
-      onSubmit: userSchema,
-    },
-    onSubmit: async ({ value }) => {
-      await createUser({ data: value })
-    },
-  })
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        form.handleSubmit()
-      }}
-    >
-      <FieldGroup>
-        <form.Field
-          name="name"
-          children={(field) => {
-            const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-            return (
-              <Field data-invalid={isInvalid}>
-                <FieldLabel htmlFor={field.name}>Name *</FieldLabel>
-                <Input
-                  id={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  aria-invalid={isInvalid}
-                />
-                {isInvalid && <FieldError errors={field.state.meta.errors} />}
-              </Field>
-            )
-          }}
-        />
-      </FieldGroup>
-
-      <form.Subscribe
-        selector={(state) => state.isSubmitting}
-        children={(isSubmitting) => (
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </Button>
-        )}
-      />
-    </form>
-  )
-}
-```
-
-### Form with Select Component
-
-```tsx
-<form.Field
-  name="currency"
-  children={(field) => {
-    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-    return (
-      <Field data-invalid={isInvalid}>
-        <FieldLabel htmlFor={field.name}>Currency</FieldLabel>
-        <Select
-          name={field.name}
-          value={field.state.value}
-          onValueChange={field.handleChange}
-        >
-          <SelectTrigger id={field.name} aria-invalid={isInvalid}>
-            <SelectValue placeholder="Select currency" />
-          </SelectTrigger>
-          <SelectContent>
-            {currencies.map((curr) => (
-              <SelectItem key={curr.value} value={curr.value}>
-                {curr.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {isInvalid && <FieldError errors={field.state.meta.errors} />}
-      </Field>
-    )
-  }}
-/>
-```
-
-## Server Functions
-
-```tsx
-import { createServerFn } from "@tanstack/react-start"
-import { redirect, notFound } from "@tanstack/react-router"
-import { z } from "zod"
-
-// Basic server function
-export const getServerTime = createServerFn().handler(async () => {
-  return new Date().toISOString()
-})
-
-// With Zod validation
-export const createUser = createServerFn({ method: "POST" })
-  .validator(z.object({ name: z.string(), email: z.string().email() }))
-  .handler(async ({ data }) => {
-    const [user] = await db.insert(users).values(data).returning()
-    return user
-  })
-
-// Auth redirect
-export const requireAuth = createServerFn().handler(async () => {
-  const user = await getCurrentUser()
-  if (!user) throw redirect({ to: "/login" })
-  return user
-})
-
-// Not found
-export const getPost = createServerFn()
-  .validator(z.object({ id: z.string() }))
-  .handler(async ({ data }) => {
-    const post = await db.query.posts.findFirst({ where: eq(posts.id, data.id) })
-    if (!post) throw notFound()
-    return post
-  })
-```
-
-## TanStack Query Patterns
-
-### Query Options Factory
-
-```tsx
-import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query"
-
-export const storeKeys = {
-  all: ["stores"] as const,
-  list: () => [...storeKeys.all, "list"] as const,
-  detail: (id: number) => [...storeKeys.all, "detail", id] as const,
-}
-
-export const storeQueries = {
-  list: () =>
-    queryOptions({
-      queryKey: storeKeys.list(),
-      queryFn: () => getStores(),
-    }),
-  detail: (storeId: number) =>
-    queryOptions({
-      queryKey: storeKeys.detail(storeId),
-      queryFn: () => getStore({ data: { storeId } }),
-    }),
-}
-
-// Mutation hook with invalidation
-export function useCreateStore() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (data: CreateStoreInput) => createStore({ data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: storeKeys.list() })
-      toast.success("Store created successfully")
-    },
-    onError: () => {
-      toast.error("Failed to create store")
-    },
-  })
-}
-```
-
-### Route with Loader
-
-```tsx
-import { createFileRoute } from "@tanstack/react-router"
-import { useSuspenseQuery } from "@tanstack/react-query"
-
-export const Route = createFileRoute("/stores")({
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(storeQueries.list())
-  },
-  component: StoresPage,
-})
-
-function StoresPage() {
-  const { data: stores } = useSuspenseQuery(storeQueries.list())
-  return <StoreList stores={stores} />
-}
-```
-
-## Middleware
-
-```tsx
-import { createMiddleware } from "@tanstack/react-start"
-
-const authMiddleware = createMiddleware().server(({ next, context }) => {
-  return next({ context: { userId: 123 } })
-})
-
-const fn = createServerFn()
-  .middleware([authMiddleware])
-  .handler(async ({ context }) => {
-    // context.userId available
-  })
-```
-
-## Code Style
-
-- Biome for linting/formatting (tabs, double quotes)
-- Import aliases: `@/*` maps to `./src/*`
-- Feature-based organization in `src/features/`
-
-### Adding Shadcn Components
+## Adding Shadcn Components
 
 ```bash
 bunx --bun shadcn@latest add <component>
 ```
+
+---
+
+## Quick Reference
+
+| I need to... | Location |
+|--------------|----------|
+| Add database entity | `src/db/schema.ts` |
+| Add server function | `features/{f}/server/*.functions.ts` |
+| Add business logic | `features/{f}/logic/*.ts` |
+| Configure queries | `features/{f}/queries.ts` |
+| Define validation | `features/{f}/validation.ts` |
+| Build UI component | `features/{f}/components/` |
+| Persist client state | `features/{f}/stores/*.ts` |
+| Wire up a page | `src/routes/` (thin wiring only) |

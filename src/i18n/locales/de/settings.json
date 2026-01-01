@@ -3,13 +3,43 @@
 	"storePageTitle": "Filialeinstellungen",
 	"pageDescription": "Einstellungen für {{merchantName}}",
 	"storePageDescription": "Einstellungen für {{storeName}}",
+	"hub": {
+		"pageTitle": "Einstellungen",
+		"pageDescription": "Konto und Präferenzen verwalten",
+		"merchant": {
+			"title": "Geschäftseinstellungen",
+			"description": "Unternehmensdaten und Spracheinstellungen"
+		},
+		"staff": {
+			"title": "Mitarbeiter & Berechtigungen",
+			"description": "Teammitglieder und Zugriffsrechte verwalten"
+		},
+		"payments": {
+			"title": "Zahlungen",
+			"description": "Zahlungsmethoden und Abrechnung"
+		},
+		"subscription": {
+			"title": "Abonnement",
+			"description": "Plan und Abrechnung verwalten"
+		},
+		"brand": {
+			"title": "Branding",
+			"description": "Shop-Erscheinungsbild anpassen"
+		},
+		"comingSoon": "Demnächst"
+	},
 	"tabs": {
 		"general": "Allgemein",
 		"language": "Sprache",
+		"subscription": "Abonnement",
 		"details": "Details",
 		"regional": "Regional",
 		"hours": "Zeiten",
 		"closures": "Schließungen"
+	},
+	"titles": {
+		"storeDetails": "Filialdetails",
+		"contactSettings": "Kontaktinformationen"
 	},
 	"sections": {
 		"merchantSettings": "Händlereinstellungen",
@@ -29,7 +59,9 @@
 		"regionalSettings": "Zeitzone und Währungseinstellungen für diese Filiale",
 		"openingHours": "Legen Sie die Öffnungszeiten Ihrer Filiale für jeden Wochentag fest. Sie können mehrere Zeitfenster pro Tag für Mittagspausen hinzufügen.",
 		"closures": "Legen Sie Daten fest, an denen Ihre Filiale geschlossen ist (Feiertage, Urlaub usw.)",
-		"payments": "Konfigurieren Sie Zahlungsmethoden"
+		"payments": "Konfigurieren Sie Zahlungsmethoden",
+		"storeDetails": "Grundlegende Informationen zu diesem Filialstandort",
+		"contactSettings": "Wie Kunden diese Filiale erreichen können"
 	},
 	"labels": {
 		"defaultLanguage": "Standardsprache",
@@ -39,7 +71,10 @@
 		"acceptCards": "Karten akzeptieren",
 		"startDate": "Startdatum",
 		"endDate": "Enddatum",
-		"reason": "Grund"
+		"reason": "Grund",
+		"manageStore": "Filiale verwalten",
+		"deleteStore": "Filiale löschen",
+		"noAddressConfigured": "Keine Adresse konfiguriert"
 	},
 	"placeholders": {
 		"closureReason": "z.B. Feiertag, Urlaub, Renovierung",
@@ -54,5 +89,146 @@
 	},
 	"emptyStates": {
 		"noClosures": "Keine geplanten Schließungen. Fügen Sie eine hinzu, um Urlaubstage oder Feiertage festzulegen."
+	},
+	"navigation": {
+		"backToSettings": "Zurück zu Einstellungen"
+	},
+	"subscription": {
+		"currentPlan": "Aktueller Plan",
+		"currentPlanDescription": "Ihr aktueller Abonnementplan und Abrechnungsstatus",
+		"currentPlanBadge": "Aktuell",
+		"noSubscription": "Sie haben kein aktives Abonnement. Wählen Sie unten einen Plan aus, um loszulegen.",
+		"renewsOn": "Verlängert sich am {{date}}",
+		"status": {
+			"none": "Kein Abonnement",
+			"trialing": "Testphase",
+			"active": "Aktiv",
+			"paused": "Pausiert",
+			"past_due": "Zahlung überfällig",
+			"canceled": "Gekündigt"
+		},
+		"trialEnding": {
+			"title": "Testphase endet bald",
+			"description": "Ihre Testphase endet am {{date}}. Fügen Sie eine Zahlungsmethode hinzu, um alle Funktionen weiter zu nutzen."
+		},
+		"pastDue": {
+			"title": "Zahlung fehlgeschlagen",
+			"description": "Ihre letzte Zahlung ist fehlgeschlagen. Bitte aktualisieren Sie Ihre Zahlungsmethode, um Serviceunterbrechungen zu vermeiden."
+		},
+		"paused": {
+			"title": "Abonnement pausiert",
+			"description": "Ihr Abonnement ist pausiert, da keine Zahlungsmethode hinterlegt ist. Fügen Sie eine Zahlungsmethode hinzu, um fortzufahren."
+		},
+		"canceling": {
+			"title": "Kündigung geplant",
+			"description": "Ihr Abonnement wird am {{date}} gekündigt. Sie können es jederzeit vorher wieder aktivieren."
+		},
+		"changePlan": {
+			"title": "Plan ändern",
+			"description": "Upgraden oder downgraden Sie Ihren Abonnementplan",
+			"notAvailable": "Planänderungen sind mit Ihrem aktuellen Abonnementstatus nicht verfügbar"
+		},
+		"upgrade": "Upgraden",
+		"downgrade": "Downgraden",
+		"confirm": {
+			"upgradeTitle": "Upgrade bestätigen",
+			"upgradeDescription": "Sie upgraden von {{from}} auf {{to}}. Der anteilige Differenzbetrag wird sofort berechnet.",
+			"downgradeTitle": "Downgrade bestätigen",
+			"downgradeDescription": "Sie downgraden von {{from}} auf {{to}}. Die Änderung wird am Ende Ihres aktuellen Abrechnungszeitraums wirksam.",
+			"continue": "Weiter zur Kasse",
+			"processing": "Wird verarbeitet..."
+		},
+		"cancel": {
+			"title": "Abonnement kündigen",
+			"description": "Sind Sie sicher, dass Sie Ihr Abonnement kündigen möchten? Sie verlieren den Zugang zu Premium-Funktionen.",
+			"immediately": "Sofort kündigen (keine Rückerstattung)",
+			"immediatelyWarning": "Warnung: Sofortige Kündigung beendet Ihren Zugang heute. Es werden keine Rückerstattungen gewährt.",
+			"confirm": "Abonnement kündigen",
+			"canceling": "Wird gekündigt..."
+		},
+		"actions": {
+			"title": "Abonnementverwaltung",
+			"description": "Verwalten Sie Ihre Abrechnung und Ihr Abonnement",
+			"manageBilling": "Abrechnung verwalten",
+			"resume": "Abonnement fortsetzen",
+			"resuming": "Wird fortgesetzt...",
+			"cancel": "Abonnement kündigen"
+		}
+	},
+	"payments": {
+		"pageTitle": "Zahlungseinstellungen",
+		"pageDescription": "Richten Sie Ihr Zahlungskonto ein, um Zahlungen von Kunden zu erhalten",
+		"setup": {
+			"title": "Zahlungskonto einrichten",
+			"description": "Um Zahlungen zu akzeptieren und Auszahlungen zu erhalten, müssen Sie Ihr Zahlungskonto verbinden.",
+			"benefitsTitle": "Was Sie erhalten:",
+			"benefits": {
+				"trial": "30-tägige kostenlose Testphase — keine Kreditkarte erforderlich",
+				"payments": "Kartenzahlungen von Kunden akzeptieren",
+				"payouts": "Auszahlungen auf Ihr Bankkonto erhalten"
+			},
+			"button": "Zahlungskonto einrichten",
+			"creating": "Wird eingerichtet..."
+		},
+		"status": {
+			"title": "Status des Zahlungskontos",
+			"description": "Ihre Zahlungskontoverbindung und Funktionen",
+			"complete": "Abgeschlossen",
+			"account": {
+				"label": "Konto",
+				"connected": "Verbunden",
+				"notConnected": "Nicht verbunden"
+			},
+			"onboarding": {
+				"label": "Einrichtung",
+				"complete": "Abgeschlossen",
+				"incomplete": "Unvollständig"
+			},
+			"capabilities": {
+				"label": "Funktionen",
+				"active": "Aktiv",
+				"pending": "Ausstehend",
+				"inactive": "Inaktiv"
+			}
+		},
+		"trial": {
+			"title": "Testphase aktiv",
+			"daysRemaining": "{{days}} Tage verbleiben in Ihrer Testphase"
+		},
+		"onboarding": {
+			"title": "Kontoeinrichtung abschließen",
+			"description": "Um Auszahlungen zu erhalten und Live-Zahlungen zu akzeptieren, müssen Sie Ihre Stripe-Kontoverifizierung abschließen.",
+			"whyNeeded": "Was Sie bereitstellen müssen:",
+			"requirements": {
+				"identity": {
+					"title": "Identitätsverifizierung",
+					"description": "Verifizieren Sie Ihre Identität mit einem amtlichen Ausweis"
+				},
+				"banking": {
+					"title": "Bankkonto",
+					"description": "Fügen Sie Ihre Bankverbindung für Auszahlungen hinzu"
+				},
+				"business": {
+					"title": "Geschäftsdaten",
+					"description": "Geben Sie Geschäftsinformationen für Steuerzwecke an"
+				}
+			},
+			"button": "Einrichtung abschließen",
+			"redirecting": "Weiterleitung...",
+			"skipNote": "Sie können dies später abschließen, erhalten aber erst Auszahlungen, wenn es erledigt ist."
+		},
+		"alerts": {
+			"requirementsDue": {
+				"title": "Handlung erforderlich",
+				"description": "Vervollständigen Sie Ihre Kontoanforderungen, um weiterhin Zahlungen zu akzeptieren."
+			},
+			"requirementsPastDue": {
+				"title": "Dringende Handlung erforderlich",
+				"description": "Ihre Anforderungen sind überfällig. Auszahlungen können pausiert werden, bis sie abgeschlossen sind."
+			}
+		},
+		"actions": {
+			"refresh": "Status aktualisieren"
+		}
 	}
 }

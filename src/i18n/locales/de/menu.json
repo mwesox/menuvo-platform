@@ -17,12 +17,15 @@
 		"deleteOptionGroup": "Optionsgruppe löschen",
 		"deleteItem": "Artikel löschen",
 		"itemDetails": "Artikeldetails",
-		"allergens": "Allergene"
+		"allergens": "Allergene",
+		"categoryDetails": "Kategoriedetails",
+		"optionGroupDetails": "Optionsgruppendetails"
 	},
 	"labels": {
 		"categoryName": "Kategoriename",
 		"itemName": "Artikelname",
 		"optionGroupName": "Optionsgruppenname",
+		"optionGroupType": "Modifikatortyp",
 		"sortOrder": "Sortierreihenfolge",
 		"visibility": "Sichtbarkeit",
 		"status": "Status",
@@ -36,7 +39,15 @@
 		"unlimited": "Unbegrenzt",
 		"choiceName": "Auswahlname",
 		"itemImage": "Artikelbild",
-		"selectStore": "Laden auswählen"
+		"selectStore": "Laden auswählen",
+		"numFreeOptions": "Kostenlose Optionen",
+		"aggregateMinQuantity": "Min. Gesamtmenge",
+		"aggregateMaxQuantity": "Max. Gesamtmenge",
+		"defaultSelected": "Standard",
+		"minQty": "Min",
+		"maxQty": "Max",
+		"description": "Beschreibung",
+		"allergens": "Allergene"
 	},
 	"emptyStates": {
 		"noStores": "Noch keine Läden",
@@ -49,7 +60,8 @@
 		"noItemsDescription": "Erstellen Sie Ihren ersten Speiseartikel.",
 		"noOptionGroups": "Noch keine Optionsgruppen",
 		"noOptionGroupsDescription": "Erstellen Sie Optionsgruppen für Anpassungen wie Größen, Toppings oder Extras.",
-		"noChoices": "Noch keine Auswahlmöglichkeiten hinzugefügt. Fügen Sie Ihre erste Auswahl unten hinzu."
+		"noChoices": "Noch keine Auswahlmöglichkeiten hinzugefügt. Fügen Sie Ihre erste Auswahl unten hinzu.",
+		"noItemsInCategory": "Noch keine Artikel in dieser Kategorie"
 	},
 	"dialogs": {
 		"createCategoryDescription": "Erstellen Sie eine neue Speisekartenkategorie.",
@@ -72,7 +84,22 @@
 		"optionGroupName": "z. B. Größe, Toppings, Extras",
 		"optionGroupDescription": "Optionale Beschreibung für diese Optionsgruppe",
 		"itemName": "z. B. Pizza Margherita",
-		"itemDescription": "Beschreiben Sie diesen Artikel..."
+		"itemDescription": "Beschreiben Sie diesen Artikel...",
+		"aggregateMinQuantity": "Kein Minimum",
+		"aggregateMaxQuantity": "Kein Maximum"
+	},
+	"hints": {
+		"numFreeOptions": "Anzahl der Optionen, die Kunden kostenlos hinzufügen können, bevor Kosten anfallen",
+		"aggregateMinQuantity": "Mindestgesamtmenge, die der Kunde auswählen muss",
+		"aggregateMaxQuantity": "Maximale Gesamtmenge, die der Kunde auswählen kann"
+	},
+	"optionTypes": {
+		"singleSelect": "Einzelauswahl",
+		"singleSelectDesc": "Kunde muss genau eine Option wählen (Optionsfelder)",
+		"multiSelect": "Mehrfachauswahl",
+		"multiSelectDesc": "Kunde kann mehrere Optionen wählen (Kontrollkästchen)",
+		"quantitySelect": "Mengenauswahl",
+		"quantitySelectDesc": "Kunde wählt Mengen pro Option (z. B. 3 Donuts wählen)"
 	},
 	"actions": {
 		"createStore": "Laden erstellen",
@@ -110,10 +137,12 @@
 		"addFirstItem": "Fügen Sie Ihren ersten Speiseartikel zu dieser Kategorie hinzu."
 	},
 	"optionGroups": {
+		"selectOne": "Eine wählen",
 		"selectExact": "{count} auswählen",
 		"selectRange": "{min}-{max}",
 		"selectUpTo": "Bis zu {max}",
 		"selectMin": "Min. {min}",
+		"selectQuantity": "Mengen auswählen",
 		"optional": "Optional",
 		"required": "Erforderlich",
 		"hidden": "Versteckt",
@@ -123,14 +152,35 @@
 		"choices": "Auswahlmöglichkeiten",
 		"viewChoices": "Auswahlmöglichkeiten anzeigen",
 		"soldOut": "Ausverkauft",
+		"default": "Standard",
+		"freeOptions": "{count} kostenlos",
 		"noOptionGroupsYet": "Noch keine Optionsgruppen. Erstellen Sie welche im Optionen-Tab.",
 		"optionGroupsSelected": "{count} Optionsgruppe ausgewählt",
-		"optionGroupsSelectedPlural": "{count} Optionsgruppen ausgewählt"
+		"optionGroupsSelectedPlural": "{count} Optionsgruppen ausgewählt",
+		"requiredLabel": "Erforderlich",
+		"selectionRules": "Auswahlregeln",
+		"freeOptionsLabel": "Kostenlose Optionen",
+		"choicesCount": "Auswahlmöglichkeiten",
+		"noChoices": "Noch keine Auswahlmöglichkeiten",
+		"editOptionGroup": "Optionsgruppe bearbeiten"
 	},
 	"itemCard": {
 		"edit": "Bearbeiten",
 		"delete": "Löschen",
 		"available": "Verfügbar",
-		"unavailable": "Nicht verfügbar"
+		"unavailable": "Nicht verfügbar",
+		"editItem": "Artikel bearbeiten"
+	},
+	"masterDetail": {
+		"selectCategory": "Kategorie auswählen",
+		"selectCategoryDescription": "Wählen Sie eine Kategorie aus der Liste, um Details anzuzeigen und Artikel zu verwalten.",
+		"selectItem": "Artikel auswählen",
+		"selectItemDescription": "Wählen Sie einen Artikel aus der Liste, um Details anzuzeigen und zu bearbeiten.",
+		"selectOptionGroup": "Optionsgruppe auswählen",
+		"selectOptionGroupDescription": "Wählen Sie eine Optionsgruppe aus der Liste, um Details anzuzeigen und Auswahlmöglichkeiten zu verwalten."
+	},
+	"common": {
+		"yes": "Ja",
+		"no": "Nein"
 	}
 }

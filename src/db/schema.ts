@@ -309,6 +309,23 @@ export const itemsRelations = relations(items, ({ one, many }) => ({
 }));
 
 // ============================================================================
+// OPTION GROUP ENUMS
+// ============================================================================
+
+/**
+ * Option group types for menu item customization.
+ * - single_select: Radio buttons, customer must choose exactly one (e.g., Size)
+ * - multi_select: Checkboxes, customer can choose 0 to N (e.g., Toppings)
+ * - quantity_select: Quantity pickers, customer picks quantities (e.g., "Pick 3 donuts")
+ */
+export const optionGroupTypes = [
+	"single_select",
+	"multi_select",
+	"quantity_select",
+] as const;
+export type OptionGroupType = (typeof optionGroupTypes)[number];
+
+// ============================================================================
 // OPTION GROUPS
 // ============================================================================
 
@@ -319,9 +336,18 @@ export const optionGroups = pgTable("option_groups", {
 		.references(() => stores.id, { onDelete: "cascade" }),
 	name: varchar({ length: 255 }).notNull(),
 	description: text(),
+	// Option group type (determines UI rendering)
+	type: text("type", { enum: optionGroupTypes })
+		.notNull()
+		.default("multi_select"),
 	isRequired: boolean("is_required").notNull().default(false),
 	minSelections: integer("min_selections").notNull().default(0),
 	maxSelections: integer("max_selections"), // null = unlimited
+	// Free options (e.g., "first 2 toppings free, extras cost extra")
+	numFreeOptions: integer("num_free_options").notNull().default(0),
+	// Aggregate quantity constraints (for quantity_select type)
+	aggregateMinQuantity: integer("aggregate_min_quantity"), // null = no min
+	aggregateMaxQuantity: integer("aggregate_max_quantity"), // null = no max
 	displayOrder: integer("display_order").notNull().default(0),
 	isActive: boolean("is_active").notNull().default(true),
 	// Timestamps
@@ -357,6 +383,11 @@ export const optionChoices = pgTable("option_choices", {
 	priceModifier: integer("price_modifier").notNull().default(0), // In cents, can be positive/negative
 	displayOrder: integer("display_order").notNull().default(0),
 	isAvailable: boolean("is_available").notNull().default(true),
+	// Pre-selected by default (reduces customer clicks for common options)
+	isDefault: boolean("is_default").notNull().default(false),
+	// Per-choice quantity limits (for quantity_select type)
+	minQuantity: integer("min_quantity").notNull().default(0), // Min qty customer can select
+	maxQuantity: integer("max_quantity"), // Max qty per choice, null = unlimited
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")

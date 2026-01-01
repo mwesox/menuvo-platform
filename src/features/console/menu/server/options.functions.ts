@@ -6,6 +6,8 @@ import { itemOptionGroups, optionChoices, optionGroups } from "@/db/schema.ts";
 import {
 	createOptionChoiceSchema,
 	createOptionGroupSchema,
+	deriveSelectionsFromType,
+	saveOptionGroupWithChoicesSchema,
 	updateItemOptionsSchema,
 	updateOptionChoiceSchema,
 	updateOptionGroupSchema,
@@ -121,6 +123,163 @@ export const deleteOptionGroup = createServerFn({ method: "POST" })
 			.delete(optionGroups)
 			.where(eq(optionGroups.id, data.optionGroupId));
 		return { success: true };
+	});
+
+// Save option group with choices in one transaction
+export const saveOptionGroupWithChoices = createServerFn({ method: "POST" })
+	.inputValidator(saveOptionGroupWithChoicesSchema)
+	.handler(async ({ data }) => {
+		const {
+			optionGroupId,
+			storeId,
+			choices,
+			type = "multi_select",
+			minSelections: inputMinSelections,
+			maxSelections: inputMaxSelections,
+			numFreeOptions = 0,
+			aggregateMinQuantity,
+			aggregateMaxQuantity,
+			...groupData
+		} = data;
+
+		// Derive selection constraints based on type
+		const { minSelections, maxSelections } = deriveSelectionsFromType(
+			type,
+			inputMinSelections ?? 0,
+			inputMaxSelections ?? null,
+		);
+
+		// Derive isRequired from minSelections > 0
+		const isRequired = minSelections > 0;
+
+		return await db.transaction(async (tx) => {
+			let savedGroup: typeof optionGroups.$inferSelect;
+
+			if (optionGroupId) {
+				// Update existing option group
+				const [updated] = await tx
+					.update(optionGroups)
+					.set({
+						...groupData,
+						type,
+						minSelections,
+						maxSelections,
+						isRequired,
+						numFreeOptions,
+						aggregateMinQuantity,
+						aggregateMaxQuantity,
+					})
+					.where(eq(optionGroups.id, optionGroupId))
+					.returning();
+
+				if (!updated) {
+					throw new Error("Option group not found");
+				}
+				savedGroup = updated;
+
+				// Get existing choices to diff
+				const existingChoices = await tx.query.optionChoices.findMany({
+					where: eq(optionChoices.optionGroupId, optionGroupId),
+				});
+				const existingIds = new Set(existingChoices.map((c) => c.id));
+				const newIds = new Set(
+					choices
+						.filter((c): c is typeof c & { id: number } => c.id !== undefined)
+						.map((c) => c.id),
+				);
+
+				// Delete removed choices
+				const toDelete = [...existingIds].filter((id) => !newIds.has(id));
+				for (const choiceId of toDelete) {
+					await tx.delete(optionChoices).where(eq(optionChoices.id, choiceId));
+				}
+
+				// Update existing and create new choices
+				for (let i = 0; i < choices.length; i++) {
+					const choice = choices[i];
+					if (choice.id) {
+						// Update existing
+						await tx
+							.update(optionChoices)
+							.set({
+								name: choice.name,
+								priceModifier: choice.priceModifier,
+								displayOrder: i,
+								isDefault: choice.isDefault ?? false,
+								minQuantity: choice.minQuantity ?? 0,
+								maxQuantity: choice.maxQuantity ?? null,
+							})
+							.where(eq(optionChoices.id, choice.id));
+					} else {
+						// Create new
+						await tx.insert(optionChoices).values({
+							optionGroupId,
+							name: choice.name,
+							priceModifier: choice.priceModifier,
+							displayOrder: i,
+							isDefault: choice.isDefault ?? false,
+							minQuantity: choice.minQuantity ?? 0,
+							maxQuantity: choice.maxQuantity ?? null,
+						});
+					}
+				}
+			} else {
+				// Create new option group
+				const existing = await tx.query.optionGroups.findMany({
+					where: eq(optionGroups.storeId, storeId),
+					orderBy: (og, { desc }) => [desc(og.displayOrder)],
+					limit: 1,
+				});
+				const maxOrder = existing[0]?.displayOrder ?? -1;
+
+				const [created] = await tx
+					.insert(optionGroups)
+					.values({
+						storeId,
+						...groupData,
+						type,
+						minSelections,
+						maxSelections,
+						isRequired,
+						numFreeOptions,
+						aggregateMinQuantity,
+						aggregateMaxQuantity,
+						displayOrder: maxOrder + 1,
+					})
+					.returning();
+
+				savedGroup = created;
+
+				// Create all choices
+				for (let i = 0; i < choices.length; i++) {
+					const choice = choices[i];
+					await tx.insert(optionChoices).values({
+						optionGroupId: savedGroup.id,
+						name: choice.name,
+						priceModifier: choice.priceModifier,
+						displayOrder: i,
+						isDefault: choice.isDefault ?? false,
+						minQuantity: choice.minQuantity ?? 0,
+						maxQuantity: choice.maxQuantity ?? null,
+					});
+				}
+			}
+
+			// Return the saved group with choices
+			const result = await tx.query.optionGroups.findFirst({
+				where: eq(optionGroups.id, savedGroup.id),
+				with: {
+					optionChoices: {
+						orderBy: (c, { asc }) => [asc(c.displayOrder)],
+					},
+				},
+			});
+
+			if (!result) {
+				throw new Error("Failed to save option group");
+			}
+			return result;
+		});
 	});
 
 // ============================================================================

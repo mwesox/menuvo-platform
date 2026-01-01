@@ -1,7 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import {
-	Clock,
-	Globe,
 	Mail,
 	MapPin,
 	Phone,
@@ -10,7 +8,6 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Card, CardContent, CardHeader } from "@/components/ui/card.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
@@ -39,19 +36,9 @@ export function StoreCard({ store, onToggleActive, onDelete }: StoreCardProps) {
 							<StoreIcon className="h-6 w-6 text-primary" />
 						</div>
 						<div className="space-y-1">
-							<div className="flex items-center gap-3">
-								<h3 className="text-xl font-semibold tracking-tight">
-									{store.name}
-								</h3>
-								<Badge
-									variant={store.isActive ? "default" : "secondary"}
-									className="shrink-0"
-								>
-									{store.isActive
-										? tCommon("labels.active")
-										: tCommon("labels.inactive")}
-								</Badge>
-							</div>
+							<h3 className="text-xl font-semibold tracking-tight">
+								{store.name}
+							</h3>
 							{(addressLine1 || addressLine2) && (
 								<div className="flex items-start gap-1.5 text-sm text-muted-foreground">
 									<MapPin className="mt-0.5 h-4 w-4 shrink-0" />
@@ -83,28 +70,22 @@ export function StoreCard({ store, onToggleActive, onDelete }: StoreCardProps) {
 			</CardHeader>
 
 			<CardContent className="space-y-4">
-				<div className="grid grid-cols-2 gap-4 text-sm">
-					{store.phone && (
-						<div className="flex items-center gap-2 text-muted-foreground">
-							<Phone className="h-4 w-4 shrink-0" />
-							<span className="truncate">{store.phone}</span>
-						</div>
-					)}
-					{store.email && (
-						<div className="flex items-center gap-2 text-muted-foreground">
-							<Mail className="h-4 w-4 shrink-0" />
-							<span className="truncate">{store.email}</span>
-						</div>
-					)}
-					<div className="flex items-center gap-2 text-muted-foreground">
-						<Globe className="h-4 w-4 shrink-0" />
-						<span>{store.currency}</span>
+				{(store.phone || store.email) && (
+					<div className="grid grid-cols-2 gap-4 text-sm">
+						{store.phone && (
+							<div className="flex items-center gap-2 text-muted-foreground">
+								<Phone className="h-4 w-4 shrink-0" />
+								<span className="truncate">{store.phone}</span>
+							</div>
+						)}
+						{store.email && (
+							<div className="flex items-center gap-2 text-muted-foreground">
+								<Mail className="h-4 w-4 shrink-0" />
+								<span className="truncate">{store.email}</span>
+							</div>
+						)}
 					</div>
-					<div className="flex items-center gap-2 text-muted-foreground">
-						<Clock className="h-4 w-4 shrink-0" />
-						<span className="truncate">{store.timezone}</span>
-					</div>
-				</div>
+				)}
 
 				<div className="flex items-center gap-2 border-t pt-4">
 					<Button asChild className="flex-1">

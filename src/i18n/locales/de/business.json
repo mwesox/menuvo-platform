@@ -1,0 +1,188 @@
+{
+	"meta": {
+		"title": "Menuvo - Digitale Bestellungen für Ihr Restaurant",
+		"description": "Eigenes Online-Bestellsystem in unter 5 Minuten. 100% Ihres Umsatzes, keine Provisionen. KI-Menü-Assistent inklusive. DSGVO-konform und in Deutschland gehostet."
+	},
+	"header": {
+		"features": "Features",
+		"pricing": "Preise",
+		"faq": "FAQ",
+		"cta": "Kostenlos starten"
+	},
+	"hero": {
+		"headline": "Digitale Bestellungen für Ihr Restaurant",
+		"subtitle": "Mehr Zeit für Küche & Gäste. Mehr Umsatz mit jeder Bestellung.",
+		"description": "Eigenes Online-Bestellsystem in unter 5 Minuten eingerichtet – weniger Stress am Telefon, mehr Cross-Selling und höhere Bestellwerte. Ihre Gäste bestellen in wenigen Sekunden am Tisch – ohne Warten auf die Bedienung oder besetzte Telefonleitungen."
+	},
+	"cta": {
+		"primary": "Kostenlos starten",
+		"secondary": "Mehr erfahren",
+		"title": "Bereit, mehr Umsatz mit weniger Stress zu machen?",
+		"subtitle": "Starten Sie jetzt kostenlos und sehen Sie, wie Ihr Team mehr Zeit für das Wesentliche hat: Essen zubereiten, Gäste betreuen – statt Bestellungen am Telefon aufzunehmen.",
+		"button": "Kostenlos starten",
+		"trustStatement": "Einrichtung in unter 5 Minuten · Weniger Aufwand an Theke & Telefon · Jederzeit kündbar"
+	},
+	"trust": {
+		"noSetupFee": "Keine Einrichtungsgebühr",
+		"gdpr": "DSGVO-konform",
+		"hostedDe": "In Deutschland gehostet"
+	},
+	"ai": {
+		"headline": "KI erstellt Ihr digitales Menü in Minuten",
+		"description": "Laden Sie Ihre Speisekarte hoch – unsere KI übernimmt den Rest. Keine manuelle Eingabe notwendig."
+	},
+	"features": {
+		"title": "Alles, was Ihr Restaurant braucht",
+		"subtitle": "Leistungsstarke Funktionen, die Ihr Geschäft voranbringen - ohne Provision",
+		"aiMenu": {
+			"title": "KI-Menü-Assistent",
+			"description": "Laden Sie einfach Ihre Speisekarte hoch – unser KI-Assistent erstellt automatisch Ihr digitales Menü mit Preisen und Beschreibungen."
+		},
+		"revenue": {
+			"title": "Mehr Umsatz pro Gast",
+			"description": "Automatisches Cross-Selling von Beilagen, Getränken und Desserts erhöht Ihren Durchschnittsbon – ohne Zusatzaufwand für Ihr Team."
+		},
+		"setup": {
+			"title": "Schnelle Einrichtung",
+			"description": "Ihr Online-Bestellsystem ist in unter 5 Minuten einsatzbereit. Kein technisches Wissen erforderlich – einfach nutzen und Zeit an der Theke sparen."
+		},
+		"multilingual": {
+			"title": "Mehrsprachig",
+			"description": "Ihre Speisekarte automatisch in mehreren Sprachen. Erreichen Sie mehr Kunden durch automatische Übersetzungen."
+		},
+		"mobile": {
+			"title": "Mobil optimiert",
+			"description": "Perfekte Darstellung auf allen Geräten. Ihre Gäste bestellen in Ruhe am Tisch per Smartphone – das reduziert Wartezeiten und entlastet Ihr Service-Team."
+		},
+		"gdpr": {
+			"title": "DSGVO-konform",
+			"description": "Alle Daten werden in Deutschland gehostet. Vollständig DSGVO-konform und sicher."
+		}
+	},
+	"pricing": {
+		"title": "Transparente Preise",
+		"subtitle": "Reduzieren Sie Personalkosten an Theke und Telefon – und steigern Sie Ihren Umsatz mit jedem Online-Bestellvorgang.",
+		"recommended": "Empfohlen",
+		"ctaStart": "Kostenlos starten",
+		"ctaUpgrade": "Jetzt starten",
+		"starter": {
+			"name": "Starter",
+			"description": "30 Tage kostenlos testen",
+			"price": "0",
+			"period": "/Monat",
+			"features": [
+				"Unbegrenzte Bestellungen",
+				"Digitale Speisekarte",
+				"QR-Code für Tischbestellung",
+				"Mobile-optimiert",
+				"E-Mail Support"
+			]
+		},
+		"professional": {
+			"name": "Professional",
+			"description": "Für professionelle Restaurants",
+			"price": "29",
+			"period": "/Monat",
+			"features": [
+				"Alles aus Starter",
+				"Eigene Domain",
+				"Detaillierte Analysen",
+				"Prioritäts-Support",
+				"Mehrere Standorte",
+				"Anpassbares Design"
+			]
+		},
+		"max": {
+			"name": "Max",
+			"description": "Mit KI-Features",
+			"price": "49",
+			"period": "/Monat",
+			"features": [
+				"Alles aus Professional",
+				"KI-Menü-Optimierung",
+				"Automatische Übersetzungen",
+				"Intelligente Empfehlungen",
+				"Persönlicher Account Manager",
+				"API Zugang"
+			]
+		}
+	},
+	"comparison": {
+		"title": "Menuvo vs. Lieferando vs. Wolt",
+		"feature": "Feature",
+		"menuvo": "Menuvo",
+		"lieferando": "Lieferando",
+		"wolt": "Wolt",
+		"commission": "Provision pro Bestellung*",
+		"commissionMenuvo": "0% / keine Provision",
+		"commissionLieferando": "Provisionsmodell",
+		"commissionWolt": "Provisionsmodell",
+		"monthly": "Monatliche Plattformkosten*",
+		"monthlyMenuvo": "Fixe SaaS-Gebühr",
+		"monthlyLieferando": "Vom Umsatz abhängig",
+		"monthlyWolt": "Vom Umsatz abhängig",
+		"domain": "Eigene Domain",
+		"data": "Kundendaten gehören Ihnen",
+		"yes": "✓",
+		"no": "✗",
+		"note": "*Starter-Tarif: 30 Tage kostenlos im Testzeitraum. Danach können Sie jederzeit in einen bezahlten Monatstarif wechseln oder kündigen.",
+		"provisionNote": "*Bei klassischen Lieferplattformen werden in der Regel prozentuale Provisionen auf den Bestellumsatz berechnet. Die tatsächlichen Kosten hängen von Umsatz, Liefergebiet und individuellen Verträgen ab."
+	},
+	"faq": {
+		"title": "Häufig gestellte Fragen",
+		"subtitle": "Alles, was Sie über Menuvo wissen müssen",
+		"items": [
+			{
+				"question": "Wie schnell kann ich Menuvo nutzen?",
+				"answer": "Sie können in unter 5 Minuten starten! Registrieren Sie sich, laden Sie Ihre Speisekarte hoch (als PDF oder Foto), und unser KI-Assistent erstellt automatisch Ihr digitales Menü. Danach können Sie sofort Bestellungen entgegennehmen."
+			},
+			{
+				"question": "Wie funktioniert der KI-Menü-Assistent?",
+				"answer": "Laden Sie einfach ein Foto oder PDF Ihrer aktuellen Speisekarte hoch. Unsere KI erkennt automatisch Gerichte, Preise und Beschreibungen und erstellt daraus Ihr digitales Menü. Sie können alles nachträglich anpassen und bearbeiten."
+			},
+			{
+				"question": "Fallen wirklich keine Provisionen an?",
+				"answer": "Nein, absolut keine Provisionen! Im Gegensatz zu Lieferando (13-30% Provision) oder Wolt (15-30% Provision) behalten Sie bei Menuvo 100% Ihres Umsatzes. Sie zahlen nur eine transparente monatliche Gebühr - der Starter-Plan ist sogar komplett kostenlos."
+			},
+			{
+				"question": "Spart Menuvo Zeit für mein Team?",
+				"answer": "Ja. Gäste bestellen selbst per Smartphone – ohne Anruf, ohne Kassenschlange. Ihr Service- oder Thekenpersonal hat mehr Zeit für das Wesentliche: Essen zubereiten, Gäste betreuen und die Qualität hochhalten, statt Bestellungen aufzunehmen."
+			},
+			{
+				"question": "Wie hilft Menuvo mir, mehr Umsatz zu machen?",
+				"answer": "Ihr digitales Menü schlägt automatisch passende Beilagen, Getränke und Desserts vor. So wird Cross-Selling zum Standard – ganz ohne zusätzlichen Aufwand für Ihr Team. Viele kleine Zusatzverkäufe pro Bestellung summieren sich schnell zu mehr Monatsumsatz."
+			},
+			{
+				"question": "Benötige ich technische Kenntnisse?",
+				"answer": "Überhaupt nicht! Menuvo ist speziell für Restaurant-Besitzer entwickelt, die keine technischen Kenntnisse haben. Alles läuft über eine intuitive Oberfläche - wenn Sie WhatsApp bedienen können, können Sie auch Menuvo nutzen."
+			},
+			{
+				"question": "Wie erhalten Kunden Zugang zu meinem Bestellsystem?",
+				"answer": "Sie erhalten einen QR-Code, den Sie auf Ihre Tische kleben oder in Ihrem Restaurant aufhängen. Kunden scannen den Code mit ihrem Smartphone und können sofort bestellen - ohne App-Download."
+			},
+			{
+				"question": "Ist Menuvo DSGVO-konform?",
+				"answer": "Ja, zu 100%! Alle Daten werden in Deutschland gehostet und unterliegen deutschem Datenschutzrecht. Wir sind vollständig DSGVO-konform und Ihre Kundendaten gehören ausschließlich Ihnen."
+			},
+			{
+				"question": "Kann ich Menuvo auch für mehrere Standorte nutzen?",
+				"answer": "Ja! Mit dem Professional-Plan können Sie mehrere Standorte verwalten. Jeder Standort hat sein eigenes Menü, eigene Preise und eigene Bestellverwaltung - alles zentral über ein Dashboard."
+			},
+			{
+				"question": "Wie funktioniert der Support?",
+				"answer": "Starter-Plan: E-Mail Support innerhalb von 24 Stunden. Professional-Plan: Prioritäts-Support mit Antwort innerhalb von 4 Stunden. Max-Plan: Persönlicher Account Manager und direkter Telefon-Support."
+			}
+		]
+	},
+	"footer": {
+		"tagline": "Digitale Bestellungen für Ihr Restaurant - 100% Ihres Umsatzes, keine Provisionen",
+		"product": "Produkt",
+		"company": "Unternehmen",
+		"legal": "Rechtliches",
+		"contact": "Kontakt",
+		"privacy": "Datenschutz",
+		"terms": "AGB",
+		"impressum": "Impressum",
+		"copyright": "© {{year}} Menuvo. Alle Rechte vorbehalten."
+	}
+}

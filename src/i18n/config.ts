@@ -2,7 +2,9 @@ import i18n from "i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 // German translations
+import businessDe from "./locales/de/business.json";
 import commonDe from "./locales/de/common.json";
+import discoveryDe from "./locales/de/discovery.json";
 import formsDe from "./locales/de/forms.json";
 import legalDe from "./locales/de/legal.json";
 import menuDe from "./locales/de/menu.json";
@@ -10,10 +12,13 @@ import navigationDe from "./locales/de/navigation.json";
 import onboardingDe from "./locales/de/onboarding.json";
 import servicePointsDe from "./locales/de/servicePoints.json";
 import settingsDe from "./locales/de/settings.json";
+import shopDe from "./locales/de/shop.json";
 import storesDe from "./locales/de/stores.json";
 import toastsDe from "./locales/de/toasts.json";
 // English translations
+import businessEn from "./locales/en/business.json";
 import commonEn from "./locales/en/common.json";
+import discoveryEn from "./locales/en/discovery.json";
 import formsEn from "./locales/en/forms.json";
 import legalEn from "./locales/en/legal.json";
 import menuEn from "./locales/en/menu.json";
@@ -21,6 +26,7 @@ import navigationEn from "./locales/en/navigation.json";
 import onboardingEn from "./locales/en/onboarding.json";
 import servicePointsEn from "./locales/en/servicePoints.json";
 import settingsEn from "./locales/en/settings.json";
+import shopEn from "./locales/en/shop.json";
 import storesEn from "./locales/en/stores.json";
 import toastsEn from "./locales/en/toasts.json";
 
@@ -30,6 +36,7 @@ export const DEFAULT_LANGUAGE: SupportedLanguage = "en";
 
 const resources = {
 	en: {
+		business: businessEn,
 		common: commonEn,
 		navigation: navigationEn,
 		forms: formsEn,
@@ -40,8 +47,11 @@ const resources = {
 		settings: settingsEn,
 		onboarding: onboardingEn,
 		legal: legalEn,
+		discovery: discoveryEn,
+		shop: shopEn,
 	},
 	de: {
+		business: businessDe,
 		common: commonDe,
 		navigation: navigationDe,
 		forms: formsDe,
@@ -52,6 +62,8 @@ const resources = {
 		settings: settingsDe,
 		onboarding: onboardingDe,
 		legal: legalDe,
+		discovery: discoveryDe,
+		shop: shopDe,
 	},
 };
 
@@ -68,6 +80,7 @@ export function initI18n(detectedLanguage?: string) {
 			supportedLngs: [...SUPPORTED_LANGUAGES],
 			defaultNS: "common",
 			ns: [
+				"business",
 				"common",
 				"navigation",
 				"forms",
@@ -78,6 +91,8 @@ export function initI18n(detectedLanguage?: string) {
 				"settings",
 				"onboarding",
 				"legal",
+				"discovery",
+				"shop",
 			],
 			interpolation: {
 				escapeValue: false,

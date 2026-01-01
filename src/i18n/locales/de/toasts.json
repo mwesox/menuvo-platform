@@ -38,7 +38,11 @@
 		"servicePointDeactivated": "Servicepunkt deaktiviert",
 		"settingsSaved": "Einstellungen erfolgreich aktualisiert",
 		"languageUpdated": "Sprache erfolgreich aktualisiert",
-		"changesSaved": "Änderungen erfolgreich gespeichert"
+		"changesSaved": "Änderungen erfolgreich gespeichert",
+		"subscriptionCanceled": "Abonnement wurde gekündigt",
+		"subscriptionResumed": "Abonnement wurde fortgesetzt",
+		"paymentAccountCreated": "Zahlungskonto erfolgreich erstellt",
+		"paymentStatusRefreshed": "Zahlungsstatus aktualisiert"
 	},
 	"error": {
 		"generic": "Ein Fehler ist aufgetreten",
@@ -70,6 +74,13 @@
 		"updateServicePointStatus": "Servicepunktstatus konnte nicht aktualisiert werden",
 		"saveSettings": "Einstellungen konnten nicht aktualisiert werden",
 		"updateLanguage": "Sprache konnte nicht aktualisiert werden",
-		"loadData": "Daten konnten nicht geladen werden"
+		"loadData": "Daten konnten nicht geladen werden",
+		"changePlan": "Planänderung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+		"cancelSubscription": "Kündigung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+		"resumeSubscription": "Fortsetzung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+		"openBillingPortal": "Abrechnungsportal konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
+		"setupPaymentAccount": "Zahlungskonto konnte nicht eingerichtet werden. Bitte versuchen Sie es erneut.",
+		"createOnboardingLink": "Einrichtungslink konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+		"refreshPaymentStatus": "Zahlungsstatus konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut."
 	}
 }

@@ -38,7 +38,11 @@
 		"servicePointDeactivated": "Service point deactivated",
 		"settingsSaved": "Settings updated successfully",
 		"languageUpdated": "Language updated successfully",
-		"changesSaved": "Changes saved successfully"
+		"changesSaved": "Changes saved successfully",
+		"subscriptionCanceled": "Subscription has been canceled",
+		"subscriptionResumed": "Subscription has been resumed",
+		"paymentAccountCreated": "Payment account created successfully",
+		"paymentStatusRefreshed": "Payment status updated"
 	},
 	"error": {
 		"generic": "An error occurred",
@@ -70,6 +74,13 @@
 		"updateServicePointStatus": "Failed to update service point status",
 		"saveSettings": "Failed to update settings",
 		"updateLanguage": "Failed to update language",
-		"loadData": "Failed to load data"
+		"loadData": "Failed to load data",
+		"changePlan": "Failed to change plan. Please try again.",
+		"cancelSubscription": "Failed to cancel subscription. Please try again.",
+		"resumeSubscription": "Failed to resume subscription. Please try again.",
+		"openBillingPortal": "Failed to open billing portal. Please try again.",
+		"setupPaymentAccount": "Failed to set up payment account. Please try again.",
+		"createOnboardingLink": "Failed to create onboarding link. Please try again.",
+		"refreshPaymentStatus": "Failed to refresh payment status. Please try again."
 	}
 }

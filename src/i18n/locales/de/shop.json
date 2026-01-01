@@ -1,0 +1,64 @@
+{
+	"cart": {
+		"title": "Ihr Warenkorb",
+		"empty": "Ihr Warenkorb ist leer",
+		"itemCount_one": "{{count}} Artikel in Ihrem Warenkorb",
+		"itemCount_other": "{{count}} Artikel in Ihrem Warenkorb",
+		"emptyTitle": "Ihr Warenkorb ist leer",
+		"emptyDescription": "Fügen Sie köstliche Artikel hinzu, um zu beginnen",
+		"checkout": "Zur Kasse",
+		"checkoutComingSoon": "Kasse kommt bald!",
+		"checkoutDescription": "Stripe-Integration wird in einem zukünftigen Update hinzugefügt.",
+		"subtotal": "Zwischensumme",
+		"tax": "Steuern",
+		"taxCalculatedAtCheckout": "Wird an der Kasse berechnet",
+		"total": "Gesamt",
+		"removeItem": "{{name}} aus dem Warenkorb entfernen",
+		"openCart": "Warenkorb öffnen mit {{count}} Artikeln im Wert von {{total}}"
+	},
+	"menu": {
+		"categoriesNav": "Menükategorien",
+		"customize": "Anpassen",
+		"add": "Hinzufügen",
+		"addToOrder": "Zur Bestellung hinzufügen",
+		"contains": "Enthält",
+		"soldOut": "Ausverkauft",
+		"emptyTitle": "Speisekarte kommt bald",
+		"emptyDescription": "Dieses Restaurant richtet gerade seine Speisekarte ein. Schauen Sie später noch einmal vorbei!",
+		"options": {
+			"required": "Erforderlich",
+			"optional": "Optional",
+			"selectAtLeast": "Mindestens {{count}} auswählen",
+			"selectUpTo": "Bis zu {{count}} auswählen",
+			"select": "{{count}} auswählen",
+			"selectRange": "{{min}}-{{max}} auswählen",
+			"selectQuantities": "Mengen auswählen",
+			"atLeast": "Mindestens {{count}}",
+			"upTo": "Bis zu {{count}}",
+			"free": "{{count}} gratis",
+			"selected": "{{count}} ausgewählt",
+			"max": "{{count}} max",
+			"decreaseQuantity": "Menge von {{name}} verringern",
+			"increaseQuantity": "Menge von {{name}} erhöhen"
+		}
+	},
+	"header": {
+		"cartWithItems": "Warenkorb mit {{count}} Artikeln",
+		"backToShop": "Zurück zum Shop"
+	},
+	"errors": {
+		"somethingWentWrong": "Etwas ist schiefgelaufen",
+		"couldNotLoadRestaurant": "Wir konnten dieses Restaurant nicht laden. Bitte versuchen Sie es erneut.",
+		"tryAgain": "Erneut versuchen",
+		"restaurantNotFound": "Restaurant nicht gefunden",
+		"restaurantNotFoundDescription": "Das gesuchte Restaurant existiert nicht oder ist nicht mehr verfügbar."
+	},
+	"quantity": {
+		"decrease": "Menge verringern",
+		"increase": "Menge erhöhen"
+	},
+	"status": {
+		"openNow": "Jetzt geöffnet",
+		"closed": "Geschlossen"
+	}
+}

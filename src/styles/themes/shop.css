@@ -1,13 +1,14 @@
 /**
  * Shop Theme - Warm, inviting e-commerce aesthetic
  *
- * Used by: /shop routes (via data-theme="shop" on html element)
+ * Used by: /shop routes (loaded via shop-bundle.css)
  * Mode: Light-only (no dark variant)
  *
  * Design: "Modern Cafe" - warm creams, rich browns, serif headings
  */
 
-[data-theme="shop"] {
+:root {
+	color-scheme: light;
 	--radius: 1rem;
 
 	/* Core colors - warm, inviting palette */
@@ -54,7 +55,7 @@
 	--sidebar-border: oklch(0.92 0.008 80);
 	--sidebar-ring: oklch(0.62 0.14 35);
 
-	/* Typography - elegant serif for headings */
+	/* Typography - self-hosted fonts */
 	--font-heading: "Instrument Serif", Georgia, serif;
-	--font-body: "DM Sans", system-ui, sans-serif;
+	--font-body: "DM Sans Variable", system-ui, sans-serif;
 }

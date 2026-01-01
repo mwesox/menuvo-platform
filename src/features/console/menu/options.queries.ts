@@ -12,6 +12,7 @@ import {
 	deleteOptionGroup,
 	getOptionGroup,
 	getOptionGroups,
+	saveOptionGroupWithChoices,
 	toggleOptionChoiceAvailable,
 	toggleOptionGroupActive,
 	updateItemOptions,
@@ -23,6 +24,7 @@ import {
 export type {
 	CreateOptionChoiceInput,
 	CreateOptionGroupInput,
+	SaveOptionGroupWithChoicesInput,
 	UpdateItemOptionsInput,
 	UpdateOptionChoiceInput,
 	UpdateOptionGroupInput,
@@ -31,6 +33,7 @@ export type {
 import type {
 	CreateOptionChoiceInput,
 	CreateOptionGroupInput,
+	SaveOptionGroupWithChoicesInput,
 	UpdateOptionChoiceInput,
 	UpdateOptionGroupInput,
 } from "./options.validation.ts";
@@ -156,6 +159,29 @@ export function useDeleteOptionGroup(storeId: number) {
 		},
 		onError: () => {
 			toast.error(t("error.deleteOptionGroup"));
+		},
+	});
+}
+
+export function useSaveOptionGroupWithChoices(storeId: number) {
+	const queryClient = useQueryClient();
+	const { t } = useTranslation("toasts");
+
+	return useMutation({
+		mutationFn: (input: Omit<SaveOptionGroupWithChoicesInput, "storeId">) =>
+			saveOptionGroupWithChoices({ data: { storeId, ...input } }),
+		onSuccess: (savedGroup) => {
+			queryClient.setQueryData(
+				optionKeys.groups.detail(savedGroup.id),
+				savedGroup,
+			);
+			queryClient.invalidateQueries({
+				queryKey: optionKeys.groups.byStore(storeId),
+			});
+			toast.success(t("success.optionGroupSaved"));
+		},
+		onError: () => {
+			toast.error(t("error.saveOptionGroup"));
 		},
 	});
 }

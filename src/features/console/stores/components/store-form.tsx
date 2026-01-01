@@ -17,18 +17,7 @@ import {
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import type { Store } from "@/db/schema";
-import {
-	currencies,
-	timezones,
-} from "@/features/console/onboarding/validation";
 import { createStore, updateStore } from "../server/stores.functions";
 import { storeFormSchema } from "../validation";
 
@@ -54,8 +43,6 @@ export function StoreForm({ store, merchantId }: StoreFormProps) {
 			country: store?.country ?? "",
 			phone: store?.phone ?? "",
 			email: store?.email ?? "",
-			timezone: store?.timezone ?? "Europe/Berlin",
-			currency: (store?.currency ?? "EUR") as "EUR" | "USD" | "GBP" | "CHF",
 		},
 		validators: {
 			onSubmit: storeFormSchema,
@@ -290,81 +277,6 @@ export function StoreForm({ store, merchantId }: StoreFormProps) {
 												onChange={(e) => field.handleChange(e.target.value)}
 												aria-invalid={isInvalid}
 											/>
-											{isInvalid && (
-												<FieldError errors={field.state.meta.errors} />
-											)}
-										</Field>
-									);
-								}}
-							</form.Field>
-						</div>
-
-						<div className="grid gap-4 sm:grid-cols-2">
-							<form.Field name="timezone">
-								{(field) => {
-									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid;
-									return (
-										<Field data-invalid={isInvalid}>
-											<FieldLabel htmlFor={field.name}>
-												{tForms("fields.timezone")}
-											</FieldLabel>
-											<Select
-												name={field.name}
-												value={field.state.value}
-												onValueChange={field.handleChange}
-											>
-												<SelectTrigger id={field.name} aria-invalid={isInvalid}>
-													<SelectValue
-														placeholder={tForms("placeholders.selectTimezone")}
-													/>
-												</SelectTrigger>
-												<SelectContent>
-													{timezones.map((tz) => (
-														<SelectItem key={tz.value} value={tz.value}>
-															{tz.label}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											{isInvalid && (
-												<FieldError errors={field.state.meta.errors} />
-											)}
-										</Field>
-									);
-								}}
-							</form.Field>
-							<form.Field name="currency">
-								{(field) => {
-									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid;
-									return (
-										<Field data-invalid={isInvalid}>
-											<FieldLabel htmlFor={field.name}>
-												{tForms("fields.currency")}
-											</FieldLabel>
-											<Select
-												name={field.name}
-												value={field.state.value}
-												onValueChange={(value) =>
-													field.handleChange(
-														value as "EUR" | "USD" | "GBP" | "CHF",
-													)
-												}
-											>
-												<SelectTrigger id={field.name} aria-invalid={isInvalid}>
-													<SelectValue
-														placeholder={tForms("placeholders.selectCurrency")}
-													/>
-												</SelectTrigger>
-												<SelectContent>
-													{currencies.map((curr) => (
-														<SelectItem key={curr.value} value={curr.value}>
-															{curr.label}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
 											{isInvalid && (
 												<FieldError errors={field.state.meta.errors} />
 											)}

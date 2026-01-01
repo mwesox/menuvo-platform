@@ -1,3 +1,17 @@
+import type { MenuItem, MenuItemWithDefaults } from "./validation";
+
+/**
+ * @deprecated Since API now returns isDefault directly, this is a pass-through.
+ * Kept for backward compatibility but can be removed once all callers are updated.
+ */
+export function enrichMenuItemWithDefaults(
+	item: MenuItem,
+): MenuItemWithDefaults {
+	// API now returns all default/quantity fields directly
+	// This function is now a pass-through for backward compatibility
+	return item as MenuItemWithDefaults;
+}
+
 /**
  * Format a price in cents to a currency string.
  * @param cents - The price in cents

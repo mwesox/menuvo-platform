@@ -17,12 +17,15 @@
 		"deleteOptionGroup": "Delete Option Group",
 		"deleteItem": "Delete Item",
 		"itemDetails": "Item Details",
-		"allergens": "Allergens"
+		"allergens": "Allergens",
+		"categoryDetails": "Category Details",
+		"optionGroupDetails": "Option Group Details"
 	},
 	"labels": {
 		"categoryName": "Category Name",
 		"itemName": "Item Name",
 		"optionGroupName": "Option Group Name",
+		"optionGroupType": "Modifier Type",
 		"sortOrder": "Sort Order",
 		"visibility": "Visibility",
 		"status": "Status",
@@ -36,7 +39,15 @@
 		"unlimited": "Unlimited",
 		"choiceName": "Choice name",
 		"itemImage": "Item Image",
-		"selectStore": "Select a store"
+		"selectStore": "Select a store",
+		"numFreeOptions": "Free Options",
+		"aggregateMinQuantity": "Min Total Quantity",
+		"aggregateMaxQuantity": "Max Total Quantity",
+		"defaultSelected": "Default",
+		"minQty": "Min",
+		"maxQty": "Max",
+		"description": "Description",
+		"allergens": "Allergens"
 	},
 	"emptyStates": {
 		"noStores": "No stores yet",
@@ -49,7 +60,8 @@
 		"noItemsDescription": "Create your first menu item.",
 		"noOptionGroups": "No option groups yet",
 		"noOptionGroupsDescription": "Create option groups for customizations like sizes, toppings, or extras.",
-		"noChoices": "No choices added yet. Add your first choice below."
+		"noChoices": "No choices added yet. Add your first choice below.",
+		"noItemsInCategory": "No items in this category yet"
 	},
 	"dialogs": {
 		"createCategoryDescription": "Create a new menu category.",
@@ -72,7 +84,22 @@
 		"optionGroupName": "e.g., Size, Toppings, Extras",
 		"optionGroupDescription": "Optional description for this option group",
 		"itemName": "e.g., Margherita Pizza",
-		"itemDescription": "Describe this item..."
+		"itemDescription": "Describe this item...",
+		"aggregateMinQuantity": "No minimum",
+		"aggregateMaxQuantity": "No maximum"
+	},
+	"hints": {
+		"numFreeOptions": "Number of choices customers can add for free before being charged",
+		"aggregateMinQuantity": "Minimum total quantity customer must select",
+		"aggregateMaxQuantity": "Maximum total quantity customer can select"
+	},
+	"optionTypes": {
+		"singleSelect": "Single Select",
+		"singleSelectDesc": "Customer must choose exactly one option (radio buttons)",
+		"multiSelect": "Multi Select",
+		"multiSelectDesc": "Customer can choose multiple options (checkboxes)",
+		"quantitySelect": "Quantity Select",
+		"quantitySelectDesc": "Customer picks quantities of each option (e.g., pick 3 donuts)"
 	},
 	"actions": {
 		"createStore": "Create Store",
@@ -110,10 +137,12 @@
 		"addFirstItem": "Add your first menu item to this category."
 	},
 	"optionGroups": {
+		"selectOne": "Choose one",
 		"selectExact": "Select {count}",
 		"selectRange": "{min}-{max}",
 		"selectUpTo": "Up to {max}",
 		"selectMin": "Min {min}",
+		"selectQuantity": "Select quantities",
 		"optional": "Optional",
 		"required": "Required",
 		"hidden": "Hidden",
@@ -123,14 +152,35 @@
 		"choices": "choices",
 		"viewChoices": "View choices",
 		"soldOut": "Sold out",
+		"default": "Default",
+		"freeOptions": "{count} free",
 		"noOptionGroupsYet": "No option groups yet. Create some in the Options tab.",
 		"optionGroupsSelected": "{count} option group selected",
-		"optionGroupsSelectedPlural": "{count} option groups selected"
+		"optionGroupsSelectedPlural": "{count} option groups selected",
+		"requiredLabel": "Required",
+		"selectionRules": "Selection Rules",
+		"freeOptionsLabel": "Free Options",
+		"choicesCount": "Choices",
+		"noChoices": "No choices yet",
+		"editOptionGroup": "Edit Option Group"
 	},
 	"itemCard": {
 		"edit": "Edit",
 		"delete": "Delete",
 		"available": "Available",
-		"unavailable": "Unavailable"
+		"unavailable": "Unavailable",
+		"editItem": "Edit Item"
+	},
+	"masterDetail": {
+		"selectCategory": "Select a category",
+		"selectCategoryDescription": "Select a category from the list to view details and manage items.",
+		"selectItem": "Select an item",
+		"selectItemDescription": "Select an item from the list to view details and edit.",
+		"selectOptionGroup": "Select an option group",
+		"selectOptionGroupDescription": "Select an option group from the list to view details and manage choices."
+	},
+	"common": {
+		"yes": "Yes",
+		"no": "No"
 	}
 }

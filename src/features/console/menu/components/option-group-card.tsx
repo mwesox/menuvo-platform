@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
 	DropdownMenu,
@@ -15,7 +16,11 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import type { OptionChoice, OptionGroup } from "@/db/schema.ts";
+import type {
+	OptionChoice,
+	OptionGroup,
+	OptionGroupType,
+} from "@/db/schema.ts";
 import { cn } from "@/lib/utils.ts";
 
 interface OptionGroupCardProps {
@@ -40,14 +45,78 @@ function formatPriceModifier(cents: number): string {
 	return `${prefix}${formatPrice(cents)}`;
 }
 
+function getTypeLabel(
+	t: (key: string) => string,
+	type: OptionGroupType,
+): string {
+	switch (type) {
+		case "single_select":
+			return t("optionTypes.singleSelect");
+		case "multi_select":
+			return t("optionTypes.multiSelect");
+		case "quantity_select":
+			return t("optionTypes.quantitySelect");
+		default:
+			return t("optionTypes.multiSelect");
+	}
+}
+
+function getTypeBadgeVariant(
+	type: OptionGroupType,
+): "default" | "secondary" | "outline" {
+	switch (type) {
+		case "single_select":
+			return "secondary";
+		case "multi_select":
+			return "outline";
+		case "quantity_select":
+			return "default";
+		default:
+			return "outline";
+	}
+}
+
 function getSelectionLabel(
 	t: (
 		key: string,
 		options?: { count?: number; min?: number; max?: number },
 	) => string,
+	type: OptionGroupType,
 	minSelections: number,
 	maxSelections: number | null,
+	aggregateMinQuantity: number | null,
+	aggregateMaxQuantity: number | null,
 ): string {
+	// For single_select
+	if (type === "single_select") {
+		return t("optionGroups.selectOne");
+	}
+
+	// For quantity_select
+	if (type === "quantity_select") {
+		if (
+			aggregateMinQuantity !== null &&
+			aggregateMaxQuantity !== null &&
+			aggregateMinQuantity === aggregateMaxQuantity
+		) {
+			return t("optionGroups.selectExact", { count: aggregateMinQuantity });
+		}
+		if (aggregateMinQuantity !== null && aggregateMaxQuantity !== null) {
+			return t("optionGroups.selectRange", {
+				min: aggregateMinQuantity,
+				max: aggregateMaxQuantity,
+			});
+		}
+		if (aggregateMaxQuantity !== null) {
+			return t("optionGroups.selectUpTo", { max: aggregateMaxQuantity });
+		}
+		if (aggregateMinQuantity !== null) {
+			return t("optionGroups.selectMin", { min: aggregateMinQuantity });
+		}
+		return t("optionGroups.selectQuantity");
+	}
+
+	// For multi_select
 	if (minSelections === maxSelections && maxSelections !== null) {
 		return t("optionGroups.selectExact", { count: minSelections });
 	}
@@ -88,11 +157,18 @@ export function OptionGroupCard({
 			{/* Header */}
 			<div className="p-4">
 				<div className="flex items-start justify-between gap-3">
-					<div className="flex-1 min-w-0">
-						<div className="flex items-center gap-2">
+					<button
+						type="button"
+						onClick={() => onEdit(optionGroup)}
+						className="flex-1 min-w-0 text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm"
+					>
+						<div className="flex items-center gap-2 flex-wrap">
 							<h3 className="font-medium text-foreground truncate">
 								{optionGroup.name}
 							</h3>
+							<Badge variant={getTypeBadgeVariant(optionGroup.type)}>
+								{getTypeLabel(t, optionGroup.type)}
+							</Badge>
 							{!optionGroup.isActive && (
 								<span className="text-xs text-muted-foreground">
 									{t("optionGroups.hidden")}
@@ -106,7 +182,7 @@ export function OptionGroupCard({
 						)}
 
 						{/* Meta info */}
-						<div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+						<div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
 							{optionGroup.isRequired && (
 								<span className="text-foreground font-medium">
 									{t("optionGroups.required")}
@@ -115,8 +191,11 @@ export function OptionGroupCard({
 							<span>
 								{getSelectionLabel(
 									t,
+									optionGroup.type,
 									optionGroup.minSelections,
 									optionGroup.maxSelections,
+									optionGroup.aggregateMinQuantity,
+									optionGroup.aggregateMaxQuantity,
 								)}
 							</span>
 							<span>·</span>
@@ -126,8 +205,18 @@ export function OptionGroupCard({
 									? t("optionGroups.choice")
 									: t("optionGroups.choices")}
 							</span>
+							{optionGroup.numFreeOptions > 0 && (
+								<>
+									<span>·</span>
+									<span className="text-green-600 dark:text-green-500">
+										{t("optionGroups.freeOptions", {
+											count: optionGroup.numFreeOptions,
+										})}
+									</span>
+								</>
+							)}
 						</div>
-					</div>
+					</button>
 
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
@@ -201,6 +290,14 @@ export function OptionGroupCard({
 										>
 											{choice.name}
 										</span>
+										{choice.isDefault && (
+											<Badge
+												variant="secondary"
+												className="text-[10px] px-1.5 py-0"
+											>
+												{t("optionGroups.default")}
+											</Badge>
+										)}
 										{!choice.isAvailable && (
 											<span className="text-xs text-muted-foreground">
 												{t("optionGroups.soldOut")}

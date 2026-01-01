@@ -10,9 +10,9 @@ import {
 	ServicePointsPanel,
 	servicePointQueries,
 } from "@/features/console/service-points";
-import { StoreClosuresForm } from "@/features/console/settings/components/store-closures-form";
-import { StoreHoursForm } from "@/features/console/settings/components/store-hours-form";
+import { StoreClosuresForm } from "@/features/console/stores/components/store-closures-form";
 import { StoreForm } from "@/features/console/stores/components/store-form";
+import { StoreHoursForm } from "@/features/console/stores/components/store-hours-form";
 import {
 	storeClosuresQueries,
 	storeHoursQueries,
