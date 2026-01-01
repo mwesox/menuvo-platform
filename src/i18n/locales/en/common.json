@@ -1,0 +1,73 @@
+{
+	"buttons": {
+		"save": "Save",
+		"saveChanges": "Save Changes",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"edit": "Edit",
+		"add": "Add",
+		"create": "Create",
+		"update": "Update",
+		"close": "Close",
+		"confirm": "Confirm",
+		"back": "Back",
+		"next": "Next",
+		"submit": "Submit",
+		"getStarted": "Get Started",
+		"goToConsole": "Go to Console",
+		"show": "Show",
+		"hide": "Hide"
+	},
+	"states": {
+		"loading": "Loading...",
+		"saving": "Saving...",
+		"creating": "Creating...",
+		"updating": "Updating...",
+		"deleting": "Deleting..."
+	},
+	"labels": {
+		"required": "Required",
+		"optional": "Optional",
+		"active": "Active",
+		"inactive": "Inactive",
+		"available": "Available",
+		"unavailable": "Unavailable",
+		"open": "Open",
+		"closed": "Closed",
+		"unlimited": "Unlimited",
+		"to": "to",
+		"item": "Item",
+		"items": "Items"
+	},
+	"languages": {
+		"en": "English",
+		"de": "Deutsch"
+	},
+	"days": {
+		"monday": "Monday",
+		"tuesday": "Tuesday",
+		"wednesday": "Wednesday",
+		"thursday": "Thursday",
+		"friday": "Friday",
+		"saturday": "Saturday",
+		"sunday": "Sunday"
+	},
+	"currencies": {
+		"EUR": "Euro",
+		"USD": "US Dollar",
+		"GBP": "British Pound",
+		"CHF": "Swiss Franc"
+	},
+	"misc": {
+		"noResults": "No results",
+		"search": "Search",
+		"select": "Select",
+		"selectOption": "Select an option"
+	},
+	"home": {
+		"tagline": "Discover restaurants near you",
+		"allCities": "All cities",
+		"noRestaurants": "No restaurants found",
+		"console": "Console"
+	}
+}

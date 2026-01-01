@@ -1,0 +1,136 @@
+{
+	"pageTitle": "Speisekarte",
+	"pageDescription": "Verwalten Sie Ihre Speisekartenkategorien und Artikel",
+	"titles": {
+		"menuManagement": "Speisekartenverwaltung",
+		"categories": "Kategorien",
+		"items": "Artikel",
+		"options": "Optionen",
+		"optionGroups": "Optionsgruppen",
+		"addCategory": "Kategorie hinzufügen",
+		"editCategory": "Kategorie bearbeiten",
+		"addItem": "Artikel hinzufügen",
+		"editItem": "Artikel bearbeiten",
+		"addOptionGroup": "Optionsgruppe hinzufügen",
+		"editOptionGroup": "Optionsgruppe bearbeiten",
+		"deleteCategory": "Kategorie löschen",
+		"deleteOptionGroup": "Optionsgruppe löschen",
+		"deleteItem": "Artikel löschen",
+		"itemDetails": "Artikeldetails",
+		"allergens": "Allergene"
+	},
+	"labels": {
+		"categoryName": "Kategoriename",
+		"itemName": "Artikelname",
+		"optionGroupName": "Optionsgruppenname",
+		"sortOrder": "Sortierreihenfolge",
+		"visibility": "Sichtbarkeit",
+		"status": "Status",
+		"hidden": "Versteckt",
+		"available": "verfügbar",
+		"settings": "Einstellungen",
+		"choices": "Auswahlmöglichkeiten",
+		"required": "Erforderlich",
+		"minSelections": "Min. Auswahl",
+		"maxSelections": "Max. Auswahl",
+		"unlimited": "Unbegrenzt",
+		"choiceName": "Auswahlname",
+		"itemImage": "Artikelbild",
+		"selectStore": "Laden auswählen"
+	},
+	"emptyStates": {
+		"noStores": "Noch keine Läden",
+		"noStoresDescription": "Erstellen Sie zuerst einen Laden, bevor Sie Menüartikel hinzufügen.",
+		"selectStoreTitle": "Laden auswählen",
+		"selectStoreDescription": "Wählen Sie aus, welche Speisekarte Sie verwalten möchten.",
+		"noCategories": "Noch keine Kategorien",
+		"noCategoriesDescription": "Erstellen Sie Ihre erste Speisekartenkategorie, um Ihre Artikel zu organisieren.",
+		"noItems": "Noch keine Artikel",
+		"noItemsDescription": "Erstellen Sie Ihren ersten Speiseartikel.",
+		"noOptionGroups": "Noch keine Optionsgruppen",
+		"noOptionGroupsDescription": "Erstellen Sie Optionsgruppen für Anpassungen wie Größen, Toppings oder Extras.",
+		"noChoices": "Noch keine Auswahlmöglichkeiten hinzugefügt. Fügen Sie Ihre erste Auswahl unten hinzu."
+	},
+	"dialogs": {
+		"createCategoryDescription": "Erstellen Sie eine neue Speisekartenkategorie.",
+		"updateCategoryDescription": "Aktualisieren Sie die Kategoriedetails.",
+		"deleteCategoryDescription": "Sind Sie sicher, dass Sie diese Kategorie löschen möchten? Alle Artikel in dieser Kategorie werden ebenfalls gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+		"createOptionGroupDescription": "Erstellen Sie eine neue Optionsgruppe mit Auswahlmöglichkeiten.",
+		"updateOptionGroupDescription": "Aktualisieren Sie die Optionsgruppe und Auswahlmöglichkeiten.",
+		"deleteOptionGroupDescription": "Sind Sie sicher, dass Sie diese Optionsgruppe löschen möchten? Alle Auswahlmöglichkeiten in dieser Gruppe werden ebenfalls gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+		"deleteItemDescription": "Sind Sie sicher, dass Sie diesen Artikel löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+	},
+	"descriptions": {
+		"itemDetailsCard": "Grundlegende Informationen zu diesem Speiseartikel.",
+		"allergensCard": "Wählen Sie alle in diesem Artikel enthaltenen Allergene aus.",
+		"optionsCard": "Fügen Sie Optionsgruppen zu diesem Artikel hinzu (z. B. Größe, Toppings, Extras).",
+		"requiredField": "Kunden müssen aus dieser Gruppe auswählen"
+	},
+	"placeholders": {
+		"categoryName": "z. B. Vorspeisen, Hauptgerichte",
+		"categoryDescription": "Optionale Beschreibung für diese Kategorie",
+		"optionGroupName": "z. B. Größe, Toppings, Extras",
+		"optionGroupDescription": "Optionale Beschreibung für diese Optionsgruppe",
+		"itemName": "z. B. Pizza Margherita",
+		"itemDescription": "Beschreiben Sie diesen Artikel..."
+	},
+	"actions": {
+		"createStore": "Laden erstellen",
+		"addChoice": "Auswahl hinzufügen"
+	},
+	"buttons": {
+		"createCategory": "Kategorie erstellen",
+		"createOptionGroup": "Optionsgruppe erstellen",
+		"updateItem": "Artikel aktualisieren",
+		"createItem": "Artikel erstellen"
+	},
+	"navigation": {
+		"backToCategories": "Zurück zu Kategorien",
+		"backToItems": "Zurück zu Artikel"
+	},
+	"pageHeaders": {
+		"addItemTitle": "Artikel hinzufügen",
+		"addItemDescription": "Einen neuen Speiseartikel erstellen",
+		"editItemTitle": "Artikel bearbeiten",
+		"editItemDescription": "{itemName} bearbeiten",
+		"categoryItemsDescription": "Artikel in {categoryName} verwalten"
+	},
+	"messages": {
+		"needCategoryFirst": "Sie müssen zuerst eine Kategorie erstellen, bevor Sie Artikel hinzufügen können.",
+		"itemCreatedSuccess": "Artikel erfolgreich erstellt",
+		"itemUpdatedSuccess": "Artikel erfolgreich aktualisiert",
+		"itemCreationFailed": "Fehler beim Erstellen des Artikels",
+		"itemUpdateFailed": "Fehler beim Aktualisieren des Artikels"
+	},
+	"cards": {
+		"selectCategoryTitle": "Kategorie auswählen",
+		"selectCategoryDescription": "Wählen Sie aus, zu welcher Kategorie dieser Artikel gehört.",
+		"goToCategories": "Zu Kategorien",
+		"noItemsYet": "Noch keine Artikel",
+		"addFirstItem": "Fügen Sie Ihren ersten Speiseartikel zu dieser Kategorie hinzu."
+	},
+	"optionGroups": {
+		"selectExact": "{count} auswählen",
+		"selectRange": "{min}-{max}",
+		"selectUpTo": "Bis zu {max}",
+		"selectMin": "Min. {min}",
+		"optional": "Optional",
+		"required": "Erforderlich",
+		"hidden": "Versteckt",
+		"hide": "Verstecken",
+		"show": "Anzeigen",
+		"choice": "Auswahl",
+		"choices": "Auswahlmöglichkeiten",
+		"viewChoices": "Auswahlmöglichkeiten anzeigen",
+		"soldOut": "Ausverkauft",
+		"noOptionGroupsYet": "Noch keine Optionsgruppen. Erstellen Sie welche im Optionen-Tab.",
+		"optionGroupsSelected": "{count} Optionsgruppe ausgewählt",
+		"optionGroupsSelectedPlural": "{count} Optionsgruppen ausgewählt"
+	},
+	"itemCard": {
+		"edit": "Bearbeiten",
+		"delete": "Löschen",
+		"available": "Verfügbar",
+		"unavailable": "Nicht verfügbar"
+	}
+}

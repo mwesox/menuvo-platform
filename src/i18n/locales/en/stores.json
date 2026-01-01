@@ -1,0 +1,40 @@
+{
+	"titles": {
+		"stores": "Stores",
+		"createStore": "Create Store",
+		"editStore": "Edit Store",
+		"storeDetails": "Store Details",
+		"contactSettings": "Contact & Settings"
+	},
+	"descriptions": {
+		"manageStores": "Manage your store locations",
+		"addNewStore": "Add a new store location",
+		"editingStore": "Editing {{storeName}}",
+		"storeDetails": "Basic information about your store location.",
+		"contactSettings": "Contact information and regional settings."
+	},
+	"labels": {
+		"storeName": "Store Name",
+		"address": "Address",
+		"contactInfo": "Contact Information",
+		"operatingHours": "Operating Hours",
+		"storeStatus": "Store Status",
+		"noAddressConfigured": "No address configured",
+		"manageStore": "Manage Store",
+		"deleteStore": "Delete store",
+		"addStore": "Add Store"
+	},
+	"emptyStates": {
+		"noStores": "No stores yet",
+		"noStoresDescription": "Get started by creating your first store"
+	},
+	"tabs": {
+		"details": "Details",
+		"hours": "Hours",
+		"closures": "Closures"
+	},
+	"dialogs": {
+		"deleteTitle": "Delete Store",
+		"deleteDescription": "Are you sure you want to delete this store? This action cannot be undone. All categories and menu items in this store will also be deleted."
+	}
+}

@@ -1,0 +1,58 @@
+{
+	"pageTitle": "Merchant Settings",
+	"storePageTitle": "Store Settings",
+	"pageDescription": "Settings for {{merchantName}}",
+	"storePageDescription": "Settings for {{storeName}}",
+	"tabs": {
+		"general": "General",
+		"language": "Language",
+		"details": "Details",
+		"regional": "Regional",
+		"hours": "Hours",
+		"closures": "Closures"
+	},
+	"sections": {
+		"merchantSettings": "Merchant Settings",
+		"storeSettings": "Store Settings",
+		"businessInformation": "Business Information",
+		"languageSettings": "Language Settings",
+		"regionalSettings": "Regional Settings",
+		"openingHours": "Opening Hours",
+		"closures": "Scheduled Closures",
+		"payments": "Payments"
+	},
+	"descriptions": {
+		"merchantSettings": "Manage your merchant account settings",
+		"storeSettings": "Configure settings for this store",
+		"businessInformation": "Your business details used across all stores",
+		"languageSettings": "The primary language for your menus and customer-facing content",
+		"regionalSettings": "Timezone and currency settings for this store",
+		"openingHours": "Set your store's opening hours for each day of the week. You can add multiple time slots per day for lunch breaks.",
+		"closures": "Set dates when your store will be closed (holidays, vacations, etc.)",
+		"payments": "Configure payment methods"
+	},
+	"labels": {
+		"defaultLanguage": "Default Language",
+		"additionalLanguages": "Additional Languages",
+		"paymentMethods": "Payment Methods",
+		"acceptCash": "Accept Cash",
+		"acceptCards": "Accept Cards",
+		"startDate": "Start Date",
+		"endDate": "End Date",
+		"reason": "Reason"
+	},
+	"placeholders": {
+		"closureReason": "e.g., Holiday, Vacation, Renovation",
+		"pickDate": "Pick a date"
+	},
+	"actions": {
+		"addClosure": "Add Closure",
+		"deleteClosure": "Delete Closure"
+	},
+	"confirmations": {
+		"deleteClosure": "Are you sure you want to delete this scheduled closure? This action cannot be undone."
+	},
+	"emptyStates": {
+		"noClosures": "No scheduled closures. Add one to set vacation days or holidays."
+	}
+}

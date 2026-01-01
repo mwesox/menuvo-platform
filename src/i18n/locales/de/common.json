@@ -1,0 +1,73 @@
+{
+	"buttons": {
+		"save": "Speichern",
+		"saveChanges": "Änderungen speichern",
+		"cancel": "Abbrechen",
+		"delete": "Löschen",
+		"edit": "Bearbeiten",
+		"add": "Hinzufügen",
+		"create": "Erstellen",
+		"update": "Aktualisieren",
+		"close": "Schließen",
+		"confirm": "Bestätigen",
+		"back": "Zurück",
+		"next": "Weiter",
+		"submit": "Absenden",
+		"getStarted": "Loslegen",
+		"goToConsole": "Zur Konsole",
+		"show": "Anzeigen",
+		"hide": "Ausblenden"
+	},
+	"states": {
+		"loading": "Wird geladen...",
+		"saving": "Wird gespeichert...",
+		"creating": "Wird erstellt...",
+		"updating": "Wird aktualisiert...",
+		"deleting": "Wird gelöscht..."
+	},
+	"labels": {
+		"required": "Erforderlich",
+		"optional": "Optional",
+		"active": "Aktiv",
+		"inactive": "Inaktiv",
+		"available": "Verfügbar",
+		"unavailable": "Nicht verfügbar",
+		"open": "Geöffnet",
+		"closed": "Geschlossen",
+		"unlimited": "Unbegrenzt",
+		"to": "bis",
+		"item": "Artikel",
+		"items": "Artikel"
+	},
+	"languages": {
+		"en": "English",
+		"de": "Deutsch"
+	},
+	"days": {
+		"monday": "Montag",
+		"tuesday": "Dienstag",
+		"wednesday": "Mittwoch",
+		"thursday": "Donnerstag",
+		"friday": "Freitag",
+		"saturday": "Samstag",
+		"sunday": "Sonntag"
+	},
+	"currencies": {
+		"EUR": "Euro",
+		"USD": "US-Dollar",
+		"GBP": "Britisches Pfund",
+		"CHF": "Schweizer Franken"
+	},
+	"misc": {
+		"noResults": "Keine Ergebnisse",
+		"search": "Suchen",
+		"select": "Auswählen",
+		"selectOption": "Option auswählen"
+	},
+	"home": {
+		"tagline": "Entdecken Sie Restaurants in Ihrer Nähe",
+		"allCities": "Alle Städte",
+		"noRestaurants": "Keine Restaurants gefunden",
+		"console": "Konsole"
+	}
+}

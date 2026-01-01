@@ -1,0 +1,168 @@
+import { useForm } from "@tanstack/react-form";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import {
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { merchantQueries, useUpdateMerchantGeneral } from "../queries";
+import { merchantGeneralSchema } from "../validation";
+
+interface MerchantGeneralFormProps {
+	merchantId: number;
+}
+
+export function MerchantGeneralForm({ merchantId }: MerchantGeneralFormProps) {
+	const { t } = useTranslation("settings");
+	const { t: tForms } = useTranslation("forms");
+	const { t: tCommon } = useTranslation("common");
+	const { data: merchant } = useSuspenseQuery(
+		merchantQueries.detail(merchantId),
+	);
+	const updateMutation = useUpdateMerchantGeneral();
+
+	const form = useForm({
+		defaultValues: {
+			name: merchant.name,
+			email: merchant.email,
+			phone: merchant.phone ?? "",
+		},
+		validators: {
+			onSubmit: merchantGeneralSchema,
+		},
+		onSubmit: async ({ value }) => {
+			await updateMutation.mutateAsync({
+				merchantId,
+				...value,
+			});
+		},
+	});
+
+	return (
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				form.handleSubmit();
+			}}
+			className="space-y-6"
+		>
+			<Card>
+				<CardHeader>
+					<CardTitle>{t("sections.businessInformation")}</CardTitle>
+					<CardDescription>
+						{t("descriptions.businessInformation")}
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<FieldGroup>
+						<form.Field
+							name="name"
+							children={(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor={field.name}>
+											{tForms("fields.businessName")} *
+										</FieldLabel>
+										<Input
+											id={field.name}
+											name={field.name}
+											placeholder={tForms("placeholders.enterBusinessName")}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											aria-invalid={isInvalid}
+										/>
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
+									</Field>
+								);
+							}}
+						/>
+
+						<div className="grid gap-4 sm:grid-cols-2">
+							<form.Field
+								name="email"
+								children={(field) => {
+									const isInvalid =
+										field.state.meta.isTouched && !field.state.meta.isValid;
+									return (
+										<Field data-invalid={isInvalid}>
+											<FieldLabel htmlFor={field.name}>
+												{tForms("fields.email")} *
+											</FieldLabel>
+											<Input
+												id={field.name}
+												name={field.name}
+												type="email"
+												placeholder={tForms("placeholders.enterEmail")}
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												aria-invalid={isInvalid}
+											/>
+											{isInvalid && (
+												<FieldError errors={field.state.meta.errors} />
+											)}
+										</Field>
+									);
+								}}
+							/>
+
+							<form.Field
+								name="phone"
+								children={(field) => {
+									const isInvalid =
+										field.state.meta.isTouched && !field.state.meta.isValid;
+									return (
+										<Field data-invalid={isInvalid}>
+											<FieldLabel htmlFor={field.name}>
+												{tForms("fields.phone")}
+											</FieldLabel>
+											<Input
+												id={field.name}
+												name={field.name}
+												placeholder={tForms("placeholders.enterPhone")}
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												aria-invalid={isInvalid}
+											/>
+											{isInvalid && (
+												<FieldError errors={field.state.meta.errors} />
+											)}
+										</Field>
+									);
+								}}
+							/>
+						</div>
+					</FieldGroup>
+				</CardContent>
+			</Card>
+
+			<form.Subscribe
+				selector={(state) => state.isSubmitting}
+				children={(isSubmitting) => (
+					<Button type="submit" disabled={isSubmitting}>
+						{isSubmitting
+							? tCommon("states.saving")
+							: tCommon("buttons.saveChanges")}
+					</Button>
+				)}
+			/>
+		</form>
+	);
+}

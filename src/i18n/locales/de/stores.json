@@ -1,0 +1,40 @@
+{
+	"titles": {
+		"stores": "Filialen",
+		"createStore": "Filiale erstellen",
+		"editStore": "Filiale bearbeiten",
+		"storeDetails": "Filialdetails",
+		"contactSettings": "Kontakt & Einstellungen"
+	},
+	"descriptions": {
+		"manageStores": "Verwalten Sie Ihre Filialstandorte",
+		"addNewStore": "Fügen Sie einen neuen Filialstandort hinzu",
+		"editingStore": "{{storeName}} bearbeiten",
+		"storeDetails": "Grundlegende Informationen über Ihren Filialstandort.",
+		"contactSettings": "Kontaktinformationen und regionale Einstellungen."
+	},
+	"labels": {
+		"storeName": "Filialname",
+		"address": "Adresse",
+		"contactInfo": "Kontaktinformationen",
+		"operatingHours": "Öffnungszeiten",
+		"storeStatus": "Filialstatus",
+		"noAddressConfigured": "Keine Adresse konfiguriert",
+		"manageStore": "Filiale verwalten",
+		"deleteStore": "Filiale löschen",
+		"addStore": "Filiale hinzufügen"
+	},
+	"emptyStates": {
+		"noStores": "Noch keine Filialen",
+		"noStoresDescription": "Erstellen Sie Ihre erste Filiale, um loszulegen"
+	},
+	"tabs": {
+		"details": "Details",
+		"hours": "Öffnungszeiten",
+		"closures": "Schließungen"
+	},
+	"dialogs": {
+		"deleteTitle": "Filiale löschen",
+		"deleteDescription": "Sind Sie sicher, dass Sie diese Filiale löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden. Alle Kategorien und Menüpunkte in dieser Filiale werden ebenfalls gelöscht."
+	}
+}

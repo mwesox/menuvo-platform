@@ -1,0 +1,58 @@
+{
+	"pageTitle": "Händlereinstellungen",
+	"storePageTitle": "Filialeinstellungen",
+	"pageDescription": "Einstellungen für {{merchantName}}",
+	"storePageDescription": "Einstellungen für {{storeName}}",
+	"tabs": {
+		"general": "Allgemein",
+		"language": "Sprache",
+		"details": "Details",
+		"regional": "Regional",
+		"hours": "Zeiten",
+		"closures": "Schließungen"
+	},
+	"sections": {
+		"merchantSettings": "Händlereinstellungen",
+		"storeSettings": "Filialeinstellungen",
+		"businessInformation": "Geschäftsinformationen",
+		"languageSettings": "Spracheinstellungen",
+		"regionalSettings": "Regionale Einstellungen",
+		"openingHours": "Öffnungszeiten",
+		"closures": "Geplante Schließungen",
+		"payments": "Zahlungen"
+	},
+	"descriptions": {
+		"merchantSettings": "Verwalten Sie Ihre Händlerkontoeinstellungen",
+		"storeSettings": "Konfigurieren Sie die Einstellungen für diese Filiale",
+		"businessInformation": "Ihre Geschäftsdaten, die in allen Filialen verwendet werden",
+		"languageSettings": "Die Hauptsprache für Ihre Speisekarten und kundenseitigen Inhalte",
+		"regionalSettings": "Zeitzone und Währungseinstellungen für diese Filiale",
+		"openingHours": "Legen Sie die Öffnungszeiten Ihrer Filiale für jeden Wochentag fest. Sie können mehrere Zeitfenster pro Tag für Mittagspausen hinzufügen.",
+		"closures": "Legen Sie Daten fest, an denen Ihre Filiale geschlossen ist (Feiertage, Urlaub usw.)",
+		"payments": "Konfigurieren Sie Zahlungsmethoden"
+	},
+	"labels": {
+		"defaultLanguage": "Standardsprache",
+		"additionalLanguages": "Zusätzliche Sprachen",
+		"paymentMethods": "Zahlungsmethoden",
+		"acceptCash": "Bargeld akzeptieren",
+		"acceptCards": "Karten akzeptieren",
+		"startDate": "Startdatum",
+		"endDate": "Enddatum",
+		"reason": "Grund"
+	},
+	"placeholders": {
+		"closureReason": "z.B. Feiertag, Urlaub, Renovierung",
+		"pickDate": "Datum wählen"
+	},
+	"actions": {
+		"addClosure": "Schließung hinzufügen",
+		"deleteClosure": "Schließung löschen"
+	},
+	"confirmations": {
+		"deleteClosure": "Sind Sie sicher, dass Sie diese geplante Schließung löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+	},
+	"emptyStates": {
+		"noClosures": "Keine geplanten Schließungen. Fügen Sie eine hinzu, um Urlaubstage oder Feiertage festzulegen."
+	}
+}
