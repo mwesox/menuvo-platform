@@ -1,0 +1,14 @@
+{
+	"footer": {
+		"impressum": "Impressum",
+		"privacyPolicy": "Datenschutz",
+		"termsOfService": "AGB",
+		"cookiePolicy": "Cookie-Richtlinie",
+		"dataProtection": "Datenschutz",
+		"dpoContact": "Datenschutzbeauftragter",
+		"allRightsReserved": "Alle Rechte vorbehalten."
+	},
+	"dpo": {
+		"email": "dpo@menuvo.app"
+	}
+}
