@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/layout/page-header";
-import { StoreForm } from "@/features/stores/components/store-form";
+import { StoreForm } from "@/features/console/stores/components/store-form";
 
 export const Route = createFileRoute("/console/stores/new")({
 	component: NewStorePage,

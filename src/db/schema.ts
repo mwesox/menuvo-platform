@@ -9,6 +9,7 @@ import {
 	serial,
 	text,
 	timestamp,
+	unique,
 	varchar,
 } from "drizzle-orm/pg-core";
 
@@ -162,6 +163,7 @@ export const storesRelations = relations(stores, ({ one, many }) => ({
 	optionGroups: many(optionGroups),
 	hours: many(storeHours),
 	closures: many(storeClosures),
+	servicePoints: many(servicePoints),
 }));
 
 // ============================================================================
@@ -516,6 +518,112 @@ export const imagesRelations = relations(images, ({ one }) => ({
 }));
 
 // ============================================================================
+// SERVICE POINTS
+// ============================================================================
+
+/**
+ * Service points represent physical or logical locations within a store
+ * where customers can access the menu via QR code (e.g., tables, counters, kiosks).
+ *
+ * - Fully flexible types: merchants define their own (table, counter, etc.)
+ * - JSONB attributes for arbitrary key-value tags
+ * - Unique code per store for URL generation
+ */
+export const servicePoints = pgTable(
+	"service_points",
+	{
+		id: serial().primaryKey(),
+		storeId: integer("store_id")
+			.notNull()
+			.references(() => stores.id, { onDelete: "cascade" }),
+		// URL-safe identifier (e.g., "table-5", "bar-counter")
+		code: varchar("code", { length: 100 }).notNull(),
+		// Display name (e.g., "Table 5", "Bar Counter")
+		name: varchar("name", { length: 255 }).notNull(),
+		// Merchant-defined type (flexible, not enum)
+		type: varchar("type", { length: 100 }),
+		// Optional description
+		description: text(),
+		// Flexible attributes as JSONB (e.g., { section: "outdoor", floor: 2 })
+		attributes:
+			jsonb("attributes").$type<Record<string, string | number | boolean>>(),
+		// Display order for list views
+		displayOrder: integer("display_order").notNull().default(0),
+		// Active status
+		isActive: boolean("is_active").notNull().default(true),
+		// Timestamps
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+		updatedAt: timestamp("updated_at")
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [
+		index("idx_service_points_store").on(table.storeId),
+		unique("unq_service_points_store_code").on(table.storeId, table.code),
+	],
+);
+
+export const servicePointsRelations = relations(
+	servicePoints,
+	({ one, many }) => ({
+		store: one(stores, {
+			fields: [servicePoints.storeId],
+			references: [stores.id],
+		}),
+		scans: many(servicePointScans),
+	}),
+);
+
+// ============================================================================
+// SERVICE POINT SCANS (Analytics)
+// ============================================================================
+
+/**
+ * Tracks QR code scans for analytics purposes.
+ * Records when and where users scan service point QR codes.
+ */
+export const servicePointScans = pgTable(
+	"service_point_scans",
+	{
+		id: serial().primaryKey(),
+		servicePointId: integer("service_point_id")
+			.notNull()
+			.references(() => servicePoints.id, { onDelete: "cascade" }),
+		storeId: integer("store_id")
+			.notNull()
+			.references(() => stores.id, { onDelete: "cascade" }),
+		// When the scan occurred
+		scannedAt: timestamp("scanned_at").notNull().defaultNow(),
+		// User agent for device type detection
+		userAgent: text("user_agent"),
+		// Hashed IP for privacy-preserving analytics
+		ipHash: varchar("ip_hash", { length: 64 }),
+		// Referrer URL if available
+		referrer: text("referrer"),
+	},
+	(table) => [
+		index("idx_scans_service_point").on(table.servicePointId),
+		index("idx_scans_store").on(table.storeId),
+		index("idx_scans_date").on(table.scannedAt),
+	],
+);
+
+export const servicePointScansRelations = relations(
+	servicePointScans,
+	({ one }) => ({
+		servicePoint: one(servicePoints, {
+			fields: [servicePointScans.servicePointId],
+			references: [servicePoints.id],
+		}),
+		store: one(stores, {
+			fields: [servicePointScans.storeId],
+			references: [stores.id],
+		}),
+	}),
+);
+
+// ============================================================================
 // TYPE EXPORTS
 // ============================================================================
 
@@ -558,3 +666,11 @@ export type NewStoreClosure = InferInsertModel<typeof storeClosures>;
 // Image types
 export type Image = InferSelectModel<typeof images>;
 export type NewImage = InferInsertModel<typeof images>;
+
+// Service Point types
+export type ServicePoint = InferSelectModel<typeof servicePoints>;
+export type NewServicePoint = InferInsertModel<typeof servicePoints>;
+
+// Service Point Scan types
+export type ServicePointScan = InferSelectModel<typeof servicePointScans>;
+export type NewServicePointScan = InferInsertModel<typeof servicePointScans>;

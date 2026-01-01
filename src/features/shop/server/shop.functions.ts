@@ -104,54 +104,59 @@ function isStoreClosed(
 export const getPublicStores = createServerFn({ method: "GET" })
 	.inputValidator(publicStoresFilterSchema)
 	.handler(async ({ data }) => {
-		// Build where conditions
-		const conditions = [eq(stores.isActive, true)];
+		try {
+			// Build where conditions
+			const conditions = [eq(stores.isActive, true)];
 
-		if (data?.city) {
-			conditions.push(ilike(stores.city, `%${data.city}%`));
-		}
+			if (data?.city) {
+				conditions.push(ilike(stores.city, `%${data.city}%`));
+			}
 
-		if (data?.search) {
-			conditions.push(
-				or(
-					ilike(stores.name, `%${data.search}%`),
-					ilike(stores.city, `%${data.search}%`),
-				) ?? eq(stores.id, -1), // Fallback that never matches
-			);
-		}
+			if (data?.search) {
+				conditions.push(
+					or(
+						ilike(stores.name, `%${data.search}%`),
+						ilike(stores.city, `%${data.search}%`),
+					) ?? eq(stores.id, -1), // Fallback that never matches
+				);
+			}
 
-		// Fetch stores with hours and closures
-		const allStores = await db.query.stores.findMany({
-			where: and(...conditions),
-			orderBy: (s, { asc }) => [asc(s.name)],
-			with: {
-				hours: {
-					columns: {
-						dayOfWeek: true,
-						openTime: true,
-						closeTime: true,
+			// Fetch stores with hours and closures
+			const allStores = await db.query.stores.findMany({
+				where: and(...conditions),
+				orderBy: (s, { asc }) => [asc(s.name)],
+				with: {
+					hours: {
+						columns: {
+							dayOfWeek: true,
+							openTime: true,
+							closeTime: true,
+						},
+					},
+					closures: {
+						columns: {
+							startDate: true,
+							endDate: true,
+						},
 					},
 				},
-				closures: {
-					columns: {
-						startDate: true,
-						endDate: true,
-					},
-				},
-			},
-		});
+			});
 
-		// Calculate isOpen status for each store
-		return allStores.map((store) => {
-			const { hours, closures, ...storeData } = store;
-			const hasClosure = isStoreClosed(closures, store.timezone);
-			const isOpen = !hasClosure && isStoreOpen(hours, store.timezone);
+			// Calculate isOpen status for each store
+			return allStores.map((store) => {
+				const { hours, closures, ...storeData } = store;
+				const hasClosure = isStoreClosed(closures, store.timezone);
+				const isOpen = !hasClosure && isStoreOpen(hours, store.timezone);
 
-			return {
-				...storeData,
-				isOpen,
-			};
-		});
+				return {
+					...storeData,
+					isOpen,
+				};
+			});
+		} catch {
+			// Return empty array if database is not available or tables don't exist
+			return [];
+		}
 	});
 
 /**
@@ -161,43 +166,48 @@ export const getPublicStores = createServerFn({ method: "GET" })
 export const getStoreBySlug = createServerFn({ method: "GET" })
 	.inputValidator(storeBySlugSchema)
 	.handler(async ({ data }) => {
-		// Fetch store with all related data
-		const store = await db.query.stores.findFirst({
-			where: and(eq(stores.slug, data.slug), eq(stores.isActive, true)),
-			with: {
-				hours: {
-					columns: {
-						id: true,
-						dayOfWeek: true,
-						openTime: true,
-						closeTime: true,
-						displayOrder: true,
+		let store:
+			| Awaited<ReturnType<typeof db.query.stores.findFirst>>
+			| undefined;
+		try {
+			// Fetch store with all related data
+			store = await db.query.stores.findFirst({
+				where: and(eq(stores.slug, data.slug), eq(stores.isActive, true)),
+				with: {
+					hours: {
+						columns: {
+							id: true,
+							dayOfWeek: true,
+							openTime: true,
+							closeTime: true,
+							displayOrder: true,
+						},
+						orderBy: (h, { asc }) => [asc(h.displayOrder)],
 					},
-					orderBy: (h, { asc }) => [asc(h.displayOrder)],
-				},
-				closures: {
-					columns: {
-						startDate: true,
-						endDate: true,
-						reason: true,
+					closures: {
+						columns: {
+							startDate: true,
+							endDate: true,
+							reason: true,
+						},
 					},
-				},
-				categories: {
-					where: eq(categories.isActive, true),
-					orderBy: (c, { asc }) => [asc(c.displayOrder)],
-					with: {
-						items: {
-							where: eq(items.isAvailable, true),
-							orderBy: (i, { asc }) => [asc(i.displayOrder)],
-							with: {
-								itemOptionGroups: {
-									orderBy: (iog, { asc }) => [asc(iog.displayOrder)],
-									with: {
-										optionGroup: {
-											with: {
-												optionChoices: {
-													where: eq(optionChoices.isAvailable, true),
-													orderBy: (oc, { asc }) => [asc(oc.displayOrder)],
+					categories: {
+						where: eq(categories.isActive, true),
+						orderBy: (c, { asc }) => [asc(c.displayOrder)],
+						with: {
+							items: {
+								where: eq(items.isAvailable, true),
+								orderBy: (i, { asc }) => [asc(i.displayOrder)],
+								with: {
+									itemOptionGroups: {
+										orderBy: (iog, { asc }) => [asc(iog.displayOrder)],
+										with: {
+											optionGroup: {
+												with: {
+													optionChoices: {
+														where: eq(optionChoices.isAvailable, true),
+														orderBy: (oc, { asc }) => [asc(oc.displayOrder)],
+													},
 												},
 											},
 										},
@@ -207,8 +217,11 @@ export const getStoreBySlug = createServerFn({ method: "GET" })
 						},
 					},
 				},
-			},
-		});
+			});
+		} catch {
+			// Database error - treat as not found
+			throw notFound();
+		}
 
 		if (!store) {
 			throw notFound();

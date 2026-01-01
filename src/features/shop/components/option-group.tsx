@@ -3,6 +3,7 @@
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { RequiredBadge, ShopHeading, ShopMutedText, ShopPrice } from "./ui";
 
 interface OptionChoice {
 	id: number;
@@ -22,17 +23,6 @@ interface OptionGroupProps {
 	choices: OptionChoice[];
 	selectedChoiceIds: number[];
 	onSelectionChange: (choiceIds: number[]) => void;
-}
-
-/**
- * Format a price modifier in cents to a display string.
- * @param cents - The price modifier in cents
- * @returns Formatted string like "+$2.00", "-$1.00", or empty string if 0
- */
-function formatModifier(cents: number): string {
-	if (cents === 0) return "";
-	const prefix = cents > 0 ? "+" : "";
-	return `${prefix}$${(Math.abs(cents) / 100).toFixed(2)}`;
 }
 
 /**
@@ -94,26 +84,17 @@ export function OptionGroup({
 	};
 
 	return (
-		<div className="py-4 border-b border-shop-border-subtle last:border-b-0">
+		<div className="py-4 border-b border-border/50 last:border-b-0">
 			{/* Group Header */}
 			<div className="flex items-center justify-between mb-3">
 				<div className="flex items-center gap-2">
-					<span
-						style={{ fontFamily: "var(--font-heading)" }}
-						className="text-shop-foreground text-lg"
-					>
+					<ShopHeading as="span" size="md">
 						{group.name}
-					</span>
-					{group.isRequired && (
-						<span className="text-xs px-2 py-0.5 bg-shop-accent/10 text-shop-accent rounded-full">
-							Required
-						</span>
-					)}
+					</ShopHeading>
+					{group.isRequired && <RequiredBadge />}
 				</div>
 				{helperText && (
-					<span className="text-sm text-shop-foreground-muted">
-						{helperText}
-					</span>
+					<ShopMutedText className="text-sm">{helperText}</ShopMutedText>
 				)}
 			</div>
 
@@ -135,20 +116,22 @@ export function OptionGroup({
 									id={`choice-${choice.id}`}
 									value={choice.id.toString()}
 									className={cn(
-										"w-5 h-5 rounded-full border-2 border-shop-border",
-										"data-[state=checked]:border-shop-accent data-[state=checked]:bg-shop-accent",
+										"w-5 h-5 rounded-full border-2 border-border",
+										"data-[state=checked]:border-primary data-[state=checked]:bg-primary",
 										"flex items-center justify-center transition-colors",
-										"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shop-accent focus-visible:ring-offset-2",
+										"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 									)}
 								>
 									<RadioGroup.Indicator className="w-2 h-2 rounded-full bg-white" />
 								</RadioGroup.Item>
-								<span className="text-shop-foreground">{choice.name}</span>
+								<span className="text-foreground">{choice.name}</span>
 							</div>
 							{choice.priceModifier !== 0 && (
-								<span className="text-sm text-shop-foreground-muted tabular-nums">
-									{formatModifier(choice.priceModifier)}
-								</span>
+								<ShopPrice
+									cents={choice.priceModifier}
+									variant="modifier"
+									showPlus
+								/>
 							)}
 						</label>
 					))}
@@ -180,17 +163,19 @@ export function OptionGroup({
 											handleCheckboxChange(choice.id, checked === true)
 										}
 										className={cn(
-											"w-5 h-5 rounded border-2 border-shop-border",
-											"data-[state=checked]:border-shop-accent data-[state=checked]:bg-shop-accent",
+											"w-5 h-5 rounded border-2 border-border",
+											"data-[state=checked]:border-primary data-[state=checked]:bg-primary",
 											"transition-colors",
 										)}
 									/>
-									<span className="text-shop-foreground">{choice.name}</span>
+									<span className="text-foreground">{choice.name}</span>
 								</div>
 								{choice.priceModifier !== 0 && (
-									<span className="text-sm text-shop-foreground-muted tabular-nums">
-										{formatModifier(choice.priceModifier)}
-									</span>
+									<ShopPrice
+										cents={choice.priceModifier}
+										variant="modifier"
+										showPlus
+									/>
 								)}
 							</label>
 						);

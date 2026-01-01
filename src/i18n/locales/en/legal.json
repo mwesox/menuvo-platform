@@ -1,6 +1,17 @@
 {
+	"cookie": {
+		"bannerTitle": "We use cookies",
+		"bannerDescription": "Essential cookies are required for the site to function. Non-essential cookies help us improve your experience.",
+		"acceptAll": "Accept all",
+		"essentialOnly": "Essential only",
+		"settings": "Cookie Settings"
+	},
 	"footer": {
+		"poweredBy": "Powered by",
+		"copyright": "© {{year}} Menuvo. All rights reserved.",
 		"impressum": "Impressum",
+		"privacy": "Privacy Policy",
+		"cookies": "Cookie Settings",
 		"privacyPolicy": "Privacy Policy",
 		"termsOfService": "Terms of Service",
 		"cookiePolicy": "Cookie Policy",

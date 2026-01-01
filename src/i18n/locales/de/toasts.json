@@ -31,6 +31,11 @@
 		"optionChoiceAvailable": "Optionsauswahl verfügbar",
 		"optionChoiceUnavailable": "Optionsauswahl nicht verfügbar",
 		"itemOptionsUpdated": "Artikeloptionen erfolgreich aktualisiert",
+		"servicePointCreated": "Servicepunkt erfolgreich erstellt",
+		"servicePointUpdated": "Servicepunkt erfolgreich aktualisiert",
+		"servicePointDeleted": "Servicepunkt erfolgreich gelöscht",
+		"servicePointActivated": "Servicepunkt aktiviert",
+		"servicePointDeactivated": "Servicepunkt deaktiviert",
 		"settingsSaved": "Einstellungen erfolgreich aktualisiert",
 		"languageUpdated": "Sprache erfolgreich aktualisiert",
 		"changesSaved": "Änderungen erfolgreich gespeichert"
@@ -59,6 +64,10 @@
 		"updateOptionChoice": "Optionsauswahl konnte nicht aktualisiert werden",
 		"deleteOptionChoice": "Optionsauswahl konnte nicht gelöscht werden",
 		"updateItemOptions": "Artikeloptionen konnten nicht aktualisiert werden",
+		"createServicePoint": "Servicepunkt konnte nicht erstellt werden",
+		"updateServicePoint": "Servicepunkt konnte nicht aktualisiert werden",
+		"deleteServicePoint": "Servicepunkt konnte nicht gelöscht werden",
+		"updateServicePointStatus": "Servicepunktstatus konnte nicht aktualisiert werden",
 		"saveSettings": "Einstellungen konnten nicht aktualisiert werden",
 		"updateLanguage": "Sprache konnte nicht aktualisiert werden",
 		"loadData": "Daten konnten nicht geladen werden"

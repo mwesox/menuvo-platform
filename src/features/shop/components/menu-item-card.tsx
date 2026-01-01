@@ -1,5 +1,12 @@
 import { Plus } from "lucide-react";
-import { formatPrice } from "../utils";
+import { cn } from "@/lib/utils";
+import {
+	focusRing,
+	ShopBadge,
+	ShopHeading,
+	ShopMutedText,
+	ShopPrice,
+} from "./ui";
 
 interface MenuItemCardProps {
 	item: {
@@ -23,7 +30,10 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 		<button
 			type="button"
 			onClick={handleCardClick}
-			className="flex gap-3 p-3 bg-shop-card rounded-xl cursor-pointer transition-colors hover:bg-shop-card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-shop-accent text-left w-full animate-in fade-in duration-300"
+			className={cn(
+				"flex gap-3 p-3 bg-card rounded-xl cursor-pointer transition-colors hover:bg-card/80 text-left w-full animate-in fade-in duration-300",
+				focusRing,
+			)}
 		>
 			{/* Image */}
 			<div className="w-20 h-20 rounded-lg flex-shrink-0 bg-gradient-to-br from-amber-50 to-orange-50 overflow-hidden">
@@ -39,26 +49,20 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 			{/* Content */}
 			<div className="flex-1 min-w-0 flex flex-col justify-between">
 				<div>
-					<h3
-						style={{ fontFamily: "var(--font-heading)" }}
-						className="text-shop-foreground font-normal"
-					>
+					<ShopHeading as="h3" size="sm" className="font-normal">
 						{item.name}
-					</h3>
+					</ShopHeading>
 					{item.description && (
-						<p className="text-sm text-shop-foreground-muted line-clamp-2 mt-0.5">
+						<ShopMutedText className="text-sm line-clamp-2 mt-0.5">
 							{item.description}
-						</p>
+						</ShopMutedText>
 					)}
 					{item.allergens && item.allergens.length > 0 && (
 						<div className="flex flex-wrap gap-1 mt-1">
 							{item.allergens.map((allergen) => (
-								<span
-									key={allergen}
-									className="text-xs px-1.5 py-0.5 bg-shop-background-subtle rounded text-shop-foreground-muted"
-								>
+								<ShopBadge key={allergen} size="sm" className="rounded">
 									{allergen}
-								</span>
+								</ShopBadge>
 							))}
 						</div>
 					)}
@@ -66,12 +70,10 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 
 				{/* Bottom row - price and button */}
 				<div className="flex items-center justify-between mt-2">
-					<span className="text-shop-foreground font-medium">
-						{formatPrice(item.price)}
-					</span>
+					<ShopPrice cents={item.price} className="font-medium" />
 					<span
 						aria-hidden="true"
-						className="px-3 py-1.5 bg-shop-accent text-shop-accent-foreground rounded-lg text-sm font-medium transition-colors hover:bg-shop-accent-hover"
+						className="px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium transition-colors hover:bg-primary/90"
 					>
 						{item.hasOptions ? (
 							"Customize"

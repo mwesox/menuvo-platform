@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { ShopPillButton } from "./ui";
 
 interface CategoryNavProps {
 	categories: {
@@ -20,7 +20,7 @@ export function CategoryNav({
 
 	return (
 		<nav
-			className="sticky top-14 z-40 bg-shop-background border-b border-shop-border-subtle"
+			className="sticky top-14 z-40 bg-background border-b border-border/50"
 			aria-label="Menu categories"
 		>
 			<div className="flex gap-1 overflow-x-auto scrollbar-hide px-4 py-2 scroll-smooth snap-x snap-mandatory">
@@ -28,20 +28,15 @@ export function CategoryNav({
 					const isActive = activeCategoryId === category.id;
 
 					return (
-						<button
+						<ShopPillButton
 							key={category.id}
-							type="button"
 							onClick={() => onCategoryClick(category.id)}
-							className={cn(
-								"px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors duration-200 snap-start",
-								isActive
-									? "bg-shop-accent text-shop-accent-foreground"
-									: "text-shop-foreground-muted hover:text-shop-foreground hover:bg-shop-background-subtle",
-							)}
+							active={isActive}
+							className="snap-start"
 							aria-current={isActive ? "true" : undefined}
 						>
 							{category.name}
-						</button>
+						</ShopPillButton>
 					);
 				})}
 			</div>

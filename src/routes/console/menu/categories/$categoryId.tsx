@@ -16,12 +16,12 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { ItemCard } from "@/features/menu/components/item-card";
+import { ItemCard } from "@/features/console/menu/components/item-card";
 import {
 	categoryQueries,
 	useDeleteItem,
 	useToggleItemAvailable,
-} from "@/features/menu/queries";
+} from "@/features/console/menu/queries";
 
 const searchSchema = z.object({
 	storeId: z.number(),

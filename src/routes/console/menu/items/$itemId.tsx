@@ -4,10 +4,10 @@ import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { ItemForm } from "@/features/menu/components/item-form";
-import { itemQueries } from "@/features/menu/queries";
-import { getItemOptions } from "@/features/menu/server/options.functions";
-import { storeQueries } from "@/features/stores/queries";
+import { ItemForm } from "@/features/console/menu/components/item-form";
+import { itemQueries } from "@/features/console/menu/queries";
+import { getItemOptions } from "@/features/console/menu/server/options.functions";
+import { storeQueries } from "@/features/console/stores/queries";
 
 export const Route = createFileRoute("/console/menu/items/$itemId")({
 	loader: async ({ context, params }) => {

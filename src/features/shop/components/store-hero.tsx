@@ -1,4 +1,5 @@
 import { MapPin } from "lucide-react";
+import { ShopHeading, ShopMutedText, ShopStatusIndicator } from "./ui";
 
 interface StoreHeroProps {
 	store: {
@@ -33,35 +34,20 @@ export function StoreHero({ store }: StoreHeroProps) {
 			{/* Content */}
 			<div className="px-4 py-5">
 				{/* Store name */}
-				<h1
-					style={{ fontFamily: "var(--font-heading)" }}
-					className="text-3xl text-shop-foreground"
-				>
+				<ShopHeading as="h1" size="2xl">
 					{store.name}
-				</h1>
+				</ShopHeading>
 
 				{/* Address */}
 				{formattedAddress && (
-					<p className="flex items-center gap-1.5 mt-2 text-shop-foreground-muted">
+					<ShopMutedText className="flex items-center gap-1.5 mt-2">
 						<MapPin className="h-4 w-4 shrink-0" />
 						<span>{formattedAddress}</span>
-					</p>
+					</ShopMutedText>
 				)}
 
 				{/* Status indicator */}
-				<div className="flex items-center gap-1.5 mt-2 text-sm">
-					{store.isOpen ? (
-						<>
-							<span className="h-2 w-2 rounded-full bg-shop-success" />
-							<span className="text-shop-success">Open now</span>
-						</>
-					) : (
-						<>
-							<span className="h-2 w-2 rounded-full border border-shop-foreground-muted bg-transparent" />
-							<span className="text-shop-foreground-muted">Closed</span>
-						</>
-					)}
-				</div>
+				<ShopStatusIndicator isOpen={store.isOpen} className="mt-2" />
 			</div>
 		</div>
 	);

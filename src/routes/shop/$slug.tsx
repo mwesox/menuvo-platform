@@ -1,19 +1,32 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	type ErrorComponentProps,
+	notFound,
+} from "@tanstack/react-router";
 import { UtensilsCrossed } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { z } from "zod";
+import { recordScan } from "@/features/console/service-points";
 import { useCart } from "@/features/shop/cart-context";
 import { CategoryNav } from "@/features/shop/components/category-nav";
 import { FloatingCart } from "@/features/shop/components/floating-cart";
-import { ItemSheet } from "@/features/shop/components/item-sheet";
+import { ItemDrawer } from "@/features/shop/components/item-drawer";
 import { MenuItemCard } from "@/features/shop/components/menu-item-card";
 import { StorePageSkeleton } from "@/features/shop/components/menu-item-skeleton";
 import { StoreHero } from "@/features/shop/components/store-hero";
+import { useShop } from "@/features/shop/contexts/shop-context";
 import { shopQueries } from "@/features/shop/queries";
 
+// Search params schema - service point code for QR tracking
+const searchSchema = z.object({
+	sp: z.string().optional(), // service point code
+});
+
 export const Route = createFileRoute("/shop/$slug")({
+	validateSearch: searchSchema,
 	loader: async ({ context, params }) => {
 		const store = await context.queryClient.ensureQueryData(
 			shopQueries.storeBySlug(params.slug),
@@ -26,6 +39,7 @@ export const Route = createFileRoute("/shop/$slug")({
 	component: StoreMenuPage,
 	notFoundComponent: StoreNotFound,
 	pendingComponent: StorePageLoading,
+	errorComponent: StoreError,
 });
 
 // Type for menu item from the API
@@ -56,15 +70,48 @@ interface MenuItem {
 
 function StoreMenuPage() {
 	const { slug } = Route.useParams();
+	const { sp: servicePointCode } = Route.useSearch();
 	const { data: store } = useSuspenseQuery(shopQueries.storeBySlug(slug));
 	const { setStore } = useCart();
+	const { setStoreName } = useShop();
 
 	// Set the store in cart context (clears cart if different store)
+	// and set store name in shop context for header
 	useEffect(() => {
 		if (store) {
 			setStore(store.slug);
+			setStoreName(store.name);
 		}
-	}, [store, setStore]);
+	}, [store, setStore, setStoreName]);
+
+	// Record scan when accessing via QR code (service point code present)
+	useEffect(() => {
+		if (servicePointCode && store) {
+			// Store service point in localStorage for order attribution
+			localStorage.setItem(
+				"menuvo_service_point",
+				JSON.stringify({
+					storeSlug: store.slug,
+					code: servicePointCode,
+					timestamp: Date.now(),
+				}),
+			);
+
+			// Record the scan (fire and forget)
+			recordScan({
+				data: {
+					storeSlug: store.slug,
+					servicePointCode,
+					userAgent:
+						typeof navigator !== "undefined" ? navigator.userAgent : undefined,
+					referrer:
+						typeof document !== "undefined" ? document.referrer : undefined,
+				},
+			}).catch(() => {
+				// Silently ignore scan recording failures
+			});
+		}
+	}, [servicePointCode, store]);
 
 	// Category scroll state
 	const [activeCategoryId, setActiveCategoryId] = useState<number | null>(
@@ -72,9 +119,9 @@ function StoreMenuPage() {
 	);
 	const categoryRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
-	// Item sheet state
+	// Item drawer state
 	const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-	const [isItemSheetOpen, setIsItemSheetOpen] = useState(false);
+	const [isItemDrawerOpen, setIsItemDrawerOpen] = useState(false);
 
 	// Handle category click - scroll to section
 	const handleCategoryClick = useCallback((categoryId: number) => {
@@ -137,7 +184,7 @@ function StoreMenuPage() {
 			})),
 		};
 		setSelectedItem(itemWithDefaults);
-		setIsItemSheetOpen(true);
+		setIsItemDrawerOpen(true);
 	}, []);
 
 	// Store ref setter
@@ -178,13 +225,13 @@ function StoreMenuPage() {
 						>
 							{/* Category header */}
 							<h2
-								className="mb-3 text-xl text-shop-foreground"
+								className="mb-3 text-xl text-foreground"
 								style={{ fontFamily: "var(--font-heading)" }}
 							>
 								{category.name}
 							</h2>
 							{category.description && (
-								<p className="mb-4 text-sm text-shop-foreground-muted">
+								<p className="mb-4 text-sm text-muted-foreground">
 									{category.description}
 								</p>
 							)}
@@ -207,8 +254,8 @@ function StoreMenuPage() {
 				)}
 			</div>
 
-			{/* Item customization sheet */}
-			<ItemSheet
+			{/* Item customization drawer */}
+			<ItemDrawer
 				item={
 					selectedItem
 						? {
@@ -226,8 +273,8 @@ function StoreMenuPage() {
 							}
 						: null
 				}
-				open={isItemSheetOpen}
-				onOpenChange={setIsItemSheetOpen}
+				open={isItemDrawerOpen}
+				onOpenChange={setIsItemDrawerOpen}
 				storeId={store.id}
 				storeSlug={store.slug}
 			/>
@@ -243,17 +290,17 @@ function EmptyMenuState() {
 		<div className="flex flex-col items-center justify-center py-20 text-center">
 			<div
 				className="mb-4 flex h-16 w-16 items-center justify-center rounded-full"
-				style={{ backgroundColor: "var(--shop-background-subtle)" }}
+				style={{ backgroundColor: "var(--muted)" }}
 			>
-				<UtensilsCrossed className="h-8 w-8 text-shop-foreground-muted" />
+				<UtensilsCrossed className="h-8 w-8 text-muted-foreground" />
 			</div>
 			<h2
-				className="text-xl text-shop-foreground"
+				className="text-xl text-foreground"
 				style={{ fontFamily: "var(--font-heading)" }}
 			>
 				Menu coming soon
 			</h2>
-			<p className="mt-1 max-w-sm text-shop-foreground-muted">
+			<p className="mt-1 max-w-sm text-muted-foreground">
 				This restaurant is still setting up their menu. Check back later!
 			</p>
 		</div>
@@ -269,20 +316,49 @@ function StoreNotFound() {
 		<div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
 			<div
 				className="mb-4 flex h-16 w-16 items-center justify-center rounded-full"
-				style={{ backgroundColor: "var(--shop-background-subtle)" }}
+				style={{ backgroundColor: "var(--muted)" }}
 			>
-				<UtensilsCrossed className="h-8 w-8 text-shop-foreground-muted" />
+				<UtensilsCrossed className="h-8 w-8 text-muted-foreground" />
 			</div>
 			<h1
-				className="text-2xl text-shop-foreground"
+				className="text-2xl text-foreground"
 				style={{ fontFamily: "var(--font-heading)" }}
 			>
 				Restaurant not found
 			</h1>
-			<p className="mt-2 max-w-sm text-shop-foreground-muted">
+			<p className="mt-2 max-w-sm text-muted-foreground">
 				The restaurant you're looking for doesn't exist or is no longer
 				available.
 			</p>
+		</div>
+	);
+}
+
+function StoreError({ reset }: ErrorComponentProps) {
+	return (
+		<div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
+			<div
+				className="mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+				style={{ backgroundColor: "var(--muted)" }}
+			>
+				<UtensilsCrossed className="h-8 w-8 text-muted-foreground" />
+			</div>
+			<h1
+				className="text-2xl text-foreground"
+				style={{ fontFamily: "var(--font-heading)" }}
+			>
+				Something went wrong
+			</h1>
+			<p className="mt-2 max-w-sm text-muted-foreground">
+				We couldn't load this restaurant. Please try again.
+			</p>
+			<button
+				type="button"
+				onClick={reset}
+				className="mt-4 text-sm text-primary underline-offset-4 hover:underline"
+			>
+				Try again
+			</button>
 		</div>
 	);
 }

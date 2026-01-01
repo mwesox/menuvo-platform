@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { UtensilsCrossed } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { OnboardingForm } from "@/features/onboarding/components/onboarding-form";
+import { OnboardingForm } from "@/features/console/onboarding/components/onboarding-form";
 
 export const Route = createFileRoute("/onboarding")({
 	component: OnboardingPage,

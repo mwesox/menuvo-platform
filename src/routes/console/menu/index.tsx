@@ -1,4 +1,4 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { skipToken, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Layers, ListChecks, Plus, Store, UtensilsCrossed } from "lucide-react";
 import { useState } from "react";
@@ -25,18 +25,18 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Category, Item, OptionChoice, OptionGroup } from "@/db/schema";
-import { CategoryCard } from "@/features/menu/components/category-card";
-import { CategoryDialog } from "@/features/menu/components/category-dialog";
-import { ItemCard } from "@/features/menu/components/item-card";
-import { OptionGroupCard } from "@/features/menu/components/option-group-card";
-import { OptionGroupDialog } from "@/features/menu/components/option-group-dialog";
+import { CategoryCard } from "@/features/console/menu/components/category-card";
+import { CategoryDialog } from "@/features/console/menu/components/category-dialog";
+import { ItemCard } from "@/features/console/menu/components/item-card";
+import { OptionGroupCard } from "@/features/console/menu/components/option-group-card";
+import { OptionGroupDialog } from "@/features/console/menu/components/option-group-dialog";
 import {
 	optionGroupQueries,
 	useCreateOptionGroup,
 	useDeleteOptionGroup,
 	useToggleOptionGroupActive,
 	useUpdateOptionGroup,
-} from "@/features/menu/options.queries";
+} from "@/features/console/menu/options.queries";
 import {
 	categoryQueries,
 	itemQueries,
@@ -46,8 +46,8 @@ import {
 	useToggleCategoryActive,
 	useToggleItemAvailableByStore,
 	useUpdateCategory,
-} from "@/features/menu/queries";
-import { storeQueries } from "@/features/stores/queries";
+} from "@/features/console/menu/queries";
+import { storeQueries } from "@/features/console/stores/queries";
 
 const tabSchema = z.enum(["categories", "items", "options"]);
 type TabValue = z.infer<typeof tabSchema>;
@@ -99,6 +99,40 @@ function MenuPage() {
 
 	const selectedStoreId = storeId ?? autoSelectedStoreId;
 
+	// Category state - must be before early returns (React hooks rules)
+	const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+	const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+	const [deleteCategoryId, setDeleteCategoryId] = useState<number | null>(null);
+
+	// Option group state
+	const [optionGroupDialogOpen, setOptionGroupDialogOpen] = useState(false);
+	const [editingOptionGroup, setEditingOptionGroup] = useState<
+		(OptionGroup & { optionChoices: OptionChoice[] }) | null
+	>(null);
+	const [deleteOptionGroupId, setDeleteOptionGroupId] = useState<number | null>(
+		null,
+	);
+
+	// Item state
+	const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
+
+	// Data queries - must be before early returns (React hooks rules)
+	const { data: categories = [] } = useSuspenseQuery(
+		selectedStoreId
+			? categoryQueries.byStore(selectedStoreId)
+			: { queryKey: ["categories", "disabled"], queryFn: skipToken },
+	);
+	const { data: items = [] } = useSuspenseQuery(
+		selectedStoreId
+			? itemQueries.byStore(selectedStoreId)
+			: { queryKey: ["items", "disabled"], queryFn: skipToken },
+	);
+	const { data: optionGroups = [] } = useSuspenseQuery(
+		selectedStoreId
+			? optionGroupQueries.byStore(selectedStoreId)
+			: { queryKey: ["optionGroups", "disabled"], queryFn: skipToken },
+	);
+
 	// No stores - show empty state
 	if (stores.length === 0) {
 		return (
@@ -126,23 +160,6 @@ function MenuPage() {
 			</div>
 		);
 	}
-
-	// Category state
-	const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
-	const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-	const [deleteCategoryId, setDeleteCategoryId] = useState<number | null>(null);
-
-	// Option group state
-	const [optionGroupDialogOpen, setOptionGroupDialogOpen] = useState(false);
-	const [editingOptionGroup, setEditingOptionGroup] = useState<
-		(OptionGroup & { optionChoices: OptionChoice[] }) | null
-	>(null);
-	const [deleteOptionGroupId, setDeleteOptionGroupId] = useState<number | null>(
-		null,
-	);
-
-	// Item state
-	const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
 
 	const getActionConfig = () => {
 		switch (tab) {
@@ -185,16 +202,6 @@ function MenuPage() {
 			search: { storeId: selectedStoreId, tab: value as TabValue },
 		});
 	};
-
-	const { data: categories = [] } = useSuspenseQuery(
-		categoryQueries.byStore(selectedStoreId),
-	);
-	const { data: items = [] } = useSuspenseQuery(
-		itemQueries.byStore(selectedStoreId),
-	);
-	const { data: optionGroups = [] } = useSuspenseQuery(
-		optionGroupQueries.byStore(selectedStoreId),
-	);
 
 	return (
 		<div className="space-y-6">

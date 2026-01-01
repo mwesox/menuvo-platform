@@ -1,6 +1,6 @@
 "use client";
 
-import { formatPrice } from "../utils";
+import { ShopDivider, ShopHeading, ShopPrice, ShopPriceRow } from "./ui";
 
 interface CartSummaryProps {
 	/** Subtotal in cents */
@@ -9,30 +9,25 @@ interface CartSummaryProps {
 
 export function CartSummary({ subtotal }: CartSummaryProps) {
 	return (
-		<div className="space-y-2 pt-4 border-t border-shop-border">
+		<div className="space-y-2 pt-4 border-t border-border">
 			{/* Subtotal row */}
-			<div className="flex justify-between py-2 text-shop-foreground">
-				<span className="text-shop-foreground-muted">Subtotal</span>
-				<span>{formatPrice(subtotal)}</span>
-			</div>
+			<ShopPriceRow label="Subtotal" cents={subtotal} />
 
 			{/* Tax row */}
-			<div className="flex justify-between py-2 text-shop-foreground">
-				<span className="text-shop-foreground-muted">Tax</span>
-				<span className="text-shop-foreground-muted">
-					Calculated at checkout
-				</span>
+			<div className="flex justify-between py-2 text-foreground">
+				<span className="text-muted-foreground">Tax</span>
+				<span className="text-muted-foreground">Calculated at checkout</span>
 			</div>
 
 			{/* Divider */}
-			<div className="border-t border-shop-border" />
+			<ShopDivider />
 
 			{/* Total row */}
-			<div className="flex justify-between py-2 text-lg font-medium text-shop-foreground">
+			<div className="flex justify-between py-2 text-lg font-medium text-foreground">
 				<span>Total</span>
-				<span style={{ fontFamily: "var(--font-heading)" }}>
-					{formatPrice(subtotal)}
-				</span>
+				<ShopHeading as="span" size="lg">
+					<ShopPrice cents={subtotal} size="lg" />
+				</ShopHeading>
 			</div>
 		</div>
 	);

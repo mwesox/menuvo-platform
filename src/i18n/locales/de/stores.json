@@ -31,7 +31,8 @@
 	"tabs": {
 		"details": "Details",
 		"hours": "Öffnungszeiten",
-		"closures": "Schließungen"
+		"closures": "Schließungen",
+		"qrCodes": "QR-Codes"
 	},
 	"dialogs": {
 		"deleteTitle": "Filiale löschen",

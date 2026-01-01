@@ -21,9 +21,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { ItemForm } from "@/features/menu/components/item-form";
-import { categoryQueries } from "@/features/menu/queries";
-import { storeQueries } from "@/features/stores/queries";
+import { ItemForm } from "@/features/console/menu/components/item-form";
+import { categoryQueries } from "@/features/console/menu/queries";
+import { storeQueries } from "@/features/console/stores/queries";
 
 const searchSchema = z.object({
 	categoryId: z.number().optional(),

@@ -45,7 +45,7 @@ export function QuantityStepper({
 	return (
 		<div
 			className={cn(
-				"inline-flex items-center gap-1 rounded-full bg-shop-background-subtle",
+				"inline-flex items-center gap-1 rounded-full bg-muted",
 				isSm ? "p-0.5" : "p-1",
 			)}
 		>
@@ -56,7 +56,7 @@ export function QuantityStepper({
 				aria-label="Decrease quantity"
 				className={cn(
 					"flex items-center justify-center rounded-full transition-colors",
-					"hover:bg-shop-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shop-accent focus-visible:ring-offset-1",
+					"hover:bg-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
 					"active:scale-95",
 					isAtMin && "cursor-not-allowed opacity-30 hover:bg-transparent",
 					isSm ? "size-8" : "size-10",
@@ -67,7 +67,7 @@ export function QuantityStepper({
 
 			<span
 				className={cn(
-					"min-w-[2rem] text-center font-medium tabular-nums text-shop-foreground",
+					"min-w-[2rem] text-center font-medium tabular-nums text-foreground",
 					"transition-transform duration-150",
 					animating && "scale-110",
 					isSm ? "text-sm" : "text-base",
@@ -85,7 +85,7 @@ export function QuantityStepper({
 				aria-label="Increase quantity"
 				className={cn(
 					"flex items-center justify-center rounded-full transition-colors",
-					"hover:bg-shop-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shop-accent focus-visible:ring-offset-1",
+					"hover:bg-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
 					"active:scale-95",
 					isAtMax && "cursor-not-allowed opacity-30 hover:bg-transparent",
 					isSm ? "size-8" : "size-10",

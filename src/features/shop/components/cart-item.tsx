@@ -2,8 +2,8 @@
 
 import { X } from "lucide-react";
 import type { CartItem as CartItemType } from "../cart-context";
-import { formatPrice } from "../utils";
 import { QuantityStepper } from "./quantity-stepper";
+import { ShopHeading, ShopMutedText, ShopPrice } from "./ui";
 
 interface CartItemProps {
 	item: CartItemType;
@@ -18,7 +18,7 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 		.join(", ");
 
 	return (
-		<div className="flex gap-3 py-4 border-b border-shop-border-subtle">
+		<div className="flex gap-3 py-4 border-b border-border/50">
 			{/* Item image */}
 			<div className="w-14 h-14 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 flex-shrink-0 overflow-hidden">
 				{item.imageUrl && (
@@ -34,22 +34,19 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 			<div className="flex-1 min-w-0">
 				<div className="flex items-start justify-between gap-2">
 					<div className="min-w-0">
-						<h3
-							style={{ fontFamily: "var(--font-heading)" }}
-							className="text-shop-foreground font-normal truncate"
-						>
+						<ShopHeading as="h3" size="sm" className="font-normal truncate">
 							{item.name}
-						</h3>
+						</ShopHeading>
 						{optionsText && (
-							<p className="text-sm text-shop-foreground-muted truncate">
+							<ShopMutedText className="text-sm truncate">
 								{optionsText}
-							</p>
+							</ShopMutedText>
 						)}
 					</div>
 					<button
 						type="button"
 						onClick={onRemove}
-						className="p-1.5 text-shop-foreground-muted hover:text-shop-foreground transition-colors flex-shrink-0"
+						className="p-1.5 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
 						aria-label={`Remove ${item.name} from cart`}
 					>
 						<X className="w-4 h-4" />
@@ -65,9 +62,7 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 						max={99}
 						size="sm"
 					/>
-					<span className="font-medium text-shop-foreground">
-						{formatPrice(item.totalPrice)}
-					</span>
+					<ShopPrice cents={item.totalPrice} className="font-medium" />
 				</div>
 			</div>
 		</div>

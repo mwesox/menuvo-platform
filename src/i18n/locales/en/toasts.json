@@ -31,6 +31,11 @@
 		"optionChoiceAvailable": "Option choice available",
 		"optionChoiceUnavailable": "Option choice unavailable",
 		"itemOptionsUpdated": "Item options updated successfully",
+		"servicePointCreated": "Service point created successfully",
+		"servicePointUpdated": "Service point updated successfully",
+		"servicePointDeleted": "Service point deleted successfully",
+		"servicePointActivated": "Service point activated",
+		"servicePointDeactivated": "Service point deactivated",
 		"settingsSaved": "Settings updated successfully",
 		"languageUpdated": "Language updated successfully",
 		"changesSaved": "Changes saved successfully"
@@ -59,6 +64,10 @@
 		"updateOptionChoice": "Failed to update option choice",
 		"deleteOptionChoice": "Failed to delete option choice",
 		"updateItemOptions": "Failed to update item options",
+		"createServicePoint": "Failed to create service point",
+		"updateServicePoint": "Failed to update service point",
+		"deleteServicePoint": "Failed to delete service point",
+		"updateServicePointStatus": "Failed to update service point status",
 		"saveSettings": "Failed to update settings",
 		"updateLanguage": "Failed to update language",
 		"loadData": "Failed to load data"

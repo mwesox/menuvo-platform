@@ -1,4 +1,3 @@
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import {
 	createRootRouteWithContext,
@@ -6,24 +5,27 @@ import {
 	Outlet,
 	Scripts,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { I18nextProvider } from "react-i18next";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { initI18n, type SupportedLanguage } from "@/i18n";
 import { detectLanguageFromRequest } from "@/i18n/server";
-import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
-import appCss from "../styles.css?url";
+import { type AppTheme, detectThemeFromRequest } from "@/lib/theme";
+import appCss from "../styles/base.css?url";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
 	language: SupportedLanguage;
+	theme: AppTheme;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
 	beforeLoad: async () => {
-		const language = await detectLanguageFromRequest();
-		return { language };
+		const [language, theme] = await Promise.all([
+			detectLanguageFromRequest(),
+			detectThemeFromRequest(),
+		]);
+		return { language, theme };
 	},
 	head: () => ({
 		meta: [
@@ -63,12 +65,12 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 function RootComponent() {
-	const { language } = Route.useRouteContext();
+	const { language, theme } = Route.useRouteContext();
 	const i18n = initI18n(language);
 
 	return (
 		<I18nextProvider i18n={i18n}>
-			<html lang={i18n.language}>
+			<html lang={i18n.language} data-theme={theme}>
 				<head>
 					<HeadContent />
 				</head>
@@ -77,18 +79,6 @@ function RootComponent() {
 						<Outlet />
 						<Toaster />
 					</Providers>
-					<TanStackDevtools
-						config={{
-							position: "bottom-right",
-						}}
-						plugins={[
-							{
-								name: "Tanstack Router",
-								render: <TanStackRouterDevtoolsPanel />,
-							},
-							TanStackQueryDevtools,
-						]}
-					/>
 					<Scripts />
 				</body>
 			</html>

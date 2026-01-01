@@ -13,12 +13,12 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { StoreCard } from "@/features/stores/components/store-card";
+import { StoreCard } from "@/features/console/stores/components/store-card";
 import {
 	storeQueries,
 	useDeleteStore,
 	useToggleStoreActive,
-} from "@/features/stores/queries";
+} from "@/features/console/stores/queries";
 
 export const Route = createFileRoute("/console/stores/")({
 	loader: async ({ context }) => {

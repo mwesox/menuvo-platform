@@ -31,7 +31,8 @@
 	"tabs": {
 		"details": "Details",
 		"hours": "Hours",
-		"closures": "Closures"
+		"closures": "Closures",
+		"qrCodes": "QR Codes"
 	},
 	"dialogs": {
 		"deleteTitle": "Delete Store",

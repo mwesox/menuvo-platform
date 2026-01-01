@@ -2,24 +2,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function MenuItemSkeleton() {
 	return (
-		<div className="flex gap-3 p-3 bg-shop-card rounded-xl">
+		<div className="flex gap-3 p-3 bg-card rounded-xl">
 			{/* Image skeleton */}
-			<Skeleton className="w-20 h-20 rounded-lg flex-shrink-0 bg-shop-background-subtle" />
+			<Skeleton className="w-20 h-20 rounded-lg flex-shrink-0 bg-muted" />
 
 			{/* Content skeleton */}
 			<div className="flex-1 min-w-0 flex flex-col justify-between">
 				<div>
 					{/* Title */}
-					<Skeleton className="h-5 w-2/3 bg-shop-background-subtle" />
+					<Skeleton className="h-5 w-2/3 bg-muted" />
 					{/* Description */}
-					<Skeleton className="h-4 w-full mt-1.5 bg-shop-background-subtle" />
-					<Skeleton className="h-4 w-3/4 mt-1 bg-shop-background-subtle" />
+					<Skeleton className="h-4 w-full mt-1.5 bg-muted" />
+					<Skeleton className="h-4 w-3/4 mt-1 bg-muted" />
 				</div>
 
 				{/* Bottom row */}
 				<div className="flex items-center justify-between mt-2">
-					<Skeleton className="h-5 w-16 bg-shop-background-subtle" />
-					<Skeleton className="h-8 w-20 rounded-lg bg-shop-background-subtle" />
+					<Skeleton className="h-5 w-16 bg-muted" />
+					<Skeleton className="h-8 w-20 rounded-lg bg-muted" />
 				</div>
 			</div>
 		</div>
@@ -30,7 +30,7 @@ export function CategorySkeleton() {
 	return (
 		<div className="mb-8">
 			{/* Category header skeleton */}
-			<Skeleton className="h-7 w-40 mb-3 bg-shop-background-subtle" />
+			<Skeleton className="h-7 w-40 mb-3 bg-muted" />
 
 			{/* Items skeleton */}
 			<div className="space-y-3">
@@ -54,12 +54,12 @@ export function StorePageSkeleton() {
 			</div>
 
 			{/* Category nav skeleton */}
-			<div className="sticky top-14 z-30 bg-shop-background border-b border-shop-border">
+			<div className="sticky top-14 z-30 bg-background border-b border-border">
 				<div className="flex gap-2 px-4 py-3">
-					<Skeleton className="h-8 w-24 rounded-full bg-shop-background-subtle" />
-					<Skeleton className="h-8 w-20 rounded-full bg-shop-background-subtle" />
-					<Skeleton className="h-8 w-28 rounded-full bg-shop-background-subtle" />
-					<Skeleton className="h-8 w-24 rounded-full bg-shop-background-subtle" />
+					<Skeleton className="h-8 w-24 rounded-full bg-muted" />
+					<Skeleton className="h-8 w-20 rounded-full bg-muted" />
+					<Skeleton className="h-8 w-28 rounded-full bg-muted" />
+					<Skeleton className="h-8 w-24 rounded-full bg-muted" />
 				</div>
 			</div>
 

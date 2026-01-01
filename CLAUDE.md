@@ -35,21 +35,35 @@ bun run db:studio          # Open Drizzle Studio
 
 ### Project Structure
 
+Features are organized by user domain:
+
+- **Console** (`src/features/console/`) - Merchant admin interface for managing menus, stores, settings
+- **Shop** (`src/features/shop/`) - Customer-facing storefront for browsing and ordering
+
 ```
 src/
-├── features/              # Feature-based modules
-│   └── {feature}/
-│       ├── components/    # Feature components
-│       ├── server/        # Server functions
-│       ├── queries.ts     # Query options & mutations
-│       └── validation.ts  # Zod schemas
-├── routes/                # File-based routing
+├── features/
+│   ├── console/                 # Admin features (menu, stores, settings, images, onboarding, service-points)
+│   │   └── {feature}/
+│   │       ├── components/      # Feature components
+│   │       ├── server/          # Server functions
+│   │       ├── queries.ts       # Query options & mutations
+│   │       └── validation.ts    # Zod schemas
+│   └── shop/                    # Customer-facing feature
+│       ├── components/          # UI components
+│       ├── contexts/            # React Context providers (cart, cookie consent)
+│       ├── server/              # Server functions
+│       ├── queries.ts
+│       └── validation.ts
+├── routes/
+│   ├── console/                 # Admin routes
+│   └── shop/                    # Storefront routes
 ├── components/
-│   ├── ui/                # Shadcn components
-│   └── layout/            # Layout components
+│   ├── ui/                      # Shadcn components
+│   └── layout/                  # Layout components
 └── db/
-    ├── schema.ts          # Drizzle schema
-    └── index.ts           # Database connection
+    ├── schema.ts                # Drizzle schema
+    └── index.ts                 # Database connection
 ```
 
 ### Key Files
@@ -58,6 +72,22 @@ src/
 - `src/routes/__root.tsx` - Root layout
 - `src/db/schema.ts` - Database schema
 - `src/env.ts` - Environment variables (VITE_ prefix for client)
+
+### Theming
+
+Two independent themes using `data-theme` attribute on `<html>`:
+
+- **Console** (`data-theme="console"`) - Zinc-based admin UI with dark mode
+- **Shop** (`data-theme="shop"`) - Warm brown/cream storefront (light only)
+
+Theme is auto-detected in `beforeLoad` via `src/lib/theme.ts`:
+- Hostname: `menuvo.app` → shop, `console.menuvo.app` → console
+- Path fallback: `/shop/*` → shop, else → console
+
+CSS files:
+- `src/styles/base.css` - Tailwind + `@theme inline` mappings
+- `src/styles/themes/console.css` - `:root, [data-theme="console"]`
+- `src/styles/themes/shop.css` - `[data-theme="shop"]`
 
 ## TanStack Form Patterns
 

@@ -20,9 +20,7 @@ export function Logo({ className, height = 32 }: LogoProps) {
 	}
 
 	const logoSrc =
-		resolvedTheme === "dark"
-			? "/menuvo-logo-white.svg"
-			: "/menuvo-logo.svg";
+		resolvedTheme === "dark" ? "/menuvo-logo-white.svg" : "/menuvo-logo.svg";
 
 	return (
 		<img

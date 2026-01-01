@@ -1,0 +1,57 @@
+import { Suspense } from "react";
+import { useTranslation } from "react-i18next";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog.tsx";
+import type { ServicePoint } from "@/db/schema.ts";
+import { ServicePointForm } from "./service-point-form.tsx";
+
+interface ServicePointDialogProps {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+	storeId: number;
+	servicePoint?: ServicePoint;
+}
+
+export function ServicePointDialog({
+	open,
+	onOpenChange,
+	storeId,
+	servicePoint,
+}: ServicePointDialogProps) {
+	const { t } = useTranslation("servicePoints");
+	const isEditing = !!servicePoint;
+
+	return (
+		<Dialog open={open} onOpenChange={onOpenChange}>
+			<DialogContent className="max-w-lg">
+				<DialogHeader>
+					<DialogTitle>
+						{isEditing
+							? t("titles.editServicePoint")
+							: t("titles.createServicePoint")}
+					</DialogTitle>
+					<DialogDescription>
+						{isEditing
+							? t("descriptions.editDescription")
+							: t("descriptions.createDescription")}
+					</DialogDescription>
+				</DialogHeader>
+				<Suspense
+					fallback={<div className="py-8 text-center">{t("misc.loading")}</div>}
+				>
+					<ServicePointForm
+						storeId={storeId}
+						servicePoint={servicePoint}
+						onSuccess={() => onOpenChange(false)}
+						onCancel={() => onOpenChange(false)}
+					/>
+				</Suspense>
+			</DialogContent>
+		</Dialog>
+	);
+}

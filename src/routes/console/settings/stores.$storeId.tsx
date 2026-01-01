@@ -5,15 +5,15 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { PageHeader } from "@/components/layout/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { StoreClosuresForm } from "@/features/settings/components/store-closures-form";
-import { StoreDetailsForm } from "@/features/settings/components/store-details-form";
-import { StoreHoursForm } from "@/features/settings/components/store-hours-form";
-import { StoreRegionalForm } from "@/features/settings/components/store-regional-form";
+import { StoreClosuresForm } from "@/features/console/settings/components/store-closures-form";
+import { StoreDetailsForm } from "@/features/console/settings/components/store-details-form";
+import { StoreHoursForm } from "@/features/console/settings/components/store-hours-form";
+import { StoreRegionalForm } from "@/features/console/settings/components/store-regional-form";
 import {
 	storeClosuresQueries,
 	storeHoursQueries,
 	storeQueries,
-} from "@/features/stores/queries";
+} from "@/features/console/stores/queries";
 
 const tabSchema = z.enum(["details", "regional", "hours", "closures"]);
 type TabValue = z.infer<typeof tabSchema>;

@@ -8,6 +8,7 @@ import legalDe from "./locales/de/legal.json";
 import menuDe from "./locales/de/menu.json";
 import navigationDe from "./locales/de/navigation.json";
 import onboardingDe from "./locales/de/onboarding.json";
+import servicePointsDe from "./locales/de/servicePoints.json";
 import settingsDe from "./locales/de/settings.json";
 import storesDe from "./locales/de/stores.json";
 import toastsDe from "./locales/de/toasts.json";
@@ -18,6 +19,7 @@ import legalEn from "./locales/en/legal.json";
 import menuEn from "./locales/en/menu.json";
 import navigationEn from "./locales/en/navigation.json";
 import onboardingEn from "./locales/en/onboarding.json";
+import servicePointsEn from "./locales/en/servicePoints.json";
 import settingsEn from "./locales/en/settings.json";
 import storesEn from "./locales/en/stores.json";
 import toastsEn from "./locales/en/toasts.json";
@@ -34,6 +36,7 @@ const resources = {
 		toasts: toastsEn,
 		menu: menuEn,
 		stores: storesEn,
+		servicePoints: servicePointsEn,
 		settings: settingsEn,
 		onboarding: onboardingEn,
 		legal: legalEn,
@@ -45,6 +48,7 @@ const resources = {
 		toasts: toastsDe,
 		menu: menuDe,
 		stores: storesDe,
+		servicePoints: servicePointsDe,
 		settings: settingsDe,
 		onboarding: onboardingDe,
 		legal: legalDe,
@@ -70,6 +74,7 @@ export function initI18n(detectedLanguage?: string) {
 				"toasts",
 				"menu",
 				"stores",
+				"servicePoints",
 				"settings",
 				"onboarding",
 				"legal",

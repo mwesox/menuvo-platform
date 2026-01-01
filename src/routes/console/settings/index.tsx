@@ -5,9 +5,9 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { PageHeader } from "@/components/layout/page-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MerchantGeneralForm } from "@/features/settings/components/merchant-general-form";
-import { MerchantLanguageForm } from "@/features/settings/components/merchant-language-form";
-import { merchantQueries } from "@/features/settings/queries";
+import { MerchantGeneralForm } from "@/features/console/settings/components/merchant-general-form";
+import { MerchantLanguageForm } from "@/features/console/settings/components/merchant-language-form";
+import { merchantQueries } from "@/features/console/settings/queries";
 
 const tabSchema = z.enum(["general", "language"]);
 type TabValue = z.infer<typeof tabSchema>;
