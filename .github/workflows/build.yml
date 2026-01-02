@@ -173,8 +173,6 @@ jobs:
           VITE_SENTRY_DSN=${{ secrets.VITE_SENTRY_DSN }}
           SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
           BESZEL_AGENT_KEY=${{ secrets.BESZEL_AGENT_KEY }}
-          GATUS_BASIC_USER=${{ secrets.GATUS_BASIC_USER }}
-          GATUS_BASIC_PASS_BCRYPT_BASE64=${{ secrets.GATUS_BASIC_PASS_BCRYPT_BASE64 }}
           GATUS_TELEGRAM_TOKEN=${{ secrets.GATUS_TELEGRAM_TOKEN }}
           GATUS_TELEGRAM_CHAT_ID=${{ secrets.GATUS_TELEGRAM_CHAT_ID }}
           BACKUP_S3_BUCKET=${{ secrets.BACKUP_S3_BUCKET }}

@@ -10,11 +10,6 @@ ui:
   header: "Menuvo Status"
   description: "Public endpoint health checks"
 
-security:
-  basic:
-    username: ${GATUS_BASIC_USER}
-    password-bcrypt-base64: ${GATUS_BASIC_PASS_BCRYPT_BASE64}
-
 alerting:
   telegram:
     token: ${GATUS_TELEGRAM_TOKEN}

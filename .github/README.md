@@ -101,8 +101,6 @@ Note: Both platform (web server) and worker (background jobs) use the same image
 | Secret | Value | How to get |
 |--------|-------|------------|
 | `BESZEL_AGENT_KEY` | SSH public key | `ssh-keygen -t ed25519 -f beszel-key -N ""` then `cat beszel-key.pub` |
-| `GATUS_BASIC_USER` | Gatus basic auth username | e.g., `menuvo` |
-| `GATUS_BASIC_PASS_BCRYPT_BASE64` | Gatus basic auth password (bcrypt + base64) | Use `htpasswd` and base64 the hash |
 | `GATUS_TELEGRAM_TOKEN` | Telegram bot token | BotFather |
 | `GATUS_TELEGRAM_CHAT_ID` | Telegram chat ID | Use your chat ID |
 | `BACKUP_S3_BUCKET` | Backup bucket name | e.g., `menuvo-backups` |
@@ -125,9 +123,6 @@ openssl rand -base64 32
 
 echo "=== AUTH_SECRET ==="
 openssl rand -base64 32
-
-echo "=== GATUS_BASIC_PASS_BCRYPT_BASE64 ==="
-htpasswd -bnBC 9 "" "your_password" | cut -d: -f2 | base64 | tr -d '\n'
 
 echo "=== Beszel Agent Key ==="
 ssh-keygen -t ed25519 -f beszel-key -N ""

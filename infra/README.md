@@ -185,8 +185,6 @@ OPENROUTER_API_KEY=sk-or-xxx
 VITE_SENTRY_DSN=https://xxx@sentry.io/xxx
 SENTRY_AUTH_TOKEN=xxx
 BESZEL_AGENT_KEY=your_beszel_key
-GATUS_BASIC_USER=menuvo
-GATUS_BASIC_PASS_BCRYPT_BASE64=your_bcrypt_base64
 GATUS_TELEGRAM_TOKEN=123456:abcdef
 GATUS_TELEGRAM_CHAT_ID=123456789
 BACKUP_S3_BUCKET=menuvo-backups
@@ -262,8 +260,6 @@ Configure these in GitHub repository settings (Settings > Secrets and variables 
 | `VITE_SENTRY_DSN` | Sentry DSN for error tracking |
 | `SENTRY_AUTH_TOKEN` | Sentry auth token |
 | `BESZEL_AGENT_KEY` | Beszel agent authentication key |
-| `GATUS_BASIC_USER` | Gatus basic auth username |
-| `GATUS_BASIC_PASS_BCRYPT_BASE64` | Gatus basic auth password (bcrypt + base64) |
 | `GATUS_TELEGRAM_TOKEN` | Telegram bot token for alerts |
 | `GATUS_TELEGRAM_CHAT_ID` | Telegram chat ID for alerts |
 | `BACKUP_S3_BUCKET` | Backup bucket name |
@@ -274,12 +270,6 @@ Configure these in GitHub repository settings (Settings > Secrets and variables 
 | `BACKUP_S3_SECRET_ACCESS_KEY` | Backup secret key |
 | `BACKUP_KEEP_DAYS` | Local backup retention (days) |
 | `BACKUP_CRON` | Backup schedule (cron) |
-
-Generate a Gatus bcrypt password hash:
-
-```bash
-htpasswd -bnBC 9 "" "your_password" | cut -d: -f2 | base64 | tr -d '\n'
-```
 
 ## Backups
 
@@ -314,8 +304,6 @@ Access at `https://status.menuvo.app`
 Monitors:
 - `/live` (liveness)
 - `/health` (readiness)
-
-Protected by Gatus basic auth.
 
 ### Container Logs
 
