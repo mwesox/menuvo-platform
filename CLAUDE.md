@@ -52,11 +52,16 @@ bun --bun run build        # Production build
 bun --bun run check        # Biome lint + format
 bun --bun run test         # Vitest tests
 
-# Database
+# Database (development)
 bun run db:generate        # Generate migrations
 bun run db:migrate         # Run migrations
 bun run db:push            # Push schema
 bun run db:studio          # Drizzle Studio
+
+# Database (test)
+bun run db:test:start      # Start test postgres container
+bun run db:test:reset      # Reset test DB (drop + push schema)
+bun run db:test:push       # Push schema to test DB
 ```
 
 ---

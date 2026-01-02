@@ -3,14 +3,15 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
 import type { Item, Store } from "@/db/schema";
+import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 import { ItemForm } from "@/features/console/menu/components/item-form";
-import { DisplayLanguageProvider } from "@/features/console/menu/contexts/display-language-context";
 import { useEntityDisplayName } from "@/features/console/menu/hooks";
 import { itemOptionQueries } from "@/features/console/menu/options.queries";
 import { itemQueries } from "@/features/console/menu/queries";
 import { storeQueries } from "@/features/console/stores/queries";
 
 export const Route = createFileRoute("/console/menu/items/$itemId")({
+	beforeLoad: async () => requireMerchant(),
 	loader: async ({ context, params }) => {
 		const itemId = Number.parseInt(params.itemId, 10);
 		const [item, itemOptions] = await Promise.all([
@@ -23,7 +24,6 @@ export const Route = createFileRoute("/console/menu/items/$itemId")({
 		);
 		return {
 			initialOptionGroupIds: itemOptions.map((og) => og.id),
-			displayLanguage: context.displayLanguage,
 		};
 	},
 	component: EditItemPage,
@@ -31,19 +31,17 @@ export const Route = createFileRoute("/console/menu/items/$itemId")({
 
 function EditItemPage() {
 	const { itemId } = Route.useParams();
-	const { initialOptionGroupIds, displayLanguage } = Route.useLoaderData();
+	const { initialOptionGroupIds } = Route.useLoaderData();
 	const itemIdNum = Number.parseInt(itemId, 10);
 	const { data: item } = useSuspenseQuery(itemQueries.detail(itemIdNum));
 	const { data: store } = useSuspenseQuery(storeQueries.detail(item.storeId));
 
 	return (
-		<DisplayLanguageProvider language={displayLanguage}>
-			<EditItemPageContent
-				item={item}
-				store={store}
-				initialOptionGroupIds={initialOptionGroupIds}
-			/>
-		</DisplayLanguageProvider>
+		<EditItemPageContent
+			item={item}
+			store={store}
+			initialOptionGroupIds={initialOptionGroupIds}
+		/>
 	);
 }
 

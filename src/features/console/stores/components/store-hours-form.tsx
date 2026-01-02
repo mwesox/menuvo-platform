@@ -11,8 +11,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card.tsx";
+import { Field, FieldLabel } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Label } from "@/components/ui/label.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
 import type { DayOfWeek, StoreHour } from "@/db/schema.ts";
 import {
@@ -200,16 +200,16 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 
 	return (
 		<div className="flex items-start gap-4 py-3 border-b last:border-b-0">
-			<div className="w-28 flex items-center gap-3 pt-1.5">
+			<Field orientation="horizontal" className="w-28 pt-1.5">
 				<Switch
 					id={`${day}-toggle`}
 					checked={value.isOpen}
 					onCheckedChange={handleToggle}
 				/>
-				<Label htmlFor={`${day}-toggle`} className="font-medium">
+				<FieldLabel htmlFor={`${day}-toggle`} className="font-medium">
 					{tCommon(`days.${day}`)}
-				</Label>
-			</div>
+				</FieldLabel>
+			</Field>
 
 			<div className="flex-1">
 				{value.isOpen ? (

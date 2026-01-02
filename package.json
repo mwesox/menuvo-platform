@@ -13,6 +13,7 @@
     "test:client": "vitest run --project client",
     "db:test:start": "docker compose up -d postgres-test",
     "db:test:stop": "docker compose stop postgres-test",
+    "db:test:reset": "docker exec menuvo-platform-postgres-test psql -U postgres -d menuvo_test -c 'DROP SCHEMA public CASCADE; CREATE SCHEMA public;' && bun run db:test:push",
     "db:test:migrate": "DATABASE_URL=postgresql://postgres:postgres@localhost:5433/menuvo_test drizzle-kit migrate",
     "db:test:push": "DATABASE_URL=postgresql://postgres:postgres@localhost:5433/menuvo_test drizzle-kit push",
     "format": "biome format",
@@ -34,10 +35,10 @@
     "stripe:forward": "./scripts/forward-stripe.sh",
     "test:ai": "bun --bun run scripts/test-ai.ts",
     "test:import": "bun --bun run scripts/test-menu-import-e2e.ts",
-    "test:import:verbose": "bun --bun run scripts/test-menu-import-e2e.ts --verbose"
+    "test:import:verbose": "bun --bun run scripts/test-menu-import-e2e.ts --verbose",
+    "knip": "knip"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.17.0",
     "@openrouter/sdk": "^0.3.11",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -113,6 +114,7 @@
     "@vitejs/plugin-react": "^5.0.4",
     "dotenv": "^16.0.0",
     "jsdom": "^27.4.0",
+    "knip": "^5.79.0",
     "shadcn": "^3.6.2",
     "tsx": "^4.0.0",
     "typescript": "^5.7.2",

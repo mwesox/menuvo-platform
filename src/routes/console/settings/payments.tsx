@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
+import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 import { PaymentsPage } from "@/features/console/settings/components/payments";
 
 const searchSchema = z.object({
@@ -9,11 +10,11 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/console/settings/payments")({
 	validateSearch: searchSchema,
+	beforeLoad: async () => requireMerchant(),
 	component: RouteComponent,
 });
 
 function RouteComponent() {
 	const { merchantId } = Route.useRouteContext();
-	// biome-ignore lint/style/noNonNullAssertion: Parent route redirects to onboarding if null
-	return <PaymentsPage merchantId={merchantId!} />;
+	return <PaymentsPage merchantId={merchantId} />;
 }

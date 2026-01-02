@@ -5,10 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -95,7 +92,7 @@ jobs:
     name: Build & Push Docker Image
     runs-on: hetzner-vps
     needs: [lint, typecheck, test]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     permissions:
       contents: read
       packages: write
@@ -124,6 +121,7 @@ jobs:
           tags: |
             type=sha
             type=ref,event=branch
+            type=raw,value=${{ github.sha }}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
@@ -138,3 +136,136 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/mwesox/menuvo-platform:buildcache
           cache-to: type=registry,ref=ghcr.io/mwesox/menuvo-platform:buildcache,mode=max
           provenance: false
+
+  deploy:
+    name: Deploy to VPS
+    runs-on: hetzner-vps
+    needs: [build-push]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    environment: production
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create .env file
+        run: |
+          cat > /home/deploy/menuvo/.env << 'EOF'
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          AUTH_SECRET=${{ secrets.AUTH_SECRET }}
+          S3_ENDPOINT=${{ secrets.S3_ENDPOINT }}
+          S3_ACCESS_KEY_ID=${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}
+          S3_BUCKET=${{ secrets.S3_BUCKET }}
+          S3_FILES_BUCKET=${{ secrets.S3_FILES_BUCKET }}
+          S3_PUBLIC_URL=${{ secrets.S3_PUBLIC_URL }}
+          S3_REGION=${{ secrets.S3_REGION }}
+          STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          STRIPE_WEBHOOK_SECRET_THIN=${{ secrets.STRIPE_WEBHOOK_SECRET_THIN }}
+          VITE_STRIPE_PUBLISHABLE_KEY=${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
+          OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
+          VITE_SENTRY_DSN=${{ secrets.VITE_SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
+          BESZEL_AGENT_KEY=${{ secrets.BESZEL_AGENT_KEY }}
+          GATUS_BASIC_USER=${{ secrets.GATUS_BASIC_USER }}
+          GATUS_BASIC_PASS_BCRYPT_BASE64=${{ secrets.GATUS_BASIC_PASS_BCRYPT_BASE64 }}
+          GATUS_TELEGRAM_TOKEN=${{ secrets.GATUS_TELEGRAM_TOKEN }}
+          GATUS_TELEGRAM_CHAT_ID=${{ secrets.GATUS_TELEGRAM_CHAT_ID }}
+          BACKUP_S3_BUCKET=${{ secrets.BACKUP_S3_BUCKET }}
+          BACKUP_S3_PREFIX=${{ secrets.BACKUP_S3_PREFIX }}
+          BACKUP_S3_ENDPOINT=${{ secrets.BACKUP_S3_ENDPOINT }}
+          BACKUP_S3_REGION=${{ secrets.BACKUP_S3_REGION }}
+          BACKUP_S3_ACCESS_KEY_ID=${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
+          BACKUP_S3_SECRET_ACCESS_KEY=${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
+          BACKUP_KEEP_DAYS=${{ secrets.BACKUP_KEEP_DAYS }}
+          BACKUP_CRON="${{ secrets.BACKUP_CRON }}"
+          VERSION=${{ github.sha }}
+          EOF
+
+      - name: Copy configuration files
+        run: |
+          cp infra/docker-compose.yml /home/deploy/menuvo/
+          cp infra/Caddyfile /home/deploy/menuvo/
+          cp infra/Dockerfile.caddy /home/deploy/menuvo/
+          cp infra/Dockerfile.backup /home/deploy/menuvo/
+          cp infra/backup.sh /home/deploy/menuvo/
+          cp infra/backup-entrypoint.sh /home/deploy/menuvo/
+          cp infra/gatus.yaml /home/deploy/menuvo/
+
+      - name: Rebuild Caddy and backup image
+        run: |
+          cd /home/deploy/menuvo
+          docker compose build caddy postgres-backup
+          docker compose up -d --no-deps --force-recreate caddy
+
+      - name: Ensure core services are running
+        run: |
+          cd /home/deploy/menuvo
+          docker compose up -d postgres redis
+
+      - name: Pull application images
+        run: |
+          cd /home/deploy/menuvo
+          docker compose pull platform-a platform-b worker-images worker-imports
+
+      - name: Run database migrations
+        run: |
+          cd /home/deploy/menuvo
+          docker compose run --rm platform-a bunx drizzle-kit migrate
+
+      - name: Rolling deploy platform
+        run: |
+          cd /home/deploy/menuvo
+
+          wait_for_health() {
+            service="$1"
+            for i in $(seq 1 30); do
+              cid="$(docker compose ps -q "$service")"
+              if [ -n "$cid" ]; then
+                status="$(docker inspect -f '{{.State.Health.Status}}' "$cid" 2>/dev/null || echo starting)"
+                if [ "$status" = "healthy" ]; then
+                  echo "OK: $service is healthy"
+                  return 0
+                fi
+              fi
+              echo "Waiting for $service to be healthy ($i/30)..."
+              sleep 5
+            done
+            echo "FAILED: $service did not become healthy"
+            docker compose logs --tail=200 "$service"
+            exit 1
+          }
+
+          docker compose up -d platform-a
+          wait_for_health platform-a
+
+          docker compose up -d platform-b
+          wait_for_health platform-b
+
+      - name: Deploy workers and backup
+        run: |
+          cd /home/deploy/menuvo
+          docker compose up -d worker-images worker-imports postgres-backup
+          docker compose up -d --no-deps --force-recreate gatus
+
+      - name: Health checks
+        run: |
+          echo "Checking menuvo.app..."
+          for i in {1..12}; do
+            if curl -sf https://menuvo.app/health > /dev/null 2>&1; then
+              echo "OK: menuvo.app is healthy"
+              break
+            fi
+            if [ $i -eq 12 ]; then
+              echo "FAILED: menuvo.app health check failed"
+              exit 1
+            fi
+            echo "Attempt $i/12 - waiting..."
+            sleep 5
+          done

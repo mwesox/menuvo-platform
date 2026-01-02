@@ -1,29 +1,9 @@
-import { createContext, useContext } from "react";
+import { config } from "@/config";
 
 /**
- * Context for the display language in menu admin.
- * This is the language used to show entity names/descriptions.
- * Typically supportedLanguages[0] from merchant settings.
- */
-const DisplayLanguageContext = createContext<string>("de");
-
-export function DisplayLanguageProvider({
-	language,
-	children,
-}: {
-	language: string;
-	children: React.ReactNode;
-}) {
-	return (
-		<DisplayLanguageContext.Provider value={language}>
-			{children}
-		</DisplayLanguageContext.Provider>
-	);
-}
-
-/**
- * Get the current display language for menu content.
+ * Get the display language for menu content.
+ * Reads from global config (prototype: always "de").
  */
 export function useDisplayLanguage(): string {
-	return useContext(DisplayLanguageContext);
+	return config.displayLanguage;
 }

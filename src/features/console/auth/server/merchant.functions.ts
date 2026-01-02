@@ -1,3 +1,4 @@
+import { redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/db";
 
@@ -18,4 +19,16 @@ export const getMerchant = createServerFn().handler(async () => {
 	const merchant = await db.query.merchants.findFirst();
 	if (!merchant) throw new Error("No merchant found");
 	return merchant;
+});
+
+/**
+ * Require merchant for protected console routes.
+ * Redirects to onboarding if no merchant exists.
+ */
+export const requireMerchant = createServerFn().handler(async () => {
+	const merchant = await db.query.merchants.findFirst();
+	if (!merchant) {
+		throw redirect({ to: "/console/onboarding" });
+	}
+	return { merchant, merchantId: merchant.id };
 });

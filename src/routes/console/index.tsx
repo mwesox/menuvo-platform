@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShoppingCart, Store, UtensilsCrossed } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 
 export const Route = createFileRoute("/console/")({
+	beforeLoad: async () => requireMerchant(),
 	component: DashboardPage,
 });
 

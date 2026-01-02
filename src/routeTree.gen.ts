@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LiveRouteImport } from './routes/live'
+import { Route as HealthRouteImport } from './routes/health'
 import { Route as ShopRouteRouteImport } from './routes/shop/route'
 import { Route as ConsoleRouteRouteImport } from './routes/console/route'
 import { Route as BusinessRouteRouteImport } from './routes/business/route'
@@ -38,6 +40,16 @@ import { Route as ConsoleMenuItemsItemIdRouteImport } from './routes/console/men
 import { Route as ConsoleMenuCategoriesCategoryIdRouteImport } from './routes/console/menu/categories/$categoryId'
 import { Route as ApiWebhooksStripeThinRouteImport } from './routes/api.webhooks.stripe.thin'
 
+const LiveRoute = LiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HealthRoute = HealthRouteImport.update({
+  id: '/health',
+  path: '/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRouteRoute = ShopRouteRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -186,6 +198,8 @@ export interface FileRoutesByFullPath {
   '/business': typeof BusinessRouteRouteWithChildren
   '/console': typeof ConsoleRouteRouteWithChildren
   '/shop': typeof ShopRouteRouteWithChildren
+  '/health': typeof HealthRoute
+  '/live': typeof LiveRoute
   '/shop/$slug': typeof ShopSlugRouteRouteWithChildren
   '/console/onboarding': typeof ConsoleOnboardingRoute
   '/business/': typeof BusinessIndexRoute
@@ -213,6 +227,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/health': typeof HealthRoute
+  '/live': typeof LiveRoute
   '/console/onboarding': typeof ConsoleOnboardingRoute
   '/business': typeof BusinessIndexRoute
   '/console': typeof ConsoleIndexRoute
@@ -243,6 +259,8 @@ export interface FileRoutesById {
   '/business': typeof BusinessRouteRouteWithChildren
   '/console': typeof ConsoleRouteRouteWithChildren
   '/shop': typeof ShopRouteRouteWithChildren
+  '/health': typeof HealthRoute
+  '/live': typeof LiveRoute
   '/shop/$slug': typeof ShopSlugRouteRouteWithChildren
   '/console/onboarding': typeof ConsoleOnboardingRoute
   '/business/': typeof BusinessIndexRoute
@@ -275,6 +293,8 @@ export interface FileRouteTypes {
     | '/business'
     | '/console'
     | '/shop'
+    | '/health'
+    | '/live'
     | '/shop/$slug'
     | '/console/onboarding'
     | '/business/'
@@ -302,6 +322,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/health'
+    | '/live'
     | '/console/onboarding'
     | '/business'
     | '/console'
@@ -331,6 +353,8 @@ export interface FileRouteTypes {
     | '/business'
     | '/console'
     | '/shop'
+    | '/health'
+    | '/live'
     | '/shop/$slug'
     | '/console/onboarding'
     | '/business/'
@@ -362,6 +386,8 @@ export interface RootRouteChildren {
   BusinessRouteRoute: typeof BusinessRouteRouteWithChildren
   ConsoleRouteRoute: typeof ConsoleRouteRouteWithChildren
   ShopRouteRoute: typeof ShopRouteRouteWithChildren
+  HealthRoute: typeof HealthRoute
+  LiveRoute: typeof LiveRoute
   ApiImagesUploadRoute: typeof ApiImagesUploadRoute
   ApiMenuImportUploadRoute: typeof ApiMenuImportUploadRoute
   ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRouteWithChildren
@@ -369,6 +395,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/live': {
+      id: '/live'
+      path: '/live'
+      fullPath: '/live'
+      preLoaderRoute: typeof LiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -664,6 +704,8 @@ const rootRouteChildren: RootRouteChildren = {
   BusinessRouteRoute: BusinessRouteRouteWithChildren,
   ConsoleRouteRoute: ConsoleRouteRouteWithChildren,
   ShopRouteRoute: ShopRouteRouteWithChildren,
+  HealthRoute: HealthRoute,
+  LiveRoute: LiveRoute,
   ApiImagesUploadRoute: ApiImagesUploadRoute,
   ApiMenuImportUploadRoute: ApiMenuImportUploadRoute,
   ApiWebhooksStripeRoute: ApiWebhooksStripeRouteWithChildren,

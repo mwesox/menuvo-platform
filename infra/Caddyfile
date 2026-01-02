@@ -1,11 +1,15 @@
 # Menuvo Production Caddyfile
 # TanStack Start Platform - Single domain routing
-# All routes: menuvo.app/console, menuvo.app/shop, etc.
+# Routes: menuvo.app, console.menuvo.app, monitor.menuvo.app, status.menuvo.app
 
 # Global options (MUST be first!)
 {
 	email admin@menuvo.app
 	order rate_limit before basicauth
+	# Cloudflare trusted proxies (update from https://www.cloudflare.com/ips/)
+	servers {
+		trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+	}
 }
 
 # Cloudflare proxy - use internal TLS
@@ -20,8 +24,8 @@
 		read_timeout 30s
 		write_timeout 30s
 	}
-	header_up X-Real-IP {remote_host}
-	header_up X-Forwarded-For {remote_host}
+	header_up X-Real-IP {client_ip}
+	header_up X-Forwarded-For {client_ip}
 	header_up X-Forwarded-Proto {scheme}
 }
 
@@ -33,7 +37,7 @@ menuvo.app, www.menuvo.app {
 	@auth_endpoints path /auth/* /api/auth/*
 	rate_limit @auth_endpoints {
 		zone auth_zone {
-			key {remote_host}
+			key {client_ip}
 			events 10
 			window 1m
 		}
@@ -42,15 +46,17 @@ menuvo.app, www.menuvo.app {
 	@api path /api/*
 	rate_limit @api {
 		zone api_zone {
-			key {remote_host}
+			key {client_ip}
 			events 100
 			window 1m
 		}
 	}
 
 	# Proxy all requests to platform
-	reverse_proxy menuvo-platform:3000 {
+	reverse_proxy platform-a:3000 platform-b:3000 {
 		import proxy_settings
+		lb_policy least_conn
+		health_uri /health
 		health_interval 30s
 		health_timeout 10s
 	}
@@ -66,7 +72,11 @@ menuvo.app, www.menuvo.app {
 	}
 
 	log {
-		output file /var/log/caddy/menuvo.log
+		output file /var/log/caddy/menuvo.log {
+			roll_size 10MiB
+			roll_keep 10
+			roll_keep_for 720h
+		}
 		format json
 		level INFO
 	}
@@ -80,15 +90,15 @@ console.menuvo.app {
 	redir https://menuvo.app/console{uri} permanent
 }
 
-# Beszel Monitoring Dashboard
-monitor.menuvo.app {
+# Status Dashboard (Gatus)
+status.menuvo.app {
 	import cloudflare_tls
 
-	reverse_proxy menuvo-beszel:8090
+	reverse_proxy menuvo-gatus:8080
 
 	rate_limit {
-		zone beszel_zone {
-			key {remote_host}
+		zone status_zone {
+			key {client_ip}
 			events 100
 			window 1m
 		}
@@ -103,7 +113,44 @@ monitor.menuvo.app {
 	}
 
 	log {
-		output file /var/log/caddy/monitor.log
+		output file /var/log/caddy/status.log {
+			roll_size 10MiB
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format json
+		level INFO
+	}
+}
+
+# Beszel Monitoring Dashboard
+monitor.menuvo.app {
+	import cloudflare_tls
+
+	reverse_proxy menuvo-beszel:8090
+
+	rate_limit {
+		zone beszel_zone {
+			key {client_ip}
+			events 100
+			window 1m
+		}
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		X-XSS-Protection "1; mode=block"
+		-Server
+	}
+
+	log {
+		output file /var/log/caddy/monitor.log {
+			roll_size 10MiB
+			roll_keep 10
+			roll_keep_for 720h
+		}
 		format json
 		level INFO
 	}

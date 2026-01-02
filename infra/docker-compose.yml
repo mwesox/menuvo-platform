@@ -1,6 +1,6 @@
 # Menuvo Production Docker Compose
 # TanStack Start Platform with Console and Shop
-# Domains: menuvo.app, www.menuvo.app, console.menuvo.app, monitor.menuvo.app
+# Domains: menuvo.app, www.menuvo.app, console.menuvo.app, monitor.menuvo.app, status.menuvo.app
 # VPS: Hetzner 8GB RAM
 
 services:
@@ -11,7 +11,7 @@ services:
     restart: always
     mem_limit: 3g
     cpus: 2.0
-    shm_size: 256mb
+    shm_size: 2gb
     environment:
       POSTGRES_USER: menuvo
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -55,12 +55,11 @@ services:
       - menuvo
 
   # Menuvo Platform - TanStack Start (Console + Shop)
-  platform:
+  platform-a:
     image: ghcr.io/mwesox/menuvo-platform:${VERSION:-latest}
-    container_name: menuvo-platform
     restart: always
-    mem_limit: 2g
-    cpus: 1.5
+    mem_limit: 1g
+    cpus: 1.0
     environment:
       # Node.js environment
       NODE_ENV: production
@@ -104,15 +103,69 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
     networks:
       - menuvo
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+
+  platform-b:
+    image: ghcr.io/mwesox/menuvo-platform:${VERSION:-latest}
+    restart: always
+    mem_limit: 1g
+    cpus: 1.0
+    environment:
+      # Node.js environment
+      NODE_ENV: production
+      PORT: 3000
+      ORIGIN: https://menuvo.app
+
+      # Database
+      DATABASE_URL: postgres://menuvo:${DB_PASSWORD}@postgres:5432/menuvo
+
+      # Redis
+      REDIS_URL: redis://redis:6379
+
+      # Auth
+      AUTH_SECRET: ${AUTH_SECRET}
+
+      # External Storage (S3/R2)
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_FILES_BUCKET: ${S3_FILES_BUCKET}
+      S3_PUBLIC_URL: ${S3_PUBLIC_URL}
+      S3_REGION: ${S3_REGION:-auto}
+
+      # Stripe
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      STRIPE_WEBHOOK_SECRET_THIN: ${STRIPE_WEBHOOK_SECRET_THIN}
+      VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
+
+      # AI (OpenRouter)
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+
+      # Sentry (optional)
+      VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+      SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - menuvo
 
   # Menuvo Worker - Image Processing (resize, thumbnails, variants)
   worker-images:
@@ -143,10 +196,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      disable: true
     networks:
       - menuvo
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
 
   # Menuvo Worker - Menu Imports (AI-powered PDF/image parsing)
   worker-imports:
@@ -177,10 +230,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      disable: true
     networks:
       - menuvo
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
 
   # Caddy Reverse Proxy - Custom build with rate limiting
   caddy:
@@ -201,31 +254,8 @@ services:
       - caddy_config:/config
       - /var/log/caddy:/var/log/caddy
     depends_on:
-      - platform
-    networks:
-      - menuvo
-    labels:
-      - "com.centurylinklabs.watchtower.enable=false"
-
-  # Watchtower (Auto-update containers)
-  watchtower:
-    image: containrrr/watchtower
-    container_name: menuvo-watchtower
-    restart: always
-    mem_limit: 128m
-    cpus: 0.25
-    ports:
-      - "127.0.0.1:8080:8080"  # API only on localhost
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /home/deploy/.docker/config.json:/config.json:ro
-    environment:
-      WATCHTOWER_CLEANUP: "true"
-      WATCHTOWER_POLL_INTERVAL: 300  # Check every 5 minutes
-      WATCHTOWER_LABEL_ENABLE: "true"
-      WATCHTOWER_HTTP_API_UPDATE: "true"
-      WATCHTOWER_HTTP_API_TOKEN: ${WATCHTOWER_TOKEN}
-      DOCKER_CONFIG: /
+      - platform-a
+      - platform-b
     networks:
       - menuvo
 
@@ -239,6 +269,25 @@ services:
     volumes:
       - beszel_data:/beszel_data
       - beszel_socket:/beszel_socket
+    networks:
+      - menuvo
+
+  # Gatus Uptime Monitoring
+  gatus:
+    image: twinproduction/gatus:v5.33.1
+    container_name: menuvo-gatus
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.25
+    environment:
+      GATUS_CONFIG_PATH: /config/gatus.yaml
+      GATUS_BASIC_USER: ${GATUS_BASIC_USER}
+      GATUS_BASIC_PASS_BCRYPT_BASE64: ${GATUS_BASIC_PASS_BCRYPT_BASE64}
+      GATUS_TELEGRAM_TOKEN: ${GATUS_TELEGRAM_TOKEN}
+      GATUS_TELEGRAM_CHAT_ID: ${GATUS_TELEGRAM_CHAT_ID}
+    volumes:
+      - ./gatus.yaml:/config/gatus.yaml:ro
+      - gatus_data:/data
     networks:
       - menuvo
 
@@ -257,6 +306,39 @@ services:
       LISTEN: /beszel_socket/beszel.sock
       KEY: ${BESZEL_AGENT_KEY}
 
+  # PostgreSQL Backups (S3/R2)
+  postgres-backup:
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
+    container_name: menuvo-postgres-backup
+    restart: always
+    mem_limit: 128m
+    cpus: 0.25
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: menuvo
+      DB_USER: menuvo
+      DB_PASSWORD: ${DB_PASSWORD}
+      BACKUP_S3_BUCKET: ${BACKUP_S3_BUCKET}
+      BACKUP_S3_PREFIX: ${BACKUP_S3_PREFIX:-menuvo}
+      BACKUP_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT:-}
+      BACKUP_S3_REGION: ${BACKUP_S3_REGION:-auto}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-7}
+      BACKUP_CRON: ${BACKUP_CRON:-0 3 * * *}
+      AWS_ACCESS_KEY_ID: ${BACKUP_S3_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${BACKUP_S3_SECRET_ACCESS_KEY}
+      AWS_DEFAULT_REGION: ${BACKUP_S3_REGION:-auto}
+      AWS_EC2_METADATA_DISABLED: "true"
+    volumes:
+      - backups:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - menuvo
+
 volumes:
   postgres_data:
     driver: local
@@ -269,6 +351,10 @@ volumes:
   beszel_data:
     driver: local
   beszel_socket:
+    driver: local
+  gatus_data:
+    driver: local
+  backups:
     driver: local
 
 networks:

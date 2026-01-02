@@ -1,21 +1,50 @@
+# Menuvo Platform
+
+## Local Development
+
+### Prerequisites
+
+- Bun runtime
+- Docker (for databases)
+
+### Setup
+
+```bash
+# Install dependencies
+bun install
+
+# Start development database
+bun run db:start
+bun run db:push
+
+# Start dev server
+bun --bun run dev
+```
+
+### Testing
+
+```bash
+# Start test database
+bun run db:test:start
+
+# Reset test database (required before first run or after schema changes)
+bun run db:test:reset
+
+# Run tests
+bun --bun run test
+```
+
+---
+
 # GitHub Secrets Configuration
 
 ## Required Secrets
 
 Go to: **Repository Settings → Secrets and variables → Actions → New repository secret**
 
-### Server Access
-
-| Secret | Value | How to get |
-|--------|-------|------------|
-| `SERVER_HOST` | Server IP | Fixed server IP address |
-| `SERVER_SSH_KEY` | Private SSH key | `cat ~/.ssh/id_ed25519` |
-
 ### GitHub Container Registry
 
-| Secret | Value | How to get |
-|--------|-------|------------|
-| `GITHUB_TOKEN` | Personal Access Token | GitHub Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new → Scopes: `write:packages`, `read:packages` |
+Uses the built-in `GITHUB_TOKEN` from GitHub Actions for GHCR pushes.
 
 **Image**: `ghcr.io/mwesox/menuvo-platform`
 
@@ -71,8 +100,19 @@ Note: Both platform (web server) and worker (background jobs) use the same image
 
 | Secret | Value | How to get |
 |--------|-------|------------|
-| `WATCHTOWER_TOKEN` | Watchtower API token | `openssl rand -hex 32` |
 | `BESZEL_AGENT_KEY` | SSH public key | `ssh-keygen -t ed25519 -f beszel-key -N ""` then `cat beszel-key.pub` |
+| `GATUS_BASIC_USER` | Gatus basic auth username | e.g., `menuvo` |
+| `GATUS_BASIC_PASS_BCRYPT_BASE64` | Gatus basic auth password (bcrypt + base64) | Use `htpasswd` and base64 the hash |
+| `GATUS_TELEGRAM_TOKEN` | Telegram bot token | BotFather |
+| `GATUS_TELEGRAM_CHAT_ID` | Telegram chat ID | Use your chat ID |
+| `BACKUP_S3_BUCKET` | Backup bucket name | e.g., `menuvo-backups` |
+| `BACKUP_S3_PREFIX` | Backup prefix/folder | e.g., `menuvo` |
+| `BACKUP_S3_ENDPOINT` | R2/S3 endpoint | Cloudflare R2 endpoint URL |
+| `BACKUP_S3_REGION` | Region | `auto` for R2 |
+| `BACKUP_S3_ACCESS_KEY_ID` | Backup access key | Cloudflare R2 API token |
+| `BACKUP_S3_SECRET_ACCESS_KEY` | Backup secret key | Cloudflare R2 API secret |
+| `BACKUP_KEEP_DAYS` | Local retention (days) | e.g., `7` |
+| `BACKUP_CRON` | Backup schedule | e.g., `0 3 * * *` |
 
 ---
 
@@ -86,8 +126,8 @@ openssl rand -base64 32
 echo "=== AUTH_SECRET ==="
 openssl rand -base64 32
 
-echo "=== WATCHTOWER_TOKEN ==="
-openssl rand -hex 32
+echo "=== GATUS_BASIC_PASS_BCRYPT_BASE64 ==="
+htpasswd -bnBC 9 "" "your_password" | cut -d: -f2 | base64 | tr -d '\n'
 
 echo "=== Beszel Agent Key ==="
 ssh-keygen -t ed25519 -f beszel-key -N ""
@@ -96,7 +136,7 @@ cat beszel-key.pub
 
 ---
 
-## Server SSH Setup
+## Server SSH Setup (Manual Access)
 
 1. Generate SSH key pair (if not exists):
    ```bash
@@ -108,12 +148,7 @@ cat beszel-key.pub
    ssh-copy-id -i ~/.ssh/id_ed25519_menuvo.pub deploy@<SERVER_IP>
    ```
 
-3. Add private key to GitHub secrets as `SERVER_SSH_KEY`:
-   ```bash
-   cat ~/.ssh/id_ed25519_menuvo
-   ```
-
-4. Configure SSH to use this key for the server:
+3. Configure SSH to use this key for the server:
    ```bash
    cat >> ~/.ssh/config << 'EOF'
    Host menuvo-production
@@ -130,10 +165,9 @@ cat beszel-key.pub
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| `build-push.yml` | Push to main (src/**, infra/Dockerfile.*) | Build & push Docker images to GHCR |
-| `deploy.yml` | Push to main (infra/*) | Deploy to production server |
+| `build.yml` | PRs + pushes to main | Tests, build, push image, rolling deploy |
 
-Both workflows run on push to main branch.
+Deploys are handled by the same workflow after a successful build on main.
 
 ---
 
@@ -144,7 +178,11 @@ Both workflows run on push to main branch.
 ├── .env                    # Environment variables (created by deploy workflow)
 ├── docker-compose.yml      # Production stack
 ├── Caddyfile               # Reverse proxy config
-└── Dockerfile.caddy        # Custom Caddy build
+├── Dockerfile.caddy        # Custom Caddy build
+├── Dockerfile.backup       # Postgres backup image
+├── backup.sh               # Backup script
+├── backup-entrypoint.sh    # Backup cron entrypoint
+└── gatus.yaml              # Uptime checks config
 ```
 
 ---
@@ -160,12 +198,14 @@ ssh deploy@<SERVER_IP>
 # Navigate to deployment directory
 cd /home/deploy/menuvo
 
+# Ensure VERSION is set to the desired commit SHA tag in .env
+
 # Pull latest images
-docker compose pull platform worker
+docker compose pull platform-a platform-b worker-images worker-imports
 
 # Restart services
-docker compose up -d platform worker
+docker compose up -d platform-a platform-b worker-images worker-imports postgres-backup gatus
 
 # Check logs
-docker compose logs -f platform worker
+docker compose logs -f platform-a worker-images
 ```

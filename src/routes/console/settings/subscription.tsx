@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 import { SubscriptionSettingsPage } from "@/features/console/settings/components/subscription/subscription-settings-page";
 import { subscriptionQueries } from "@/features/console/settings/queries";
 
 export const Route = createFileRoute("/console/settings/subscription")({
+	beforeLoad: async () => requireMerchant(),
 	loader: async ({ context }) => {
 		await context.queryClient.ensureQueryData(
-			// biome-ignore lint/style/noNonNullAssertion: Parent route redirects to onboarding if null
-			subscriptionQueries.detail(context.merchantId!),
+			subscriptionQueries.detail(context.merchantId),
 		);
 	},
 	component: RouteComponent,
@@ -14,6 +15,5 @@ export const Route = createFileRoute("/console/settings/subscription")({
 
 function RouteComponent() {
 	const { merchantId } = Route.useRouteContext();
-	// biome-ignore lint/style/noNonNullAssertion: Parent route redirects to onboarding if null
-	return <SubscriptionSettingsPage merchantId={merchantId!} />;
+	return <SubscriptionSettingsPage merchantId={merchantId} />;
 }

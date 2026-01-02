@@ -1,0 +1,12 @@
+# Menuvo PostgreSQL Backup Dockerfile
+# Uses pg_dump and uploads to S3/R2
+
+FROM postgres:18-alpine
+
+RUN apk add --no-cache aws-cli tzdata
+
+COPY backup.sh /usr/local/bin/backup.sh
+COPY backup-entrypoint.sh /usr/local/bin/backup-entrypoint.sh
+RUN chmod +x /usr/local/bin/backup.sh /usr/local/bin/backup-entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/backup-entrypoint.sh"]

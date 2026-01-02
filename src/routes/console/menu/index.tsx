@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
+import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 import { MenuPage } from "@/features/console/menu/components/menu-page";
 import { optionGroupQueries } from "@/features/console/menu/options.queries";
 import { categoryQueries, itemQueries } from "@/features/console/menu/queries";
@@ -15,11 +16,12 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/console/menu/")({
 	validateSearch: searchSchema,
+	beforeLoad: async () => requireMerchant(),
 	loaderDeps: ({ search }) => ({ storeId: search.storeId, tab: search.tab }),
 	loader: async ({ context, deps }) => {
-		// Stores already loaded by parent /console route
-		const stores =
-			context.queryClient.getQueryData(storeQueries.list().queryKey) ?? [];
+		const stores = await context.queryClient.ensureQueryData(
+			storeQueries.list(),
+		);
 
 		// Auto-select if single store, otherwise use URL param
 		const effectiveStoreId =
@@ -42,8 +44,6 @@ export const Route = createFileRoute("/console/menu/")({
 		return {
 			stores,
 			autoSelectedStoreId: stores.length === 1 ? stores[0].id : undefined,
-			// displayLanguage comes from parent route context
-			displayLanguage: context.displayLanguage,
 		};
 	},
 	component: RouteComponent,

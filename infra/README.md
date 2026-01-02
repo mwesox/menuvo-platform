@@ -10,29 +10,34 @@ Production infrastructure for the Menuvo Platform running on Hetzner VPS.
                                     │                                             │
     ┌──────────────┐                │  ┌─────────────────────────────────────┐   │
     │   Internet   │───────────────────│  Caddy (Reverse Proxy + TLS)        │   │
-    └──────────────┘                │  │  - menuvo.app (Shop)                │   │
-                                    │  │  - console.menuvo.app (Dashboard)   │   │
-                                    │  │  - monitor.menuvo.app (Beszel)      │   │
+    └──────────────┘                │  │  - menuvo.app                       │   │
+                                    │  │  - console.menuvo.app              │   │
+                                    │  │  - monitor.menuvo.app              │   │
+                                    │  │  - status.menuvo.app               │   │
                                     │  └──────────────┬──────────────────────┘   │
                                     │                 │                           │
                                     │     ┌───────────┴───────────┐               │
                                     │     │                       │               │
                                     │  ┌──▼──────────┐  ┌─────────▼────────┐     │
-                                    │  │  Platform   │  │     Worker       │     │
-                                    │  │  (Bun)      │  │  (Background)    │     │
+                                    │  │ Platform A  │  │  Platform B      │     │
+                                    │  │ (Bun)       │  │  (Bun)           │     │
                                     │  └──────┬──────┘  └────────┬─────────┘     │
                                     │         │                  │               │
                                     │     ┌───┴──────────────────┴───┐           │
                                     │     │                          │           │
                                     │  ┌──▼──────────┐  ┌────────────▼──┐       │
-                                    │  │  PostgreSQL │  │     Redis     │       │
-                                    │  │  (18-alpine)│  │   (8-alpine)  │       │
+                                    │  │ PostgreSQL  │  │    Redis       │       │
+                                    │  │ (18-alpine) │  │  (8-alpine)    │       │
                                     │  └─────────────┘  └───────────────┘       │
                                     │                                             │
-                                    │  ┌─────────────┐  ┌───────────────┐        │
-                                    │  │  Watchtower │  │    Beszel     │        │
-                                    │  │  (Auto-pull)│  │  (Monitoring) │        │
-                                    │  └─────────────┘  └───────────────┘        │
+                                    │  ┌───────────────┐  ┌───────────────┐      │
+                                    │  │ Postgres      │  │   Beszel       │      │
+                                    │  │ Backups (S3)  │  │ (Monitoring)   │      │
+                                    │  └───────────────┘  └───────────────┘      │
+                                    │  ┌───────────────┐                        │
+                                    │  │   Gatus       │                        │
+                                    │  │ (Uptime)      │                        │
+                                    │  └───────────────┘                        │
                                     └─────────────────────────────────────────────┘
 ```
 
@@ -40,38 +45,32 @@ Production infrastructure for the Menuvo Platform running on Hetzner VPS.
 
 | Service | Image | Port | Purpose |
 |---------|-------|------|---------|
-| **platform** | `ghcr.io/mwesox/menuvo-platform` | 3000 | TanStack Start app (Console + Shop) |
-| **worker** | `ghcr.io/mwesox/menuvo-platform` | - | Background jobs (image processing, AI menu import) |
+| **platform-a** | `ghcr.io/mwesox/menuvo-platform` | 3000 | TanStack Start app (Console + Shop) |
+| **platform-b** | `ghcr.io/mwesox/menuvo-platform` | 3000 | Second app instance for rolling deploys |
+| **worker-images** | `ghcr.io/mwesox/menuvo-platform` | - | Background jobs (image processing) |
+| **worker-imports** | `ghcr.io/mwesox/menuvo-platform` | - | Background jobs (AI menu import) |
 | **postgres** | `postgres:18-alpine` | 5432 | Primary database |
 | **redis** | `redis:8-alpine` | 6379 | Queue & caching |
 | **caddy** | Custom build | 80, 443 | Reverse proxy with rate limiting |
-| **watchtower** | `containrrr/watchtower` | 8080 | Auto-pulls new images |
+| **postgres-backup** | Custom build | - | Nightly `pg_dump` to S3/R2 |
+| **gatus** | `twinproduction/gatus` | 8080 | Uptime monitoring + alerts |
 | **beszel** | `henrygd/beszel` | 8090 | Monitoring dashboard |
 | **beszel-agent** | `henrygd/beszel-agent` | - | Host metrics collector |
 
 ## Deployment Flow
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌─────────────────┐     ┌─────────────┐
-│   Push to   │────▶│  CI Workflow │────▶│  Build & Push   │────▶│  Watchtower │
-│    main     │     │  (tests/lint)│     │  Docker Image   │     │  Auto-pulls │
-└─────────────┘     └──────────────┘     └─────────────────┘     └─────────────┘
-                                                                        │
-                                                                        ▼
-                                                               ┌─────────────────┐
-                                                               │  Container      │
-                                                               │  Restarts with  │
-                                                               │  new image      │
-                                                               └─────────────────┘
+┌─────────────┐     ┌──────────────┐     ┌─────────────────┐     ┌──────────────────────┐
+│   Push to   │────▶│  CI Workflow │────▶│  Build & Push   │────▶│  Deploy (Rolling)    │
+│    main     │     │  (tests/lint)│     │  Docker Image   │     │  + Health Checks     │
+└─────────────┘     └──────────────┘     └─────────────────┘     └──────────────────────┘
 ```
 
 ### GitHub Actions Workflows
 
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
-| **ci.yml** | All PRs, pushes to main | Run tests, linting, type checks |
-| **build-push.yml** | Push to main (src changes) | Build and push Docker image to GHCR |
-| **deploy.yml** | Push to main (infra changes) | Deploy config changes to VPS |
+| **build.yml** | PRs + pushes to main | Tests, build, push image, rolling deploy |
 
 ## Files
 
@@ -79,8 +78,12 @@ Production infrastructure for the Menuvo Platform running on Hetzner VPS.
 |------|---------|
 | `Dockerfile.platform` | Multi-stage build for platform + worker |
 | `Dockerfile.caddy` | Custom Caddy with rate limiting plugin |
+| `Dockerfile.backup` | Postgres backup image |
 | `Caddyfile` | Reverse proxy configuration |
 | `docker-compose.yml` | Production stack definition |
+| `backup.sh` | Backup script (pg_dump + upload) |
+| `backup-entrypoint.sh` | Cron scheduler for backups |
+| `gatus.yaml` | Gatus config (uptime + alerts) |
 
 ## Deployment
 
@@ -90,36 +93,41 @@ Deployment is fully automated via GitHub Actions:
 
 1. **Code changes**: Push to `main` triggers:
    - CI runs tests and linting
-   - If passing, builds Docker image
-   - Pushes to `ghcr.io/mwesox/menuvo-platform:latest`
-   - Watchtower auto-pulls and restarts containers
+   - Builds and pushes Docker image tagged by commit SHA
+   - Deploy job updates `.env` with the SHA tag
+   - Runs database migrations
+   - Rolling update of `platform-a` then `platform-b`
 
-2. **Infrastructure changes**: Push to `main` with infra file changes triggers:
-   - Copies new config files to VPS
-   - Rebuilds Caddy if needed
+2. **Infrastructure changes**: Push to `main` also:
+   - Copies updated infra files to the VPS
+   - Rebuilds Caddy and backup image
    - Restarts affected services
+
+Rolling deploys assume backward-compatible migrations (expand/contract).
 
 ### Manual Deployment
 
 SSH into the VPS and run:
 
 ```bash
-# Pull latest image
-cd /home/deploy/menuvo
-docker compose pull platform
+# Set VERSION to the desired commit SHA tag in /home/deploy/menuvo/.env
 
-# Restart services
-docker compose up -d platform worker
+# Pull the desired image tag
+cd /home/deploy/menuvo
+docker compose pull platform-a platform-b worker-images worker-imports
+
+# Run migrations
+docker compose run --rm platform-a bunx drizzle-kit migrate
+
+# Rolling update
+docker compose up -d platform-a
+docker compose up -d platform-b
+
+# Restart workers and backups
+docker compose up -d worker-images worker-imports postgres-backup gatus
 
 # Check logs
-docker compose logs -f platform
-```
-
-### Trigger Watchtower Manually
-
-```bash
-curl -H "Authorization: Bearer $WATCHTOWER_TOKEN" \
-     http://localhost:8080/v1/update
+docker compose logs -f platform-a
 ```
 
 ## Initial Server Setup
@@ -159,7 +167,7 @@ cd /home/deploy/menuvo
 ### 4. Create .env file
 
 ```bash
-cat > .env << EOF
+cat > .env << 'EOF'
 DB_PASSWORD=your_secure_password
 AUTH_SECRET=your_auth_secret
 S3_ENDPOINT=https://xxx.r2.cloudflarestorage.com
@@ -176,9 +184,20 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_live_xxx
 OPENROUTER_API_KEY=sk-or-xxx
 VITE_SENTRY_DSN=https://xxx@sentry.io/xxx
 SENTRY_AUTH_TOKEN=xxx
-WATCHTOWER_TOKEN=your_watchtower_token
 BESZEL_AGENT_KEY=your_beszel_key
-VERSION=latest
+GATUS_BASIC_USER=menuvo
+GATUS_BASIC_PASS_BCRYPT_BASE64=your_bcrypt_base64
+GATUS_TELEGRAM_TOKEN=123456:abcdef
+GATUS_TELEGRAM_CHAT_ID=123456789
+BACKUP_S3_BUCKET=menuvo-backups
+BACKUP_S3_PREFIX=menuvo
+BACKUP_S3_ENDPOINT=https://xxx.r2.cloudflarestorage.com
+BACKUP_S3_REGION=auto
+BACKUP_S3_ACCESS_KEY_ID=xxx
+BACKUP_S3_SECRET_ACCESS_KEY=xxx
+BACKUP_KEEP_DAYS=7
+BACKUP_CRON="0 3 * * *"
+VERSION=commit_sha_here
 EOF
 ```
 
@@ -189,6 +208,10 @@ EOF
 scp infra/docker-compose.yml deploy@vps:/home/deploy/menuvo/
 scp infra/Caddyfile deploy@vps:/home/deploy/menuvo/
 scp infra/Dockerfile.caddy deploy@vps:/home/deploy/menuvo/
+scp infra/Dockerfile.backup deploy@vps:/home/deploy/menuvo/
+scp infra/backup.sh deploy@vps:/home/deploy/menuvo/
+scp infra/backup-entrypoint.sh deploy@vps:/home/deploy/menuvo/
+scp infra/gatus.yaml deploy@vps:/home/deploy/menuvo/
 ```
 
 ### 6. Start services
@@ -212,11 +235,8 @@ docker compose logs -f
 ### 7. Run database migrations
 
 ```bash
-# Connect to platform container
-docker compose exec platform sh
-
-# Run migrations
-bunx drizzle-kit migrate
+# Run migrations using the app image
+docker compose run --rm platform-a bunx drizzle-kit migrate
 ```
 
 ## GitHub Secrets Required
@@ -241,8 +261,40 @@ Configure these in GitHub repository settings (Settings > Secrets and variables 
 | `OPENROUTER_API_KEY` | OpenRouter API key for AI |
 | `VITE_SENTRY_DSN` | Sentry DSN for error tracking |
 | `SENTRY_AUTH_TOKEN` | Sentry auth token |
-| `WATCHTOWER_TOKEN` | Watchtower HTTP API token |
 | `BESZEL_AGENT_KEY` | Beszel agent authentication key |
+| `GATUS_BASIC_USER` | Gatus basic auth username |
+| `GATUS_BASIC_PASS_BCRYPT_BASE64` | Gatus basic auth password (bcrypt + base64) |
+| `GATUS_TELEGRAM_TOKEN` | Telegram bot token for alerts |
+| `GATUS_TELEGRAM_CHAT_ID` | Telegram chat ID for alerts |
+| `BACKUP_S3_BUCKET` | Backup bucket name |
+| `BACKUP_S3_PREFIX` | Backup prefix/folder |
+| `BACKUP_S3_ENDPOINT` | R2/S3 endpoint |
+| `BACKUP_S3_REGION` | R2/S3 region |
+| `BACKUP_S3_ACCESS_KEY_ID` | Backup access key |
+| `BACKUP_S3_SECRET_ACCESS_KEY` | Backup secret key |
+| `BACKUP_KEEP_DAYS` | Local backup retention (days) |
+| `BACKUP_CRON` | Backup schedule (cron) |
+
+Generate a Gatus bcrypt password hash:
+
+```bash
+htpasswd -bnBC 9 "" "your_password" | cut -d: -f2 | base64 | tr -d '\n'
+```
+
+## Backups
+
+Backups run via the `postgres-backup` service:
+- Creates a daily `pg_dump` in custom format
+- Uploads to R2/S3
+- Keeps local backups for `BACKUP_KEEP_DAYS`
+
+Recommended: set a bucket lifecycle policy for remote retention.
+
+Check backup logs:
+
+```bash
+docker compose logs -f postgres-backup
+```
 
 ## Monitoring
 
@@ -255,6 +307,16 @@ Shows:
 - Container status
 - Network traffic
 
+### Gatus Status Page
+
+Access at `https://status.menuvo.app`
+
+Monitors:
+- `/live` (liveness)
+- `/health` (readiness)
+
+Protected by Gatus basic auth.
+
 ### Container Logs
 
 ```bash
@@ -262,10 +324,10 @@ Shows:
 docker compose logs -f
 
 # Specific service
-docker compose logs -f platform
+docker compose logs -f platform-a
 
 # Last 100 lines
-docker compose logs --tail=100 platform
+docker compose logs --tail=100 platform-a
 ```
 
 ### Health Checks
@@ -274,8 +336,11 @@ docker compose logs --tail=100 platform
 # Check all containers
 docker compose ps
 
-# Platform health
-curl -s http://localhost:3000/ | head
+# Platform readiness (via Caddy)
+curl -s http://localhost/health
+
+# Liveness (via Caddy)
+curl -s http://localhost/live
 
 # Database health
 docker compose exec postgres pg_isready -U menuvo
@@ -290,7 +355,7 @@ docker compose exec redis redis-cli ping
 
 ```bash
 # Check logs
-docker compose logs platform
+docker compose logs platform-a
 
 # Check resource limits
 docker stats
@@ -306,7 +371,7 @@ docker compose config
 docker compose ps postgres
 
 # Test connection
-docker compose exec platform sh -c 'echo "SELECT 1" | psql $DATABASE_URL'
+docker compose exec platform-a sh -c 'echo "SELECT 1" | psql $DATABASE_URL'
 ```
 
 ### Out of memory
@@ -335,14 +400,17 @@ docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile
 | Service | Memory | CPU |
 |---------|--------|-----|
 | postgres | 3 GB | 2.0 |
-| platform | 2 GB | 1.5 |
-| worker | 1 GB | 1.0 |
+| platform-a | 1 GB | 1.0 |
+| platform-b | 1 GB | 1.0 |
+| worker-images | 512 MB | 0.5 |
+| worker-imports | 768 MB | 0.75 |
 | caddy | 512 MB | 0.5 |
 | redis | 256 MB | 0.5 |
-| watchtower | 128 MB | 0.25 |
+| postgres-backup | 128 MB | 0.25 |
+| gatus | 128 MB | 0.25 |
 | beszel | 128 MB | 0.25 |
 | beszel-agent | 64 MB | 0.25 |
-| **Total** | ~7 GB | ~6.25 |
+| **Total** | ~7.5 GB | ~7.0 |
 
 ## Rollback
 
@@ -353,21 +421,23 @@ docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile
 docker images ghcr.io/mwesox/menuvo-platform
 
 # Update .env with specific version
-VERSION=sha-abc1234
+VERSION=commit_sha_here
 
-# Restart
-docker compose up -d platform worker
+# Rolling restart
+docker compose up -d platform-a
+docker compose up -d platform-b
+docker compose up -d worker-images worker-imports
 ```
 
 ### Restore database
 
 ```bash
 # Stop application
-docker compose stop platform worker
+docker compose stop platform-a platform-b worker-images worker-imports
 
 # Restore from backup
 docker compose exec -T postgres pg_restore -U menuvo -d menuvo < backup.dump
 
 # Restart application
-docker compose start platform worker
+docker compose start platform-a platform-b worker-images worker-imports
 ```

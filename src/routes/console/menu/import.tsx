@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
+import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 import { ImportWizard } from "@/features/console/menu-import/components/import-wizard";
 import { storeQueries } from "@/features/console/stores/queries";
 
@@ -9,6 +10,7 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/console/menu/import")({
 	validateSearch: searchSchema,
+	beforeLoad: async () => requireMerchant(),
 	loader: async ({ context }) => {
 		const stores = await context.queryClient.ensureQueryData(
 			storeQueries.list(),

@@ -24,8 +24,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card.tsx";
+import { Field, FieldLabel } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { Label } from "@/components/ui/label.tsx";
 import {
 	Popover,
 	PopoverContent,
@@ -222,41 +222,41 @@ function ClosureForm({
 			<div className="grid gap-4 sm:grid-cols-2">
 				<form.Field name="startDate">
 					{(field) => (
-						<div className="space-y-2">
-							<Label>{t("labels.startDate")}</Label>
+						<Field>
+							<FieldLabel>{t("labels.startDate")}</FieldLabel>
 							<DatePicker
 								value={field.state.value}
 								onChange={field.handleChange}
 							/>
-						</div>
+						</Field>
 					)}
 				</form.Field>
 
 				<form.Field name="endDate">
 					{(field) => (
-						<div className="space-y-2">
-							<Label>{t("labels.endDate")}</Label>
+						<Field>
+							<FieldLabel>{t("labels.endDate")}</FieldLabel>
 							<DatePicker
 								value={field.state.value}
 								onChange={field.handleChange}
 							/>
-						</div>
+						</Field>
 					)}
 				</form.Field>
 			</div>
 
 			<form.Field name="reason">
 				{(field) => (
-					<div className="space-y-2">
-						<Label>
+					<Field>
+						<FieldLabel>
 							{t("labels.reason")} ({tCommon("labels.optional")})
-						</Label>
+						</FieldLabel>
 						<Input
 							placeholder={t("placeholders.closureReason")}
 							value={field.state.value}
 							onChange={(e) => field.handleChange(e.target.value)}
 						/>
-					</div>
+					</Field>
 				)}
 			</form.Field>
 

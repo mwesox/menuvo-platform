@@ -30,10 +30,7 @@ import {
 	OptionGroupListItem,
 } from "@/features/console/menu/components/master-lists";
 import { StoreSelectionPrompt } from "@/features/console/menu/components/store-selection-prompt";
-import {
-	DisplayLanguageProvider,
-	useDisplayLanguage,
-} from "@/features/console/menu/contexts/display-language-context";
+import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
 import { useMenuPageState } from "@/features/console/menu/hooks";
 import { getDisplayName } from "@/features/console/menu/logic/display";
 import {
@@ -63,14 +60,13 @@ interface MenuPageProps {
 	loaderData: {
 		stores: Array<{ id: number; name: string }>;
 		autoSelectedStoreId: number | undefined;
-		displayLanguage: string;
 	};
 }
 
 export function MenuPage({ search, loaderData }: MenuPageProps) {
 	const { t } = useTranslation("menu");
 	const { storeId, tab = "categories", selected } = search;
-	const { stores, autoSelectedStoreId, displayLanguage } = loaderData;
+	const { stores, autoSelectedStoreId } = loaderData;
 
 	const selectedStoreId = storeId ?? autoSelectedStoreId;
 
@@ -112,13 +108,7 @@ export function MenuPage({ search, loaderData }: MenuPageProps) {
 
 	// Render the main content with queries
 	return (
-		<DisplayLanguageProvider language={displayLanguage}>
-			<MenuPageContent
-				storeId={selectedStoreId}
-				tab={tab}
-				selected={selected}
-			/>
-		</DisplayLanguageProvider>
+		<MenuPageContent storeId={selectedStoreId} tab={tab} selected={selected} />
 	);
 }
 
