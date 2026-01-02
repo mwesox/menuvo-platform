@@ -14,7 +14,7 @@ export const Route = createFileRoute("/live")({
 							"cache-control": "no-store",
 						},
 					},
-					),
+				),
 		},
 	},
 });

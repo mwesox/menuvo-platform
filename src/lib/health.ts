@@ -33,7 +33,7 @@ export async function checkHealth(): Promise<{
 	}
 
 	try {
-		await redis.send("PING");
+		await redis.send("PING", []);
 	} catch {
 		checks.redis = "error";
 		statusCode = 503;
