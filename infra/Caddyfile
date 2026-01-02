@@ -1,33 +1,36 @@
 # Menuvo Production Caddyfile
-# TanStack Start Platform (Console + Shop)
-# Automatic HTTPS with Let's Encrypt
-#
-# All routes served by TanStack Start platform container
+# TanStack Start Platform - Single domain routing
+# All routes: menuvo.app/console, menuvo.app/shop, etc.
 
 # Global options (MUST be first!)
 {
-	# Email for Let's Encrypt (used for domains not behind Cloudflare)
 	email admin@menuvo.app
-
-	# Order of handlers (rate_limit must come first)
 	order rate_limit before basicauth
 }
 
-# Common snippet for sites behind Cloudflare proxy
-# Uses internal TLS since Cloudflare handles public SSL
+# Cloudflare proxy - use internal TLS
 (cloudflare_tls) {
 	tls internal
 }
 
-# Shop - Discovery, Store, Cart, Checkout (menuvo.app, www.menuvo.app)
+# Common reverse proxy settings
+(proxy_settings) {
+	transport http {
+		dial_timeout 10s
+		read_timeout 30s
+		write_timeout 30s
+	}
+	header_up X-Real-IP {remote_host}
+	header_up X-Forwarded-For {remote_host}
+	header_up X-Forwarded-Proto {scheme}
+}
+
+# Main site - menuvo.app
 menuvo.app, www.menuvo.app {
 	import cloudflare_tls
 
-	# Rate limiting - Auth endpoints (10 req/min per IP)
-	@auth_endpoints {
-		path /auth/*
-		path /api/auth/*
-	}
+	# Rate limiting
+	@auth_endpoints path /auth/* /api/auth/*
 	rate_limit @auth_endpoints {
 		zone auth_zone {
 			key {remote_host}
@@ -36,63 +39,20 @@ menuvo.app, www.menuvo.app {
 		}
 	}
 
-	# Rate limiting - Order endpoints (30 req/min per IP)
-	@order_endpoints {
-		path /shop/*/orders*
-		path /api/*/orders*
-	}
-	rate_limit @order_endpoints {
-		zone order_zone {
-			key {remote_host}
-			events 30
-			window 1m
-		}
-	}
-
-	# Rate limiting - Global API (100 req/min per IP)
-	@global_api {
-		path /api/*
-	}
-	rate_limit @global_api {
-		zone global_api_zone {
+	@api path /api/*
+	rate_limit @api {
+		zone api_zone {
 			key {remote_host}
 			events 100
 			window 1m
 		}
 	}
 
-	# Static assets and API - pass through without prefix
-	@passthrough {
-		path /api/* /assets/* /_build/*
-	}
-	handle @passthrough {
-		reverse_proxy menuvo-platform:3000 {
-			transport http {
-				dial_timeout 10s
-				read_timeout 30s
-				write_timeout 30s
-			}
-			header_up X-Real-IP {remote_host}
-			header_up X-Forwarded-For {remote_host}
-			header_up X-Forwarded-Proto {scheme}
-		}
-	}
-
-	# All other requests - prepend /shop and proxy
-	handle {
-		rewrite * /shop{uri}
-		reverse_proxy menuvo-platform:3000 {
-			health_interval 30s
-			health_timeout 10s
-			transport http {
-				dial_timeout 10s
-				read_timeout 30s
-				write_timeout 30s
-			}
-			header_up X-Real-IP {remote_host}
-			header_up X-Forwarded-For {remote_host}
-			header_up X-Forwarded-Proto {scheme}
-		}
+	# Proxy all requests to platform
+	reverse_proxy menuvo-platform:3000 {
+		import proxy_settings
+		health_interval 30s
+		health_timeout 10s
 	}
 
 	# Security headers
@@ -102,99 +62,30 @@ menuvo.app, www.menuvo.app {
 		X-Frame-Options "SAMEORIGIN"
 		X-XSS-Protection "1; mode=block"
 		Referrer-Policy "strict-origin-when-cross-origin"
-
-		# CSP - Allow images from external CDN, API calls to self
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.menuvo.app wss://menuvo.app https://menuvo.app"
-
-		# Remove server identification
 		-Server
 	}
 
-	# Logging
 	log {
-		output file /var/log/caddy/shop.log
+		output file /var/log/caddy/menuvo.log
 		format json
 		level INFO
 	}
 
-	# Enable compression
 	encode gzip zstd
 }
 
-# Console - Merchant Dashboard (console.menuvo.app)
+# Console subdomain - redirect to main domain
 console.menuvo.app {
 	import cloudflare_tls
-
-	# Rate limiting - Console is merchant-facing, less traffic expected
-	rate_limit {
-		zone console_zone {
-			key {remote_host}
-			events 200
-			window 1m
-		}
-	}
-
-	# Static assets and API - pass through without prefix
-	@passthrough {
-		path /api/* /assets/* /_build/*
-	}
-	handle @passthrough {
-		reverse_proxy menuvo-platform:3000 {
-			transport http {
-				dial_timeout 10s
-				read_timeout 30s
-				write_timeout 30s
-			}
-			header_up X-Real-IP {remote_host}
-		}
-	}
-
-	# All other requests - prepend /console and proxy
-	handle {
-		rewrite * /console{uri}
-		reverse_proxy menuvo-platform:3000 {
-			transport http {
-				dial_timeout 10s
-				read_timeout 30s
-				write_timeout 30s
-			}
-			header_up X-Real-IP {remote_host}
-		}
-	}
-
-	# Security headers - Stricter for merchant dashboard
-	header {
-		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-		X-Content-Type-Options "nosniff"
-		X-Frame-Options "DENY"
-		X-XSS-Protection "1; mode=block"
-		Referrer-Policy "strict-origin-when-cross-origin"
-
-		# Stricter CSP for console
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'"
-
-		# Remove server identification
-		-Server
-	}
-
-	# Logging
-	log {
-		output file /var/log/caddy/console.log
-		format json
-		level INFO
-	}
-
-	# Enable compression
-	encode gzip zstd
+	redir https://menuvo.app/console{uri} permanent
 }
 
-# Beszel Monitoring Dashboard (monitor.menuvo.app)
+# Beszel Monitoring Dashboard
 monitor.menuvo.app {
 	import cloudflare_tls
 
 	reverse_proxy menuvo-beszel:8090
 
-	# Rate limiting - Monitoring dashboard
 	rate_limit {
 		zone beszel_zone {
 			key {remote_host}
@@ -203,7 +94,6 @@ monitor.menuvo.app {
 		}
 	}
 
-	# Security headers
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 		X-Content-Type-Options "nosniff"
@@ -212,7 +102,6 @@ monitor.menuvo.app {
 		-Server
 	}
 
-	# Logging
 	log {
 		output file /var/log/caddy/monitor.log
 		format json
