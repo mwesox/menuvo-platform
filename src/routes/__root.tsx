@@ -10,6 +10,7 @@ import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { initI18n, type SupportedLanguage } from "@/i18n";
 import { detectLanguageFromRequest } from "@/i18n/server";
+import businessCss from "@/styles/business-bundle.css?url";
 import consoleCss from "@/styles/console-bundle.css?url";
 import shopCss from "@/styles/shop-bundle.css?url";
 
@@ -29,8 +30,25 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		const isConsoleRoute = matches.some((m) =>
 			m.routeId.startsWith("/console"),
 		);
+		const isBusinessRoute = matches.some((m) =>
+			m.routeId.startsWith("/business"),
+		);
 
-		const cssHref = isShopRoute ? shopCss : isConsoleRoute ? consoleCss : null;
+		// Select CSS bundle and title based on route
+		let cssHref: string;
+		let title: string;
+
+		if (isConsoleRoute) {
+			cssHref = consoleCss;
+			title = "Menuvo Console";
+		} else if (isBusinessRoute) {
+			cssHref = businessCss;
+			title = "Menuvo";
+		} else {
+			// Default to shop (includes root "/" which redirects to /shop)
+			cssHref = shopCss;
+			title = "Menuvo";
+		}
 
 		return {
 			meta: [
@@ -42,10 +60,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 					content: "width=device-width, initial-scale=1",
 				},
 				{
-					title: isShopRoute ? "Menuvo" : "Menuvo Console",
+					title,
 				},
 			],
-			links: cssHref ? [{ rel: "stylesheet", href: cssHref }] : [],
+			links: [{ rel: "stylesheet", href: cssHref }],
 		};
 	},
 
