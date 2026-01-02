@@ -23,24 +23,6 @@
 menuvo.app, www.menuvo.app {
 	import cloudflare_tls
 
-	# Proxy /api/* requests to platform container (remote functions)
-	@api {
-		path /api/*
-	}
-	reverse_proxy @api menuvo-platform:3000 {
-		# Timeouts
-		transport http {
-			dial_timeout 10s
-			read_timeout 30s
-			write_timeout 30s
-		}
-
-		# Forward headers
-		header_up X-Real-IP {remote_host}
-		header_up X-Forwarded-For {remote_host}
-		header_up X-Forwarded-Proto {scheme}
-	}
-
 	# Rate limiting - Auth endpoints (10 req/min per IP)
 	@auth_endpoints {
 		path /auth/*
@@ -79,23 +61,35 @@ menuvo.app, www.menuvo.app {
 		}
 	}
 
-	# Reverse proxy all other requests to TanStack Start platform
-	reverse_proxy menuvo-platform:3000 {
-		# Health check
-		health_interval 30s
-		health_timeout 10s
-
-		# Timeouts
-		transport http {
-			dial_timeout 10s
-			read_timeout 30s
-			write_timeout 30s
+	# API requests - pass through without prefix
+	handle /api/* {
+		reverse_proxy menuvo-platform:3000 {
+			transport http {
+				dial_timeout 10s
+				read_timeout 30s
+				write_timeout 30s
+			}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
 		}
+	}
 
-		# Forward headers
-		header_up X-Real-IP {remote_host}
-		header_up X-Forwarded-For {remote_host}
-		header_up X-Forwarded-Proto {scheme}
+	# All other requests - prepend /shop and proxy
+	handle {
+		uri prefix /shop
+		reverse_proxy menuvo-platform:3000 {
+			health_interval 30s
+			health_timeout 10s
+			transport http {
+				dial_timeout 10s
+				read_timeout 30s
+				write_timeout 30s
+			}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+		}
 	}
 
 	# Security headers
@@ -128,25 +122,37 @@ menuvo.app, www.menuvo.app {
 console.menuvo.app {
 	import cloudflare_tls
 
-	# Proxy all requests to platform container
-	reverse_proxy menuvo-platform:3000 {
-		# Timeouts
-		transport http {
-			dial_timeout 10s
-			read_timeout 30s
-			write_timeout 30s
-		}
-
-		# Forward headers
-		header_up X-Real-IP {remote_host}
-	}
-
 	# Rate limiting - Console is merchant-facing, less traffic expected
 	rate_limit {
 		zone console_zone {
 			key {remote_host}
 			events 200
 			window 1m
+		}
+	}
+
+	# API requests - pass through without prefix
+	handle /api/* {
+		reverse_proxy menuvo-platform:3000 {
+			transport http {
+				dial_timeout 10s
+				read_timeout 30s
+				write_timeout 30s
+			}
+			header_up X-Real-IP {remote_host}
+		}
+	}
+
+	# All other requests - prepend /console and proxy
+	handle {
+		uri prefix /console
+		reverse_proxy menuvo-platform:3000 {
+			transport http {
+				dial_timeout 10s
+				read_timeout 30s
+				write_timeout 30s
+			}
+			header_up X-Real-IP {remote_host}
 		}
 	}
 
