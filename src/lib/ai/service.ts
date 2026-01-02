@@ -24,9 +24,10 @@ export async function chat(options: ChatOptions): Promise<string> {
 		model: options.model,
 		messages: options.messages,
 		temperature: options.temperature,
-		max_tokens: options.maxTokens,
+		maxTokens: options.maxTokens,
 	});
-	return response.choices[0]?.message?.content ?? "";
+	const content = response.choices[0]?.message?.content;
+	return typeof content === "string" ? content : "";
 }
 
 /**
@@ -39,7 +40,7 @@ export async function streamChat(options: StreamChatOptions): Promise<string> {
 		model: options.model,
 		messages: options.messages,
 		temperature: options.temperature,
-		max_tokens: options.maxTokens,
+		maxTokens: options.maxTokens,
 		stream: true,
 	});
 
@@ -68,9 +69,9 @@ export async function generateStructured<T extends z.ZodType>(options: {
 	const response = await client.chat.send({
 		model: options.model,
 		messages: options.messages,
-		response_format: {
+		responseFormat: {
 			type: "json_schema",
-			json_schema: {
+			jsonSchema: {
 				name: options.schemaName,
 				schema: jsonSchema,
 				strict: true,
@@ -78,6 +79,7 @@ export async function generateStructured<T extends z.ZodType>(options: {
 		},
 	});
 
-	const content = response.choices[0]?.message?.content ?? "{}";
+	const rawContent = response.choices[0]?.message?.content;
+	const content = typeof rawContent === "string" ? rawContent : "{}";
 	return options.schema.parse(JSON.parse(content));
 }

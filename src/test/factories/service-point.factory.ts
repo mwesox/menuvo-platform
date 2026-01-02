@@ -21,7 +21,7 @@ export interface ServicePointFactoryOptions {
 export async function createTestServicePoint(
 	options: ServicePointFactoryOptions,
 ) {
-	const id = uniqueId();
+	const id = uniqueId(options.testRunId);
 	const name = options.name ?? `Test Service Point ${id}`;
 	const code = options.code ?? `test-sp-${options.testRunId}-${id}`;
 

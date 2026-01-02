@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/tanstackstart-react";
 import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
+import { DEFAULT_LANGUAGE } from "./i18n";
 import * as TanstackQuery from "./lib/tanstack-query/root-provider";
 
 // Import the generated route tree
@@ -14,6 +15,7 @@ export const getRouter = () => {
 		routeTree,
 		context: {
 			...rqContext,
+			language: DEFAULT_LANGUAGE,
 		},
 		defaultPreload: "intent",
 		defaultNotFoundComponent: () => <div>Page not found</div>,

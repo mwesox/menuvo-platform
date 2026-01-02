@@ -36,7 +36,8 @@ async function testBasicChat() {
 		],
 	});
 
-	const content = response.choices[0]?.message?.content ?? "(no response)";
+	const rawContent = response.choices[0]?.message?.content;
+	const content = typeof rawContent === "string" ? rawContent : "(no response)";
 	console.log("Response:", content);
 	console.log("✓ Basic chat works\n");
 }
@@ -61,10 +62,11 @@ Menu:
 ${SAMPLE_MENU_TEXT}`,
 			},
 		],
-		response_format: { type: "json_object" },
+		responseFormat: { type: "json_object" },
 	});
 
-	const content = response.choices[0]?.message?.content ?? "{}";
+	const rawContent2 = response.choices[0]?.message?.content;
+	const content = typeof rawContent2 === "string" ? rawContent2 : "{}";
 	console.log("Raw response:", content.slice(0, 500));
 
 	try {
@@ -101,9 +103,9 @@ Prices should be in CENTS (e.g., $9.99 = 999).`,
 					content: `Extract menu data from:\n\n${SAMPLE_MENU_TEXT}`,
 				},
 			],
-			response_format: {
+			responseFormat: {
 				type: "json_schema",
-				json_schema: {
+				jsonSchema: {
 					name: "MenuExtraction",
 					schema: jsonSchema,
 					strict: true,
@@ -111,7 +113,8 @@ Prices should be in CENTS (e.g., $9.99 = 999).`,
 			},
 		});
 
-		const content = response.choices[0]?.message?.content ?? "{}";
+		const rawContent3 = response.choices[0]?.message?.content;
+		const content = typeof rawContent3 === "string" ? rawContent3 : "{}";
 		console.log("Raw response (first 1000 chars):");
 		console.log(content.slice(0, 1000));
 		console.log("\n---\n");

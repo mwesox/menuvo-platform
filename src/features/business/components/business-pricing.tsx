@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { Check, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -97,8 +96,8 @@ export function BusinessPricing() {
 									</span>
 								</div>
 
-								<Link
-									to="/auth/register"
+								<a
+									href="/console/onboarding"
 									className={`w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg px-6 text-sm font-sans font-semibold transition-all duration-300 cursor-pointer uppercase tracking-wide ${
 										tier.highlighted
 											? "bg-[#e1393b] text-white shadow-md hover:bg-[#c32d2f] hover:shadow-lg active:scale-[0.98]"
@@ -107,7 +106,7 @@ export function BusinessPricing() {
 								>
 									<span>{tier.cta}</span>
 									<ChevronRight className="w-4 h-4 transition-transform duration-300" />
-								</Link>
+								</a>
 
 								<div className="pt-2 border-t border-gray-200 dark:border-gray-700">
 									<ul className="space-y-3">

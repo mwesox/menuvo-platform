@@ -90,28 +90,28 @@ export function BusinessFooter() {
 						</h4>
 						<ul className="space-y-2 font-sans text-sm">
 							<li>
-								<Link
-									to="/privacy"
+								<a
+									href="/legal/privacy"
 									className="text-gray-600 dark:text-gray-400 hover:text-[#e1393b] transition-colors"
 								>
 									{t("footer.privacy")}
-								</Link>
+								</a>
 							</li>
 							<li>
-								<Link
-									to="/terms"
+								<a
+									href="/legal/terms"
 									className="text-gray-600 dark:text-gray-400 hover:text-[#e1393b] transition-colors"
 								>
 									{t("footer.terms")}
-								</Link>
+								</a>
 							</li>
 							<li>
-								<Link
-									to="/impressum"
+								<a
+									href="/legal/impressum"
 									className="text-gray-600 dark:text-gray-400 hover:text-[#e1393b] transition-colors"
 								>
 									{t("footer.impressum")}
-								</Link>
+								</a>
 							</li>
 						</ul>
 					</div>

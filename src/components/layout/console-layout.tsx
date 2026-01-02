@@ -1,19 +1,12 @@
 import { Outlet } from "@tanstack/react-router";
 import { Suspense } from "react";
-import {
-	StoreSelectionProvider,
-	useOptionalStoreSelection,
-} from "@/features/console/stores/contexts/store-selection-context";
+import { useStoreSelection } from "@/features/console/stores/contexts/store-selection-context";
 import { ConsoleHeader } from "./console-header";
 import { Footer } from "./footer";
 import { MobileSidebar, Sidebar } from "./sidebar";
 
 function ConsoleHeaderWrapper() {
-	const storeContext = useOptionalStoreSelection();
-
-	if (!storeContext) {
-		return null;
-	}
+	const storeContext = useStoreSelection();
 
 	return (
 		<ConsoleHeader
@@ -54,9 +47,7 @@ export function ConsoleLayout() {
 						</div>
 					}
 				>
-					<StoreSelectionProvider>
-						<ConsoleContent />
-					</StoreSelectionProvider>
+					<ConsoleContent />
 				</Suspense>
 			</div>
 		</div>

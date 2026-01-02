@@ -71,7 +71,6 @@ export const getStoreScanStats = createServerFn({ method: "GET" })
 				servicePointId: servicePointScans.servicePointId,
 				name: servicePoints.name,
 				code: servicePoints.code,
-				type: servicePoints.type,
 				count: count(),
 			})
 			.from(servicePointScans)
@@ -89,7 +88,6 @@ export const getStoreScanStats = createServerFn({ method: "GET" })
 				servicePointScans.servicePointId,
 				servicePoints.name,
 				servicePoints.code,
-				servicePoints.type,
 			)
 			.orderBy(sql`count(*) desc`);
 

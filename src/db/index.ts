@@ -4,6 +4,10 @@ import postgres from "postgres";
 import { env } from "@/env";
 import * as schema from "./schema.ts";
 
+if (!env.DATABASE_URL) {
+	throw new Error("DATABASE_URL is required");
+}
+
 const sql = postgres(env.DATABASE_URL, {
 	max: 20, // Max concurrent connections
 	idle_timeout: 30, // Close idle connections after 30s

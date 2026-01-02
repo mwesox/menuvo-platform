@@ -111,12 +111,6 @@ export function QRCodeDialog({
 							{t("labels.downloadQrCode")}
 						</Button>
 					</div>
-
-					{servicePoint.type && (
-						<p className="text-sm text-muted-foreground">
-							{t("misc.typeLabel", { type: servicePoint.type })}
-						</p>
-					)}
 				</div>
 			</DialogContent>
 		</Dialog>

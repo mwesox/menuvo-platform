@@ -55,9 +55,7 @@ export function CategoryItemsPage({
 				backLabel={displayName || t("navigation.backToCategories")}
 				actions={
 					<Button asChild>
-						<Link
-							to={`/console/menu/items/new?categoryId=${categoryId}&storeId=${storeId}`}
-						>
+						<Link to="/console/menu/items/new" search={{ categoryId, storeId }}>
 							<Plus className="mr-2 h-4 w-4" />
 							{t("titles.addItem")}
 						</Link>

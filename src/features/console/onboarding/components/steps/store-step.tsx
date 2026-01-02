@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { useOnboardingForm } from "../../contexts/form-context.tsx";
-import { generateSlug } from "../../logic/slug.ts";
+import { generateSlug } from "@/lib/slug";
 import {
 	storeCitySchema,
 	storeNameSchema,

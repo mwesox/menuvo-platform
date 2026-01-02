@@ -58,3 +58,5 @@ await Promise.race([vite.exited, worker.exited]);
 // If one exits, kill the other
 vite.kill();
 worker.kill();
+
+export {};

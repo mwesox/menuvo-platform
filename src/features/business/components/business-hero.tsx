@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -71,12 +70,12 @@ export function BusinessHero() {
 								transform: animated ? "translateY(0)" : "translateY(20px)",
 							}}
 						>
-							<Link
-								to="/auth/register"
+							<a
+								href="/console/onboarding"
 								className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-lg font-sans font-semibold transition-all duration-300 bg-gradient-to-r from-[#e1393b] to-[#ff6b6b] text-white hover:from-[#c32d2f] hover:to-[#e55555] hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] px-8 py-4 uppercase tracking-wide"
 							>
 								{t("cta.primary")} →
-							</Link>
+							</a>
 							<button
 								type="button"
 								onClick={scrollToFeatures}

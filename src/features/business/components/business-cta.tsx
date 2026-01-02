@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 export function BusinessCTA() {
@@ -25,15 +24,15 @@ export function BusinessCTA() {
 					</div>
 
 					<div className="flex flex-col gap-3 sm:flex-row justify-center">
-						<Link
-							to="/auth/register"
+						<a
+							href="/console/onboarding"
 							className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-lg font-sans font-bold transition-all duration-300 bg-gradient-to-r from-[#e1393b] to-[#ff6b6b] text-white hover:from-[#c32d2f] hover:to-[#e55555] hover:shadow-xl hover:shadow-[#e1393b]/20 hover:scale-[1.02] active:scale-[0.98] px-10 py-6 uppercase tracking-wide"
 						>
 							<span className="flex items-center gap-2">
 								{t("cta.button")}
 								<span className="text-xl">→</span>
 							</span>
-						</Link>
+						</a>
 						<button
 							type="button"
 							onClick={scrollToPricing}

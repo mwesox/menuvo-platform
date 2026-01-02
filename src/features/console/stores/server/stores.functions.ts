@@ -3,14 +3,8 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { stores } from "@/db/schema.ts";
+import { generateSlug } from "@/lib/slug";
 import { createStoreSchema, updateStoreSchema } from "../validation.ts";
-
-function generateSlug(name: string): string {
-	return name
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/^-|-$/g, "");
-}
 
 export const getStores = createServerFn({ method: "GET" }).handler(async () => {
 	try {

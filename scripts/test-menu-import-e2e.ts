@@ -24,10 +24,10 @@ import type { AllowedFileType } from "../src/features/console/menu-import/valida
 const TEST_DATA_DIR = "./scripts/test-data";
 
 // Available test files
-const TEST_FILES = [
-	{ path: `${TEST_DATA_DIR}/menu-simple.csv`, type: "csv" as const },
-	{ path: `${TEST_DATA_DIR}/menu-structured.json`, type: "json" as const },
-	{ path: `${TEST_DATA_DIR}/menu-unstructured.txt`, type: "txt" as const },
+const TEST_FILES: Array<{ path: string; type: AllowedFileType }> = [
+	{ path: `${TEST_DATA_DIR}/menu-simple.csv`, type: "csv" },
+	{ path: `${TEST_DATA_DIR}/menu-structured.json`, type: "json" },
+	{ path: `${TEST_DATA_DIR}/menu-unstructured.txt`, type: "txt" },
 ];
 
 // Default model config
@@ -251,7 +251,7 @@ Examples:
 	}
 
 	// Check if test files exist
-	const existingFiles: typeof TEST_FILES = [];
+	const existingFiles: Array<{ path: string; type: AllowedFileType }> = [];
 	for (const f of filesToTest) {
 		const exists = await Bun.file(f.path).exists();
 		if (exists) {

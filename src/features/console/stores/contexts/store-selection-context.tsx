@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { createContext, type ReactNode, useContext } from "react";
+import { useCallback } from "react";
 import { storeQueries } from "../queries";
 
 interface StoreSelectionContextValue {
@@ -11,11 +11,7 @@ interface StoreSelectionContextValue {
 	hasMultipleStores: boolean;
 }
 
-const StoreSelectionContext = createContext<StoreSelectionContextValue | null>(
-	null,
-);
-
-export function StoreSelectionProvider({ children }: { children: ReactNode }) {
+export function useStoreSelection(): StoreSelectionContextValue {
 	const navigate = useNavigate();
 	const search = useSearch({ strict: false }) as { storeId?: number };
 	const { data: stores } = useSuspenseQuery(storeQueries.list());
@@ -26,40 +22,20 @@ export function StoreSelectionProvider({ children }: { children: ReactNode }) {
 
 	const selectedStore = stores.find((s) => s.id === effectiveStoreId);
 
-	const selectStore = (storeId: number) => {
+	const selectStore = useCallback((storeId: number) => {
 		// Navigate to menu page with the selected store
 		// This is the primary use case for store selection
 		navigate({
 			to: "/console/menu",
 			search: { storeId },
 		});
+	}, [navigate]);
+
+	return {
+		stores,
+		selectedStoreId: effectiveStoreId,
+		selectedStore,
+		selectStore,
+		hasMultipleStores: stores.length > 1,
 	};
-
-	return (
-		<StoreSelectionContext.Provider
-			value={{
-				stores,
-				selectedStoreId: effectiveStoreId,
-				selectedStore,
-				selectStore,
-				hasMultipleStores: stores.length > 1,
-			}}
-		>
-			{children}
-		</StoreSelectionContext.Provider>
-	);
-}
-
-export function useStoreSelection() {
-	const context = useContext(StoreSelectionContext);
-	if (!context) {
-		throw new Error(
-			"useStoreSelection must be used within StoreSelectionProvider",
-		);
-	}
-	return context;
-}
-
-export function useOptionalStoreSelection() {
-	return useContext(StoreSelectionContext);
 }

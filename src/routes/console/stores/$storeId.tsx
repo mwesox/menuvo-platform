@@ -51,7 +51,6 @@ export const Route = createFileRoute("/console/stores/$storeId")({
 			context.queryClient.ensureQueryData(storeHoursQueries.list(storeId)),
 			context.queryClient.ensureQueryData(storeClosuresQueries.list(storeId)),
 			context.queryClient.ensureQueryData(servicePointQueries.list(storeId)),
-			context.queryClient.ensureQueryData(servicePointQueries.types(storeId)),
 		]);
 	},
 	component: EditStorePage,

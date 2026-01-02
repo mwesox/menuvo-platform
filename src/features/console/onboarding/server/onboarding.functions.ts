@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/db";
 import { merchants, stores } from "@/db/schema.ts";
-import { generateSlug } from "../logic/slug.ts";
+import { generateSlug } from "@/lib/slug";
 import { onboardingSchema } from "../validation.ts";
 
 export const onboardMerchant = createServerFn({ method: "POST" })

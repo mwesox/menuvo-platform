@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Separator } from "@/components/ui/separator";
 
@@ -21,13 +20,13 @@ export function Footer() {
 					className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm"
 				>
 					{footerLinks.map((link) => (
-						<Link
+						<a
 							key={link.href}
-							to={link.href}
+							href={link.href}
 							className="text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
 						>
 							{t(`footer.${link.labelKey}`)}
-						</Link>
+						</a>
 					))}
 				</nav>
 

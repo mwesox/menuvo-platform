@@ -55,12 +55,12 @@ export function BusinessHeader() {
 					</div>
 
 					<div className="flex items-center gap-3">
-						<Link
-							to="/auth/register"
+						<a
+							href="/console/onboarding"
 							className="hidden md:inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-sans font-medium transition-all duration-200 bg-[#e1393b] text-white hover:bg-[#c32d2f] hover:scale-[1.02] active:scale-[0.98] h-10 px-6 shadow-md hover:shadow-lg uppercase tracking-wide"
 						>
 							{t("header.cta")}
-						</Link>
+						</a>
 
 						<button
 							type="button"
@@ -133,12 +133,12 @@ export function BusinessHeader() {
 						</button>
 
 						<div className="pt-4 border-t border-white/10">
-							<Link
-								to="/auth/register"
+							<a
+								href="/console/onboarding"
 								className="inline-flex w-full items-center justify-center gap-2 rounded-lg text-base font-sans font-medium transition-all duration-200 bg-[#e1393b] text-white hover:bg-[#c32d2f] py-4 px-6 shadow-md uppercase tracking-wide"
 							>
 								{t("header.cta")}
-							</Link>
+							</a>
 						</div>
 					</nav>
 				</div>
