@@ -1,11 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Calendar, Clock, QrCode, Store } from "lucide-react";
 import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
-import { PageHeader } from "@/components/layout/page-header";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageActionBar } from "@/components/layout/page-action-bar";
 import {
 	ServicePointsPanel,
 	servicePointQueries,
@@ -57,55 +55,39 @@ function EditStorePage() {
 		});
 	};
 
+	const tabItems = [
+		{ value: "details", label: t("tabs.details") },
+		{ value: "hours", label: t("tabs.hours") },
+		{ value: "closures", label: t("tabs.closures") },
+		{ value: "qr-codes", label: t("tabs.qrCodes") },
+	];
+
 	return (
 		<div className="space-y-6">
-			<PageHeader
-				title={t("titles.editStore")}
-				description={t("descriptions.editingStore", { storeName: store.name })}
+			<PageActionBar
+				backHref="/console/stores"
+				backLabel={store.name}
+				tabs={{
+					items: tabItems,
+					value: tab,
+					onChange: handleTabChange,
+				}}
 			/>
 
-			<Tabs value={tab} onValueChange={handleTabChange}>
-				<TabsList>
-					<TabsTrigger value="details" className="gap-2">
-						<Store className="h-4 w-4" />
-						{t("tabs.details")}
-					</TabsTrigger>
-					<TabsTrigger value="hours" className="gap-2">
-						<Clock className="h-4 w-4" />
-						{t("tabs.hours")}
-					</TabsTrigger>
-					<TabsTrigger value="closures" className="gap-2">
-						<Calendar className="h-4 w-4" />
-						{t("tabs.closures")}
-					</TabsTrigger>
-					<TabsTrigger value="qr-codes" className="gap-2">
-						<QrCode className="h-4 w-4" />
-						{t("tabs.qrCodes")}
-					</TabsTrigger>
-				</TabsList>
-
-				<div className="mt-6">
-					<TabsContent value="details" className="mt-0">
-						<StoreForm store={store} merchantId={store.merchantId} />
-					</TabsContent>
-
-					<TabsContent value="hours" className="mt-0">
-						<StoreHoursForm storeId={storeIdNum} />
-					</TabsContent>
-
-					<TabsContent value="closures" className="mt-0">
-						<StoreClosuresForm storeId={storeIdNum} />
-					</TabsContent>
-
-					<TabsContent value="qr-codes" className="mt-0">
-						<Suspense
-							fallback={<div className="py-8 text-center">Loading...</div>}
-						>
-							<ServicePointsPanel store={store} />
-						</Suspense>
-					</TabsContent>
-				</div>
-			</Tabs>
+			<div className="mt-6">
+				{tab === "details" && (
+					<StoreForm store={store} merchantId={store.merchantId} />
+				)}
+				{tab === "hours" && <StoreHoursForm storeId={storeIdNum} />}
+				{tab === "closures" && <StoreClosuresForm storeId={storeIdNum} />}
+				{tab === "qr-codes" && (
+					<Suspense
+						fallback={<div className="py-8 text-center">Loading...</div>}
+					>
+						<ServicePointsPanel store={store} />
+					</Suspense>
+				)}
+			</div>
 		</div>
 	);
 }

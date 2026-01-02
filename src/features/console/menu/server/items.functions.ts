@@ -10,7 +10,7 @@ export const getItems = createServerFn({ method: "GET" })
 	.handler(async ({ data }) => {
 		const allItems = await db.query.items.findMany({
 			where: eq(items.categoryId, data.categoryId),
-			orderBy: [asc(items.displayOrder), asc(items.name)],
+			orderBy: [asc(items.displayOrder)],
 		});
 		return allItems;
 	});
@@ -20,7 +20,7 @@ export const getItemsByStore = createServerFn({ method: "GET" })
 	.handler(async ({ data }) => {
 		const allItems = await db.query.items.findMany({
 			where: eq(items.storeId, data.storeId),
-			orderBy: [asc(items.displayOrder), asc(items.name)],
+			orderBy: [asc(items.displayOrder)],
 		});
 		return allItems;
 	});

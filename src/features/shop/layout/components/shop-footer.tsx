@@ -13,7 +13,7 @@ function PoweredByMenuvo() {
 			<span className="text-sm text-muted-foreground">
 				{t("footer.poweredBy")}
 			</span>
-			<img src="/menuvo-logo.svg" alt="Menuvo" className="h-5" />
+			<img src="/menuvo-logo.svg" alt="Menuvo" className="h-6" />
 		</div>
 	);
 }

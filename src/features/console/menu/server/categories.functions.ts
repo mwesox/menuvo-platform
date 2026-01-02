@@ -10,7 +10,7 @@ export const getCategories = createServerFn({ method: "GET" })
 	.handler(async ({ data }) => {
 		const allCategories = await db.query.categories.findMany({
 			where: eq(categories.storeId, data.storeId),
-			orderBy: [asc(categories.displayOrder), asc(categories.name)],
+			orderBy: [asc(categories.displayOrder)],
 			with: {
 				items: {
 					orderBy: (items, { asc }) => [asc(items.displayOrder)],

@@ -1,61 +1,62 @@
 /**
- * Shop Theme - Warm, inviting e-commerce aesthetic
+ * Shop Theme - Premium Neutral
  *
  * Used by: /shop routes (loaded via shop-bundle.css)
  * Mode: Light-only (no dark variant)
  *
- * Design: "Modern Cafe" - warm creams, rich browns, serif headings
+ * Design: "Editorial Neutral" - sophisticated charcoal, clean whites, serif headings
+ * Works universally for any restaurant type (Italian, Asian, Fast Food, Fine Dining, etc.)
  */
 
 :root {
 	color-scheme: light;
 	--radius: 1rem;
 
-	/* Core colors - warm, inviting palette */
-	--background: oklch(0.988 0.003 90);
-	--foreground: oklch(0.25 0.02 50);
+	/* Core colors - neutral, sophisticated palette */
+	--background: oklch(0.985 0.003 260);
+	--foreground: oklch(0.15 0.01 260);
 	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.25 0.02 50);
+	--card-foreground: oklch(0.15 0.01 260);
 	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.25 0.02 50);
-	--primary: oklch(0.62 0.14 35);
+	--popover-foreground: oklch(0.15 0.01 260);
+	--primary: oklch(0.28 0.015 260);
 	--primary-foreground: oklch(0.99 0 0);
-	--secondary: oklch(0.978 0.005 85);
-	--secondary-foreground: oklch(0.25 0.02 50);
-	--muted: oklch(0.978 0.005 85);
-	--muted-foreground: oklch(0.5 0.015 50);
-	--accent: oklch(0.62 0.14 35);
+	--secondary: oklch(0.96 0.005 260);
+	--secondary-foreground: oklch(0.15 0.01 260);
+	--muted: oklch(0.96 0.005 260);
+	--muted-foreground: oklch(0.5 0.01 260);
+	--accent: oklch(0.28 0.015 260);
 	--accent-foreground: oklch(0.99 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
+	--destructive: oklch(0.55 0.22 25);
 	--destructive-foreground: oklch(0.99 0 0);
-	--border: oklch(0.92 0.008 80);
-	--input: oklch(0.92 0.008 80);
-	--ring: oklch(0.62 0.14 35);
+	--border: oklch(0.9 0.008 260);
+	--input: oklch(0.9 0.008 260);
+	--ring: oklch(0.28 0.015 260);
 
 	/* Extended semantic colors */
-	--success: oklch(0.65 0.15 145);
+	--success: oklch(0.6 0.15 145);
 	--success-foreground: oklch(0.99 0 0);
-	--warning: oklch(0.75 0.15 70);
-	--warning-foreground: oklch(0.25 0.02 50);
+	--warning: oklch(0.75 0.12 85);
+	--warning-foreground: oklch(0.15 0.01 260);
 
-	/* Charts - warm palette */
-	--chart-1: oklch(0.62 0.14 35);
-	--chart-2: oklch(0.65 0.15 145);
-	--chart-3: oklch(0.75 0.15 70);
-	--chart-4: oklch(0.55 0.12 25);
-	--chart-5: oklch(0.5 0.015 50);
+	/* Charts - neutral palette */
+	--chart-1: oklch(0.28 0.015 260);
+	--chart-2: oklch(0.6 0.15 145);
+	--chart-3: oklch(0.75 0.12 85);
+	--chart-4: oklch(0.45 0.08 220);
+	--chart-5: oklch(0.5 0.01 260);
 
 	/* Sidebar - match shop theme */
-	--sidebar: oklch(0.978 0.005 85);
-	--sidebar-foreground: oklch(0.25 0.02 50);
-	--sidebar-primary: oklch(0.62 0.14 35);
+	--sidebar: oklch(0.96 0.005 260);
+	--sidebar-foreground: oklch(0.15 0.01 260);
+	--sidebar-primary: oklch(0.28 0.015 260);
 	--sidebar-primary-foreground: oklch(0.99 0 0);
-	--sidebar-accent: oklch(0.988 0.003 90);
-	--sidebar-accent-foreground: oklch(0.25 0.02 50);
-	--sidebar-border: oklch(0.92 0.008 80);
-	--sidebar-ring: oklch(0.62 0.14 35);
+	--sidebar-accent: oklch(0.985 0.003 260);
+	--sidebar-accent-foreground: oklch(0.15 0.01 260);
+	--sidebar-border: oklch(0.9 0.008 260);
+	--sidebar-ring: oklch(0.28 0.015 260);
 
-	/* Typography - self-hosted fonts */
-	--font-heading: "Instrument Serif", Georgia, serif;
-	--font-body: "DM Sans Variable", system-ui, sans-serif;
+	/* Typography - elegant system fonts for neutral base */
+	--font-heading: Georgia, "Times New Roman", serif;
+	--font-body: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }

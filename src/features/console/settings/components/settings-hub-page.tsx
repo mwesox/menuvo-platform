@@ -1,6 +1,6 @@
 import { Building2, CreditCard, Palette, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { PageHeader } from "@/components/layout/page-header";
+import { PageActionBar } from "@/components/layout/page-action-bar";
 import { SettingsNavCard } from "./settings-nav-card";
 
 const settingsSections = [
@@ -43,10 +43,7 @@ export function SettingsHubPage() {
 
 	return (
 		<div className="space-y-6">
-			<PageHeader
-				title={t("hub.pageTitle")}
-				description={t("hub.pageDescription")}
-			/>
+			<PageActionBar title={t("hub.pageTitle")} />
 
 			<div className="grid gap-4 md:grid-cols-2">
 				{settingsSections.map((section) => (

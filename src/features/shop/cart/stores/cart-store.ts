@@ -193,6 +193,37 @@ export const useCartStore = create<CartStore>()(
 		}),
 		{
 			name: "menuvo-cart",
+			// Validate persisted data on rehydration - filter out invalid items
+			merge: (persistedState, currentState) => {
+				const persisted = persistedState as Partial<CartState> | undefined;
+				if (!persisted) return currentState;
+
+				// Filter out items with missing required fields
+				const validItems = (persisted.items ?? []).filter((item) => {
+					const isValid =
+						typeof item.id === "string" &&
+						typeof item.itemId === "number" &&
+						typeof item.name === "string" &&
+						item.name.length > 0 &&
+						typeof item.basePrice === "number" &&
+						typeof item.quantity === "number" &&
+						typeof item.totalPrice === "number";
+
+					if (!isValid) {
+						console.warn(
+							"[CartStore] Filtered invalid item from localStorage:",
+							item,
+						);
+					}
+					return isValid;
+				});
+
+				return {
+					...currentState,
+					items: validItems,
+					storeSlug: persisted.storeSlug ?? null,
+				};
+			},
 		},
 	),
 );

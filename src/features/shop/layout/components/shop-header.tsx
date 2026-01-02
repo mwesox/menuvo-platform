@@ -12,7 +12,9 @@ interface CartButtonProps {
 
 function CartButton({ onClick }: CartButtonProps) {
 	const { t } = useTranslation("shop");
-	const itemCount = useCartStore((s) => s.itemCount);
+	const items = useCartStore((s) => s.items);
+	// Compute from items (getters don't work with persist middleware)
+	const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
 	return (
 		<Button

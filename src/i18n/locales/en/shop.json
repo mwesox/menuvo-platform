@@ -1,6 +1,7 @@
 {
 	"cart": {
 		"title": "Your Cart",
+		"viewCart": "View Cart",
 		"empty": "Your cart is empty",
 		"itemCount_one": "{{count}} item in your cart",
 		"itemCount_other": "{{count}} items in your cart",
@@ -9,15 +10,14 @@
 		"checkout": "Checkout",
 		"checkoutComingSoon": "Checkout coming soon!",
 		"checkoutDescription": "Stripe integration will be added in a future update.",
-		"subtotal": "Subtotal",
-		"tax": "Tax",
-		"taxCalculatedAtCheckout": "Calculated at checkout",
 		"total": "Total",
 		"removeItem": "Remove {{name}} from cart",
 		"openCart": "Open cart with {{count}} items totaling {{total}}"
 	},
 	"menu": {
 		"categoriesNav": "Menu categories",
+		"itemCount_one": "{{count}} item",
+		"itemCount_other": "{{count}} items",
 		"customize": "Customize",
 		"add": "Add",
 		"addToOrder": "Add to order",
@@ -60,5 +60,30 @@
 	"status": {
 		"openNow": "Open now",
 		"closed": "Closed"
+	},
+	"checkout": {
+		"title": "Checkout",
+		"orderType": "Order Type",
+		"orderTypes": {
+			"dineIn": "Dine In",
+			"takeaway": "Takeaway",
+			"delivery": "Delivery"
+		},
+		"yourName": "Your Name",
+		"namePlaceholder": "Enter your name",
+		"nameRequired": "Please enter your name",
+		"cartEmpty": "Your cart is empty",
+		"orderSummary": "Order Summary",
+		"subtotal": "Total",
+		"submitting": "Placing order...",
+		"placeOrder": "Place Order",
+		"invalidCartItems": "Your cart contains invalid items. Please add items again."
+	},
+	"confirmation": {
+		"title": "Order Received!",
+		"subtitle": "Your order has been placed successfully",
+		"orderNumber": "Order Number",
+		"instructions": "Please wait for your order to be prepared. We'll call your name when it's ready.",
+		"backToMenu": "Back to Menu"
 	}
 }

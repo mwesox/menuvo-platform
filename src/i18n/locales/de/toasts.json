@@ -42,7 +42,10 @@
 		"subscriptionCanceled": "Abonnement wurde gekündigt",
 		"subscriptionResumed": "Abonnement wurde fortgesetzt",
 		"paymentAccountCreated": "Zahlungskonto erfolgreich erstellt",
-		"paymentStatusRefreshed": "Zahlungsstatus aktualisiert"
+		"paymentStatusRefreshed": "Zahlungsstatus aktualisiert",
+		"orderStatusUpdated": "Bestellstatus aktualisiert",
+		"orderCancelled": "Bestellung storniert",
+		"notesSaved": "Notizen gespeichert"
 	},
 	"error": {
 		"generic": "Ein Fehler ist aufgetreten",
@@ -81,6 +84,12 @@
 		"openBillingPortal": "Abrechnungsportal konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
 		"setupPaymentAccount": "Zahlungskonto konnte nicht eingerichtet werden. Bitte versuchen Sie es erneut.",
 		"createOnboardingLink": "Einrichtungslink konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
-		"refreshPaymentStatus": "Zahlungsstatus konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut."
+		"refreshPaymentStatus": "Zahlungsstatus konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+		"createOrder": "Bestellung konnte nicht erstellt werden",
+		"createCheckout": "Checkout konnte nicht gestartet werden",
+		"updateOrderStatus": "Bestellstatus konnte nicht aktualisiert werden",
+		"cancelOrder": "Bestellung konnte nicht storniert werden",
+		"saveNotes": "Notizen konnten nicht gespeichert werden",
+		"cancelPayment": "Zahlung konnte nicht abgebrochen werden"
 	}
 }

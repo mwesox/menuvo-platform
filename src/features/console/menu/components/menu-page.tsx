@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Plus, Store } from "lucide-react";
+import { Plus, Sparkles, Store } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { MasterDetailLayout } from "@/components/layout/master-detail-layout";
+import { PageActionBar } from "@/components/layout/page-action-bar";
 import { Button } from "@/components/ui/button";
 import {
 	Empty,
@@ -28,9 +29,13 @@ import {
 	ItemListItem,
 	OptionGroupListItem,
 } from "@/features/console/menu/components/master-lists";
-import { MenuActionBar } from "@/features/console/menu/components/menu-action-bar";
 import { StoreSelectionPrompt } from "@/features/console/menu/components/store-selection-prompt";
+import {
+	DisplayLanguageProvider,
+	useDisplayLanguage,
+} from "@/features/console/menu/contexts/display-language-context";
 import { useMenuPageState } from "@/features/console/menu/hooks";
+import { getDisplayName } from "@/features/console/menu/logic/display";
 import {
 	optionGroupQueries,
 	useDeleteOptionGroup,
@@ -44,8 +49,9 @@ import {
 	useToggleCategoryActive,
 	useToggleItemAvailableByStore,
 } from "@/features/console/menu/queries";
+import { TranslationsTab } from "@/features/console/translations/components";
 
-const tabSchema = ["categories", "items", "options"] as const;
+const tabSchema = ["categories", "items", "options", "translations"] as const;
 type TabValue = (typeof tabSchema)[number];
 
 interface MenuPageProps {
@@ -57,13 +63,16 @@ interface MenuPageProps {
 	loaderData: {
 		stores: Array<{ id: number; name: string }>;
 		autoSelectedStoreId: number | undefined;
+		merchantId: number;
+		displayLanguage: string;
 	};
 }
 
 export function MenuPage({ search, loaderData }: MenuPageProps) {
 	const { t } = useTranslation("menu");
 	const { storeId, tab = "categories", selected } = search;
-	const { stores, autoSelectedStoreId } = loaderData;
+	const { stores, autoSelectedStoreId, merchantId, displayLanguage } =
+		loaderData;
 
 	const selectedStoreId = storeId ?? autoSelectedStoreId;
 
@@ -105,31 +114,34 @@ export function MenuPage({ search, loaderData }: MenuPageProps) {
 
 	// Render the main content with queries
 	return (
-		<MenuPageContent
-			storeId={selectedStoreId}
-			stores={stores}
-			tab={tab}
-			selected={selected}
-		/>
+		<DisplayLanguageProvider language={displayLanguage}>
+			<MenuPageContent
+				storeId={selectedStoreId}
+				tab={tab}
+				selected={selected}
+				merchantId={merchantId}
+			/>
+		</DisplayLanguageProvider>
 	);
 }
 
 // Separate component for the main content - avoids conditional hooks issue
 interface MenuPageContentProps {
 	storeId: number;
-	stores: Array<{ id: number; name: string }>;
 	tab: TabValue;
 	selected?: number;
+	merchantId: number;
 }
 
 function MenuPageContent({
 	storeId,
-	stores,
 	tab,
 	selected,
+	merchantId,
 }: MenuPageContentProps) {
 	const { t } = useTranslation("menu");
 	const navigate = useNavigate();
+	const language = useDisplayLanguage();
 
 	// Centralized state management
 	const { categoryDialog, optionGroupDialog, deleteConfirmation } =
@@ -153,13 +165,6 @@ function MenuPageContent({
 	const toggleOptionGroupActiveMutation = useToggleOptionGroupActive(storeId);
 
 	// Navigation handlers
-	const handleStoreChange = (newStoreId: number) => {
-		navigate({
-			to: "/console/menu",
-			search: { storeId: newStoreId, tab, selected: undefined },
-		});
-	};
-
 	const handleTabChange = (newTab: TabValue) => {
 		navigate({
 			to: "/console/menu",
@@ -181,7 +186,7 @@ function MenuPageContent({
 		});
 	};
 
-	// Get add action config
+	// Get add action config (only for non-translations tabs)
 	const getAddAction = () => {
 		switch (tab) {
 			case "categories":
@@ -190,6 +195,8 @@ function MenuPageContent({
 				return { href: `/console/menu/items/new?storeId=${storeId}` };
 			case "options":
 				return { onClick: optionGroupDialog.openCreate };
+			case "translations":
+				return null;
 		}
 	};
 
@@ -305,15 +312,19 @@ function MenuPageContent({
 		}
 	};
 
-	// Render detail panel content
+	// Render detail panel content (only called for non-translations tabs)
 	const renderDetailPanel = () => {
+		// This function is only called when tab !== "translations"
+		// so we can safely cast to NonTranslationsTab
+		const safeTab = tab as Exclude<TabValue, "translations">;
+
 		if (!selected) {
-			return <EmptySelection tab={tab} />;
+			return <EmptySelection tab={safeTab} />;
 		}
 
 		switch (tab) {
 			case "categories":
-				if (!selectedCategory) return <EmptySelection tab={tab} />;
+				if (!selectedCategory) return <EmptySelection tab={safeTab} />;
 				return (
 					<CategoryDetail
 						category={selectedCategory}
@@ -330,7 +341,7 @@ function MenuPageContent({
 					/>
 				);
 			case "items":
-				if (!selectedItem) return <EmptySelection tab={tab} />;
+				if (!selectedItem) return <EmptySelection tab={safeTab} />;
 				return (
 					<ItemDetail
 						item={selectedItem}
@@ -341,7 +352,7 @@ function MenuPageContent({
 					/>
 				);
 			case "options":
-				if (!selectedOptionGroup) return <EmptySelection tab={tab} />;
+				if (!selectedOptionGroup) return <EmptySelection tab={safeTab} />;
 				return (
 					<OptionGroupDetail
 						optionGroup={selectedOptionGroup}
@@ -363,74 +374,155 @@ function MenuPageContent({
 
 	// Sheet title based on tab
 	const sheetTitles: Record<TabValue, string> = {
-		categories: selectedCategory?.name ?? t("titles.categoryDetails"),
-		items: selectedItem?.name ?? t("titles.itemDetails"),
-		options: selectedOptionGroup?.name ?? t("titles.optionGroupDetails"),
+		categories:
+			getDisplayName(selectedCategory?.translations, language) ||
+			t("titles.categoryDetails"),
+		items:
+			getDisplayName(selectedItem?.translations, language) ||
+			t("titles.itemDetails"),
+		options:
+			getDisplayName(selectedOptionGroup?.translations, language) ||
+			t("titles.optionGroupDetails"),
+		translations: t("titles.translations", "Translations"),
+	};
+
+	// Tab configuration for PageActionBar
+	const tabItems = [
+		{
+			value: "categories" as const,
+			label: t("titles.categories"),
+			count: categories.length,
+		},
+		{
+			value: "items" as const,
+			label: t("titles.items"),
+			count: items.length,
+		},
+		{
+			value: "options" as const,
+			label: t("titles.options"),
+			count: optionGroups.length,
+		},
+		{
+			value: "translations" as const,
+			label: t("titles.translations", "Translations"),
+			warning: false, // TODO: Add translation warning count
+		},
+	];
+
+	// Check if menu is empty (for import prominence)
+	const totalItems = categories.length + items.length;
+	const menuIsEmpty = totalItems < 5;
+
+	// Get contextual add button label
+	const addLabels: Record<Exclude<TabValue, "translations">, string> = {
+		categories: t("titles.addCategory"),
+		items: t("titles.addItem"),
+		options: t("titles.addOptionGroup"),
 	};
 
 	return (
 		<div className="flex flex-col h-full">
 			{/* Action bar */}
-			<MenuActionBar
-				stores={stores}
-				storeId={storeId}
-				tab={tab}
-				counts={{
-					categories: categories.length,
-					items: items.length,
-					options: optionGroups.length,
+			<PageActionBar
+				title={t("pageTitle", "Speisekarte")}
+				tabs={{
+					items: tabItems,
+					value: tab,
+					onChange: (v) => handleTabChange(v as TabValue),
 				}}
-				onStoreChange={handleStoreChange}
-				onTabChange={handleTabChange}
-				onAdd={addAction.onClick ?? (() => {})}
-				addHref={"href" in addAction ? addAction.href : undefined}
-			/>
+				actions={
+					<>
+						{/* Import button - always show with AI icon */}
+						<Button
+							variant={menuIsEmpty ? "default" : "outline"}
+							size={menuIsEmpty ? "default" : "sm"}
+							asChild
+						>
+							<Link to="/console/menu/import" search={{ storeId }}>
+								<Sparkles className="mr-2 h-4 w-4" />
+								{menuIsEmpty
+									? t("actions.importWithAI", "Import mit KI")
+									: t("actions.import", "Import")}
+							</Link>
+						</Button>
 
-			{/* Master-detail layout */}
-			<div className="flex-1 mt-4 min-h-0">
-				<MasterDetailLayout
-					master={renderMasterList()}
-					detail={renderDetailPanel()}
-					hasSelection={!!selected}
-					onDetailClose={handleDetailClose}
-					sheetTitle={sheetTitles[tab]}
-					masterWidth="default"
-				/>
-			</div>
-
-			{/* Dialogs */}
-			<CategoryDialogWrapper
-				storeId={storeId}
-				open={categoryDialog.open}
-				onOpenChange={(open) => {
-					categoryDialog.setOpen(open);
-					if (!open) categoryDialog.close();
-				}}
-				category={categoryDialog.editing}
-			/>
-
-			<OptionGroupDialogWrapper
-				storeId={storeId}
-				open={optionGroupDialog.open}
-				onOpenChange={(open) => {
-					optionGroupDialog.setOpen(open);
-					if (!open) optionGroupDialog.close();
-				}}
-				optionGroup={optionGroupDialog.editing}
-			/>
-
-			<DeleteConfirmationDialog
-				open={deleteConfirmation.type !== null}
-				onOpenChange={(open) => !open && deleteConfirmation.close()}
-				title={deleteDialogContent.title}
-				description={deleteDialogContent.description}
-				onConfirm={handleDeleteConfirm}
-				isDeleting={
-					deleteCategoryMutation.isPending ||
-					deleteItemMutation.isPending ||
-					deleteOptionGroupMutation.isPending
+						{/* Add button - hidden for translations tab */}
+						{tab !== "translations" &&
+							(addAction && "href" in addAction ? (
+								<Button variant={menuIsEmpty ? "outline" : "default"} asChild>
+									<Link to={addAction.href}>
+										<Plus className="mr-2 h-4 w-4" />
+										{addLabels[tab as Exclude<TabValue, "translations">]}
+									</Link>
+								</Button>
+							) : addAction?.onClick ? (
+								<Button
+									variant={menuIsEmpty ? "outline" : "default"}
+									onClick={addAction.onClick}
+								>
+									<Plus className="mr-2 h-4 w-4" />
+									{addLabels[tab as Exclude<TabValue, "translations">]}
+								</Button>
+							) : null)}
+					</>
 				}
 			/>
+
+			{/* Translations tab has its own layout */}
+			{tab === "translations" ? (
+				<div className="flex-1 mt-4 min-h-0">
+					<TranslationsTab storeId={storeId} merchantId={merchantId} />
+				</div>
+			) : (
+				<>
+					{/* Master-detail layout */}
+					<div className="flex-1 mt-4 min-h-0">
+						<MasterDetailLayout
+							master={renderMasterList()}
+							detail={renderDetailPanel()}
+							hasSelection={!!selected}
+							onDetailClose={handleDetailClose}
+							sheetTitle={sheetTitles[tab]}
+							masterWidth="default"
+						/>
+					</div>
+
+					{/* Dialogs */}
+					<CategoryDialogWrapper
+						storeId={storeId}
+						open={categoryDialog.open}
+						onOpenChange={(open) => {
+							categoryDialog.setOpen(open);
+							if (!open) categoryDialog.close();
+						}}
+						category={categoryDialog.editing}
+					/>
+
+					<OptionGroupDialogWrapper
+						storeId={storeId}
+						open={optionGroupDialog.open}
+						onOpenChange={(open) => {
+							optionGroupDialog.setOpen(open);
+							if (!open) optionGroupDialog.close();
+						}}
+						optionGroup={optionGroupDialog.editing}
+					/>
+
+					<DeleteConfirmationDialog
+						open={deleteConfirmation.type !== null}
+						onOpenChange={(open) => !open && deleteConfirmation.close()}
+						title={deleteDialogContent.title}
+						description={deleteDialogContent.description}
+						onConfirm={handleDeleteConfirm}
+						isDeleting={
+							deleteCategoryMutation.isPending ||
+							deleteItemMutation.isPending ||
+							deleteOptionGroupMutation.isPending
+						}
+					/>
+				</>
+			)}
 		</div>
 	);
 }

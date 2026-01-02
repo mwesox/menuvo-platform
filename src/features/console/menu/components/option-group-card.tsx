@@ -21,6 +21,11 @@ import type {
 	OptionGroup,
 	OptionGroupType,
 } from "@/db/schema.ts";
+import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
+import {
+	getDisplayDescription,
+	getDisplayName,
+} from "@/features/console/menu/logic/display";
 import { cn } from "@/lib/utils.ts";
 
 interface OptionGroupCardProps {
@@ -142,8 +147,14 @@ export function OptionGroupCard({
 	onDelete,
 }: OptionGroupCardProps) {
 	const { t } = useTranslation("menu");
+	const language = useDisplayLanguage();
 	const [isExpanded, setIsExpanded] = useState(false);
 	const choiceCount = optionGroup.optionChoices.length;
+	const displayName = getDisplayName(optionGroup.translations, language);
+	const displayDescription = getDisplayDescription(
+		optionGroup.translations,
+		language,
+	);
 
 	return (
 		<div
@@ -164,7 +175,7 @@ export function OptionGroupCard({
 					>
 						<div className="flex items-center gap-2 flex-wrap">
 							<h3 className="font-medium text-foreground truncate">
-								{optionGroup.name}
+								{displayName}
 							</h3>
 							<Badge variant={getTypeBadgeVariant(optionGroup.type)}>
 								{getTypeLabel(t, optionGroup.type)}
@@ -175,9 +186,9 @@ export function OptionGroupCard({
 								</span>
 							)}
 						</div>
-						{optionGroup.description && (
+						{displayDescription && (
 							<p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-								{optionGroup.description}
+								{displayDescription}
 							</p>
 						)}
 
@@ -288,7 +299,7 @@ export function OptionGroupCard({
 													"line-through text-muted-foreground",
 											)}
 										>
-											{choice.name}
+											{getDisplayName(choice.translations, language)}
 										</span>
 										{choice.isDefault && (
 											<Badge

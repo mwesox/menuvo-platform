@@ -1,5 +1,6 @@
 import { ImageOff } from "lucide-react";
 import type { Item } from "@/db/schema";
+import { useEntityDisplayName } from "@/features/console/menu/hooks";
 import { cn } from "@/lib/utils";
 
 interface ItemListItemProps {
@@ -20,6 +21,8 @@ export function ItemListItem({
 	isSelected,
 	onSelect,
 }: ItemListItemProps) {
+	const displayName = useEntityDisplayName(item.translations);
+
 	return (
 		<button
 			type="button"
@@ -36,7 +39,7 @@ export function ItemListItem({
 					{item.imageUrl ? (
 						<img
 							src={item.imageUrl}
-							alt={item.name}
+							alt={displayName}
 							className="h-10 w-10 rounded-md object-cover"
 						/>
 					) : (
@@ -55,7 +58,7 @@ export function ItemListItem({
 								!item.isAvailable && "text-muted-foreground line-through",
 							)}
 						>
-							{item.name}
+							{displayName}
 						</span>
 					</div>
 					<div className="text-xs text-muted-foreground">

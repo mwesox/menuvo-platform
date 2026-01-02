@@ -1,8 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PageHeader } from "@/components/layout/page-header";
+import { PageActionBar } from "@/components/layout/page-action-bar";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -13,6 +14,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { StoreCard } from "@/features/console/stores/components/store-card";
 import {
 	storeQueries,
@@ -46,10 +48,16 @@ function StoresPage() {
 
 	return (
 		<div>
-			<PageHeader
+			<PageActionBar
 				title={t("titles.stores")}
-				description={t("descriptions.manageStores")}
-				action={{ label: t("labels.addStore"), href: "/console/stores/new" }}
+				actions={
+					<Button asChild>
+						<Link to="/console/stores/new">
+							<Plus className="mr-2 h-4 w-4" />
+							{t("labels.addStore")}
+						</Link>
+					</Button>
+				}
 			/>
 
 			{stores.length === 0 ? (

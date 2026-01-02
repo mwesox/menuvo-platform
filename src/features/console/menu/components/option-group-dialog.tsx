@@ -39,6 +39,9 @@ import type {
 	OptionGroup,
 	OptionGroupType,
 } from "@/db/schema.ts";
+import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
+import { getDisplayName } from "@/features/console/menu/logic/display";
+import { translationsToForm } from "@/features/console/menu/validation";
 import { optionGroupFormSchema } from "../options.validation.ts";
 
 interface OptionGroupDialogProps {
@@ -76,6 +79,7 @@ export function OptionGroupDialog({
 	const { t: tForms } = useTranslation("forms");
 	const id = useId();
 	const [activeTab, setActiveTab] = useState("settings");
+	const language = useDisplayLanguage();
 	const isEditing = !!optionGroup;
 
 	const form = useForm({
@@ -130,8 +134,12 @@ export function OptionGroupDialog({
 		if (open) {
 			form.reset();
 			if (optionGroup) {
-				form.setFieldValue("name", optionGroup.name);
-				form.setFieldValue("description", optionGroup.description ?? "");
+				const formValues = translationsToForm(
+					optionGroup.translations,
+					language,
+				);
+				form.setFieldValue("name", formValues.name);
+				form.setFieldValue("description", formValues.description);
 				form.setFieldValue("type", optionGroup.type);
 				form.setFieldValue("minSelections", optionGroup.minSelections);
 				form.setFieldValue("maxSelections", optionGroup.maxSelections);
@@ -149,7 +157,7 @@ export function OptionGroupDialog({
 					"choices",
 					optionGroup.optionChoices.map((choice) => ({
 						id: choice.id,
-						name: choice.name,
+						name: getDisplayName(choice.translations, language),
 						priceModifier: choice.priceModifier,
 						isDefault: choice.isDefault,
 						minQuantity: choice.minQuantity,
@@ -159,7 +167,7 @@ export function OptionGroupDialog({
 			}
 			setActiveTab("settings");
 		}
-	}, [open, optionGroup]);
+	}, [open, optionGroup, language]);
 
 	// Helper to get type description
 	const getTypeDescription = (type: OptionGroupType): string => {

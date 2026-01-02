@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -299,12 +299,15 @@ export function ItemDrawer({
 
 	return (
 		<Drawer open={open} onOpenChange={onOpenChange}>
-			<DrawerContent className="max-h-[85dvh] overflow-hidden">
+			<DrawerContent
+				className="max-h-[85dvh] overflow-hidden md:max-w-lg md:mx-auto md:rounded-t-(--radius)"
+				hideHandle={!!item.imageUrl}
+			>
 				{/* Scrollable content */}
 				<div className="flex-1 overflow-y-auto min-h-0 overscroll-contain">
-					{/* Hero image with gradient overlay */}
+					{/* Hero image - full width, edge to edge */}
 					{item.imageUrl && (
-						<div className="relative h-44 overflow-hidden">
+						<div className="relative h-48 md:h-56 overflow-hidden md:rounded-t-(--radius)">
 							<img
 								src={item.imageUrl}
 								alt={item.name}
@@ -384,7 +387,15 @@ export function ItemDrawer({
 							disabled={!isValid}
 							className="flex-1 h-14 text-base font-medium shadow-lg shadow-primary/20"
 						>
-							{t("menu.addToOrder")} · {formatPrice(calculateTotal)}
+							{/* Mobile: icon + price only */}
+							<span className="flex items-center gap-2 md:hidden">
+								<Plus className="w-5 h-5" />
+								{formatPrice(calculateTotal)}
+							</span>
+							{/* Desktop: text + price */}
+							<span className="hidden md:inline">
+								{t("menu.addToOrder")} · {formatPrice(calculateTotal)}
+							</span>
 						</ShopButton>
 					</div>
 				</div>

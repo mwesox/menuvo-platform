@@ -29,45 +29,56 @@ export function StoreCard({ store, onToggleActive, onDelete }: StoreCardProps) {
 
 	return (
 		<Card className="overflow-hidden transition-shadow hover:shadow-md">
-			<CardHeader className="pb-4">
-				<div className="flex items-start justify-between gap-4">
-					<div className="flex items-start gap-4">
-						<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-							<StoreIcon className="h-6 w-6 text-primary" />
-						</div>
-						<div className="space-y-1">
-							<h3 className="text-xl font-semibold tracking-tight">
-								{store.name}
-							</h3>
-							{(addressLine1 || addressLine2) && (
-								<div className="flex items-start gap-1.5 text-sm text-muted-foreground">
-									<MapPin className="mt-0.5 h-4 w-4 shrink-0" />
-									<div>
-										{addressLine1 && <div>{addressLine1}</div>}
-										{addressLine2 && <div>{addressLine2}</div>}
+			<Link
+				to="/console/stores/$storeId"
+				params={{ storeId: String(store.id) }}
+				className="block"
+			>
+				<CardHeader className="pb-4 transition-colors hover:bg-muted/50">
+					<div className="flex items-start justify-between gap-4">
+						<div className="flex items-start gap-4">
+							<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+								<StoreIcon className="h-6 w-6 text-primary" />
+							</div>
+							<div className="space-y-1">
+								<h3 className="text-xl font-semibold tracking-tight">
+									{store.name}
+								</h3>
+								{(addressLine1 || addressLine2) && (
+									<div className="flex items-start gap-1.5 text-sm text-muted-foreground">
+										<MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+										<div>
+											{addressLine1 && <div>{addressLine1}</div>}
+											{addressLine2 && <div>{addressLine2}</div>}
+										</div>
 									</div>
-								</div>
-							)}
-							{!addressLine1 && !addressLine2 && (
-								<p className="text-sm text-muted-foreground">
-									{t("labels.noAddressConfigured")}
-								</p>
-							)}
+								)}
+								{!addressLine1 && !addressLine2 && (
+									<p className="text-sm text-muted-foreground">
+										{t("labels.noAddressConfigured")}
+									</p>
+								)}
+							</div>
+						</div>
+						{/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation prevents Link navigation */}
+						{/* biome-ignore lint/a11y/noStaticElementInteractions: container for Switch interaction */}
+						<div
+							className="flex items-center gap-2"
+							onClick={(e) => e.stopPropagation()}
+						>
+							<span className="text-sm text-muted-foreground">
+								{store.isActive
+									? tCommon("labels.active")
+									: tCommon("labels.inactive")}
+							</span>
+							<Switch
+								checked={store.isActive}
+								onCheckedChange={(checked) => onToggleActive(store.id, checked)}
+							/>
 						</div>
 					</div>
-					<div className="flex items-center gap-2">
-						<span className="text-sm text-muted-foreground">
-							{store.isActive
-								? tCommon("labels.active")
-								: tCommon("labels.inactive")}
-						</span>
-						<Switch
-							checked={store.isActive}
-							onCheckedChange={(checked) => onToggleActive(store.id, checked)}
-						/>
-					</div>
-				</div>
-			</CardHeader>
+				</CardHeader>
+			</Link>
 
 			<CardContent className="space-y-4">
 				{(store.phone || store.email) && (

@@ -4,6 +4,11 @@ import { Badge } from "@/components/ui/badge.tsx";
 import { Card } from "@/components/ui/card.tsx";
 import { Checkbox } from "@/components/ui/checkbox.tsx";
 import type { OptionGroup } from "@/db/schema.ts";
+import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
+import {
+	getDisplayDescription,
+	getDisplayName,
+} from "@/features/console/menu/logic/display";
 import { cn } from "@/lib/utils.ts";
 import { optionGroupQueries } from "../options.queries.ts";
 
@@ -50,6 +55,7 @@ export function ItemOptionsSelector({
 	onSelectionChange,
 }: ItemOptionsSelectorProps) {
 	const { t } = useTranslation("menu");
+	const language = useDisplayLanguage();
 	const { data: optionGroups } = useSuspenseQuery(
 		optionGroupQueries.byStore(storeId),
 	);
@@ -114,7 +120,9 @@ export function ItemOptionsSelector({
 									/>
 									<div className="flex-1 space-y-1">
 										<div className="flex items-center gap-2 flex-wrap">
-											<span className="font-medium">{group.name}</span>
+											<span className="font-medium">
+												{getDisplayName(group.translations, language)}
+											</span>
 											{group.isRequired && (
 												<Badge variant="destructive">
 													{t("optionGroups.required")}
@@ -137,9 +145,12 @@ export function ItemOptionsSelector({
 												)}
 											</span>
 										</div>
-										{group.description && (
+										{getDisplayDescription(group.translations, language) && (
 											<p className="text-sm text-muted-foreground">
-												{truncateDescription(group.description)}
+												{truncateDescription(
+													getDisplayDescription(group.translations, language) ??
+														"",
+												)}
 											</p>
 										)}
 									</div>

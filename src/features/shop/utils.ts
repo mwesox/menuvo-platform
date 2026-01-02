@@ -30,6 +30,31 @@ export function formatPrice(cents: number, currency = "EUR"): string {
 }
 
 /**
+ * Format a price modifier (can be positive or negative) with appropriate sign.
+ * @param cents - The price modifier in cents
+ * @param currency - The currency code (default: "EUR")
+ * @returns Formatted string with sign (e.g., "+€2.20" or "−€2.20")
+ */
+export function formatPriceModifier(cents: number, currency = "EUR"): string {
+	const formatter = new Intl.NumberFormat(undefined, {
+		style: "currency",
+		currency,
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	});
+
+	const formatted = formatter.format(Math.abs(cents) / 100);
+
+	if (cents > 0) {
+		return `+${formatted}`;
+	}
+	if (cents < 0) {
+		return `−${formatted}`; // Using proper minus sign (U+2212)
+	}
+	return formatted;
+}
+
+/**
  * Selected option structure for cart items.
  */
 interface SelectedOption {

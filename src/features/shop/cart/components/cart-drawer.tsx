@@ -1,8 +1,8 @@
 "use client";
 
+import { useNavigate } from "@tanstack/react-router";
 import { ShoppingBag } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 import {
 	Drawer,
 	DrawerContent,
@@ -27,16 +27,19 @@ interface CartDrawerProps {
 
 export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 	const { t } = useTranslation("shop");
+	const navigate = useNavigate();
 	const items = useCartStore((s) => s.items);
-	const itemCount = useCartStore((s) => s.itemCount);
-	const subtotal = useCartStore((s) => s.subtotal);
+	const storeSlug = useCartStore((s) => s.storeSlug);
+	// Compute from items (getters don't work with persist middleware)
+	const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+	const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
 	const updateQuantity = useCartStore((s) => s.updateQuantity);
 	const removeItem = useCartStore((s) => s.removeItem);
 
 	const handleCheckout = () => {
-		toast.info(t("cart.checkoutComingSoon"), {
-			description: t("cart.checkoutDescription"),
-		});
+		if (!storeSlug) return;
+		onOpenChange(false);
+		navigate({ to: "/shop/$slug/checkout", params: { slug: storeSlug } });
 	};
 
 	return (

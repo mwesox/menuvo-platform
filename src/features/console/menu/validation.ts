@@ -1,21 +1,42 @@
 import { z } from "zod";
+import type { EntityTranslations } from "@/db/schema";
 
-// Categories
+// ============================================================================
+// TRANSLATION SCHEMAS
+// ============================================================================
+
+/**
+ * Schema for entity translations (name + description).
+ * Used in create/update operations for categories and items.
+ */
+export const entityTranslationsSchema = z.record(
+	z.string(),
+	z.object({
+		name: z.string().optional(),
+		description: z.string().optional(),
+	}),
+);
+
+// ============================================================================
+// CATEGORIES
+// ============================================================================
+
 export const createCategorySchema = z.object({
 	storeId: z.number().int().positive(),
-	name: z
-		.string()
-		.min(2, "Category name must be at least 2 characters")
-		.max(100, "Category name must be less than 100 characters"),
-	description: z.string().optional(),
+	translations: entityTranslationsSchema.refine(
+		(t) => Object.values(t).some((v) => v.name && v.name.length >= 2),
+		"At least one language must have a name (min 2 characters)",
+	),
 	displayOrder: z.number().int().min(0).optional(),
 });
 
-export const updateCategorySchema = createCategorySchema
-	.omit({ storeId: true })
-	.partial();
+export const updateCategorySchema = z.object({
+	translations: entityTranslationsSchema.optional(),
+	displayOrder: z.number().int().min(0).optional(),
+	isActive: z.boolean().optional(),
+});
 
-// Client-side category form schema
+// Client-side category form schema (for a specific language)
 export const categoryFormSchema = z.object({
 	name: z
 		.string()
@@ -28,26 +49,34 @@ export type CategoryFormInput = z.infer<typeof categoryFormSchema>;
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
 export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 
-// Items
+// ============================================================================
+// ITEMS
+// ============================================================================
+
 export const createItemSchema = z.object({
 	categoryId: z.number().int().positive(),
 	storeId: z.number().int().positive(),
-	name: z
-		.string()
-		.min(2, "Item name must be at least 2 characters")
-		.max(100, "Item name must be less than 100 characters"),
-	description: z.string().optional(),
+	translations: entityTranslationsSchema.refine(
+		(t) => Object.values(t).some((v) => v.name && v.name.length >= 2),
+		"At least one language must have a name (min 2 characters)",
+	),
 	price: z.number().int().min(0, "Price must be positive"), // Price in cents
 	imageUrl: z.string().url().optional().or(z.literal("")),
 	allergens: z.array(z.string()).default([]),
 	displayOrder: z.number().int().min(0).default(0),
 });
 
-export const updateItemSchema = createItemSchema
-	.omit({ categoryId: true, storeId: true })
-	.partial();
+export const updateItemSchema = z.object({
+	translations: entityTranslationsSchema.optional(),
+	price: z.number().int().min(0, "Price must be positive").optional(),
+	imageUrl: z.string().url().optional().or(z.literal("")),
+	allergens: z.array(z.string()).optional(),
+	displayOrder: z.number().int().min(0).optional(),
+	isAvailable: z.boolean().optional(),
+	categoryId: z.number().int().positive().optional(),
+});
 
-// Client-side item form schema (with price as string for input handling)
+// Client-side item form schema (for a specific language, with price as string)
 export const itemFormSchema = z.object({
 	name: z
 		.string()
@@ -63,7 +92,10 @@ export type ItemFormInput = z.infer<typeof itemFormSchema>;
 export type CreateItemInput = z.infer<typeof createItemSchema>;
 export type UpdateItemInput = z.infer<typeof updateItemSchema>;
 
-// Common allergens
+// ============================================================================
+// COMMON ALLERGENS
+// ============================================================================
+
 export const allergensList = [
 	{ value: "gluten", label: "Gluten" },
 	{ value: "dairy", label: "Dairy" },
@@ -80,3 +112,39 @@ export const allergensList = [
 	{ value: "molluscs", label: "Molluscs" },
 	{ value: "sulphites", label: "Sulphites" },
 ] as const;
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Transform form input (name, description for a specific language)
+ * into translations JSONB format for server.
+ */
+export function formToTranslations(
+	formData: { name: string; description: string },
+	language: string,
+	existingTranslations?: EntityTranslations,
+): EntityTranslations {
+	return {
+		...(existingTranslations ?? {}),
+		[language]: {
+			name: formData.name,
+			description: formData.description,
+		},
+	};
+}
+
+/**
+ * Extract form values from translations for a specific language.
+ */
+export function translationsToForm(
+	translations: EntityTranslations | null,
+	language: string,
+): { name: string; description: string } {
+	const t = translations?.[language];
+	return {
+		name: t?.name ?? "",
+		description: t?.description ?? "",
+	};
+}

@@ -3,9 +3,13 @@ import { z } from "zod";
 import { MenuPage } from "@/features/console/menu/components/menu-page";
 import { optionGroupQueries } from "@/features/console/menu/options.queries";
 import { categoryQueries, itemQueries } from "@/features/console/menu/queries";
+import { merchantQueries } from "@/features/console/settings/queries";
 import { storeQueries } from "@/features/console/stores/queries";
 
-const tabSchema = z.enum(["categories", "items", "options"]);
+// For now, hardcode merchantId=1 (in production, get from auth context)
+const MERCHANT_ID = 1;
+
+const tabSchema = z.enum(["categories", "items", "options", "translations"]);
 
 const searchSchema = z.object({
 	storeId: z.number().optional(),
@@ -17,9 +21,11 @@ export const Route = createFileRoute("/console/menu/")({
 	validateSearch: searchSchema,
 	loaderDeps: ({ search }) => ({ storeId: search.storeId, tab: search.tab }),
 	loader: async ({ context, deps }) => {
-		const stores = await context.queryClient.ensureQueryData(
-			storeQueries.list(),
-		);
+		// Load stores and merchant in parallel
+		const [stores, merchant] = await Promise.all([
+			context.queryClient.ensureQueryData(storeQueries.list()),
+			context.queryClient.ensureQueryData(merchantQueries.detail(MERCHANT_ID)),
+		]);
 
 		// Auto-select if single store, otherwise use URL param
 		const effectiveStoreId =
@@ -39,9 +45,14 @@ export const Route = createFileRoute("/console/menu/")({
 			]);
 		}
 
+		// Get display language from merchant's supported languages (first = primary)
+		const displayLanguage = merchant.supportedLanguages?.[0] ?? "de";
+
 		return {
 			stores,
 			autoSelectedStoreId: stores.length === 1 ? stores[0].id : undefined,
+			merchantId: MERCHANT_ID,
+			displayLanguage,
 		};
 	},
 	component: RouteComponent,

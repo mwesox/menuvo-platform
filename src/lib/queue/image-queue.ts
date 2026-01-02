@@ -1,8 +1,12 @@
-import { redis } from "bun";
+import { RedisClient } from "bun";
+import { env } from "@/env";
 import { processImageVariants } from "@/lib/storage/image-processor";
 
 const QUEUE_NAME = "image:variants";
 const DEAD_LETTER_QUEUE = "image:variants:dead";
+
+// Create Redis client with explicit connection
+const redis = new RedisClient(env.REDIS_URL ?? "redis://localhost:6379");
 
 /**
  * Enqueue an image for variant generation.

@@ -1,8 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PageHeader } from "@/components/layout/page-header";
+import { PageActionBar } from "@/components/layout/page-action-bar";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -27,6 +26,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import type { Category } from "@/db/schema";
+import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
+import { getDisplayName } from "@/features/console/menu/logic/display";
 import { ItemForm } from "./item-form";
 
 interface NewItemPageProps {
@@ -45,6 +46,7 @@ export function NewItemPage({
 	const { t } = useTranslation("menu");
 	const { t: tForms } = useTranslation("forms");
 	const navigate = useNavigate();
+	const language = useDisplayLanguage();
 
 	const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
 		initialCategoryId,
@@ -62,19 +64,10 @@ export function NewItemPage({
 	};
 
 	return (
-		<div>
-			<div className="mb-4">
-				<Button variant="ghost" size="sm" asChild>
-					<Link to="/console/menu" search={{ storeId, tab: "items" as const }}>
-						<ArrowLeft className="mr-2 h-4 w-4" />
-						{t("navigation.backToItems")}
-					</Link>
-				</Button>
-			</div>
-
-			<PageHeader
-				title={t("pageHeaders.addItemTitle")}
-				description={t("pageHeaders.addItemDescription")}
+		<div className="space-y-6">
+			<PageActionBar
+				backHref={`/console/menu?storeId=${storeId}&tab=items`}
+				backLabel={t("navigation.backToItems")}
 			/>
 
 			{categories.length === 0 ? (
@@ -116,7 +109,7 @@ export function NewItemPage({
 								<SelectContent>
 									{categories.map((category) => (
 										<SelectItem key={category.id} value={String(category.id)}>
-											{category.name}
+											{getDisplayName(category.translations, language)}
 										</SelectItem>
 									))}
 								</SelectContent>

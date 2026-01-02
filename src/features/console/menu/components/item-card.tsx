@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
 import type { Item } from "@/db/schema.ts";
+import { useEntityDisplay } from "@/features/console/menu/hooks";
 import { cn } from "@/lib/utils.ts";
 
 interface ItemCardProps {
@@ -28,6 +29,9 @@ function formatPrice(cents: number, currency = "EUR"): string {
 
 export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 	const { t } = useTranslation("menu");
+	const { displayName, displayDescription } = useEntityDisplay(
+		item.translations,
+	);
 	const displayedAllergens = item.allergens?.slice(0, 3) ?? [];
 	const remainingAllergens = (item.allergens?.length ?? 0) - 3;
 
@@ -56,7 +60,7 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 						{item.imageUrl ? (
 							<img
 								src={item.imageUrl}
-								alt={item.name}
+								alt={displayName}
 								className="h-16 w-16 rounded-md object-cover"
 							/>
 						) : (
@@ -71,7 +75,7 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 						<div className="flex items-start justify-between gap-2">
 							<div className="min-w-0">
 								<h3 className="font-medium text-foreground truncate">
-									{item.name}
+									{displayName}
 								</h3>
 								<p className="text-sm font-medium text-muted-foreground">
 									{formatPrice(item.price)}
@@ -111,9 +115,9 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 							</DropdownMenu>
 						</div>
 
-						{item.description && (
+						{displayDescription && (
 							<p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-								{item.description}
+								{displayDescription}
 							</p>
 						)}
 

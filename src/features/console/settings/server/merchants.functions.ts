@@ -35,14 +35,14 @@ export const updateMerchantGeneral = createServerFn({ method: "POST" })
 		return updatedMerchant;
 	});
 
-export const updateMerchantLanguage = createServerFn({ method: "POST" })
+export const updateMerchantLanguages = createServerFn({ method: "POST" })
 	.inputValidator(merchantLanguageSchema.extend({ merchantId: z.number() }))
 	.handler(async ({ data }) => {
-		const { merchantId, primaryLanguage } = data;
+		const { merchantId, supportedLanguages } = data;
 
 		const [updatedMerchant] = await db
 			.update(merchants)
-			.set({ primaryLanguage })
+			.set({ supportedLanguages })
 			.where(eq(merchants.id, merchantId))
 			.returning();
 

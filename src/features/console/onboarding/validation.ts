@@ -12,7 +12,8 @@ export const merchantStepFormSchema = z.object({
 		.max(100, "Business name must be less than 100 characters"),
 	email: z.string().email("Please enter a valid email address"),
 	phone: z.string(),
-	primaryLanguage: z.enum(["en", "de", "fr", "es", "it"]),
+	// First language in supportedLanguages array - used as initial language
+	initialLanguage: z.enum(["en", "de", "fr", "es", "it"]),
 });
 export type MerchantStepFormInput = z.infer<typeof merchantStepFormSchema>;
 
@@ -37,7 +38,7 @@ export type StoreStepFormInput = z.infer<typeof storeStepFormSchema>;
 export const onboardingSchema = z.object({
 	merchant: merchantStepFormSchema.extend({
 		phone: z.string().optional(),
-		primaryLanguage: z.enum(["en", "de", "fr", "es", "it"]).default("en"),
+		initialLanguage: z.enum(["en", "de", "fr", "es", "it"]).default("de"),
 	}),
 	store: storeStepFormSchema.extend({
 		timezone: z.string().default("Europe/Berlin"),

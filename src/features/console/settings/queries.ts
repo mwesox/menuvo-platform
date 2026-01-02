@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import {
 	getMerchant,
 	updateMerchantGeneral,
-	updateMerchantLanguage,
+	updateMerchantLanguages,
 } from "./server/merchants.functions.ts";
 import {
 	createPaymentOnboardingLink,
@@ -86,13 +86,13 @@ export function useUpdateMerchantGeneral() {
 	});
 }
 
-export function useUpdateMerchantLanguage() {
+export function useUpdateMerchantLanguages() {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
 		mutationFn: (input: MerchantLanguageInput & { merchantId: number }) =>
-			updateMerchantLanguage({ data: input }),
+			updateMerchantLanguages({ data: input }),
 		onSuccess: (updatedMerchant) => {
 			queryClient.setQueryData(
 				merchantKeys.detail(updatedMerchant.id),

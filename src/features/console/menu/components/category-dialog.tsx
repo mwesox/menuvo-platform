@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import type { Category } from "@/db/schema.ts";
+import { getLocalizedContent } from "@/features/console/translations/logic/localization.ts";
 import { categoryFormSchema } from "../validation.ts";
 
 interface CategoryDialogProps {
@@ -62,8 +63,13 @@ export function CategoryDialog({
 		if (open) {
 			form.reset();
 			if (category) {
-				form.setFieldValue("name", category.name);
-				form.setFieldValue("description", category.description ?? "");
+				const { name, description } = getLocalizedContent(
+					category.translations,
+					"de",
+					"de",
+				);
+				form.setFieldValue("name", name);
+				form.setFieldValue("description", description ?? "");
 			}
 		}
 	}, [open, category]);

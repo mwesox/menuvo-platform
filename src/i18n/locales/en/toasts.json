@@ -42,7 +42,10 @@
 		"subscriptionCanceled": "Subscription has been canceled",
 		"subscriptionResumed": "Subscription has been resumed",
 		"paymentAccountCreated": "Payment account created successfully",
-		"paymentStatusRefreshed": "Payment status updated"
+		"paymentStatusRefreshed": "Payment status updated",
+		"orderStatusUpdated": "Order status updated",
+		"orderCancelled": "Order cancelled",
+		"notesSaved": "Notes saved"
 	},
 	"error": {
 		"generic": "An error occurred",
@@ -81,6 +84,12 @@
 		"openBillingPortal": "Failed to open billing portal. Please try again.",
 		"setupPaymentAccount": "Failed to set up payment account. Please try again.",
 		"createOnboardingLink": "Failed to create onboarding link. Please try again.",
-		"refreshPaymentStatus": "Failed to refresh payment status. Please try again."
+		"refreshPaymentStatus": "Failed to refresh payment status. Please try again.",
+		"createOrder": "Failed to create order",
+		"createCheckout": "Failed to start checkout",
+		"updateOrderStatus": "Failed to update order status",
+		"cancelOrder": "Failed to cancel order",
+		"saveNotes": "Failed to save notes",
+		"cancelPayment": "Failed to cancel payment"
 	}
 }

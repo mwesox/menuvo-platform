@@ -57,6 +57,7 @@ services:
       mc alias set myminio http://minio:9000 minioadmin minioadmin;
       mc mb myminio/menuvo-images --ignore-existing;
       mc anonymous set download myminio/menuvo-images;
+      mc mb myminio/menuvo-files --ignore-existing;
       exit 0;
       "
 

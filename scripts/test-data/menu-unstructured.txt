@@ -1,0 +1,87 @@
+PIZZERIA BELLA ITALIA
+======================
+
+-- ANTIPASTI --
+
+Bruschetta al Pomodoro.......................... 5,90 €
+  Geröstetes Ciabatta mit frischen Tomaten, Knoblauch und Basilikum
+  (Enthält: Gluten)
+
+Carpaccio di Manzo............................. 14,90 €
+  Hauchdünn geschnittenes Rinderfilet mit Rucola und Parmesan
+  (Enthält: Milch)
+
+Insalata Caprese............................... 9,50 €
+  Büffelmozzarella mit Tomaten und frischem Basilikum
+  (Enthält: Milch)
+
+Vitello Tonnato................................ 13,90 €
+  Kalbfleisch mit Thunfischsauce
+  (Enthält: Fisch, Eier)
+
+
+-- PIZZA (alle mit Tomatensoße und Mozzarella) --
+
+Margherita..................................... 10,90 €
+  Tomaten, Mozzarella, Basilikum
+
+Prosciutto e Funghi............................ 13,90 €
+  Schinken und Champignons
+
+Quattro Formaggi............................... 14,50 €
+  Vier Käsesorten: Mozzarella, Gorgonzola, Parmesan, Fontina
+
+Diavola........................................ 13,90 €
+  Scharfe Salami, Peperoni, Chili
+
+Vegetariana.................................... 12,90 €
+  Zucchini, Paprika, Aubergine, Oliven, Artischocken
+
+(Alle Pizzen enthalten Gluten und Milch)
+
+
+-- PASTA --
+
+Spaghetti Carbonara............................ 13,90 €
+  Mit Speck, Ei und Parmesan
+  (Gluten, Eier, Milch)
+
+Penne Arrabbiata............................... 11,90 €
+  Mit scharfer Tomatensauce
+  (Gluten)
+
+Lasagne della Casa............................. 14,90 €
+  Hausgemachte Lasagne mit Bolognese
+  (Gluten, Milch, Eier)
+
+Risotto ai Frutti di Mare...................... 18,90 €
+  Mit Meeresfrüchten
+  (Schalentiere, Fisch)
+
+Gnocchi al Pesto............................... 12,90 €
+  Kartoffelgnocchi mit Basilikumpesto
+  (Gluten, Milch, Nüsse)
+
+
+-- DOLCI --
+
+Tiramisu....................................... 6,90 €
+Panna Cotta mit Waldbeeren..................... 5,90 €
+Gelato Misto (3 Kugeln)........................ 5,50 €
+Affogato al Caffè.............................. 4,90 €
+
+
+-- GETRÄNKE --
+
+Espresso....................................... 2,20 €
+Cappuccino..................................... 3,20 €
+Wasser (0,5l).................................. 3,50 €
+Coca Cola (0,33l).............................. 3,00 €
+Hauswein rot/weiß (0,2l)....................... 4,50 €
+Aperol Spritz.................................. 7,50 €
+
+
+EXTRAS:
+- Extra Käse: +1,50 €
+- Scharfe Soße: +0,50 €
+- Glutenfreier Teig (Pizza): +2,00 €

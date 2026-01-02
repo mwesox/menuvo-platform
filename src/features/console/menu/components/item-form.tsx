@@ -31,9 +31,15 @@ import {
 import { Textarea } from "@/components/ui/textarea.tsx";
 import type { Item } from "@/db/schema.ts";
 import { ImageUploadField } from "@/features/console/images/components/image-upload-field.tsx";
+import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
 import { createItem, updateItem } from "../server/items.functions.ts";
 import { updateItemOptions } from "../server/options.functions.ts";
-import { allergensList, itemFormSchema } from "../validation.ts";
+import {
+	allergensList,
+	formToTranslations,
+	itemFormSchema,
+	translationsToForm,
+} from "../validation.ts";
 import { ItemOptionsSelector } from "./item-options-selector.tsx";
 
 interface ItemFormProps {
@@ -55,16 +61,23 @@ export function ItemForm({
 	const { t: tCommon } = useTranslation("common");
 	const { t: tForms } = useTranslation("forms");
 	const navigate = useNavigate();
+	const language = useDisplayLanguage();
 	const isEditing = !!item;
 
 	const [selectedOptionGroupIds, setSelectedOptionGroupIds] = useState<
 		number[]
 	>(initialOptionGroupIds);
 
+	// Get form defaults from translations
+	const defaultTranslations = translationsToForm(
+		item?.translations ?? null,
+		language,
+	);
+
 	const form = useForm({
 		defaultValues: {
-			name: item?.name ?? "",
-			description: item?.description ?? "",
+			name: defaultTranslations.name,
+			description: defaultTranslations.description,
 			price: item ? String(item.price / 100) : "",
 			imageUrl: item?.imageUrl ?? "",
 			allergens: item?.allergens ?? ([] as string[]),
@@ -74,6 +87,11 @@ export function ItemForm({
 		},
 		onSubmit: async ({ value }) => {
 			const priceInCents = Math.round(Number.parseFloat(value.price) * 100);
+			const translations = formToTranslations(
+				{ name: value.name, description: value.description },
+				language,
+				item?.translations ?? undefined,
+			);
 
 			try {
 				let itemId: number;
@@ -82,8 +100,7 @@ export function ItemForm({
 					await updateItem({
 						data: {
 							itemId: item.id,
-							name: value.name,
-							description: value.description || undefined,
+							translations,
 							price: priceInCents,
 							imageUrl: value.imageUrl || undefined,
 							allergens: value.allergens,
@@ -95,8 +112,7 @@ export function ItemForm({
 						data: {
 							categoryId,
 							storeId,
-							name: value.name,
-							description: value.description || undefined,
+							translations,
 							price: priceInCents,
 							imageUrl: value.imageUrl || undefined,
 							allergens: value.allergens,

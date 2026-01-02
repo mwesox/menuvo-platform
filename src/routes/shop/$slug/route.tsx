@@ -1,6 +1,5 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, Outlet } from "@tanstack/react-router";
 import { z } from "zod";
-import { StoreMenuPage, StoreMenuPageSkeleton } from "@/features/shop/menu";
 import { shopQueries } from "@/features/shop/queries";
 import { StoreError, StoreNotFound } from "@/features/shop/shared";
 
@@ -19,8 +18,11 @@ export const Route = createFileRoute("/shop/$slug")({
 		}
 		return store;
 	},
-	component: StoreMenuPage,
-	pendingComponent: StoreMenuPageSkeleton,
+	component: StoreSlugLayout,
 	notFoundComponent: StoreNotFound,
 	errorComponent: StoreError,
 });
+
+function StoreSlugLayout() {
+	return <Outlet />;
+}

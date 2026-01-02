@@ -3,7 +3,7 @@
 import { Check, Minus, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { formatPrice } from "../../utils";
+import { formatPriceModifier } from "../../utils";
 import type { MenuItemChoice, OptionGroupType } from "../../validation";
 
 // ============================================================================
@@ -186,7 +186,7 @@ function SingleSelectGroup({
 									isSelected ? "text-foreground" : "text-muted-foreground",
 								)}
 							>
-								+{formatPrice(choice.priceModifier)}
+								{formatPriceModifier(choice.priceModifier)}
 							</span>
 						)}
 					</label>
@@ -285,7 +285,7 @@ function MultiSelectGroup({
 									isSelected ? "text-foreground" : "text-muted-foreground",
 								)}
 							>
-								+{formatPrice(choice.priceModifier)}
+								{formatPriceModifier(choice.priceModifier)}
 							</span>
 						)}
 					</label>
@@ -371,7 +371,7 @@ function QuantitySelectGroup({
 										quantity > 0 ? "text-foreground" : "text-muted-foreground",
 									)}
 								>
-									+{formatPrice(choice.priceModifier)}
+									{formatPriceModifier(choice.priceModifier)}
 								</span>
 							)}
 

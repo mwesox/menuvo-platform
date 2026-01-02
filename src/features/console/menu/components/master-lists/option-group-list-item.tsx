@@ -2,6 +2,7 @@ import { EyeOff, ListChecks } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import type { OptionChoice, OptionGroup, OptionGroupType } from "@/db/schema";
+import { useEntityDisplayName } from "@/features/console/menu/hooks";
 import { cn } from "@/lib/utils";
 
 type OptionGroupWithChoices = OptionGroup & { optionChoices: OptionChoice[] };
@@ -49,6 +50,7 @@ export function OptionGroupListItem({
 	onSelect,
 }: OptionGroupListItemProps) {
 	const { t } = useTranslation("menu");
+	const displayName = useEntityDisplayName(optionGroup.translations);
 	const choiceCount = optionGroup.optionChoices.length;
 
 	return (
@@ -79,7 +81,7 @@ export function OptionGroupListItem({
 								!optionGroup.isActive && "text-muted-foreground",
 							)}
 						>
-							{optionGroup.name}
+							{displayName}
 						</span>
 						{!optionGroup.isActive && (
 							<EyeOff className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />

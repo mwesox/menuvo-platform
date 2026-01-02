@@ -16,18 +16,23 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShopIndexRouteImport } from './routes/shop/index'
 import { Route as ConsoleIndexRouteImport } from './routes/console/index'
 import { Route as BusinessIndexRouteImport } from './routes/business/index'
-import { Route as ShopSlugRouteImport } from './routes/shop/$slug'
 import { Route as ConsoleOnboardingRouteImport } from './routes/console/onboarding'
+import { Route as ShopSlugRouteRouteImport } from './routes/shop/$slug/route'
+import { Route as ShopSlugIndexRouteImport } from './routes/shop/$slug/index'
 import { Route as ConsoleStoresIndexRouteImport } from './routes/console/stores/index'
 import { Route as ConsoleSettingsIndexRouteImport } from './routes/console/settings/index'
 import { Route as ConsoleMenuIndexRouteImport } from './routes/console/menu/index'
+import { Route as ShopSlugCheckoutRouteImport } from './routes/shop/$slug/checkout'
 import { Route as ConsoleStoresNewRouteImport } from './routes/console/stores/new'
 import { Route as ConsoleStoresStoreIdRouteImport } from './routes/console/stores/$storeId'
 import { Route as ConsoleSettingsSubscriptionRouteImport } from './routes/console/settings/subscription'
 import { Route as ConsoleSettingsPaymentsRouteImport } from './routes/console/settings/payments'
 import { Route as ConsoleSettingsMerchantRouteImport } from './routes/console/settings/merchant'
+import { Route as ConsoleMenuImportRouteImport } from './routes/console/menu/import'
 import { Route as ApiWebhooksStripeRouteImport } from './routes/api.webhooks.stripe'
+import { Route as ApiMenuImportUploadRouteImport } from './routes/api.menu-import.upload'
 import { Route as ApiImagesUploadRouteImport } from './routes/api.images.upload'
+import { Route as ShopSlugOrderOrderIdRouteImport } from './routes/shop/$slug/order/$orderId'
 import { Route as ConsoleMenuItemsNewRouteImport } from './routes/console/menu/items/new'
 import { Route as ConsoleMenuItemsItemIdRouteImport } from './routes/console/menu/items/$itemId'
 import { Route as ConsoleMenuCategoriesCategoryIdRouteImport } from './routes/console/menu/categories/$categoryId'
@@ -68,15 +73,20 @@ const BusinessIndexRoute = BusinessIndexRouteImport.update({
   path: '/',
   getParentRoute: () => BusinessRouteRoute,
 } as any)
-const ShopSlugRoute = ShopSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ShopRouteRoute,
-} as any)
 const ConsoleOnboardingRoute = ConsoleOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
   getParentRoute: () => ConsoleRouteRoute,
+} as any)
+const ShopSlugRouteRoute = ShopSlugRouteRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ShopRouteRoute,
+} as any)
+const ShopSlugIndexRoute = ShopSlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ShopSlugRouteRoute,
 } as any)
 const ConsoleStoresIndexRoute = ConsoleStoresIndexRouteImport.update({
   id: '/stores/',
@@ -92,6 +102,11 @@ const ConsoleMenuIndexRoute = ConsoleMenuIndexRouteImport.update({
   id: '/menu/',
   path: '/menu/',
   getParentRoute: () => ConsoleRouteRoute,
+} as any)
+const ShopSlugCheckoutRoute = ShopSlugCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => ShopSlugRouteRoute,
 } as any)
 const ConsoleStoresNewRoute = ConsoleStoresNewRouteImport.update({
   id: '/stores/new',
@@ -119,15 +134,30 @@ const ConsoleSettingsMerchantRoute = ConsoleSettingsMerchantRouteImport.update({
   path: '/settings/merchant',
   getParentRoute: () => ConsoleRouteRoute,
 } as any)
+const ConsoleMenuImportRoute = ConsoleMenuImportRouteImport.update({
+  id: '/menu/import',
+  path: '/menu/import',
+  getParentRoute: () => ConsoleRouteRoute,
+} as any)
 const ApiWebhooksStripeRoute = ApiWebhooksStripeRouteImport.update({
   id: '/api/webhooks/stripe',
   path: '/api/webhooks/stripe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMenuImportUploadRoute = ApiMenuImportUploadRouteImport.update({
+  id: '/api/menu-import/upload',
+  path: '/api/menu-import/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiImagesUploadRoute = ApiImagesUploadRouteImport.update({
   id: '/api/images/upload',
   path: '/api/images/upload',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ShopSlugOrderOrderIdRoute = ShopSlugOrderOrderIdRouteImport.update({
+  id: '/order/$orderId',
+  path: '/order/$orderId',
+  getParentRoute: () => ShopSlugRouteRoute,
 } as any)
 const ConsoleMenuItemsNewRoute = ConsoleMenuItemsNewRouteImport.update({
   id: '/menu/items/new',
@@ -156,47 +186,56 @@ export interface FileRoutesByFullPath {
   '/business': typeof BusinessRouteRouteWithChildren
   '/console': typeof ConsoleRouteRouteWithChildren
   '/shop': typeof ShopRouteRouteWithChildren
+  '/shop/$slug': typeof ShopSlugRouteRouteWithChildren
   '/console/onboarding': typeof ConsoleOnboardingRoute
-  '/shop/$slug': typeof ShopSlugRoute
   '/business/': typeof BusinessIndexRoute
   '/console/': typeof ConsoleIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/api/images/upload': typeof ApiImagesUploadRoute
+  '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRouteWithChildren
+  '/console/menu/import': typeof ConsoleMenuImportRoute
   '/console/settings/merchant': typeof ConsoleSettingsMerchantRoute
   '/console/settings/payments': typeof ConsoleSettingsPaymentsRoute
   '/console/settings/subscription': typeof ConsoleSettingsSubscriptionRoute
   '/console/stores/$storeId': typeof ConsoleStoresStoreIdRoute
   '/console/stores/new': typeof ConsoleStoresNewRoute
+  '/shop/$slug/checkout': typeof ShopSlugCheckoutRoute
   '/console/menu': typeof ConsoleMenuIndexRoute
   '/console/settings': typeof ConsoleSettingsIndexRoute
   '/console/stores': typeof ConsoleStoresIndexRoute
+  '/shop/$slug/': typeof ShopSlugIndexRoute
   '/api/webhooks/stripe/thin': typeof ApiWebhooksStripeThinRoute
   '/console/menu/categories/$categoryId': typeof ConsoleMenuCategoriesCategoryIdRoute
   '/console/menu/items/$itemId': typeof ConsoleMenuItemsItemIdRoute
   '/console/menu/items/new': typeof ConsoleMenuItemsNewRoute
+  '/shop/$slug/order/$orderId': typeof ShopSlugOrderOrderIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/console/onboarding': typeof ConsoleOnboardingRoute
-  '/shop/$slug': typeof ShopSlugRoute
   '/business': typeof BusinessIndexRoute
   '/console': typeof ConsoleIndexRoute
   '/shop': typeof ShopIndexRoute
   '/api/images/upload': typeof ApiImagesUploadRoute
+  '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRouteWithChildren
+  '/console/menu/import': typeof ConsoleMenuImportRoute
   '/console/settings/merchant': typeof ConsoleSettingsMerchantRoute
   '/console/settings/payments': typeof ConsoleSettingsPaymentsRoute
   '/console/settings/subscription': typeof ConsoleSettingsSubscriptionRoute
   '/console/stores/$storeId': typeof ConsoleStoresStoreIdRoute
   '/console/stores/new': typeof ConsoleStoresNewRoute
+  '/shop/$slug/checkout': typeof ShopSlugCheckoutRoute
   '/console/menu': typeof ConsoleMenuIndexRoute
   '/console/settings': typeof ConsoleSettingsIndexRoute
   '/console/stores': typeof ConsoleStoresIndexRoute
+  '/shop/$slug': typeof ShopSlugIndexRoute
   '/api/webhooks/stripe/thin': typeof ApiWebhooksStripeThinRoute
   '/console/menu/categories/$categoryId': typeof ConsoleMenuCategoriesCategoryIdRoute
   '/console/menu/items/$itemId': typeof ConsoleMenuItemsItemIdRoute
   '/console/menu/items/new': typeof ConsoleMenuItemsNewRoute
+  '/shop/$slug/order/$orderId': typeof ShopSlugOrderOrderIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -204,25 +243,30 @@ export interface FileRoutesById {
   '/business': typeof BusinessRouteRouteWithChildren
   '/console': typeof ConsoleRouteRouteWithChildren
   '/shop': typeof ShopRouteRouteWithChildren
+  '/shop/$slug': typeof ShopSlugRouteRouteWithChildren
   '/console/onboarding': typeof ConsoleOnboardingRoute
-  '/shop/$slug': typeof ShopSlugRoute
   '/business/': typeof BusinessIndexRoute
   '/console/': typeof ConsoleIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/api/images/upload': typeof ApiImagesUploadRoute
+  '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRouteWithChildren
+  '/console/menu/import': typeof ConsoleMenuImportRoute
   '/console/settings/merchant': typeof ConsoleSettingsMerchantRoute
   '/console/settings/payments': typeof ConsoleSettingsPaymentsRoute
   '/console/settings/subscription': typeof ConsoleSettingsSubscriptionRoute
   '/console/stores/$storeId': typeof ConsoleStoresStoreIdRoute
   '/console/stores/new': typeof ConsoleStoresNewRoute
+  '/shop/$slug/checkout': typeof ShopSlugCheckoutRoute
   '/console/menu/': typeof ConsoleMenuIndexRoute
   '/console/settings/': typeof ConsoleSettingsIndexRoute
   '/console/stores/': typeof ConsoleStoresIndexRoute
+  '/shop/$slug/': typeof ShopSlugIndexRoute
   '/api/webhooks/stripe/thin': typeof ApiWebhooksStripeThinRoute
   '/console/menu/categories/$categoryId': typeof ConsoleMenuCategoriesCategoryIdRoute
   '/console/menu/items/$itemId': typeof ConsoleMenuItemsItemIdRoute
   '/console/menu/items/new': typeof ConsoleMenuItemsNewRoute
+  '/shop/$slug/order/$orderId': typeof ShopSlugOrderOrderIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -231,72 +275,86 @@ export interface FileRouteTypes {
     | '/business'
     | '/console'
     | '/shop'
-    | '/console/onboarding'
     | '/shop/$slug'
+    | '/console/onboarding'
     | '/business/'
     | '/console/'
     | '/shop/'
     | '/api/images/upload'
+    | '/api/menu-import/upload'
     | '/api/webhooks/stripe'
+    | '/console/menu/import'
     | '/console/settings/merchant'
     | '/console/settings/payments'
     | '/console/settings/subscription'
     | '/console/stores/$storeId'
     | '/console/stores/new'
+    | '/shop/$slug/checkout'
     | '/console/menu'
     | '/console/settings'
     | '/console/stores'
+    | '/shop/$slug/'
     | '/api/webhooks/stripe/thin'
     | '/console/menu/categories/$categoryId'
     | '/console/menu/items/$itemId'
     | '/console/menu/items/new'
+    | '/shop/$slug/order/$orderId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/console/onboarding'
-    | '/shop/$slug'
     | '/business'
     | '/console'
     | '/shop'
     | '/api/images/upload'
+    | '/api/menu-import/upload'
     | '/api/webhooks/stripe'
+    | '/console/menu/import'
     | '/console/settings/merchant'
     | '/console/settings/payments'
     | '/console/settings/subscription'
     | '/console/stores/$storeId'
     | '/console/stores/new'
+    | '/shop/$slug/checkout'
     | '/console/menu'
     | '/console/settings'
     | '/console/stores'
+    | '/shop/$slug'
     | '/api/webhooks/stripe/thin'
     | '/console/menu/categories/$categoryId'
     | '/console/menu/items/$itemId'
     | '/console/menu/items/new'
+    | '/shop/$slug/order/$orderId'
   id:
     | '__root__'
     | '/'
     | '/business'
     | '/console'
     | '/shop'
-    | '/console/onboarding'
     | '/shop/$slug'
+    | '/console/onboarding'
     | '/business/'
     | '/console/'
     | '/shop/'
     | '/api/images/upload'
+    | '/api/menu-import/upload'
     | '/api/webhooks/stripe'
+    | '/console/menu/import'
     | '/console/settings/merchant'
     | '/console/settings/payments'
     | '/console/settings/subscription'
     | '/console/stores/$storeId'
     | '/console/stores/new'
+    | '/shop/$slug/checkout'
     | '/console/menu/'
     | '/console/settings/'
     | '/console/stores/'
+    | '/shop/$slug/'
     | '/api/webhooks/stripe/thin'
     | '/console/menu/categories/$categoryId'
     | '/console/menu/items/$itemId'
     | '/console/menu/items/new'
+    | '/shop/$slug/order/$orderId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -305,6 +363,7 @@ export interface RootRouteChildren {
   ConsoleRouteRoute: typeof ConsoleRouteRouteWithChildren
   ShopRouteRoute: typeof ShopRouteRouteWithChildren
   ApiImagesUploadRoute: typeof ApiImagesUploadRoute
+  ApiMenuImportUploadRoute: typeof ApiMenuImportUploadRoute
   ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRouteWithChildren
 }
 
@@ -359,19 +418,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BusinessIndexRouteImport
       parentRoute: typeof BusinessRouteRoute
     }
-    '/shop/$slug': {
-      id: '/shop/$slug'
-      path: '/$slug'
-      fullPath: '/shop/$slug'
-      preLoaderRoute: typeof ShopSlugRouteImport
-      parentRoute: typeof ShopRouteRoute
-    }
     '/console/onboarding': {
       id: '/console/onboarding'
       path: '/onboarding'
       fullPath: '/console/onboarding'
       preLoaderRoute: typeof ConsoleOnboardingRouteImport
       parentRoute: typeof ConsoleRouteRoute
+    }
+    '/shop/$slug': {
+      id: '/shop/$slug'
+      path: '/$slug'
+      fullPath: '/shop/$slug'
+      preLoaderRoute: typeof ShopSlugRouteRouteImport
+      parentRoute: typeof ShopRouteRoute
+    }
+    '/shop/$slug/': {
+      id: '/shop/$slug/'
+      path: '/'
+      fullPath: '/shop/$slug/'
+      preLoaderRoute: typeof ShopSlugIndexRouteImport
+      parentRoute: typeof ShopSlugRouteRoute
     }
     '/console/stores/': {
       id: '/console/stores/'
@@ -393,6 +459,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/console/menu'
       preLoaderRoute: typeof ConsoleMenuIndexRouteImport
       parentRoute: typeof ConsoleRouteRoute
+    }
+    '/shop/$slug/checkout': {
+      id: '/shop/$slug/checkout'
+      path: '/checkout'
+      fullPath: '/shop/$slug/checkout'
+      preLoaderRoute: typeof ShopSlugCheckoutRouteImport
+      parentRoute: typeof ShopSlugRouteRoute
     }
     '/console/stores/new': {
       id: '/console/stores/new'
@@ -429,11 +502,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleSettingsMerchantRouteImport
       parentRoute: typeof ConsoleRouteRoute
     }
+    '/console/menu/import': {
+      id: '/console/menu/import'
+      path: '/menu/import'
+      fullPath: '/console/menu/import'
+      preLoaderRoute: typeof ConsoleMenuImportRouteImport
+      parentRoute: typeof ConsoleRouteRoute
+    }
     '/api/webhooks/stripe': {
       id: '/api/webhooks/stripe'
       path: '/api/webhooks/stripe'
       fullPath: '/api/webhooks/stripe'
       preLoaderRoute: typeof ApiWebhooksStripeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/menu-import/upload': {
+      id: '/api/menu-import/upload'
+      path: '/api/menu-import/upload'
+      fullPath: '/api/menu-import/upload'
+      preLoaderRoute: typeof ApiMenuImportUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/images/upload': {
@@ -442,6 +529,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/images/upload'
       preLoaderRoute: typeof ApiImagesUploadRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/shop/$slug/order/$orderId': {
+      id: '/shop/$slug/order/$orderId'
+      path: '/order/$orderId'
+      fullPath: '/shop/$slug/order/$orderId'
+      preLoaderRoute: typeof ShopSlugOrderOrderIdRouteImport
+      parentRoute: typeof ShopSlugRouteRoute
     }
     '/console/menu/items/new': {
       id: '/console/menu/items/new'
@@ -489,6 +583,7 @@ const BusinessRouteRouteWithChildren = BusinessRouteRoute._addFileChildren(
 interface ConsoleRouteRouteChildren {
   ConsoleOnboardingRoute: typeof ConsoleOnboardingRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
+  ConsoleMenuImportRoute: typeof ConsoleMenuImportRoute
   ConsoleSettingsMerchantRoute: typeof ConsoleSettingsMerchantRoute
   ConsoleSettingsPaymentsRoute: typeof ConsoleSettingsPaymentsRoute
   ConsoleSettingsSubscriptionRoute: typeof ConsoleSettingsSubscriptionRoute
@@ -505,6 +600,7 @@ interface ConsoleRouteRouteChildren {
 const ConsoleRouteRouteChildren: ConsoleRouteRouteChildren = {
   ConsoleOnboardingRoute: ConsoleOnboardingRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,
+  ConsoleMenuImportRoute: ConsoleMenuImportRoute,
   ConsoleSettingsMerchantRoute: ConsoleSettingsMerchantRoute,
   ConsoleSettingsPaymentsRoute: ConsoleSettingsPaymentsRoute,
   ConsoleSettingsSubscriptionRoute: ConsoleSettingsSubscriptionRoute,
@@ -522,13 +618,29 @@ const ConsoleRouteRouteWithChildren = ConsoleRouteRoute._addFileChildren(
   ConsoleRouteRouteChildren,
 )
 
+interface ShopSlugRouteRouteChildren {
+  ShopSlugCheckoutRoute: typeof ShopSlugCheckoutRoute
+  ShopSlugIndexRoute: typeof ShopSlugIndexRoute
+  ShopSlugOrderOrderIdRoute: typeof ShopSlugOrderOrderIdRoute
+}
+
+const ShopSlugRouteRouteChildren: ShopSlugRouteRouteChildren = {
+  ShopSlugCheckoutRoute: ShopSlugCheckoutRoute,
+  ShopSlugIndexRoute: ShopSlugIndexRoute,
+  ShopSlugOrderOrderIdRoute: ShopSlugOrderOrderIdRoute,
+}
+
+const ShopSlugRouteRouteWithChildren = ShopSlugRouteRoute._addFileChildren(
+  ShopSlugRouteRouteChildren,
+)
+
 interface ShopRouteRouteChildren {
-  ShopSlugRoute: typeof ShopSlugRoute
+  ShopSlugRouteRoute: typeof ShopSlugRouteRouteWithChildren
   ShopIndexRoute: typeof ShopIndexRoute
 }
 
 const ShopRouteRouteChildren: ShopRouteRouteChildren = {
-  ShopSlugRoute: ShopSlugRoute,
+  ShopSlugRouteRoute: ShopSlugRouteRouteWithChildren,
   ShopIndexRoute: ShopIndexRoute,
 }
 
@@ -553,6 +665,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConsoleRouteRoute: ConsoleRouteRouteWithChildren,
   ShopRouteRoute: ShopRouteRouteWithChildren,
   ApiImagesUploadRoute: ApiImagesUploadRoute,
+  ApiMenuImportUploadRoute: ApiMenuImportUploadRoute,
   ApiWebhooksStripeRoute: ApiWebhooksStripeRouteWithChildren,
 }
 export const routeTree = rootRouteImport

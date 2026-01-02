@@ -16,6 +16,16 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  // Externalize Bun-specific modules from client bundle
+  build: {
+    rollupOptions: {
+      external: ['bun', 'bun:test'],
+    },
+  },
+  // Also configure SSR externalization
+  ssr: {
+    external: ['bun'],
+  },
 })
 
 export default config

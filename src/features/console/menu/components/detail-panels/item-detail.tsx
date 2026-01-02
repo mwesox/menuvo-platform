@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
 import type { Item } from "@/db/schema";
+import { useEntityDisplay } from "@/features/console/menu/hooks";
 import { cn } from "@/lib/utils";
 
 interface ItemDetailProps {
@@ -34,6 +35,9 @@ export function ItemDetail({
 }: ItemDetailProps) {
 	const { t } = useTranslation("menu");
 	const { t: tCommon } = useTranslation("common");
+	const { displayName, displayDescription } = useEntityDisplay(
+		item.translations,
+	);
 
 	return (
 		<div className="space-y-6">
@@ -44,7 +48,7 @@ export function ItemDetail({
 					{item.imageUrl ? (
 						<img
 							src={item.imageUrl}
-							alt={item.name}
+							alt={displayName}
 							className="h-32 w-32 rounded-lg object-cover"
 						/>
 					) : (
@@ -64,7 +68,7 @@ export function ItemDetail({
 									!item.isAvailable && "text-muted-foreground",
 								)}
 							>
-								{item.name}
+								{displayName}
 							</h2>
 							<p className="text-2xl font-bold mt-1">
 								{formatPrice(item.price)}
@@ -115,12 +119,12 @@ export function ItemDetail({
 			</div>
 
 			{/* Description */}
-			{item.description && (
+			{displayDescription && (
 				<div>
 					<h3 className="text-sm font-medium mb-2">
 						{t("labels.description")}
 					</h3>
-					<p className="text-sm text-muted-foreground">{item.description}</p>
+					<p className="text-sm text-muted-foreground">{displayDescription}</p>
 				</div>
 			)}
 

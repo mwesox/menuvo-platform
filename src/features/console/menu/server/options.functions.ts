@@ -22,7 +22,7 @@ export const getOptionGroups = createServerFn({ method: "GET" })
 	.handler(async ({ data }) => {
 		const allOptionGroups = await db.query.optionGroups.findMany({
 			where: eq(optionGroups.storeId, data.storeId),
-			orderBy: [asc(optionGroups.displayOrder), asc(optionGroups.name)],
+			orderBy: [asc(optionGroups.displayOrder)],
 			with: {
 				optionChoices: {
 					orderBy: (choices, { asc }) => [asc(choices.displayOrder)],
@@ -202,7 +202,7 @@ export const saveOptionGroupWithChoices = createServerFn({ method: "POST" })
 						await tx
 							.update(optionChoices)
 							.set({
-								name: choice.name,
+								translations: choice.translations,
 								priceModifier: choice.priceModifier,
 								displayOrder: i,
 								isDefault: choice.isDefault ?? false,
@@ -214,7 +214,7 @@ export const saveOptionGroupWithChoices = createServerFn({ method: "POST" })
 						// Create new
 						await tx.insert(optionChoices).values({
 							optionGroupId,
-							name: choice.name,
+							translations: choice.translations,
 							priceModifier: choice.priceModifier,
 							displayOrder: i,
 							isDefault: choice.isDefault ?? false,
@@ -255,7 +255,7 @@ export const saveOptionGroupWithChoices = createServerFn({ method: "POST" })
 					const choice = choices[i];
 					await tx.insert(optionChoices).values({
 						optionGroupId: savedGroup.id,
-						name: choice.name,
+						translations: choice.translations,
 						priceModifier: choice.priceModifier,
 						displayOrder: i,
 						isDefault: choice.isDefault ?? false,

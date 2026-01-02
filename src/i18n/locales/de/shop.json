@@ -1,6 +1,7 @@
 {
 	"cart": {
 		"title": "Ihr Warenkorb",
+		"viewCart": "Warenkorb",
 		"empty": "Ihr Warenkorb ist leer",
 		"itemCount_one": "{{count}} Artikel in Ihrem Warenkorb",
 		"itemCount_other": "{{count}} Artikel in Ihrem Warenkorb",
@@ -9,18 +10,17 @@
 		"checkout": "Zur Kasse",
 		"checkoutComingSoon": "Kasse kommt bald!",
 		"checkoutDescription": "Stripe-Integration wird in einem zukünftigen Update hinzugefügt.",
-		"subtotal": "Zwischensumme",
-		"tax": "Steuern",
-		"taxCalculatedAtCheckout": "Wird an der Kasse berechnet",
 		"total": "Gesamt",
 		"removeItem": "{{name}} aus dem Warenkorb entfernen",
 		"openCart": "Warenkorb öffnen mit {{count}} Artikeln im Wert von {{total}}"
 	},
 	"menu": {
 		"categoriesNav": "Menükategorien",
+		"itemCount_one": "{{count}} Artikel",
+		"itemCount_other": "{{count}} Artikel",
 		"customize": "Anpassen",
 		"add": "Hinzufügen",
-		"addToOrder": "Zur Bestellung hinzufügen",
+		"addToOrder": "Hinzufügen",
 		"contains": "Enthält",
 		"soldOut": "Ausverkauft",
 		"emptyTitle": "Speisekarte kommt bald",
@@ -60,5 +60,30 @@
 	"status": {
 		"openNow": "Jetzt geöffnet",
 		"closed": "Geschlossen"
+	},
+	"checkout": {
+		"title": "Kasse",
+		"orderType": "Bestellart",
+		"orderTypes": {
+			"dineIn": "Vor Ort essen",
+			"takeaway": "Zum Mitnehmen",
+			"delivery": "Lieferung"
+		},
+		"yourName": "Ihr Name",
+		"namePlaceholder": "Geben Sie Ihren Namen ein",
+		"nameRequired": "Bitte geben Sie Ihren Namen ein",
+		"cartEmpty": "Ihr Warenkorb ist leer",
+		"orderSummary": "Bestellübersicht",
+		"subtotal": "Gesamt",
+		"submitting": "Bestellung wird aufgegeben...",
+		"placeOrder": "Bestellung aufgeben",
+		"invalidCartItems": "Dein Warenkorb enthält ungültige Artikel. Bitte füge die Artikel erneut hinzu."
+	},
+	"confirmation": {
+		"title": "Bestellung eingegangen!",
+		"subtitle": "Ihre Bestellung wurde erfolgreich aufgegeben",
+		"orderNumber": "Bestellnummer",
+		"instructions": "Bitte warten Sie, bis Ihre Bestellung zubereitet wird. Wir rufen Ihren Namen auf, wenn sie fertig ist.",
+		"backToMenu": "Zurück zur Speisekarte"
 	}
 }

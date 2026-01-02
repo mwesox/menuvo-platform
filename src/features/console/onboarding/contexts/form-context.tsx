@@ -8,7 +8,7 @@ const defaultValues = {
 		name: "",
 		email: "",
 		phone: "",
-		primaryLanguage: "en" as "en" | "de" | "fr" | "es" | "it",
+		initialLanguage: "de" as "en" | "de" | "fr" | "es" | "it",
 	},
 	store: {
 		name: "",

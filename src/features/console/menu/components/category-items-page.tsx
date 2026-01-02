@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PageHeader } from "@/components/layout/page-header";
+import { PageActionBar } from "@/components/layout/page-action-bar";
 import { Button } from "@/components/ui/button";
 import {
 	Empty,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/empty";
 import { DeleteConfirmationDialog } from "@/features/console/menu/components/dialogs/delete-confirmation-dialog";
 import { ItemCard } from "@/features/console/menu/components/item-card";
+import { useEntityDisplay } from "@/features/console/menu/hooks";
 import {
 	categoryQueries,
 	useDeleteItem,
@@ -33,6 +34,7 @@ export function CategoryItemsPage({
 	const { data: category } = useSuspenseQuery(
 		categoryQueries.detail(categoryId),
 	);
+	const { displayName } = useEntityDisplay(category.translations);
 	const [deleteItemId, setDeleteItemId] = useState<number | null>(null);
 
 	const toggleAvailableMutation = useToggleItemAvailable(categoryId);
@@ -47,28 +49,20 @@ export function CategoryItemsPage({
 	};
 
 	return (
-		<div>
-			<div className="mb-4">
-				<Button variant="ghost" size="sm" asChild>
-					<Link to="/console/menu" search={{ storeId }}>
-						<ArrowLeft className="mr-2 h-4 w-4" />
-						{t("navigation.backToCategories")}
-					</Link>
-				</Button>
-			</div>
-
-			<PageHeader
-				title={category.name}
-				description={
-					category.description ??
-					t("pageHeaders.categoryItemsDescription", {
-						categoryName: category.name,
-					})
+		<div className="space-y-6">
+			<PageActionBar
+				backHref={`/console/menu?storeId=${storeId}`}
+				backLabel={displayName || t("navigation.backToCategories")}
+				actions={
+					<Button asChild>
+						<Link
+							to={`/console/menu/items/new?categoryId=${categoryId}&storeId=${storeId}`}
+						>
+							<Plus className="mr-2 h-4 w-4" />
+							{t("titles.addItem")}
+						</Link>
+					</Button>
 				}
-				action={{
-					label: t("titles.addItem"),
-					href: `/console/menu/items/new?categoryId=${categoryId}&storeId=${storeId}`,
-				}}
 			/>
 
 			{category.items.length === 0 ? (

@@ -1,6 +1,8 @@
 import { useForm } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { GripVertical, Plus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Badge } from "@/components/ui/badge.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
 	Card,
@@ -9,16 +11,19 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card.tsx";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field.tsx";
+import { Field, FieldLabel } from "@/components/ui/field.tsx";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select.tsx";
-import { merchantQueries, useUpdateMerchantLanguage } from "../../queries.ts";
-import { languages, merchantLanguageSchema } from "../../validation";
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover.tsx";
+import { useUpdateMerchantLanguages } from "@/features/console/translations/queries.ts";
+import {
+	type LanguageCode,
+	languageOptions,
+	supportedLanguagesFormSchema,
+} from "@/features/console/translations/validation.ts";
+import { merchantQueries } from "../../queries.ts";
 
 interface MerchantLanguageFormProps {
 	merchantId: number;
@@ -28,32 +33,36 @@ export function MerchantLanguageForm({
 	merchantId,
 }: MerchantLanguageFormProps) {
 	const { t } = useTranslation("settings");
-	const { t: tForms } = useTranslation("forms");
 	const { t: tCommon } = useTranslation("common");
 	const { data: merchant } = useSuspenseQuery(
 		merchantQueries.detail(merchantId),
 	);
-	const updateMutation = useUpdateMerchantLanguage();
+	const updateMutation = useUpdateMerchantLanguages(merchantId);
+
+	// Get supported languages (default to ['de'] if empty)
+	const supportedLanguages = (merchant.supportedLanguages ?? [
+		"de",
+	]) as LanguageCode[];
 
 	const form = useForm({
 		defaultValues: {
-			primaryLanguage: merchant.primaryLanguage as
-				| "en"
-				| "de"
-				| "fr"
-				| "es"
-				| "it",
+			supportedLanguages,
 		},
 		validators: {
-			onSubmit: merchantLanguageSchema,
+			onSubmit: supportedLanguagesFormSchema,
 		},
 		onSubmit: async ({ value }) => {
 			await updateMutation.mutateAsync({
-				merchantId,
-				...value,
+				supportedLanguages: value.supportedLanguages,
 			});
 		},
 	});
+
+	// Get available languages (not yet added)
+	const getAvailableLanguages = (current: LanguageCode[]) => {
+		const used = new Set(current);
+		return languageOptions.filter((lang) => !used.has(lang.value));
+	};
 
 	return (
 		<form
@@ -70,39 +79,113 @@ export function MerchantLanguageForm({
 						{t("descriptions.languageSettings")}
 					</CardDescription>
 				</CardHeader>
-				<CardContent>
-					<form.Field name="primaryLanguage">
+				<CardContent className="space-y-6">
+					{/* Supported Languages */}
+					<form.Field name="supportedLanguages">
 						{(field) => {
-							const isInvalid =
-								field.state.meta.isTouched && !field.state.meta.isValid;
+							const availableLanguages = getAvailableLanguages(
+								field.state.value,
+							);
+
 							return (
-								<Field data-invalid={isInvalid} className="max-w-xs">
-									<FieldLabel htmlFor={field.name}>
-										{tForms("fields.language")}
+								<Field>
+									<FieldLabel>
+										{t("fields.supportedLanguages", "Supported Languages")}
 									</FieldLabel>
-									<Select
-										name={field.name}
-										value={field.state.value}
-										onValueChange={(value) =>
-											field.handleChange(
-												value as "en" | "de" | "fr" | "es" | "it",
-											)
-										}
-									>
-										<SelectTrigger id={field.name} aria-invalid={isInvalid}>
-											<SelectValue
-												placeholder={tForms("placeholders.selectLanguage")}
-											/>
-										</SelectTrigger>
-										<SelectContent>
-											{languages.map((lang) => (
-												<SelectItem key={lang.value} value={lang.value}>
-													{lang.label}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									{isInvalid && <FieldError errors={field.state.meta.errors} />}
+
+									{/* List of languages */}
+									<div className="space-y-2 mt-2">
+										<div className="flex flex-wrap gap-2">
+											{field.state.value.map((langCode, index) => {
+												const lang = languageOptions.find(
+													(l) => l.value === langCode,
+												);
+												const isFirst = index === 0;
+												const canRemove = field.state.value.length > 1;
+
+												return (
+													<Badge
+														key={langCode}
+														variant={isFirst ? "default" : "secondary"}
+														className="gap-1 pr-1"
+													>
+														<GripVertical className="h-3 w-3 text-muted-foreground" />
+														{lang?.label ?? langCode}
+														{isFirst && (
+															<span className="text-xs opacity-70 ml-1">
+																({t("labels.fallback", "fallback")})
+															</span>
+														)}
+														{canRemove && (
+															<Button
+																type="button"
+																variant="ghost"
+																size="icon"
+																className="h-4 w-4 p-0 hover:bg-destructive/20"
+																onClick={() => {
+																	field.handleChange(
+																		field.state.value.filter(
+																			(l) => l !== langCode,
+																		),
+																	);
+																}}
+															>
+																<X className="h-3 w-3" />
+																<span className="sr-only">
+																	{tCommon("buttons.remove")}
+																</span>
+															</Button>
+														)}
+													</Badge>
+												);
+											})}
+										</div>
+
+										<p className="text-xs text-muted-foreground">
+											{t(
+												"hints.languageOrder",
+												"First language is used as fallback when translations are missing",
+											)}
+										</p>
+
+										{/* Add language popover */}
+										{availableLanguages.length > 0 && (
+											<Popover>
+												<PopoverTrigger asChild>
+													<Button
+														type="button"
+														variant="outline"
+														size="sm"
+														className="gap-1"
+													>
+														<Plus className="h-3.5 w-3.5" />
+														{t("actions.addLanguage", "Add Language")}
+													</Button>
+												</PopoverTrigger>
+												<PopoverContent className="w-48 p-2" align="start">
+													<div className="space-y-1">
+														{availableLanguages.map((lang) => (
+															<Button
+																key={lang.value}
+																type="button"
+																variant="ghost"
+																size="sm"
+																className="w-full justify-start"
+																onClick={() => {
+																	field.handleChange([
+																		...field.state.value,
+																		lang.value,
+																	]);
+																}}
+															>
+																{lang.label}
+															</Button>
+														))}
+													</div>
+												</PopoverContent>
+											</Popover>
+										)}
+									</div>
 								</Field>
 							);
 						}}

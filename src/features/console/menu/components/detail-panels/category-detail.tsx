@@ -19,6 +19,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
 import type { Category, Item } from "@/db/schema";
+import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
+import { useEntityDisplay } from "@/features/console/menu/hooks";
+import { getDisplayName } from "@/features/console/menu/logic/display";
 import { cn } from "@/lib/utils";
 
 type CategoryWithItems = Category & { items: Item[] };
@@ -51,6 +54,10 @@ export function CategoryDetail({
 }: CategoryDetailProps) {
 	const { t } = useTranslation("menu");
 	const { t: tCommon } = useTranslation("common");
+	const { displayName, displayDescription } = useEntityDisplay(
+		category.translations,
+	);
+	const language = useDisplayLanguage();
 
 	const availableItemCount = category.items.filter((i) => i.isAvailable).length;
 
@@ -60,7 +67,7 @@ export function CategoryDetail({
 			<div className="flex items-start justify-between gap-4">
 				<div className="flex-1 min-w-0">
 					<div className="flex items-center gap-2">
-						<h2 className="text-xl font-semibold truncate">{category.name}</h2>
+						<h2 className="text-xl font-semibold truncate">{displayName}</h2>
 						{!category.isActive && (
 							<span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
 								<EyeOff className="h-3.5 w-3.5" />
@@ -68,9 +75,9 @@ export function CategoryDetail({
 							</span>
 						)}
 					</div>
-					{category.description && (
+					{displayDescription && (
 						<p className="mt-1 text-sm text-muted-foreground">
-							{category.description}
+							{displayDescription}
 						</p>
 					)}
 					<p className="mt-2 text-sm text-muted-foreground">
@@ -162,7 +169,7 @@ export function CategoryDetail({
 								{item.imageUrl ? (
 									<img
 										src={item.imageUrl}
-										alt={item.name}
+										alt={getDisplayName(item.translations, language)}
 										className="h-12 w-12 rounded-md object-cover flex-shrink-0"
 									/>
 								) : (
@@ -178,7 +185,7 @@ export function CategoryDetail({
 										params={{ itemId: String(item.id) }}
 										className="font-medium hover:underline truncate block"
 									>
-										{item.name}
+										{getDisplayName(item.translations, language)}
 									</Link>
 									<p className="text-sm text-muted-foreground">
 										{formatPrice(item.price)}

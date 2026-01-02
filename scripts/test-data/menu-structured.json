@@ -1,0 +1,87 @@
+{
+  "restaurant": "Test Restaurant",
+  "menu": {
+    "Frühstück": [
+      {
+        "name": "Klassisches Frühstück",
+        "description": "2 Eier, Speck, Toast und Butter",
+        "price": 9.90,
+        "allergens": ["gluten", "eggs", "dairy"]
+      },
+      {
+        "name": "Müsli Bowl",
+        "description": "Haferflocken mit frischen Früchten und Joghurt",
+        "price": 7.50,
+        "allergens": ["gluten", "dairy", "nuts"]
+      },
+      {
+        "name": "Avocado Toast",
+        "description": "Getoastetes Sauerteigbrot mit Avocado und pochiertem Ei",
+        "price": 11.50,
+        "allergens": ["gluten", "eggs"]
+      }
+    ],
+    "Mittagessen": [
+      {
+        "name": "Caesar Salat",
+        "description": "Römersalat, Parmesan, Croutons und Caesar Dressing",
+        "price": 12.90,
+        "allergens": ["gluten", "dairy", "eggs", "fish"]
+      },
+      {
+        "name": "Club Sandwich",
+        "description": "Dreifach-Toast mit Hähnchen, Speck, Salat und Tomate",
+        "price": 14.50,
+        "allergens": ["gluten", "eggs"]
+      },
+      {
+        "name": "Burger Classic",
+        "description": "200g Rindfleisch, Cheddar, Salat, Tomate, Zwiebel",
+        "price": 16.90,
+        "allergens": ["gluten", "dairy", "sesame"]
+      }
+    ],
+    "Getränke": [
+      {
+        "name": "Espresso",
+        "description": "Italienischer Espresso",
+        "price": 2.50,
+        "allergens": []
+      },
+      {
+        "name": "Cappuccino",
+        "description": "Espresso mit aufgeschäumter Milch",
+        "price": 3.90,
+        "allergens": ["dairy"]
+      },
+      {
+        "name": "Frischer Orangensaft",
+        "description": "Frisch gepresst",
+        "price": 4.50,
+        "allergens": []
+      }
+    ]
+  },
+  "options": {
+    "Extras": {
+      "type": "multi_select",
+      "required": false,
+      "choices": [
+        { "name": "Extra Käse", "price": 1.50 },
+        { "name": "Speck", "price": 2.00 },
+        { "name": "Avocado", "price": 2.50 }
+      ],
+      "applies_to": ["Burger Classic", "Club Sandwich"]
+    },
+    "Größe": {
+      "type": "single_select",
+      "required": true,
+      "choices": [
+        { "name": "Klein", "price": 0 },
+        { "name": "Mittel", "price": 0.50 },
+        { "name": "Groß", "price": 1.00 }
+      ],
+      "applies_to": ["Espresso", "Cappuccino"]
+    }
+  }
+}

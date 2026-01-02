@@ -1,5 +1,5 @@
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
 	boolean,
 	index,
@@ -12,6 +12,25 @@ import {
 	unique,
 	varchar,
 } from "drizzle-orm/pg-core";
+
+// ============================================================================
+// TRANSLATION TYPES
+// ============================================================================
+
+/**
+ * Translation structure for entities with name and description fields.
+ * Used for categories, items, and option groups.
+ */
+export type EntityTranslations = Record<
+	string,
+	{ name?: string; description?: string }
+>;
+
+/**
+ * Translation structure for entities with only a name field.
+ * Used for option choices.
+ */
+export type ChoiceTranslations = Record<string, { name?: string }>;
 
 // ============================================================================
 // STRIPE ENUMS
@@ -76,6 +95,59 @@ export const processingStatus = ["PENDING", "PROCESSED", "FAILED"] as const;
 export type ProcessingStatus = (typeof processingStatus)[number];
 
 // ============================================================================
+// ORDER ENUMS
+// ============================================================================
+
+/**
+ * Order status enum (fulfillment workflow).
+ * - awaiting_payment: Order created, waiting for Stripe payment
+ * - confirmed: Payment confirmed OR pay-at-counter, ready for kitchen
+ * - preparing: Kitchen working on it
+ * - ready: Ready for pickup
+ * - completed: Handed to customer
+ * - cancelled: Cancelled (by customer, merchant, or payment failed)
+ */
+export const orderStatuses = [
+	"awaiting_payment",
+	"confirmed",
+	"preparing",
+	"ready",
+	"completed",
+	"cancelled",
+] as const;
+export type OrderStatus = (typeof orderStatuses)[number];
+
+/**
+ * Payment status enum.
+ * - pending: Initial state before payment action
+ * - awaiting_confirmation: Sent to Stripe Checkout, waiting for webhook
+ * - paid: Payment confirmed via Stripe webhook
+ * - pay_at_counter: Dine-in, will pay after eating
+ * - failed: Payment failed
+ * - refunded: Refunded (full or partial)
+ * - expired: Stripe Checkout session expired
+ */
+export const paymentStatuses = [
+	"pending",
+	"awaiting_confirmation",
+	"paid",
+	"pay_at_counter",
+	"failed",
+	"refunded",
+	"expired",
+] as const;
+export type PaymentStatus = (typeof paymentStatuses)[number];
+
+/**
+ * Order type enum.
+ * - dine_in: Eating at the restaurant
+ * - takeaway: Pickup
+ * - delivery: Future: delivery
+ */
+export const orderTypes = ["dine_in", "takeaway", "delivery"] as const;
+export type OrderType = (typeof orderTypes)[number];
+
+// ============================================================================
 // MERCHANTS
 // ============================================================================
 
@@ -84,9 +156,11 @@ export const merchants = pgTable("merchants", {
 	name: varchar({ length: 255 }).notNull(),
 	email: varchar({ length: 255 }).notNull().unique(),
 	phone: varchar({ length: 50 }),
-	primaryLanguage: varchar("primary_language", { length: 10 })
+	// Supported languages for menu translations (first is used as fallback)
+	supportedLanguages: text("supported_languages")
+		.array()
 		.notNull()
-		.default("en"),
+		.default(sql`ARRAY['de']::text[]`),
 	// Stripe Connect (Payment provider integration)
 	paymentAccountId: text("payment_account_id"),
 	paymentOnboardingComplete: boolean("payment_onboarding_complete")
@@ -164,6 +238,7 @@ export const storesRelations = relations(stores, ({ one, many }) => ({
 	hours: many(storeHours),
 	closures: many(storeClosures),
 	servicePoints: many(servicePoints),
+	orders: many(orders),
 }));
 
 // ============================================================================
@@ -249,10 +324,13 @@ export const categories = pgTable("categories", {
 	storeId: integer("store_id")
 		.notNull()
 		.references(() => stores.id, { onDelete: "cascade" }),
-	name: varchar({ length: 255 }).notNull(),
-	description: text(),
 	displayOrder: integer("display_order").notNull().default(0),
 	isActive: boolean("is_active").notNull().default(true),
+	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
+	translations: jsonb("translations")
+		.$type<EntityTranslations>()
+		.notNull()
+		.default(sql`'{}'::jsonb`),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -281,13 +359,16 @@ export const items = pgTable("items", {
 	storeId: integer("store_id")
 		.notNull()
 		.references(() => stores.id, { onDelete: "cascade" }),
-	name: varchar({ length: 255 }).notNull(),
-	description: text(),
 	price: integer().notNull(), // Price in cents
 	imageUrl: varchar("image_url", { length: 500 }),
 	allergens: text().array(), // PostgreSQL text array for allergens
 	displayOrder: integer("display_order").notNull().default(0),
 	isAvailable: boolean("is_available").notNull().default(true),
+	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
+	translations: jsonb("translations")
+		.$type<EntityTranslations>()
+		.notNull()
+		.default(sql`'{}'::jsonb`),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -334,8 +415,6 @@ export const optionGroups = pgTable("option_groups", {
 	storeId: integer("store_id")
 		.notNull()
 		.references(() => stores.id, { onDelete: "cascade" }),
-	name: varchar({ length: 255 }).notNull(),
-	description: text(),
 	// Option group type (determines UI rendering)
 	type: text("type", { enum: optionGroupTypes })
 		.notNull()
@@ -350,6 +429,11 @@ export const optionGroups = pgTable("option_groups", {
 	aggregateMaxQuantity: integer("aggregate_max_quantity"), // null = no max
 	displayOrder: integer("display_order").notNull().default(0),
 	isActive: boolean("is_active").notNull().default(true),
+	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
+	translations: jsonb("translations")
+		.$type<EntityTranslations>()
+		.notNull()
+		.default(sql`'{}'::jsonb`),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -379,7 +463,6 @@ export const optionChoices = pgTable("option_choices", {
 	optionGroupId: integer("option_group_id")
 		.notNull()
 		.references(() => optionGroups.id, { onDelete: "cascade" }),
-	name: varchar({ length: 255 }).notNull(),
 	priceModifier: integer("price_modifier").notNull().default(0), // In cents, can be positive/negative
 	displayOrder: integer("display_order").notNull().default(0),
 	isAvailable: boolean("is_available").notNull().default(true),
@@ -388,6 +471,11 @@ export const optionChoices = pgTable("option_choices", {
 	// Per-choice quantity limits (for quantity_select type)
 	minQuantity: integer("min_quantity").notNull().default(0), // Min qty customer can select
 	maxQuantity: integer("max_quantity"), // Max qty per choice, null = unlimited
+	// All translations stored uniformly: {"de": {name}, "en": {...}}
+	translations: jsonb("translations")
+		.$type<ChoiceTranslations>()
+		.notNull()
+		.default(sql`'{}'::jsonb`),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -549,6 +637,67 @@ export const imagesRelations = relations(images, ({ one }) => ({
 }));
 
 // ============================================================================
+// MENU IMPORT JOBS
+// ============================================================================
+
+/**
+ * Menu import job status.
+ * - PROCESSING: File uploaded, processing in background
+ * - READY: Processing complete, ready for user review
+ * - COMPLETED: User applied selected changes
+ * - FAILED: Processing failed
+ */
+export const menuImportStatus = [
+	"PROCESSING",
+	"READY",
+	"COMPLETED",
+	"FAILED",
+] as const;
+export type MenuImportStatus = (typeof menuImportStatus)[number];
+
+/**
+ * Tracks menu import jobs from file upload through AI extraction to user review.
+ * Files are stored in the internal files bucket (not public).
+ */
+export const menuImportJobs = pgTable(
+	"menu_import_jobs",
+	{
+		id: serial().primaryKey(),
+		storeId: integer("store_id")
+			.notNull()
+			.references(() => stores.id, { onDelete: "cascade" }),
+
+		// File info
+		originalFilename: text("original_filename").notNull(),
+		fileType: text("file_type").notNull(), // xlsx, csv, json, md, txt
+		fileKey: text("file_key").notNull(), // S3 key in files bucket
+
+		// Status
+		status: text("status", { enum: menuImportStatus })
+			.notNull()
+			.default("PROCESSING"),
+		errorMessage: text("error_message"),
+
+		// Comparison result (JSONB) - populated when READY
+		comparisonData: jsonb("comparison_data"),
+
+		// Timestamp
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+	},
+	(table) => [
+		index("idx_menu_import_jobs_store").on(table.storeId),
+		index("idx_menu_import_jobs_status").on(table.status),
+	],
+);
+
+export const menuImportJobsRelations = relations(menuImportJobs, ({ one }) => ({
+	store: one(stores, {
+		fields: [menuImportJobs.storeId],
+		references: [stores.id],
+	}),
+}));
+
+// ============================================================================
 // SERVICE POINTS
 // ============================================================================
 
@@ -655,6 +804,173 @@ export const servicePointScansRelations = relations(
 );
 
 // ============================================================================
+// ORDERS
+// ============================================================================
+
+export const orders = pgTable(
+	"orders",
+	{
+		id: serial().primaryKey(),
+		storeId: integer("store_id")
+			.notNull()
+			.references(() => stores.id),
+
+		// Customer info (snapshot, not FK - customers may not have accounts)
+		customerName: varchar("customer_name", { length: 100 }),
+		customerEmail: varchar("customer_email", { length: 255 }),
+		customerPhone: varchar("customer_phone", { length: 50 }),
+
+		// Order details
+		orderType: text("order_type", { enum: orderTypes }).notNull(),
+		status: text("status", { enum: orderStatuses })
+			.notNull()
+			.default("awaiting_payment"),
+
+		// Service point (table, counter, etc.) - optional
+		servicePointId: integer("service_point_id").references(
+			() => servicePoints.id,
+		),
+
+		// Pricing (all in cents)
+		subtotal: integer().notNull(), // Sum of item totals
+		taxAmount: integer("tax_amount").notNull().default(0),
+		tipAmount: integer("tip_amount").notNull().default(0),
+		totalAmount: integer("total_amount").notNull(),
+
+		// Payment
+		paymentStatus: text("payment_status", { enum: paymentStatuses })
+			.notNull()
+			.default("pending"),
+		paymentMethod: varchar("payment_method", { length: 50 }), // "card", "cash", "apple_pay", etc.
+		stripeCheckoutSessionId: varchar("stripe_checkout_session_id", {
+			length: 255,
+		}),
+		stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }),
+
+		// Notes
+		customerNotes: text("customer_notes"), // Special requests from customer
+		merchantNotes: text("merchant_notes"), // Internal notes from merchant
+
+		// Timestamps
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+		updatedAt: timestamp("updated_at")
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+		confirmedAt: timestamp("confirmed_at"),
+		completedAt: timestamp("completed_at"),
+	},
+	(table) => [
+		index("idx_orders_store_id").on(table.storeId),
+		index("idx_orders_status").on(table.status),
+		index("idx_orders_payment_status").on(table.paymentStatus),
+		index("idx_orders_created_at").on(table.createdAt),
+		index("idx_orders_store_status").on(table.storeId, table.status),
+		index("idx_orders_stripe_session").on(table.stripeCheckoutSessionId),
+	],
+);
+
+export const ordersRelations = relations(orders, ({ one, many }) => ({
+	store: one(stores, { fields: [orders.storeId], references: [stores.id] }),
+	servicePoint: one(servicePoints, {
+		fields: [orders.servicePointId],
+		references: [servicePoints.id],
+	}),
+	items: many(orderItems),
+}));
+
+// ============================================================================
+// ORDER ITEMS
+// ============================================================================
+
+export const orderItems = pgTable(
+	"order_items",
+	{
+		id: serial().primaryKey(),
+		orderId: integer("order_id")
+			.notNull()
+			.references(() => orders.id, { onDelete: "cascade" }),
+
+		// Item reference (for analytics, can be null if item deleted)
+		itemId: integer("item_id").references(() => items.id, {
+			onDelete: "set null",
+		}),
+
+		// Snapshot data (preserved even if original item changes)
+		name: varchar({ length: 200 }).notNull(),
+		description: text(),
+		quantity: integer().notNull(),
+		unitPrice: integer("unit_price").notNull(), // Base price per unit (cents)
+		optionsPrice: integer("options_price").notNull(), // Total options price per unit (cents)
+		totalPrice: integer("total_price").notNull(), // (unitPrice + optionsPrice) * quantity
+
+		// Metadata
+		displayOrder: integer("display_order").notNull(),
+	},
+	(table) => [index("idx_order_items_order_id").on(table.orderId)],
+);
+
+export const orderItemsRelations = relations(orderItems, ({ one, many }) => ({
+	order: one(orders, {
+		fields: [orderItems.orderId],
+		references: [orders.id],
+	}),
+	item: one(items, { fields: [orderItems.itemId], references: [items.id] }),
+	options: many(orderItemOptions),
+}));
+
+// ============================================================================
+// ORDER ITEM OPTIONS
+// ============================================================================
+
+export const orderItemOptions = pgTable(
+	"order_item_options",
+	{
+		id: serial().primaryKey(),
+		orderItemId: integer("order_item_id")
+			.notNull()
+			.references(() => orderItems.id, { onDelete: "cascade" }),
+
+		// Option references (for analytics, can be null if deleted)
+		optionGroupId: integer("option_group_id").references(
+			() => optionGroups.id,
+			{ onDelete: "set null" },
+		),
+		optionChoiceId: integer("option_choice_id").references(
+			() => optionChoices.id,
+			{ onDelete: "set null" },
+		),
+
+		// Snapshot data
+		groupName: varchar("group_name", { length: 200 }).notNull(),
+		choiceName: varchar("choice_name", { length: 200 }).notNull(),
+		quantity: integer().notNull().default(1),
+		priceModifier: integer("price_modifier").notNull(), // Price per unit (cents)
+	},
+	(table) => [
+		index("idx_order_item_options_order_item_id").on(table.orderItemId),
+	],
+);
+
+export const orderItemOptionsRelations = relations(
+	orderItemOptions,
+	({ one }) => ({
+		orderItem: one(orderItems, {
+			fields: [orderItemOptions.orderItemId],
+			references: [orderItems.id],
+		}),
+		optionGroup: one(optionGroups, {
+			fields: [orderItemOptions.optionGroupId],
+			references: [optionGroups.id],
+		}),
+		optionChoice: one(optionChoices, {
+			fields: [orderItemOptions.optionChoiceId],
+			references: [optionChoices.id],
+		}),
+	}),
+);
+
+// ============================================================================
 // TYPE EXPORTS
 // ============================================================================
 
@@ -705,3 +1021,19 @@ export type NewServicePoint = InferInsertModel<typeof servicePoints>;
 // Service Point Scan types
 export type ServicePointScan = InferSelectModel<typeof servicePointScans>;
 export type NewServicePointScan = InferInsertModel<typeof servicePointScans>;
+
+// Order types
+export type Order = InferSelectModel<typeof orders>;
+export type NewOrder = InferInsertModel<typeof orders>;
+
+// Order Item types
+export type OrderItem = InferSelectModel<typeof orderItems>;
+export type NewOrderItem = InferInsertModel<typeof orderItems>;
+
+// Order Item Option types
+export type OrderItemOption = InferSelectModel<typeof orderItemOptions>;
+export type NewOrderItemOption = InferInsertModel<typeof orderItemOptions>;
+
+// Menu Import Job types
+export type MenuImportJob = InferSelectModel<typeof menuImportJobs>;
+export type NewMenuImportJob = InferInsertModel<typeof menuImportJobs>;

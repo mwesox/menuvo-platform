@@ -18,7 +18,7 @@ import { ItemDrawer } from "./item-drawer";
 import { StorePageSkeleton } from "./menu-item-skeleton";
 import { StoreHero } from "./store-hero";
 
-const routeApi = getRouteApi("/shop/$slug");
+const routeApi = getRouteApi("/shop/$slug/");
 
 /**
  * Main store menu page component.
@@ -58,11 +58,17 @@ export function StoreMenuPage() {
 
 	return (
 		<div className="min-h-screen pb-24">
-			<div className="mx-auto max-w-lg">
+			<div className="mx-auto max-w-3xl">
 				<StoreHero store={store} />
 
 				<CategoryNav
-					categories={store.categories.map((c) => ({ id: c.id, name: c.name }))}
+					categories={store.categories.map(
+						(c: { id: number; name: string; items: unknown[] }) => ({
+							id: c.id,
+							name: c.name,
+							itemCount: c.items.length,
+						}),
+					)}
 					activeCategoryId={activeCategoryId}
 					onCategoryClick={handleCategoryClick}
 				/>
@@ -71,14 +77,16 @@ export function StoreMenuPage() {
 					{store.categories.length === 0 ? (
 						<EmptyMenuState />
 					) : (
-						store.categories.map((category) => (
-							<CategorySection
-								key={category.id}
-								category={category}
-								onItemSelect={handleItemSelect}
-								refSetter={setCategoryRef(category.id)}
-							/>
-						))
+						store.categories.map(
+							(category: (typeof store.categories)[number]) => (
+								<CategorySection
+									key={category.id}
+									category={category}
+									onItemSelect={handleItemSelect}
+									refSetter={setCategoryRef(category.id)}
+								/>
+							),
+						)
 					)}
 				</div>
 			</div>

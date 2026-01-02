@@ -15,22 +15,50 @@ export async function createTrialSubscription(
 	accountId: string,
 	priceId: string,
 ): Promise<Stripe.Subscription> {
-	const stripe = getStripeClient();
-
-	return stripe.subscriptions.create({
-		// V2 Accounts: use customer_account instead of customer
-		customer_account: accountId,
-		items: [{ price: priceId }],
-		trial_period_days: 30,
-		payment_settings: {
-			save_default_payment_method: "on_subscription",
-		},
-		trial_settings: {
-			end_behavior: {
-				missing_payment_method: "pause",
-			},
-		},
+	console.info("[Stripe] Creating trial subscription", {
+		accountId,
+		priceId,
 	});
+
+	try {
+		const stripe = getStripeClient();
+
+		const subscription = await stripe.subscriptions.create({
+			// V2 Accounts: use customer_account instead of customer
+			customer_account: accountId,
+			items: [{ price: priceId }],
+			trial_period_days: 30,
+			payment_settings: {
+				save_default_payment_method: "on_subscription",
+			},
+			trial_settings: {
+				end_behavior: {
+					missing_payment_method: "pause",
+				},
+			},
+		});
+
+		console.info("[Stripe] Trial subscription created successfully", {
+			accountId,
+			subscriptionId: subscription.id,
+			status: subscription.status,
+			trialEnd: subscription.trial_end,
+		});
+
+		return subscription;
+	} catch (error) {
+		console.error("[Stripe] Failed to create trial subscription", {
+			accountId,
+			priceId,
+			error: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+			stripeError:
+				error && typeof error === "object" && "type" in error
+					? (error as { type?: string; code?: string; message?: string })
+					: undefined,
+		});
+		throw error;
+	}
 }
 
 /**

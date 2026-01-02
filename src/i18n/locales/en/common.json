@@ -2,6 +2,7 @@
 	"buttons": {
 		"save": "Save",
 		"saveChanges": "Save Changes",
+		"saveTranslations": "Save Translations",
 		"cancel": "Cancel",
 		"delete": "Delete",
 		"edit": "Edit",
@@ -69,5 +70,9 @@
 		"allCities": "All cities",
 		"noRestaurants": "No restaurants found",
 		"console": "Console"
+	},
+	"toasts": {
+		"importApplied": "Menu changes imported successfully",
+		"importFailed": "Failed to apply menu import"
 	}
 }

@@ -17,7 +17,11 @@ export const merchantGeneralSchema = z.object({
 });
 export type MerchantGeneralInput = z.infer<typeof merchantGeneralSchema>;
 
+// No longer needed - languages managed via supportedLanguages array only
+// Kept as reference if a simple language preference form is needed
 export const merchantLanguageSchema = z.object({
-	primaryLanguage: z.enum(["en", "de", "fr", "es", "it"]),
+	supportedLanguages: z
+		.array(z.enum(["en", "de", "fr", "es", "it"]))
+		.min(1, "At least one language is required"),
 });
 export type MerchantLanguageInput = z.infer<typeof merchantLanguageSchema>;

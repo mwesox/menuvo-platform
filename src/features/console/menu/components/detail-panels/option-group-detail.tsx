@@ -10,6 +10,9 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { OptionChoice, OptionGroup, OptionGroupType } from "@/db/schema";
+import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
+import { useEntityDisplay } from "@/features/console/menu/hooks";
+import { getDisplayName } from "@/features/console/menu/logic/display";
 import { cn } from "@/lib/utils";
 
 type OptionGroupWithChoices = OptionGroup & { optionChoices: OptionChoice[] };
@@ -130,6 +133,10 @@ export function OptionGroupDetail({
 }: OptionGroupDetailProps) {
 	const { t } = useTranslation("menu");
 	const { t: tCommon } = useTranslation("common");
+	const { displayName, displayDescription } = useEntityDisplay(
+		optionGroup.translations,
+	);
+	const language = useDisplayLanguage();
 
 	const availableChoices = optionGroup.optionChoices.filter(
 		(c) => c.isAvailable,
@@ -141,9 +148,7 @@ export function OptionGroupDetail({
 			<div className="flex items-start justify-between gap-4">
 				<div className="flex-1 min-w-0">
 					<div className="flex items-center gap-2 flex-wrap">
-						<h2 className="text-xl font-semibold truncate">
-							{optionGroup.name}
-						</h2>
+						<h2 className="text-xl font-semibold truncate">{displayName}</h2>
 						<Badge variant={getTypeBadgeVariant(optionGroup.type)}>
 							{getTypeLabel(t, optionGroup.type)}
 						</Badge>
@@ -154,9 +159,9 @@ export function OptionGroupDetail({
 							</span>
 						)}
 					</div>
-					{optionGroup.description && (
+					{displayDescription && (
 						<p className="mt-1 text-sm text-muted-foreground">
-							{optionGroup.description}
+							{displayDescription}
 						</p>
 					)}
 				</div>
@@ -269,7 +274,7 @@ export function OptionGroupDetail({
 											!choice.isAvailable && "line-through",
 										)}
 									>
-										{choice.name}
+										{getDisplayName(choice.translations, language)}
 									</span>
 									{choice.isDefault && (
 										<Badge

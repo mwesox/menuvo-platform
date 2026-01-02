@@ -1,9 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { PageHeader } from "@/components/layout/page-header";
-import { Button } from "@/components/ui/button";
+import { PageActionBar } from "@/components/layout/page-action-bar";
 import { subscriptionQueries } from "../../queries";
 import { SubscriptionActions } from "../merchant/subscription-actions";
 import { SubscriptionPlanSelector } from "../merchant/subscription-plan-selector";
@@ -23,16 +20,9 @@ export function SubscriptionSettingsPage({
 
 	return (
 		<div className="space-y-6">
-			<Button variant="ghost" size="sm" className="-ml-2 mb-2" asChild>
-				<Link to="/console/settings">
-					<ArrowLeft className="mr-2 h-4 w-4" />
-					{t("navigation.backToSettings")}
-				</Link>
-			</Button>
-
-			<PageHeader
-				title={t("hub.subscription.title")}
-				description={t("hub.subscription.description")}
+			<PageActionBar
+				backHref="/console/settings"
+				backLabel={t("navigation.backToSettings")}
 			/>
 
 			<div className="space-y-6">

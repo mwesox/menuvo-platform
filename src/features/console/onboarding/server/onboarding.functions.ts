@@ -15,7 +15,8 @@ export const onboardMerchant = createServerFn({ method: "POST" })
 					name: data.merchant.name,
 					email: data.merchant.email,
 					phone: data.merchant.phone,
-					primaryLanguage: data.merchant.primaryLanguage,
+					// All languages are equal - start with one language
+					supportedLanguages: [data.merchant.initialLanguage],
 				})
 				.returning();
 

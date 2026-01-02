@@ -1,4 +1,4 @@
-import OpenRouter from "@openrouter/sdk";
+import { OpenRouter } from "@openrouter/sdk";
 import { env } from "@/env";
 
 let openRouterClient: OpenRouter | null = null;

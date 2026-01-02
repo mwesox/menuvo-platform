@@ -16,13 +16,15 @@ export const env = createEnv({
 		OPENROUTER_API_KEY: z.string().min(1),
 		// Redis (Bun reads REDIS_URL automatically)
 		REDIS_URL: z.string().url().optional(),
-		// S3-compatible Storage
+		// S3-compatible Storage (public images bucket)
 		S3_ENDPOINT: z.string().url().optional(),
 		S3_ACCESS_KEY_ID: z.string().min(1).optional(),
 		S3_SECRET_ACCESS_KEY: z.string().min(1).optional(),
 		S3_BUCKET: z.string().min(1).optional(),
 		S3_REGION: z.string().optional(),
 		S3_PUBLIC_URL: z.string().url().optional(),
+		// S3 internal files bucket (for imports, not public)
+		S3_FILES_BUCKET: z.string().min(1).optional(),
 	},
 
 	/**
@@ -60,6 +62,7 @@ export const env = createEnv({
 		S3_BUCKET: process.env.S3_BUCKET,
 		S3_REGION: process.env.S3_REGION,
 		S3_PUBLIC_URL: process.env.S3_PUBLIC_URL,
+		S3_FILES_BUCKET: process.env.S3_FILES_BUCKET,
 		// Client-side (from import.meta.env)
 		VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
 		VITE_STRIPE_PUBLISHABLE_KEY: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,

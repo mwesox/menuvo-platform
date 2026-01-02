@@ -16,6 +16,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
 import type { Category, Item } from "@/db/schema.ts";
+import { getLocalizedContent } from "@/features/console/translations/logic/localization.ts";
 import { cn } from "@/lib/utils.ts";
 
 interface CategoryCardProps {
@@ -37,6 +38,11 @@ export function CategoryCard({
 	const { t: tCommon } = useTranslation("common");
 	const itemCount = category.items.length;
 	const availableCount = category.items.filter((i) => i.isAvailable).length;
+	const { name, description } = getLocalizedContent(
+		category.translations,
+		"de",
+		"de",
+	);
 
 	const handleDropdownClick = (e: React.MouseEvent) => {
 		e.preventDefault();
@@ -62,7 +68,7 @@ export function CategoryCard({
 					<div className="flex-1 min-w-0">
 						<div className="flex items-center gap-2">
 							<h3 className="font-medium text-foreground truncate">
-								{category.name}
+								{name || "(unnamed)"}
 							</h3>
 							{!category.isActive && (
 								<span className="text-xs text-muted-foreground">
@@ -70,9 +76,9 @@ export function CategoryCard({
 								</span>
 							)}
 						</div>
-						{category.description && (
+						{description && (
 							<p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-								{category.description}
+								{description}
 							</p>
 						)}
 					</div>
