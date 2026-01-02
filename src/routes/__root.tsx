@@ -10,8 +10,8 @@ import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { initI18n, type SupportedLanguage } from "@/i18n";
 import { detectLanguageFromRequest } from "@/i18n/server";
-import shopCss from "@/styles/shop-bundle.css?url";
 import consoleCss from "@/styles/console-bundle.css?url";
+import shopCss from "@/styles/shop-bundle.css?url";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -26,7 +26,9 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	head: ({ matches }) => {
 		// Determine which CSS bundle to load based on matched routes
 		const isShopRoute = matches.some((m) => m.routeId.startsWith("/shop"));
-		const isConsoleRoute = matches.some((m) => m.routeId.startsWith("/console"));
+		const isConsoleRoute = matches.some((m) =>
+			m.routeId.startsWith("/console"),
+		);
 
 		const cssHref = isShopRoute ? shopCss : isConsoleRoute ? consoleCss : null;
 

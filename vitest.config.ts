@@ -32,6 +32,11 @@ export default defineConfig({
 							singleFork: true,
 						},
 					},
+					server: {
+						deps: {
+							inline: ["zod"],
+						},
+					},
 				},
 			},
 		],
