@@ -5,64 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1767221692564,
-      "tag": "0000_flippant_mephisto",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1767226886034,
-      "tag": "0001_blue_dorian_gray",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1767228044963,
-      "tag": "0002_lyrical_black_crow",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1767230016890,
-      "tag": "0003_neat_aaron_stack",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1767261170697,
-      "tag": "0004_skinny_caretaker",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1767288707313,
-      "tag": "0005_broken_lockjaw",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1767301675521,
-      "tag": "0006_talented_psynapse",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1735772400000,
-      "tag": "0007_menu_import_jobs",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1767386255285,
-      "tag": "0008_slippery_dreadnoughts",
+      "when": 1767390065806,
+      "tag": "0000_fair_domino",
       "breakpoints": true
     }
   ]
