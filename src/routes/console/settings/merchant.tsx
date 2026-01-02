@@ -14,5 +14,6 @@ export const Route = createFileRoute("/console/settings/merchant")({
 function RouteComponent() {
 	const search = Route.useSearch();
 	const { merchantId } = Route.useRouteContext();
-	return <MerchantSettingsPage search={search} merchantId={merchantId} />;
+	// biome-ignore lint/style/noNonNullAssertion: Parent route redirects to onboarding if null
+	return <MerchantSettingsPage search={search} merchantId={merchantId!} />;
 }

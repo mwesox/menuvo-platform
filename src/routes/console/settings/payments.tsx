@@ -14,5 +14,6 @@ export const Route = createFileRoute("/console/settings/payments")({
 
 function RouteComponent() {
 	const { merchantId } = Route.useRouteContext();
-	return <PaymentsPage merchantId={merchantId} />;
+	// biome-ignore lint/style/noNonNullAssertion: Parent route redirects to onboarding if null
+	return <PaymentsPage merchantId={merchantId!} />;
 }

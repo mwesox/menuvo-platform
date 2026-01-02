@@ -4,9 +4,9 @@ import { subscriptionQueries } from "@/features/console/settings/queries";
 
 export const Route = createFileRoute("/console/settings/subscription")({
 	loader: async ({ context }) => {
-		// merchantId from parent /console route context
 		await context.queryClient.ensureQueryData(
-			subscriptionQueries.detail(context.merchantId),
+			// biome-ignore lint/style/noNonNullAssertion: Parent route redirects to onboarding if null
+			subscriptionQueries.detail(context.merchantId!),
 		);
 	},
 	component: RouteComponent,
@@ -14,5 +14,6 @@ export const Route = createFileRoute("/console/settings/subscription")({
 
 function RouteComponent() {
 	const { merchantId } = Route.useRouteContext();
-	return <SubscriptionSettingsPage merchantId={merchantId} />;
+	// biome-ignore lint/style/noNonNullAssertion: Parent route redirects to onboarding if null
+	return <SubscriptionSettingsPage merchantId={merchantId!} />;
 }

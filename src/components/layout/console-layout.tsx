@@ -1,5 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Outlet, useNavigate, useSearch } from "@tanstack/react-router";
+import {
+	Outlet,
+	useNavigate,
+	useRouteContext,
+	useSearch,
+} from "@tanstack/react-router";
 import { Suspense, useCallback } from "react";
 import { storeQueries } from "@/features/console/stores/queries";
 import { ConsoleHeader } from "./console-header";
@@ -49,6 +54,13 @@ function ConsoleContent() {
 }
 
 export function ConsoleLayout() {
+	const { merchantId } = useRouteContext({ from: "/console" });
+
+	// During onboarding (no merchant), render just the outlet without chrome
+	if (!merchantId) {
+		return <Outlet />;
+	}
+
 	return (
 		<div className="flex min-h-screen bg-background">
 			<Sidebar />
