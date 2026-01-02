@@ -40,6 +40,17 @@
 		"item": "Item",
 		"items": "Items"
 	},
+	"translationStatus": {
+		"complete": "Complete",
+		"partial": "Partial",
+		"missing": "Missing"
+	},
+	"entityTypes": {
+		"category": "Category",
+		"item": "Item",
+		"optionGroup": "Option Group",
+		"optionChoice": "Option"
+	},
 	"languages": {
 		"en": "English",
 		"de": "Deutsch"
@@ -73,6 +84,31 @@
 	},
 	"toasts": {
 		"importApplied": "Menu changes imported successfully",
-		"importFailed": "Failed to apply menu import"
+		"importFailed": "Failed to apply menu import",
+		"imageUploaded": "Image uploaded successfully",
+		"imageUploadFailed": "Failed to upload image",
+		"imageRemoved": "Image removed",
+		"imageRemoveFailed": "Failed to remove image",
+		"pleaseSelectImage": "Please select an image file"
+	},
+	"images": {
+		"cropTitle": "Crop Image",
+		"cropDescription": "Select a crop preset or adjust freely. The first option is optimized for this image type.",
+		"applyCrop": "Apply Crop",
+		"processing": "Processing...",
+		"uploading": "Uploading...",
+		"clickToUpload": "Click to upload image",
+		"preview": "Preview",
+		"recommendedMinimum": "Recommended minimum: {{width}} x {{height}}px",
+		"presets": {
+			"thumbnail": "Square",
+			"thumbnailDescription": "Best for logos and icons",
+			"detail": "Standard",
+			"detailDescription": "Best for menu items",
+			"banner": "Wide",
+			"bannerDescription": "Best for headers and banners",
+			"free": "Custom",
+			"freeDescription": "Crop freely without restrictions"
+		}
 	}
 }

@@ -280,7 +280,6 @@ export function ItemForm({
 											onChange={(url) => field.handleChange(url || "")}
 											merchantId={merchantId}
 											imageType="item_image"
-											aspectRatio={4 / 3}
 										/>
 									);
 								}}

@@ -182,5 +182,66 @@
 	"common": {
 		"yes": "Ja",
 		"no": "Nein"
+	},
+	"import": {
+		"backToMenu": "Zurück zur Speisekarte",
+		"steps": {
+			"upload": "Hochladen",
+			"processing": "Verarbeitung",
+			"review": "Überprüfen"
+		},
+		"titles": {
+			"uploadFile": "Speisekarte hochladen",
+			"processing": "Verarbeitung...",
+			"reviewChanges": "Änderungen überprüfen"
+		},
+		"descriptions": {
+			"upload": "Laden Sie eine Datei mit Ihren Speisekartendaten hoch. Wir unterstützen Excel, CSV, JSON, Markdown und Textdateien.",
+			"processing": "Wir extrahieren und analysieren Ihre Speisekartendaten. Dies kann eine Minute dauern.",
+			"review": "Überprüfen Sie die extrahierten Speisekartendaten und wählen Sie aus, welche Artikel importiert werden sollen."
+		},
+		"buttons": {
+			"cancel": "Abbrechen",
+			"close": "Schließen",
+			"browseFiles": "Dateien durchsuchen",
+			"uploadProcess": "Hochladen & Verarbeiten",
+			"applyChanges": "{{count}} Änderungen anwenden"
+		},
+		"status": {
+			"uploading": "Wird hochgeladen...",
+			"analyzing": "Speisekarte wird analysiert...",
+			"applying": "Wird angewendet...",
+			"pleaseWait": "Bitte warten Sie, während wir Ihre Speisekartendaten extrahieren und analysieren."
+		},
+		"errors": {
+			"processingFailed": "Verarbeitung fehlgeschlagen",
+			"genericError": "Ein Fehler ist aufgetreten",
+			"fileTooLarge": "Datei ist zu groß. Maximale Größe ist 10 MB.",
+			"invalidFileType": "Ungültiger Dateityp. Erlaubt: {{types}}",
+			"uploadFailed": "Upload fehlgeschlagen"
+		},
+		"dropzone": {
+			"dragAndDrop": "Datei hierher ziehen oder klicken zum Durchsuchen",
+			"supportedFormats": "Unterstützt: Excel (.xlsx), CSV, JSON, Markdown, Text"
+		},
+		"comparison": {
+			"selectedCount": "{{selected}} von {{total}} ausgewählt",
+			"newCount": "{{count}} neu",
+			"updates": "Aktualisierungen",
+			"optionGroups": "Optionsgruppen",
+			"choicesCount": "{{count}} Auswahlmöglichkeiten",
+			"categories": "Kategorien",
+			"items": "Artikel",
+			"itemsCount": "{{count}} Artikel",
+			"summary": "{{newCount}} neu, {{updateCount}} Aktualisierungen"
+		},
+		"badges": {
+			"new": "Neu",
+			"update": "Aktualisieren",
+			"skip": "Überspringen"
+		},
+		"changes": {
+			"fieldChanged": "{{fields}} geändert"
+		}
 	}
 }

@@ -1,5 +1,6 @@
 import { FileJson, FileSpreadsheet, FileText, Upload, X } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { type AllowedFileType, allowedFileTypes } from "../validation";
@@ -46,6 +47,7 @@ export function FileDropzone({
 	onClearFile,
 	error,
 }: FileDropzoneProps) {
+	const { t } = useTranslation("menu");
 	const [isDragActive, setIsDragActive] = useState(false);
 	const [validationError, setValidationError] = useState<string | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -56,7 +58,7 @@ export function FileDropzone({
 
 			// Check file size
 			if (file.size > MAX_FILE_SIZE) {
-				setValidationError("File is too large. Maximum size is 10MB.");
+				setValidationError(t("import.errors.fileTooLarge"));
 				return;
 			}
 
@@ -64,14 +66,16 @@ export function FileDropzone({
 			const ext = getFileExtension(file.name);
 			if (!isValidFileType(ext)) {
 				setValidationError(
-					`Invalid file type. Allowed: ${allowedFileTypes.join(", ")}`,
+					t("import.errors.invalidFileType", {
+						types: allowedFileTypes.join(", "),
+					}),
 				);
 				return;
 			}
 
 			onFileSelect(file);
 		},
-		[onFileSelect],
+		[onFileSelect, t],
 	);
 
 	const handleDrop = useCallback(
@@ -165,10 +169,10 @@ export function FileDropzone({
 		>
 			<Upload className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
 			<p className="text-sm text-muted-foreground mb-2">
-				Drag and drop your file here, or click to browse
+				{t("import.dropzone.dragAndDrop")}
 			</p>
 			<p className="text-xs text-muted-foreground mb-4">
-				Supported: Excel (.xlsx), CSV, JSON, Markdown, Text
+				{t("import.dropzone.supportedFormats")}
 			</p>
 			<Button
 				type="button"
@@ -178,7 +182,7 @@ export function FileDropzone({
 					inputRef.current?.click();
 				}}
 			>
-				Browse Files
+				{t("import.buttons.browseFiles")}
 			</Button>
 			<input
 				ref={inputRef}

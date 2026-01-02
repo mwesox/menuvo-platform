@@ -10,16 +10,20 @@ import {
 	getStoreScanStats,
 } from "./server/scans.functions.ts";
 import {
+	batchCreateServicePoints,
 	createServicePoint,
 	deleteServicePoint,
 	getServicePoint,
 	getServicePoints,
-	getServicePointTypes,
+	getServicePointZones,
 	toggleServicePointActive,
+	toggleZoneActive,
 	updateServicePoint,
 } from "./server/service-points.functions.ts";
 import type {
+	BatchCreateInput,
 	CreateServicePointInput,
+	ToggleZoneInput,
 	UpdateServicePointInput,
 } from "./validation.ts";
 
@@ -31,7 +35,7 @@ export const servicePointKeys = {
 	all: ["servicePoints"] as const,
 	list: (storeId: number) => ["servicePoints", "list", storeId] as const,
 	detail: (id: number) => ["servicePoints", "detail", id] as const,
-	types: (storeId: number) => ["servicePoints", "types", storeId] as const,
+	zones: (storeId: number) => ["servicePoints", "zones", storeId] as const,
 	scans: {
 		store: (storeId: number, days = 30) =>
 			["servicePoints", "scans", "store", storeId, days] as const,
@@ -57,10 +61,10 @@ export const servicePointQueries = {
 			queryFn: () => getServicePoint({ data: { id } }),
 		}),
 
-	types: (storeId: number) =>
+	zones: (storeId: number) =>
 		queryOptions({
-			queryKey: servicePointKeys.types(storeId),
-			queryFn: () => getServicePointTypes({ data: { storeId } }),
+			queryKey: servicePointKeys.zones(storeId),
+			queryFn: () => getServicePointZones({ data: { storeId } }),
 		}),
 
 	storeScans: (storeId: number, days = 30) =>
@@ -93,7 +97,7 @@ export function useCreateServicePoint(storeId: number) {
 				queryKey: servicePointKeys.list(storeId),
 			});
 			queryClient.invalidateQueries({
-				queryKey: servicePointKeys.types(storeId),
+				queryKey: servicePointKeys.zones(storeId),
 			});
 			toast.success(t("success.servicePointCreated"));
 		},
@@ -116,7 +120,7 @@ export function useUpdateServicePoint(storeId: number) {
 				queryKey: servicePointKeys.list(storeId),
 			});
 			queryClient.invalidateQueries({
-				queryKey: servicePointKeys.types(storeId),
+				queryKey: servicePointKeys.zones(storeId),
 			});
 			toast.success(t("success.servicePointUpdated"));
 		},
@@ -163,6 +167,53 @@ export function useDeleteServicePoint(storeId: number) {
 		},
 		onError: () => {
 			toast.error(t("error.deleteServicePoint"));
+		},
+	});
+}
+
+export function useBatchCreateServicePoints(storeId: number) {
+	const queryClient = useQueryClient();
+	const { t } = useTranslation("toasts");
+
+	return useMutation({
+		mutationFn: (input: Omit<BatchCreateInput, "storeId">) =>
+			batchCreateServicePoints({ data: { ...input, storeId } }),
+		onSuccess: (created) => {
+			queryClient.invalidateQueries({
+				queryKey: servicePointKeys.list(storeId),
+			});
+			queryClient.invalidateQueries({
+				queryKey: servicePointKeys.zones(storeId),
+			});
+			toast.success(
+				t("success.servicePointsBatchCreated", { count: created.length }),
+			);
+		},
+		onError: () => {
+			toast.error(t("error.batchCreateServicePoints"));
+		},
+	});
+}
+
+export function useToggleZoneActive(storeId: number) {
+	const queryClient = useQueryClient();
+	const { t } = useTranslation("toasts");
+
+	return useMutation({
+		mutationFn: (input: Omit<ToggleZoneInput, "storeId">) =>
+			toggleZoneActive({ data: { ...input, storeId } }),
+		onSuccess: (result) => {
+			queryClient.invalidateQueries({
+				queryKey: servicePointKeys.list(storeId),
+			});
+			toast.success(
+				result.isActive
+					? t("success.zoneActivated", { count: result.count })
+					: t("success.zoneDeactivated", { count: result.count }),
+			);
+		},
+		onError: () => {
+			toast.error(t("error.toggleZone"));
 		},
 	});
 }

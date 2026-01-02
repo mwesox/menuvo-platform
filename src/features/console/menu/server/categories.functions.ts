@@ -1,19 +1,25 @@
 import { createServerFn } from "@tanstack/react-start";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { categories } from "@/db/schema.ts";
 import { createCategorySchema, updateCategorySchema } from "../validation.ts";
+
+// Sort by name extracted from translations JSONB (German as primary)
+const categoryNameSort = asc(sql`${categories.translations}->'de'->>'name'`);
 
 export const getCategories = createServerFn({ method: "GET" })
 	.inputValidator(z.object({ storeId: z.number() }))
 	.handler(async ({ data }) => {
 		const allCategories = await db.query.categories.findMany({
 			where: eq(categories.storeId, data.storeId),
-			orderBy: [asc(categories.displayOrder)],
+			orderBy: [asc(categories.displayOrder), categoryNameSort],
 			with: {
 				items: {
-					orderBy: (items, { asc }) => [asc(items.displayOrder)],
+					orderBy: (items, { asc, sql }) => [
+						asc(items.displayOrder),
+						asc(sql`${items.translations}->'de'->>'name'`),
+					],
 				},
 			},
 		});
@@ -27,7 +33,10 @@ export const getCategory = createServerFn({ method: "GET" })
 			where: eq(categories.id, data.categoryId),
 			with: {
 				items: {
-					orderBy: (items, { asc }) => [asc(items.displayOrder)],
+					orderBy: (items, { asc, sql }) => [
+						asc(items.displayOrder),
+						asc(sql`${items.translations}->'de'->>'name'`),
+					],
 				},
 			},
 		});

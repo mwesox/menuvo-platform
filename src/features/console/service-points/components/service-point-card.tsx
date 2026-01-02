@@ -95,10 +95,10 @@ export function ServicePointCard({
 
 			<CardContent className="space-y-3 pt-0">
 				<div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-					{servicePoint.type && (
+					{servicePoint.zone && (
 						<div className="flex items-center gap-1">
 							<Tag className="h-3.5 w-3.5" />
-							<span>{servicePoint.type}</span>
+							<span>{servicePoint.zone}</span>
 						</div>
 					)}
 					{attributeCount > 0 && (

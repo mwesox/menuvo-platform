@@ -40,6 +40,17 @@
 		"item": "Artikel",
 		"items": "Artikel"
 	},
+	"translationStatus": {
+		"complete": "Vollständig",
+		"partial": "Teilweise",
+		"missing": "Fehlend"
+	},
+	"entityTypes": {
+		"category": "Kategorie",
+		"item": "Artikel",
+		"optionGroup": "Optionsgruppe",
+		"optionChoice": "Option"
+	},
 	"languages": {
 		"en": "English",
 		"de": "Deutsch"
@@ -73,6 +84,31 @@
 	},
 	"toasts": {
 		"importApplied": "Menüänderungen erfolgreich importiert",
-		"importFailed": "Menüimport fehlgeschlagen"
+		"importFailed": "Menüimport fehlgeschlagen",
+		"imageUploaded": "Bild erfolgreich hochgeladen",
+		"imageUploadFailed": "Bild konnte nicht hochgeladen werden",
+		"imageRemoved": "Bild entfernt",
+		"imageRemoveFailed": "Bild konnte nicht entfernt werden",
+		"pleaseSelectImage": "Bitte wählen Sie eine Bilddatei"
+	},
+	"images": {
+		"cropTitle": "Bild zuschneiden",
+		"cropDescription": "Wählen Sie eine Zuschnitt-Vorlage oder passen Sie frei an. Die erste Option ist für diesen Bildtyp optimiert.",
+		"applyCrop": "Zuschnitt anwenden",
+		"processing": "Wird verarbeitet...",
+		"uploading": "Wird hochgeladen...",
+		"clickToUpload": "Klicken Sie, um ein Bild hochzuladen",
+		"preview": "Vorschau",
+		"recommendedMinimum": "Empfohlenes Minimum: {{width}} x {{height}}px",
+		"presets": {
+			"thumbnail": "Quadratisch",
+			"thumbnailDescription": "Ideal für Logos und Icons",
+			"detail": "Standard",
+			"detailDescription": "Ideal für Menüartikel",
+			"banner": "Breit",
+			"bannerDescription": "Ideal für Header und Banner",
+			"free": "Individuell",
+			"freeDescription": "Frei zuschneiden ohne Einschränkungen"
+		}
 	}
 }

@@ -30,7 +30,7 @@ export function StoreCard({ store }: StoreCardProps) {
 			className={`group block overflow-hidden rounded-2xl bg-card shadow-md transition-all duration-300 hover:-translate-y-1 animate-in fade-in duration-300 ${focusRing}`}
 		>
 			{/* Image container */}
-			<div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-amber-100 to-orange-100">
+			<div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-amber-100 to-orange-100">
 				{store.imageUrl && (
 					<img
 						src={store.imageUrl}

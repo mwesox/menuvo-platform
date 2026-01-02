@@ -1,0 +1,37 @@
+{
+	"businessName": {
+		"min": "Business name must be at least 4 characters",
+		"max": "Business name must be less than 100 characters"
+	},
+	"ownerName": {
+		"min": "Full name must be at least 2 characters",
+		"max": "Full name must be less than 100 characters"
+	},
+	"email": {
+		"invalid": "Please enter a valid email address"
+	},
+	"phone": {
+		"required": "Phone number is required",
+		"invalid": "Please enter a valid phone number (e.g. +49 123 456789)"
+	},
+	"storeName": {
+		"min": "Store name must be at least 2 characters",
+		"max": "Store name must be less than 100 characters"
+	},
+	"street": {
+		"required": "Street address must be at least 3 characters",
+		"max": "Street address is too long"
+	},
+	"city": {
+		"required": "City is required",
+		"max": "City name is too long",
+		"invalid": "Please enter a valid city name"
+	},
+	"postalCode": {
+		"invalid": "Please enter a valid 5-digit postal code"
+	},
+	"country": {
+		"required": "Country is required",
+		"max": "Country name is too long"
+	}
+}

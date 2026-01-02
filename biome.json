@@ -13,7 +13,9 @@
 			"**/index.html",
 			"**/vite.config.js",
 			"!**/src/routeTree.gen.ts",
-			"!**/src/styles.css"
+			"!**/src/styles.css",
+			"!.output/**/*",
+			"!dist/**/*"
 		]
 	},
 	"formatter": {
@@ -45,6 +47,9 @@
 					"a11y": {
 						"useSemanticElements": "off",
 						"useKeyWithClickEvents": "off"
+					},
+					"suspicious": {
+						"noArrayIndexKey": "off"
 					}
 				}
 			}

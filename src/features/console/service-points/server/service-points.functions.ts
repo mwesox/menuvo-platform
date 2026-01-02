@@ -4,7 +4,9 @@ import { z } from "zod";
 import { db } from "@/db";
 import { servicePoints, stores } from "@/db/schema.ts";
 import {
+	batchCreateSchema,
 	createServicePointSchema,
+	toggleZoneSchema,
 	updateServicePointSchema,
 } from "../validation.ts";
 
@@ -91,7 +93,7 @@ export const createServicePoint = createServerFn({ method: "POST" })
 				name: data.name,
 				displayOrder,
 				description: data.description ?? null,
-				type: data.type ?? null,
+				zone: data.zone ?? null,
 				attributes:
 					(data.attributes as Record<
 						string,
@@ -135,7 +137,7 @@ export const updateServicePoint = createServerFn({ method: "POST" })
 		const updateData: Partial<{
 			code: string;
 			name: string;
-			type: string | null;
+			zone: string | null;
 			description: string | null;
 			attributes: Record<string, string | number | boolean> | null;
 			displayOrder: number;
@@ -143,7 +145,7 @@ export const updateServicePoint = createServerFn({ method: "POST" })
 
 		if (updates.code !== undefined) updateData.code = updates.code;
 		if (updates.name !== undefined) updateData.name = updates.name;
-		if (updates.type !== undefined) updateData.type = updates.type || null;
+		if (updates.zone !== undefined) updateData.zone = updates.zone || null;
 		if (updates.description !== undefined)
 			updateData.description = updates.description || null;
 		if (updates.attributes !== undefined) {
@@ -198,18 +200,97 @@ export const deleteServicePoint = createServerFn({ method: "POST" })
 	});
 
 /**
- * Get distinct types used in a store's service points.
- * Useful for suggesting types when creating new service points.
+ * Get distinct zones used in a store's service points.
+ * Useful for suggesting zones when creating new service points.
  */
-export const getServicePointTypes = createServerFn({ method: "GET" })
+export const getServicePointZones = createServerFn({ method: "GET" })
 	.inputValidator(z.object({ storeId: z.number() }))
 	.handler(async ({ data }) => {
 		const points = await db.query.servicePoints.findMany({
 			where: eq(servicePoints.storeId, data.storeId),
-			columns: { type: true },
+			columns: { zone: true },
 		});
-		const types = [
-			...new Set(points.map((p) => p.type).filter(Boolean) as string[]),
+		const zones = [
+			...new Set(points.map((p) => p.zone).filter(Boolean) as string[]),
 		];
-		return types.sort();
+		return zones.sort();
+	});
+
+/**
+ * Toggle all service points in a zone active/inactive.
+ */
+export const toggleZoneActive = createServerFn({ method: "POST" })
+	.inputValidator(toggleZoneSchema)
+	.handler(async ({ data }) => {
+		const result = await db
+			.update(servicePoints)
+			.set({ isActive: data.isActive })
+			.where(
+				and(
+					eq(servicePoints.storeId, data.storeId),
+					eq(servicePoints.zone, data.zone),
+				),
+			)
+			.returning();
+
+		return { count: result.length, isActive: data.isActive };
+	});
+
+/**
+ * Generate a kebab-case code from a name.
+ */
+function generateCode(prefix: string, number: number): string {
+	return `${prefix.toLowerCase().replace(/\s+/g, "-")}-${number}`;
+}
+
+/**
+ * Batch create service points with sequential names/codes.
+ */
+export const batchCreateServicePoints = createServerFn({ method: "POST" })
+	.inputValidator(batchCreateSchema)
+	.handler(async ({ data }) => {
+		const { storeId, prefix, startNumber, endNumber, zone } = data;
+
+		// Generate all names and codes
+		const pointsToCreate = [];
+		for (let i = startNumber; i <= endNumber; i++) {
+			pointsToCreate.push({
+				name: `${prefix} ${i}`,
+				code: generateCode(prefix, i),
+			});
+		}
+
+		// Check for existing codes
+		const existingPoints = await db.query.servicePoints.findMany({
+			where: eq(servicePoints.storeId, storeId),
+			columns: { code: true },
+		});
+		const existingCodes = new Set(existingPoints.map((p) => p.code));
+
+		const conflicts = pointsToCreate.filter((p) => existingCodes.has(p.code));
+		if (conflicts.length > 0) {
+			throw new Error(
+				`Service points with these codes already exist: ${conflicts.map((c) => c.code).join(", ")}`,
+			);
+		}
+
+		// Calculate starting display order
+		const lastPoint = await db.query.servicePoints.findFirst({
+			where: eq(servicePoints.storeId, storeId),
+			orderBy: (sp, { desc }) => [desc(sp.displayOrder)],
+		});
+		const startDisplayOrder = (lastPoint?.displayOrder ?? -1) + 1;
+
+		// Bulk insert
+		const values = pointsToCreate.map((p, index) => ({
+			storeId,
+			code: p.code,
+			name: p.name,
+			zone: zone ?? null,
+			displayOrder: startDisplayOrder + index,
+		}));
+
+		const created = await db.insert(servicePoints).values(values).returning();
+
+		return created;
 	});

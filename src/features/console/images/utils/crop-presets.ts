@@ -2,8 +2,10 @@ import type { ImageType } from "@/db/schema";
 
 export interface CropPreset {
 	id: string;
-	label: string;
-	description: string;
+	/** Translation key for the preset label */
+	labelKey: string;
+	/** Translation key for the preset description */
+	descriptionKey: string;
 	aspectRatio: number;
 	/** Recommended minimum dimensions for quality */
 	minWidth: number;
@@ -20,34 +22,34 @@ export interface CropPreset {
  * - Store card banner: 16:9 aspect
  */
 export const CROP_PRESETS: Record<string, CropPreset> = {
-	square: {
-		id: "square",
-		label: "Square",
-		description: "Best for thumbnails",
+	thumbnail: {
+		id: "thumbnail",
+		labelKey: "thumbnail",
+		descriptionKey: "thumbnailDescription",
 		aspectRatio: 1,
 		minWidth: 400,
 		minHeight: 400,
 	},
-	hero: {
-		id: "hero",
-		label: "Hero 4:3",
-		description: "Best for item detail",
+	detail: {
+		id: "detail",
+		labelKey: "detail",
+		descriptionKey: "detailDescription",
 		aspectRatio: 4 / 3,
 		minWidth: 800,
 		minHeight: 600,
 	},
 	banner: {
 		id: "banner",
-		label: "Banner 16:9",
-		description: "Best for store cards",
+		labelKey: "banner",
+		descriptionKey: "bannerDescription",
 		aspectRatio: 16 / 9,
 		minWidth: 1200,
 		minHeight: 675,
 	},
 	free: {
 		id: "free",
-		label: "Free",
-		description: "No constraints",
+		labelKey: "free",
+		descriptionKey: "freeDescription",
 		aspectRatio: 0, // 0 = free aspect
 		minWidth: 0,
 		minHeight: 0,
@@ -61,30 +63,16 @@ export const CROP_PRESETS: Record<string, CropPreset> = {
 export function getPresetsForImageType(imageType: ImageType): CropPreset[] {
 	switch (imageType) {
 		case "item_image":
-			// Item images need both square (thumbnail) and hero (drawer)
-			return [
-				CROP_PRESETS.square,
-				CROP_PRESETS.hero,
-				CROP_PRESETS.free,
-			];
-		case "store_banner":
-			// Store banners are 16:9
-			return [
-				CROP_PRESETS.banner,
-				CROP_PRESETS.hero,
-				CROP_PRESETS.free,
-			];
+			// Item images: thumbnail for lists, detail for drawer view
+			return [CROP_PRESETS.thumbnail, CROP_PRESETS.detail, CROP_PRESETS.free];
 		case "store_logo":
 		case "merchant_logo":
-			// Logos are typically square
-			return [
-				CROP_PRESETS.square,
-				CROP_PRESETS.free,
-			];
+			// Logos are square for consistent display
+			return [CROP_PRESETS.thumbnail, CROP_PRESETS.free];
 		default:
 			return [
-				CROP_PRESETS.square,
-				CROP_PRESETS.hero,
+				CROP_PRESETS.thumbnail,
+				CROP_PRESETS.detail,
 				CROP_PRESETS.banner,
 				CROP_PRESETS.free,
 			];
@@ -97,4 +85,20 @@ export function getPresetsForImageType(imageType: ImageType): CropPreset[] {
 export function getDefaultPreset(imageType: ImageType): CropPreset {
 	const presets = getPresetsForImageType(imageType);
 	return presets[0];
+}
+
+/**
+ * Get the Tailwind aspect ratio class for an image type.
+ * Used to ensure preview matches the crop aspect ratio.
+ */
+export function getAspectRatioClassForImageType(imageType: ImageType): string {
+	switch (imageType) {
+		case "store_logo":
+		case "merchant_logo":
+			return "aspect-square"; // 1:1
+		case "item_image":
+			return "aspect-[4/3]"; // 4:3 for drawer view
+		default:
+			return "aspect-[4/3]";
+	}
 }

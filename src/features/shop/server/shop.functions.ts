@@ -226,6 +226,7 @@ export const getPublicStores = createServerFn({ method: "GET" })
 
 				return {
 					...storeData,
+					imageUrl: store.logoUrl, // Map logoUrl to imageUrl for store cards
 					isOpen,
 				};
 			});

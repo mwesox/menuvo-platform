@@ -27,7 +27,6 @@ import { TranslationListItem } from "./translation-list-item";
 
 interface TranslationsTabProps {
 	storeId: number;
-	merchantId: number;
 }
 
 interface TranslatableEntity {
@@ -40,7 +39,7 @@ interface TranslatableEntity {
 	translations: Record<string, { name?: string; description?: string }>;
 }
 
-export function TranslationsTab({ storeId, merchantId }: TranslationsTabProps) {
+export function TranslationsTab({ storeId }: TranslationsTabProps) {
 	const { t } = useTranslation("menu");
 
 	// Filters state
@@ -60,10 +59,8 @@ export function TranslationsTab({ storeId, merchantId }: TranslationsTabProps) {
 		id: number;
 	} | null>(null);
 
-	// Fetch translation status
-	const { data } = useSuspenseQuery(
-		translationQueries.status(storeId, merchantId),
-	);
+	// Fetch translation status (merchantId obtained from auth context on server)
+	const { data } = useSuspenseQuery(translationQueries.status(storeId));
 
 	// Primary language is the first supported language (fallback)
 	// Target languages are all others that need translations
@@ -350,7 +347,6 @@ export function TranslationsTab({ storeId, merchantId }: TranslationsTabProps) {
 				primaryLanguage={primaryLanguage}
 				targetLanguages={targetLanguages}
 				storeId={storeId}
-				merchantId={merchantId}
 				onClose={handleDetailClose}
 			/>
 		);

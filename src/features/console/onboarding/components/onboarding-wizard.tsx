@@ -12,8 +12,8 @@ export function OnboardingWizard() {
 	return (
 		<form
 			onSubmit={(e) => {
+				// Prevent native form submission - we handle validation in WizardNavigation
 				e.preventDefault();
-				form.handleSubmit();
 			}}
 			className="space-y-6"
 		>

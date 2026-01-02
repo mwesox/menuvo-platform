@@ -237,11 +237,7 @@ export function ShopHeader() {
 			<div className="flex h-14 items-center gap-4 px-4">
 				{/* Left: Logo */}
 				<Link to="/shop" className="shrink-0">
-					<img
-						src="/menuvo-logo-horizontal.svg"
-						alt="Menuvo"
-						className="h-8"
-					/>
+					<img src="/menuvo-logo-horizontal.svg" alt="Menuvo" className="h-8" />
 				</Link>
 
 				{/* Center: Store info - flexible space */}

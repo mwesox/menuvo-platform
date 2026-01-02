@@ -15,6 +15,7 @@ import settingsDe from "./locales/de/settings.json";
 import shopDe from "./locales/de/shop.json";
 import storesDe from "./locales/de/stores.json";
 import toastsDe from "./locales/de/toasts.json";
+import validationDe from "./locales/de/validation.json";
 // English translations
 import businessEn from "./locales/en/business.json";
 import commonEn from "./locales/en/common.json";
@@ -29,6 +30,7 @@ import settingsEn from "./locales/en/settings.json";
 import shopEn from "./locales/en/shop.json";
 import storesEn from "./locales/en/stores.json";
 import toastsEn from "./locales/en/toasts.json";
+import validationEn from "./locales/en/validation.json";
 
 export const SUPPORTED_LANGUAGES = ["en", "de"] as const;
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
@@ -49,6 +51,7 @@ const resources = {
 		legal: legalEn,
 		discovery: discoveryEn,
 		shop: shopEn,
+		validation: validationEn,
 	},
 	de: {
 		business: businessDe,
@@ -64,6 +67,7 @@ const resources = {
 		legal: legalDe,
 		discovery: discoveryDe,
 		shop: shopDe,
+		validation: validationDe,
 	},
 };
 
@@ -72,7 +76,8 @@ export function initI18n(detectedLanguage?: string) {
 		// Ensure resources are up-to-date (important for HMR in development)
 		for (const lng of SUPPORTED_LANGUAGES) {
 			for (const ns of Object.keys(resources[lng])) {
-				const currentResources = resources[lng][ns as keyof (typeof resources)[typeof lng]];
+				const currentResources =
+					resources[lng][ns as keyof (typeof resources)[typeof lng]];
 				i18n.addResourceBundle(lng, ns, currentResources, true, true);
 			}
 		}
@@ -106,6 +111,7 @@ export function initI18n(detectedLanguage?: string) {
 				"legal",
 				"discovery",
 				"shop",
+				"validation",
 			],
 			interpolation: {
 				escapeValue: false,

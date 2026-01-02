@@ -29,8 +29,9 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 			onClick={handleCardClick}
 			className={cn(
 				"group flex gap-4 p-4 bg-card rounded-2xl text-left w-full",
-				"border border-border/40 shadow-sm transition-all duration-200",
-				"hover:border-border hover:shadow-md",
+				"border border-border/30 shadow-sm shadow-stone-200/50",
+				"transition-all duration-300 ease-out",
+				"hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-900/10 hover:border-border/60",
 				focusRing,
 			)}
 		>

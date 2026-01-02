@@ -63,16 +63,13 @@ export function CookieConsentProvider({
 		setShowBanner(true);
 	}, []);
 
-	// Don't render until hydrated to avoid flash
-	if (!isHydrated) {
-		return <>{children}</>;
-	}
-
+	// ALWAYS wrap in provider to maintain consistent tree structure during hydration
+	// Banner visibility is controlled via the value, not conditional rendering
 	return (
 		<CookieConsentContext.Provider
 			value={{
 				consent,
-				showBanner,
+				showBanner: isHydrated ? showBanner : false,
 				openSettings,
 				acceptAll,
 				rejectNonEssential,

@@ -13,15 +13,14 @@ import {
 	FieldLabel,
 } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select.tsx";
 import { useOnboardingForm } from "../../contexts/form-context.tsx";
-import { languages } from "../../validation.ts";
+import {
+	merchantEmailSchema,
+	merchantNameSchema,
+	merchantPhoneSchema,
+	ownerNameSchema,
+	zodValidator,
+} from "../../validation.ts";
 
 export function MerchantStep() {
 	const { t } = useTranslation(["onboarding", "common"]);
@@ -38,7 +37,10 @@ export function MerchantStep() {
 			<CardContent>
 				<FieldGroup>
 					<div className="grid gap-4 sm:grid-cols-2">
-						<form.Field name="merchant.name">
+						<form.Field
+							name="merchant.name"
+							validators={{ onBlur: zodValidator(merchantNameSchema) }}
+						>
 							{(field) => {
 								const isInvalid =
 									field.state.meta.isTouched && !field.state.meta.isValid;
@@ -63,7 +65,40 @@ export function MerchantStep() {
 								);
 							}}
 						</form.Field>
-						<form.Field name="merchant.email">
+						<form.Field
+							name="merchant.ownerName"
+							validators={{ onBlur: zodValidator(ownerNameSchema) }}
+						>
+							{(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid}>
+										<FieldLabel htmlFor="merchant-owner-name">
+											{t("onboarding:fields.ownerName")} *
+										</FieldLabel>
+										<Input
+											id="merchant-owner-name"
+											name={field.name}
+											placeholder={t("onboarding:placeholders.ownerName")}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											aria-invalid={isInvalid}
+										/>
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
+									</Field>
+								);
+							}}
+						</form.Field>
+					</div>
+					<div className="grid gap-4 sm:grid-cols-2">
+						<form.Field
+							name="merchant.email"
+							validators={{ onBlur: zodValidator(merchantEmailSchema) }}
+						>
 							{(field) => {
 								const isInvalid =
 									field.state.meta.isTouched && !field.state.meta.isValid;
@@ -89,17 +124,17 @@ export function MerchantStep() {
 								);
 							}}
 						</form.Field>
-					</div>
-					<div className="grid gap-4 sm:grid-cols-2">
-						<form.Field name="merchant.phone">
+						<form.Field
+							name="merchant.phone"
+							validators={{ onBlur: zodValidator(merchantPhoneSchema) }}
+						>
 							{(field) => {
 								const isInvalid =
 									field.state.meta.isTouched && !field.state.meta.isValid;
 								return (
 									<Field data-invalid={isInvalid}>
 										<FieldLabel htmlFor="merchant-phone">
-											{t("onboarding:fields.phone")} (
-											{t("common:labels.optional")})
+											{t("onboarding:fields.phone")} *
 										</FieldLabel>
 										<Input
 											id="merchant-phone"
@@ -110,49 +145,6 @@ export function MerchantStep() {
 											onChange={(e) => field.handleChange(e.target.value)}
 											aria-invalid={isInvalid}
 										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
-						</form.Field>
-						<form.Field name="merchant.primaryLanguage">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="primary-language">
-											{t("onboarding:fields.primaryLanguage")}
-										</FieldLabel>
-										<Select
-											name={field.name}
-											value={field.state.value}
-											onValueChange={(value) =>
-												field.handleChange(
-													value as "en" | "de" | "fr" | "es" | "it",
-												)
-											}
-										>
-											<SelectTrigger
-												id="primary-language"
-												aria-invalid={isInvalid}
-											>
-												<SelectValue
-													placeholder={t(
-														"onboarding:placeholders.selectLanguage",
-													)}
-												/>
-											</SelectTrigger>
-											<SelectContent>
-												{languages.map((lang) => (
-													<SelectItem key={lang.value} value={lang.value}>
-														{lang.label}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
 										{isInvalid && (
 											<FieldError errors={field.state.meta.errors} />
 										)}

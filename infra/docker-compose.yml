@@ -1,0 +1,268 @@
+# Menuvo Production Docker Compose
+# TanStack Start Platform with Console and Shop
+# Domains: menuvo.app, www.menuvo.app, console.menuvo.app, monitor.menuvo.app
+# VPS: Hetzner 8GB RAM
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:18-alpine
+    container_name: menuvo-postgres
+    restart: always
+    mem_limit: 3g
+    cpus: 2.0
+    shm_size: 256mb
+    environment:
+      POSTGRES_USER: menuvo
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: menuvo
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    command: >
+      postgres
+      -c shared_buffers=2GB
+      -c effective_cache_size=4GB
+      -c maintenance_work_mem=256MB
+      -c work_mem=16MB
+      -c max_connections=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c log_min_duration_statement=1000
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U menuvo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - menuvo
+
+  # Redis - Queue & Caching
+  redis:
+    image: redis:8-alpine
+    container_name: menuvo-redis
+    restart: always
+    mem_limit: 256m
+    cpus: 0.5
+    command: redis-server --appendonly yes --maxmemory 200mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - menuvo
+
+  # Menuvo Platform - TanStack Start (Console + Shop)
+  platform:
+    image: ghcr.io/mwesox/menuvo-platform:${VERSION:-latest}
+    container_name: menuvo-platform
+    restart: always
+    mem_limit: 2g
+    cpus: 1.5
+    environment:
+      # Node.js environment
+      NODE_ENV: production
+      PORT: 3000
+      ORIGIN: https://menuvo.app
+
+      # Database
+      DATABASE_URL: postgres://menuvo:${DB_PASSWORD}@postgres:5432/menuvo
+
+      # Redis
+      REDIS_URL: redis://redis:6379
+
+      # Auth
+      AUTH_SECRET: ${AUTH_SECRET}
+
+      # External Storage (S3/R2)
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_FILES_BUCKET: ${S3_FILES_BUCKET}
+      S3_PUBLIC_URL: ${S3_PUBLIC_URL}
+      S3_REGION: ${S3_REGION:-auto}
+
+      # Stripe
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      STRIPE_WEBHOOK_SECRET_THIN: ${STRIPE_WEBHOOK_SECRET_THIN}
+      VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
+
+      # AI (OpenRouter)
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+
+      # Sentry (optional)
+      VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+      SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - menuvo
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  # Menuvo Worker - Image Processing (resize, thumbnails, variants)
+  worker-images:
+    image: ghcr.io/mwesox/menuvo-platform:${VERSION:-latest}
+    container_name: menuvo-worker-images
+    restart: always
+    mem_limit: 512m
+    cpus: 0.5
+    command: ["bun", "--bun", "run", "worker", "--type", "images"]
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://menuvo:${DB_PASSWORD}@postgres:5432/menuvo
+      REDIS_URL: redis://redis:6379
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_PUBLIC_URL: ${S3_PUBLIC_URL}
+      S3_REGION: ${S3_REGION:-auto}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - menuvo
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  # Menuvo Worker - Menu Imports (AI-powered PDF/image parsing)
+  worker-imports:
+    image: ghcr.io/mwesox/menuvo-platform:${VERSION:-latest}
+    container_name: menuvo-worker-imports
+    restart: always
+    mem_limit: 768m
+    cpus: 0.75
+    command: ["bun", "--bun", "run", "worker", "--type", "imports"]
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://menuvo:${DB_PASSWORD}@postgres:5432/menuvo
+      REDIS_URL: redis://redis:6379
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_FILES_BUCKET: ${S3_FILES_BUCKET}
+      S3_PUBLIC_URL: ${S3_PUBLIC_URL}
+      S3_REGION: ${S3_REGION:-auto}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - menuvo
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  # Caddy Reverse Proxy - Custom build with rate limiting
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
+    container_name: menuvo-caddy
+    restart: always
+    mem_limit: 512m
+    cpus: 0.5
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      - /var/log/caddy:/var/log/caddy
+    depends_on:
+      - platform
+    networks:
+      - menuvo
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+
+  # Watchtower (Auto-update containers)
+  watchtower:
+    image: containrrr/watchtower
+    container_name: menuvo-watchtower
+    restart: always
+    mem_limit: 128m
+    cpus: 0.25
+    ports:
+      - "127.0.0.1:8080:8080"  # API only on localhost
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/deploy/.docker/config.json:/config.json:ro
+    environment:
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_POLL_INTERVAL: 300  # Check every 5 minutes
+      WATCHTOWER_LABEL_ENABLE: "true"
+      WATCHTOWER_HTTP_API_UPDATE: "true"
+      WATCHTOWER_HTTP_API_TOKEN: ${WATCHTOWER_TOKEN}
+      DOCKER_CONFIG: /
+    networks:
+      - menuvo
+
+  # Beszel Monitoring Hub
+  beszel:
+    image: henrygd/beszel:latest
+    container_name: menuvo-beszel
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.25
+    volumes:
+      - beszel_data:/beszel_data
+      - beszel_socket:/beszel_socket
+    networks:
+      - menuvo
+
+  # Beszel Agent (monitors this host)
+  beszel-agent:
+    image: henrygd/beszel-agent:latest
+    container_name: menuvo-beszel-agent
+    restart: unless-stopped
+    mem_limit: 64m
+    cpus: 0.25
+    network_mode: host
+    volumes:
+      - beszel_socket:/beszel_socket
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      LISTEN: /beszel_socket/beszel.sock
+      KEY: ${BESZEL_AGENT_KEY}
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+  beszel_data:
+    driver: local
+  beszel_socket:
+    driver: local
+
+networks:
+  menuvo:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1450  # Hetzner optimized

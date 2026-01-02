@@ -1,6 +1,8 @@
+import { MinusIcon, PlusIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Cropper, type CropperRef } from "react-advanced-cropper";
 import "react-advanced-cropper/dist/style.css";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -10,8 +12,9 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
 import type { ImageType } from "@/db/schema";
+import { cn } from "@/lib/utils";
 import {
 	type CropPreset,
 	getDefaultPreset,
@@ -22,10 +25,8 @@ interface ImageCropperProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	imageSrc: string;
-	/** @deprecated Use imageType instead for preset-based aspect ratios */
-	aspectRatio?: number;
 	/** Image type determines available presets and default aspect ratio */
-	imageType?: ImageType;
+	imageType: ImageType;
 	onCropComplete: (croppedBlob: Blob) => void;
 }
 
@@ -33,36 +34,50 @@ export function ImageCropper({
 	open,
 	onOpenChange,
 	imageSrc,
-	aspectRatio: legacyAspectRatio,
-	imageType = "item_image",
+	imageType,
 	onCropComplete,
 }: ImageCropperProps) {
+	const { t } = useTranslation("common");
 	const cropperRef = useRef<CropperRef>(null);
 	const [isProcessing, setIsProcessing] = useState(false);
+	const [zoom, setZoom] = useState(0);
 
 	// Get presets for this image type
 	const presets = getPresetsForImageType(imageType);
 	const defaultPreset = getDefaultPreset(imageType);
 
 	// Track selected preset
-	const [selectedPreset, setSelectedPreset] = useState<CropPreset>(defaultPreset);
+	const [selectedPreset, setSelectedPreset] =
+		useState<CropPreset>(defaultPreset);
 
-	// Reset to default preset when dialog opens or image type changes
+	// Reset to default preset and zoom when dialog opens or image type changes
 	useEffect(() => {
 		if (open) {
 			setSelectedPreset(defaultPreset);
+			setZoom(0);
 		}
 	}, [open, defaultPreset]);
 
-	// Calculate effective aspect ratio (preset takes priority, then legacy prop)
-	const effectiveAspectRatio =
-		selectedPreset.aspectRatio ||
-		legacyAspectRatio ||
-		1;
+	// Get aspect ratio from selected preset (0 = free aspect)
+	const effectiveAspectRatio = selectedPreset.aspectRatio || 1;
 
 	const handlePresetSelect = useCallback((preset: CropPreset) => {
 		setSelectedPreset(preset);
 	}, []);
+
+	const handleZoomChange = useCallback(
+		(value: number[]) => {
+			const newZoom = value[0];
+			const delta = newZoom - zoom;
+			if (cropperRef.current && delta !== 0) {
+				// Convert slider delta to zoom ratio (positive = zoom in, negative = zoom out)
+				const zoomRatio = 1 + delta * 0.02;
+				cropperRef.current.zoomImage(zoomRatio);
+			}
+			setZoom(newZoom);
+		},
+		[zoom],
+	);
 
 	const handleCrop = useCallback(async () => {
 		if (!cropperRef.current) return;
@@ -96,10 +111,8 @@ export function ImageCropper({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-w-2xl">
 				<DialogHeader>
-					<DialogTitle>Crop Image</DialogTitle>
-					<DialogDescription>
-						Select a crop preset or adjust freely. The first option is optimized for this image type.
-					</DialogDescription>
+					<DialogTitle>{t("images.cropTitle")}</DialogTitle>
+					<DialogDescription>{t("images.cropDescription")}</DialogDescription>
 				</DialogHeader>
 
 				{/* Preset selector */}
@@ -117,14 +130,16 @@ export function ImageCropper({
 									: "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground",
 							)}
 						>
-							<span>{preset.label}</span>
-							<span className={cn(
-								"text-xs",
-								selectedPreset.id === preset.id
-									? "text-primary-foreground/70"
-									: "text-muted-foreground/70",
-							)}>
-								{preset.description}
+							<span>{t(`images.presets.${preset.labelKey}`)}</span>
+							<span
+								className={cn(
+									"text-xs",
+									selectedPreset.id === preset.id
+										? "text-primary-foreground/70"
+										: "text-muted-foreground/70",
+								)}
+							>
+								{t(`images.presets.${preset.descriptionKey}`)}
 							</span>
 						</button>
 					))}
@@ -137,16 +152,34 @@ export function ImageCropper({
 						ref={cropperRef}
 						src={imageSrc}
 						stencilProps={{
-							aspectRatio: selectedPreset.id === "free" ? undefined : effectiveAspectRatio,
+							aspectRatio:
+								selectedPreset.id === "free" ? undefined : effectiveAspectRatio,
 						}}
 						className="h-full w-full"
 					/>
 				</div>
 
+				{/* Zoom slider */}
+				<div className="flex items-center gap-3 px-1">
+					<MinusIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+					<Slider
+						value={[zoom]}
+						onValueChange={handleZoomChange}
+						min={-50}
+						max={50}
+						step={1}
+						className="flex-1"
+					/>
+					<PlusIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+				</div>
+
 				{/* Dimension hint */}
 				{selectedPreset.minWidth > 0 && (
 					<p className="text-xs text-muted-foreground text-center">
-						Recommended minimum: {selectedPreset.minWidth} x {selectedPreset.minHeight}px
+						{t("images.recommendedMinimum", {
+							width: selectedPreset.minWidth,
+							height: selectedPreset.minHeight,
+						})}
 					</p>
 				)}
 
@@ -156,10 +189,10 @@ export function ImageCropper({
 						variant="outline"
 						onClick={() => onOpenChange(false)}
 					>
-						Cancel
+						{t("buttons.cancel")}
 					</Button>
 					<Button type="button" onClick={handleCrop} disabled={isProcessing}>
-						{isProcessing ? "Processing..." : "Apply Crop"}
+						{isProcessing ? t("images.processing") : t("images.applyCrop")}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

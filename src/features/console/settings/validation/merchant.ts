@@ -1,8 +1,5 @@
 import { z } from "zod";
 
-// Re-export shared constants from onboarding
-export { languages } from "@/features/console/onboarding/validation.ts";
-
 // ============================================================================
 // MERCHANT SCHEMAS
 // ============================================================================

@@ -42,9 +42,9 @@ export type SupportedLanguagesFormInput = z.infer<
 
 /**
  * Server schema for updating supported languages.
+ * merchantId is obtained from auth context on server.
  */
 export const updateSupportedLanguagesSchema = z.object({
-	merchantId: z.number().int().positive(),
 	supportedLanguages: z
 		.array(languageCodeSchema)
 		.min(1, "At least one language is required"),

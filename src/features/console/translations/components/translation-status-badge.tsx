@@ -1,4 +1,5 @@
 import { AlertTriangle, Check, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { TranslationStatus } from "../validation";
 
@@ -15,28 +16,28 @@ export function TranslationStatusBadge({
 	showLabel = false,
 	size = "default",
 }: TranslationStatusBadgeProps) {
+	const { t } = useTranslation("common");
+
 	const config = {
 		complete: {
 			icon: Check,
 			bgClass: "bg-green-500/20 text-green-600 dark:text-green-400",
 			dotClass: "bg-green-500",
-			label: "Complete",
 		},
 		partial: {
 			icon: AlertTriangle,
 			bgClass: "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400",
 			dotClass: "bg-yellow-500",
-			label: "Partial",
 		},
 		missing: {
 			icon: X,
 			bgClass: "bg-red-500/15 text-red-600 dark:text-red-400",
 			dotClass: "bg-red-500",
-			label: "Missing",
 		},
 	};
 
-	const { icon: Icon, bgClass, dotClass, label } = config[status];
+	const { icon: Icon, bgClass, dotClass } = config[status];
+	const label = t(`translationStatus.${status}`);
 
 	// Compact badge for list items (size="sm")
 	if (size === "sm") {

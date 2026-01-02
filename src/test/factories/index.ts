@@ -29,4 +29,8 @@ export {
 	type OrderItemInput,
 	type OrderItemOptionInput,
 } from "./order.factory";
+export {
+	createTestServicePoint,
+	type ServicePointFactoryOptions,
+} from "./service-point.factory";
 export { createTestStore, type StoreFactoryOptions } from "./store.factory";

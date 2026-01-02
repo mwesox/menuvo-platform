@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -186,8 +187,38 @@ function FieldError({
 	errors,
 	...props
 }: React.ComponentProps<"div"> & {
-	errors?: Array<{ message?: string } | undefined>;
+	// Support both string[] (TanStack Form field validators) and { message }[] (Zod form validators)
+	errors?: Array<string | { message?: string } | undefined>;
 }) {
+	const { t, i18n } = useTranslation("validation");
+
+	// Extract message from error (handles both string and object formats)
+	const getErrorMessage = useCallback(
+		(error: string | { message?: string } | undefined): string | undefined => {
+			if (!error) return undefined;
+			if (typeof error === "string") return error;
+			return error.message;
+		},
+		[],
+	);
+
+	// Translate error message - supports both translation keys and plain text
+	const translateError = useCallback(
+		(message: string | undefined): string => {
+			if (!message) return "";
+			// Check if it's a translation key (starts with "validation:")
+			if (message.startsWith("validation:")) {
+				const key = message.replace("validation:", "");
+				const translated = t(key);
+				// If translation exists, use it; otherwise return the key for debugging
+				return i18n.exists(`validation:${key}`) ? translated : message;
+			}
+			// Return plain text as-is
+			return message;
+		},
+		[t, i18n],
+	);
+
 	const content = useMemo(() => {
 		if (children) {
 			return children;
@@ -197,23 +228,26 @@ function FieldError({
 			return null;
 		}
 
-		const uniqueErrors = [
-			...new Map(errors.map((error) => [error?.message, error])).values(),
-		];
+		// Extract messages and deduplicate
+		const messages = errors.map(getErrorMessage).filter(Boolean) as string[];
+		const uniqueMessages = [...new Set(messages)];
 
-		if (uniqueErrors?.length === 1) {
-			return uniqueErrors[0]?.message;
+		if (uniqueMessages.length === 0) {
+			return null;
+		}
+
+		if (uniqueMessages.length === 1) {
+			return translateError(uniqueMessages[0]);
 		}
 
 		return (
 			<ul className="ml-4 flex list-disc flex-col gap-1">
-				{uniqueErrors.map(
-					(error) =>
-						error?.message && <li key={error.message}>{error.message}</li>,
-				)}
+				{uniqueMessages.map((message) => (
+					<li key={message}>{translateError(message)}</li>
+				))}
 			</ul>
 		);
-	}, [children, errors]);
+	}, [children, errors, getErrorMessage, translateError]);
 
 	if (!content) {
 		return null;

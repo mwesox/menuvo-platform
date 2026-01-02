@@ -14,10 +14,9 @@ function generateSlug(name: string): string {
 
 export const getStores = createServerFn({ method: "GET" }).handler(async () => {
 	try {
-		const allStores = await db.query.stores.findMany({
+		return await db.query.stores.findMany({
 			orderBy: (stores, { asc }) => [asc(stores.name)],
 		});
-		return allStores;
 	} catch {
 		// Return empty array if database is not available or tables don't exist
 		return [];
@@ -122,4 +121,30 @@ export const deleteStore = createServerFn({ method: "POST" })
 	.handler(async ({ data }) => {
 		await db.delete(stores).where(eq(stores.id, data.storeId));
 		return { success: true };
+	});
+
+/**
+ * Update a store's logo image URL.
+ */
+export const updateStoreImage = createServerFn({ method: "POST" })
+	.inputValidator(
+		z.object({
+			storeId: z.number(),
+			imageUrl: z.string().optional(),
+		}),
+	)
+	.handler(async ({ data }) => {
+		const { storeId, imageUrl } = data;
+
+		const [updatedStore] = await db
+			.update(stores)
+			.set({ logoUrl: imageUrl ?? null })
+			.where(eq(stores.id, storeId))
+			.returning();
+
+		if (!updatedStore) {
+			throw new Error("Store not found");
+		}
+
+		return updatedStore;
 	});

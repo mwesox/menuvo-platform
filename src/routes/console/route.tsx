@@ -1,12 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ConsoleLayout } from "@/components/layout/console-layout";
+import { getMerchant } from "@/features/console/auth/server/merchant.functions";
 import { storeQueries } from "@/features/console/stores/queries";
-import consoleCss from "@/styles/console-bundle.css?url";
 
 export const Route = createFileRoute("/console")({
-	head: () => ({
-		links: [{ rel: "stylesheet", href: consoleCss }],
-	}),
+	beforeLoad: async () => {
+		const merchant = await getMerchant();
+		return {
+			merchant,
+			merchantId: merchant.id,
+			displayLanguage: merchant.supportedLanguages?.[0] ?? "de",
+		};
+	},
 	loader: async ({ context }) => {
 		// Preload stores to prevent Suspense fallback on navigation
 		await context.queryClient.ensureQueryData(storeQueries.list());

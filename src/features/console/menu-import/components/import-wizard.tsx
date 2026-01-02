@@ -7,6 +7,7 @@ import {
 	Upload,
 } from "lucide-react";
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -28,6 +29,7 @@ interface ImportWizardProps {
 }
 
 export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
+	const { t } = useTranslation("menu");
 	const [step, setStep] = useState<WizardStep>("upload");
 	const [file, setFile] = useState<File | null>(null);
 	const [jobId, setJobId] = useState<number | null>(null);
@@ -79,14 +81,18 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 
 			if (!response.ok) {
 				const error = await response.json();
-				throw new Error(error.error || "Upload failed");
+				throw new Error(error.error || t("import.errors.uploadFailed"));
 			}
 
 			const { jobId: newJobId } = await response.json();
 			setJobId(newJobId);
 			setStep("processing");
 		} catch (error) {
-			setUploadError(error instanceof Error ? error.message : "Upload failed");
+			setUploadError(
+				error instanceof Error
+					? error.message
+					: t("import.errors.uploadFailed"),
+			);
 		} finally {
 			setIsUploading(false);
 		}
@@ -141,28 +147,28 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 				className="mb-6 -ml-2"
 			>
 				<ArrowLeft className="mr-2 h-4 w-4" />
-				Back to Menu
+				{t("import.backToMenu")}
 			</Button>
 
 			{/* Progress Steps */}
 			<div className="flex items-center justify-center gap-4 mb-8">
 				<StepIndicator
 					step={1}
-					label="Upload"
+					label={t("import.steps.upload")}
 					isActive={step === "upload"}
 					isComplete={step !== "upload"}
 				/>
 				<div className="w-12 h-px bg-border" />
 				<StepIndicator
 					step={2}
-					label="Processing"
+					label={t("import.steps.processing")}
 					isActive={step === "processing"}
 					isComplete={step === "review"}
 				/>
 				<div className="w-12 h-px bg-border" />
 				<StepIndicator
 					step={3}
-					label="Review"
+					label={t("import.steps.review")}
 					isActive={step === "review"}
 					isComplete={false}
 				/>
@@ -172,17 +178,14 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 			<Card>
 				<CardHeader>
 					<CardTitle>
-						{step === "upload" && "Upload Menu File"}
-						{step === "processing" && "Processing..."}
-						{step === "review" && "Review Changes"}
+						{step === "upload" && t("import.titles.uploadFile")}
+						{step === "processing" && t("import.titles.processing")}
+						{step === "review" && t("import.titles.reviewChanges")}
 					</CardTitle>
 					<CardDescription>
-						{step === "upload" &&
-							"Upload a file containing your menu data. We support Excel, CSV, JSON, Markdown, and text files."}
-						{step === "processing" &&
-							"We're extracting and analyzing your menu data. This may take a minute."}
-						{step === "review" &&
-							"Review the extracted menu data and select which items to import."}
+						{step === "upload" && t("import.descriptions.upload")}
+						{step === "processing" && t("import.descriptions.processing")}
+						{step === "review" && t("import.descriptions.review")}
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -196,18 +199,18 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 							/>
 							<div className="flex justify-end gap-2">
 								<Button variant="outline" onClick={onClose}>
-									Cancel
+									{t("import.buttons.cancel")}
 								</Button>
 								<Button onClick={handleUpload} disabled={!file || isUploading}>
 									{isUploading ? (
 										<>
 											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-											Uploading...
+											{t("import.status.uploading")}
 										</>
 									) : (
 										<>
 											<Upload className="mr-2 h-4 w-4" />
-											Upload & Process
+											{t("import.buttons.uploadProcess")}
 										</>
 									)}
 								</Button>
@@ -221,23 +224,23 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 								<>
 									<AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
 									<p className="text-lg font-medium text-destructive mb-2">
-										Processing Failed
+										{t("import.errors.processingFailed")}
 									</p>
 									<p className="text-sm text-muted-foreground mb-4">
-										{jobStatus?.errorMessage || "An error occurred"}
+										{jobStatus?.errorMessage || t("import.errors.genericError")}
 									</p>
 									<Button variant="outline" onClick={onClose}>
-										Close
+										{t("import.buttons.close")}
 									</Button>
 								</>
 							) : (
 								<>
 									<Loader2 className="h-12 w-12 text-primary mx-auto mb-4 animate-spin" />
 									<p className="text-lg font-medium mb-2">
-										Analyzing your menu...
+										{t("import.status.analyzing")}
 									</p>
 									<p className="text-sm text-muted-foreground">
-										Please wait while we extract and analyze your menu data.
+										{t("import.status.pleaseWait")}
 									</p>
 								</>
 							)}
@@ -255,7 +258,7 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 							/>
 							<div className="flex justify-end gap-2">
 								<Button variant="outline" onClick={onClose}>
-									Cancel
+									{t("import.buttons.cancel")}
 								</Button>
 								<Button
 									onClick={handleApply}
@@ -264,12 +267,14 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 									{applyMutation.isPending ? (
 										<>
 											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-											Applying...
+											{t("import.status.applying")}
 										</>
 									) : (
 										<>
 											<Check className="mr-2 h-4 w-4" />
-											Apply {selectedItems.size} Changes
+											{t("import.buttons.applyChanges", {
+												count: selectedItems.size,
+											})}
 										</>
 									)}
 								</Button>

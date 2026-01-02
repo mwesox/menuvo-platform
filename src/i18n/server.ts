@@ -9,7 +9,14 @@ import {
 export const detectLanguageFromRequest = createServerFn().handler(
 	async (): Promise<SupportedLanguage> => {
 		try {
-			const acceptLanguage = getRequestHeader("accept-language");
+			// During prerendering, getRequestHeader may not be available
+			let acceptLanguage: string | null | undefined;
+			try {
+				acceptLanguage = getRequestHeader("accept-language");
+			} catch {
+				// Prerender context - no request available
+				return DEFAULT_LANGUAGE;
+			}
 
 			if (!acceptLanguage) return DEFAULT_LANGUAGE;
 

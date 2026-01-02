@@ -154,6 +154,7 @@ export type OrderType = (typeof orderTypes)[number];
 export const merchants = pgTable("merchants", {
 	id: serial().primaryKey(),
 	name: varchar({ length: 255 }).notNull(),
+	ownerName: varchar("owner_name", { length: 255 }).notNull(),
 	email: varchar({ length: 255 }).notNull().unique(),
 	phone: varchar({ length: 50 }),
 	// Supported languages for menu translations (first is used as fallback)
@@ -214,6 +215,8 @@ export const stores = pgTable("stores", {
 	// Contact
 	phone: varchar({ length: 50 }),
 	email: varchar({ length: 255 }),
+	// Images (S3 URLs)
+	logoUrl: text("logo_url"),
 	// Settings
 	timezone: varchar({ length: 50 }).notNull().default("UTC"),
 	currency: varchar({ length: 3 }).notNull().default("EUR"),
@@ -705,7 +708,7 @@ export const menuImportJobsRelations = relations(menuImportJobs, ({ one }) => ({
  * Service points represent physical or logical locations within a store
  * where customers can access the menu via QR code (e.g., tables, counters, kiosks).
  *
- * - Fully flexible types: merchants define their own (table, counter, etc.)
+ * - Zone: optional grouping for batch activate/deactivate (e.g., "Outdoor", "Floor 1")
  * - JSONB attributes for arbitrary key-value tags
  * - Unique code per store for URL generation
  */
@@ -720,8 +723,8 @@ export const servicePoints = pgTable(
 		code: varchar("code", { length: 100 }).notNull(),
 		// Display name (e.g., "Table 5", "Bar Counter")
 		name: varchar("name", { length: 255 }).notNull(),
-		// Merchant-defined type (flexible, not enum)
-		type: varchar("type", { length: 100 }),
+		// Optional zone for grouping (e.g., "Outdoor", "Floor 1", "VIP Section")
+		zone: varchar("zone", { length: 100 }),
 		// Optional description
 		description: text(),
 		// Flexible attributes as JSONB (e.g., { section: "outdoor", floor: 2 })
@@ -740,6 +743,7 @@ export const servicePoints = pgTable(
 	},
 	(table) => [
 		index("idx_service_points_store").on(table.storeId),
+		index("idx_service_points_zone").on(table.storeId, table.zone),
 		unique("unq_service_points_store_code").on(table.storeId, table.code),
 	],
 );

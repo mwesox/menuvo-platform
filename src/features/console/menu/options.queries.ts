@@ -10,6 +10,7 @@ import {
 	createOptionGroup,
 	deleteOptionChoice,
 	deleteOptionGroup,
+	getItemOptions,
 	getOptionGroup,
 	getOptionGroups,
 	saveOptionGroupWithChoices,
@@ -67,6 +68,15 @@ export const optionGroupQueries = {
 		queryOptions({
 			queryKey: optionKeys.groups.detail(optionGroupId),
 			queryFn: () => getOptionGroup({ data: { optionGroupId } }),
+		}),
+};
+
+// Item options query options factory
+export const itemOptionQueries = {
+	byItem: (itemId: number) =>
+		queryOptions({
+			queryKey: optionKeys.itemOptions.byItem(itemId),
+			queryFn: () => getItemOptions({ data: { itemId } }),
 		}),
 };
 

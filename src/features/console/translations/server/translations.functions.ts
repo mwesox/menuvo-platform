@@ -7,10 +7,17 @@ import {
 	categories,
 	type EntityTranslations,
 	items,
-	merchants,
 	optionChoices,
 	optionGroups,
 } from "@/db/schema.ts";
+import { withAuth } from "@/features/console/auth/server/auth-middleware";
+import {
+	getCategoryWithOwnership,
+	getItemWithOwnership,
+	getOptionChoiceWithOwnership,
+	getOptionGroupWithOwnership,
+	getStoreWithMerchant,
+} from "@/features/console/auth/server/ownership";
 import {
 	languageCodeSchema,
 	type TranslationStatus,
@@ -18,34 +25,7 @@ import {
 	updateItemTranslationsSchema,
 	updateOptionChoiceTranslationsSchema,
 	updateOptionGroupTranslationsSchema,
-	updateSupportedLanguagesSchema,
 } from "../validation.ts";
-
-// ============================================================================
-// MERCHANT LANGUAGE CONFIGURATION
-// ============================================================================
-
-/**
- * Update merchant's supported languages.
- * All languages are equal - first in array is used as fallback when needed.
- */
-export const updateMerchantLanguages = createServerFn({ method: "POST" })
-	.inputValidator(updateSupportedLanguagesSchema)
-	.handler(async ({ data }) => {
-		const { merchantId, supportedLanguages } = data;
-
-		const [updated] = await db
-			.update(merchants)
-			.set({ supportedLanguages })
-			.where(eq(merchants.id, merchantId))
-			.returning();
-
-		if (!updated) {
-			throw new Error("Merchant not found");
-		}
-
-		return updated;
-	});
 
 // ============================================================================
 // TRANSLATION STATUS QUERIES
@@ -101,21 +81,21 @@ function calculateStatus(
  * Now checks ALL supported languages equally (no special treatment for default).
  */
 export const getTranslationStatus = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ storeId: z.number(), merchantId: z.number() }))
-	.handler(async ({ data }) => {
-		const { storeId, merchantId } = data;
+	.inputValidator(z.object({ storeId: z.number() }))
+	.middleware([withAuth])
+	.handler(async ({ data, context }) => {
+		const { storeId } = data;
+		const { merchantId } = context.auth;
 
-		// Get merchant to know supported languages
-		const merchant = await db.query.merchants.findFirst({
-			where: eq(merchants.id, merchantId),
-		});
+		// Get store with merchant to validate ownership and get supported languages
+		const store = await getStoreWithMerchant(storeId, merchantId);
 
-		if (!merchant) {
-			throw new Error("Merchant not found");
+		if (!store) {
+			throw new Error("Unauthorized: Store not found or access denied");
 		}
 
 		// All supported languages need translations (no special treatment for default)
-		const supportedLanguages = merchant.supportedLanguages ?? [];
+		const supportedLanguages = store.merchant.supportedLanguages ?? [];
 
 		// Get all categories
 		const allCategories = await db.query.categories.findMany({
@@ -207,29 +187,29 @@ export const getMissingTranslationsReport = createServerFn({ method: "GET" })
 	.inputValidator(
 		z.object({
 			storeId: z.number(),
-			merchantId: z.number(),
 			languageCode: languageCodeSchema.optional(),
 		}),
 	)
-	.handler(async ({ data }) => {
-		const { storeId, merchantId, languageCode } = data;
+	.middleware([withAuth])
+	.handler(async ({ data, context }) => {
+		const { storeId, languageCode } = data;
+		const { merchantId } = context.auth;
 
-		const merchant = await db.query.merchants.findFirst({
-			where: eq(merchants.id, merchantId),
-		});
+		// Get store with merchant to validate ownership and get supported languages
+		const store = await getStoreWithMerchant(storeId, merchantId);
 
-		if (!merchant) {
-			throw new Error("Merchant not found");
+		if (!store) {
+			throw new Error("Unauthorized: Store not found or access denied");
 		}
 
+		const supportedLanguages = store.merchant.supportedLanguages ?? [];
+
 		// All supported languages are checked (no special treatment for default)
-		const targetLanguages = languageCode
-			? [languageCode]
-			: (merchant.supportedLanguages ?? []);
+		const targetLanguages = languageCode ? [languageCode] : supportedLanguages;
 
 		// Helper to get display name from translations
 		// First language in supportedLanguages is used as fallback
-		const fallbackLang = merchant.supportedLanguages[0] ?? "de";
+		const fallbackLang = supportedLanguages[0] ?? "de";
 		const getDisplayName = (
 			translations: EntityTranslations | ChoiceTranslations | null,
 		): string => {
@@ -396,15 +376,16 @@ function cleanChoiceTranslations<
  */
 export const updateCategoryTranslations = createServerFn({ method: "POST" })
 	.inputValidator(updateCategoryTranslationsSchema)
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.handler(async ({ data, context }) => {
 		const { categoryId, translations } = data;
+		const { merchantId } = context.auth;
 
-		const existing = await db.query.categories.findFirst({
-			where: eq(categories.id, categoryId),
-		});
+		// Validate ownership: category's store must belong to merchant
+		const existing = await getCategoryWithOwnership(categoryId, merchantId);
 
 		if (!existing) {
-			throw new Error("Category not found");
+			throw new Error("Unauthorized: Category not found or access denied");
 		}
 
 		const existingTranslations = (existing.translations ??
@@ -426,15 +407,16 @@ export const updateCategoryTranslations = createServerFn({ method: "POST" })
  */
 export const updateItemTranslations = createServerFn({ method: "POST" })
 	.inputValidator(updateItemTranslationsSchema)
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.handler(async ({ data, context }) => {
 		const { itemId, translations } = data;
+		const { merchantId } = context.auth;
 
-		const existing = await db.query.items.findFirst({
-			where: eq(items.id, itemId),
-		});
+		// Validate ownership: item's store must belong to merchant
+		const existing = await getItemWithOwnership(itemId, merchantId);
 
 		if (!existing) {
-			throw new Error("Item not found");
+			throw new Error("Unauthorized: Item not found or access denied");
 		}
 
 		const existingTranslations = (existing.translations ??
@@ -456,15 +438,19 @@ export const updateItemTranslations = createServerFn({ method: "POST" })
  */
 export const updateOptionGroupTranslations = createServerFn({ method: "POST" })
 	.inputValidator(updateOptionGroupTranslationsSchema)
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.handler(async ({ data, context }) => {
 		const { optionGroupId, translations } = data;
+		const { merchantId } = context.auth;
 
-		const existing = await db.query.optionGroups.findFirst({
-			where: eq(optionGroups.id, optionGroupId),
-		});
+		// Validate ownership: option group's store must belong to merchant
+		const existing = await getOptionGroupWithOwnership(
+			optionGroupId,
+			merchantId,
+		);
 
 		if (!existing) {
-			throw new Error("Option group not found");
+			throw new Error("Unauthorized: Option group not found or access denied");
 		}
 
 		const existingTranslations = (existing.translations ??
@@ -486,15 +472,19 @@ export const updateOptionGroupTranslations = createServerFn({ method: "POST" })
  */
 export const updateOptionChoiceTranslations = createServerFn({ method: "POST" })
 	.inputValidator(updateOptionChoiceTranslationsSchema)
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.handler(async ({ data, context }) => {
 		const { optionChoiceId, translations } = data;
+		const { merchantId } = context.auth;
 
-		const existing = await db.query.optionChoices.findFirst({
-			where: eq(optionChoices.id, optionChoiceId),
-		});
+		// Validate ownership: option choice's option group's store must belong to merchant
+		const existing = await getOptionChoiceWithOwnership(
+			optionChoiceId,
+			merchantId,
+		);
 
 		if (!existing) {
-			throw new Error("Option choice not found");
+			throw new Error("Unauthorized: Option choice not found or access denied");
 		}
 
 		const existingTranslations = (existing.translations ??

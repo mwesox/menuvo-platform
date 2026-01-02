@@ -7,13 +7,20 @@ import { nitro } from 'nitro/vite'
 
 const config = defineConfig({
   plugins: [
-    nitro(),
+    nitro({
+      // Default to bun preset (required for Bun-native S3Client/RedisClient)
+      preset: process.env.NITRO_PRESET || 'bun',
+    }),
     // this is the plugin that enables path aliases
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
     tailwindcss(),
-    tanstackStart(),
+    tanstackStart({
+      prerender: {
+        enabled: false,
+      },
+    }),
     viteReact(),
   ],
   // Externalize Bun-specific modules from client bundle

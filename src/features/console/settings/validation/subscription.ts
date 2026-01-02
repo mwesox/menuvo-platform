@@ -17,25 +17,17 @@ export const subscriptionStatuses = [
 ] as const;
 export type SubscriptionStatus = (typeof subscriptionStatuses)[number];
 
+// Note: Server function input schemas are now defined inline in the server functions
+// since they use auth middleware to get merchantId from context.
+// These schemas are kept for reference and potential client-side validation.
+
 export const changePlanSchema = z.object({
-	merchantId: z.number(),
 	priceId: z.string().min(1, "Price ID is required"),
 	newPlan: z.enum(planTiers),
 });
 export type ChangePlanInput = z.infer<typeof changePlanSchema>;
 
 export const cancelSubscriptionSchema = z.object({
-	merchantId: z.number(),
 	immediately: z.boolean().default(false),
 });
 export type CancelSubscriptionInput = z.infer<typeof cancelSubscriptionSchema>;
-
-export const resumeSubscriptionSchema = z.object({
-	merchantId: z.number(),
-});
-export type ResumeSubscriptionInput = z.infer<typeof resumeSubscriptionSchema>;
-
-export const billingPortalSchema = z.object({
-	merchantId: z.number(),
-});
-export type BillingPortalInput = z.infer<typeof billingPortalSchema>;

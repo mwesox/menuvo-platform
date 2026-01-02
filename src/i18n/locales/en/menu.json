@@ -182,5 +182,66 @@
 	"common": {
 		"yes": "Yes",
 		"no": "No"
+	},
+	"import": {
+		"backToMenu": "Back to Menu",
+		"steps": {
+			"upload": "Upload",
+			"processing": "Processing",
+			"review": "Review"
+		},
+		"titles": {
+			"uploadFile": "Upload Menu File",
+			"processing": "Processing...",
+			"reviewChanges": "Review Changes"
+		},
+		"descriptions": {
+			"upload": "Upload a file containing your menu data. We support Excel, CSV, JSON, Markdown, and text files.",
+			"processing": "We're extracting and analyzing your menu data. This may take a minute.",
+			"review": "Review the extracted menu data and select which items to import."
+		},
+		"buttons": {
+			"cancel": "Cancel",
+			"close": "Close",
+			"browseFiles": "Browse Files",
+			"uploadProcess": "Upload & Process",
+			"applyChanges": "Apply {{count}} Changes"
+		},
+		"status": {
+			"uploading": "Uploading...",
+			"analyzing": "Analyzing your menu...",
+			"applying": "Applying...",
+			"pleaseWait": "Please wait while we extract and analyze your menu data."
+		},
+		"errors": {
+			"processingFailed": "Processing Failed",
+			"genericError": "An error occurred",
+			"fileTooLarge": "File is too large. Maximum size is 10MB.",
+			"invalidFileType": "Invalid file type. Allowed: {{types}}",
+			"uploadFailed": "Upload failed"
+		},
+		"dropzone": {
+			"dragAndDrop": "Drag and drop your file here, or click to browse",
+			"supportedFormats": "Supported: Excel (.xlsx), CSV, JSON, Markdown, Text"
+		},
+		"comparison": {
+			"selectedCount": "{{selected}} of {{total}} selected",
+			"newCount": "{{count}} new",
+			"updates": "updates",
+			"optionGroups": "Option Groups",
+			"choicesCount": "{{count}} choices",
+			"categories": "Categories",
+			"items": "Items",
+			"itemsCount": "{{count}} items",
+			"summary": "{{newCount}} new, {{updateCount}} updates"
+		},
+		"badges": {
+			"new": "New",
+			"update": "Update",
+			"skip": "Skip"
+		},
+		"changes": {
+			"fieldChanged": "{{fields}} changed"
+		}
 	}
 }

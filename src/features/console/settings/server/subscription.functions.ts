@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { merchants } from "@/db/schema.ts";
 import { env } from "@/env";
+import { withAuth } from "@/features/console/auth/server/auth-middleware";
 import { stripeLogger } from "@/lib/logger";
 import {
 	cancelSubscription,
@@ -13,22 +14,18 @@ import {
 	resumeSubscription,
 } from "@/lib/stripe/subscriptions";
 import type { PlanTier } from "../validation";
-import {
-	billingPortalSchema,
-	cancelSubscriptionSchema,
-	changePlanSchema,
-	resumeSubscriptionSchema,
-} from "../validation";
+import { planTiers } from "../validation";
 
 /**
  * Get subscription details for a merchant.
  * Fetches from database and enriches with Stripe data.
  */
 export const getSubscriptionDetails = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ merchantId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
 		const merchant = await db.query.merchants.findFirst({
-			where: eq(merchants.id, data.merchantId),
+			where: eq(merchants.id, merchantId),
 			columns: {
 				id: true,
 				subscriptionStatus: true,
@@ -74,15 +71,23 @@ export const getSubscriptionDetails = createServerFn({ method: "GET" })
 		};
 	});
 
+// Schema for changeSubscriptionPlan (no longer needs merchantId)
+const changePlanInputSchema = z.object({
+	priceId: z.string().min(1, "Price ID is required"),
+	newPlan: z.enum(planTiers),
+});
+
 /**
  * Change subscription plan (upgrade/downgrade).
  * Creates a Stripe Checkout session for the new plan.
  */
 export const changeSubscriptionPlan = createServerFn({ method: "POST" })
-	.inputValidator(changePlanSchema)
-	.handler(async ({ data }) => {
+	.inputValidator(changePlanInputSchema)
+	.middleware([withAuth])
+	.handler(async ({ context, data }) => {
+		const { merchantId } = context.auth;
 		const merchant = await db.query.merchants.findFirst({
-			where: eq(merchants.id, data.merchantId),
+			where: eq(merchants.id, merchantId),
 			columns: {
 				paymentAccountId: true,
 				subscriptionId: true,
@@ -107,7 +112,7 @@ export const changeSubscriptionPlan = createServerFn({ method: "POST" })
 			successUrl: `${serverUrl}/console/settings/merchant?tab=subscription&success=true`,
 			cancelUrl: `${serverUrl}/console/settings/merchant?tab=subscription&canceled=true`,
 			metadata: {
-				merchantId: String(data.merchantId),
+				merchantId: String(merchantId),
 				action: "plan_change",
 				newPlan: data.newPlan,
 			},
@@ -116,15 +121,22 @@ export const changeSubscriptionPlan = createServerFn({ method: "POST" })
 		return { checkoutUrl: session.url };
 	});
 
+// Schema for cancelMerchantSubscription (no longer needs merchantId)
+const cancelSubscriptionInputSchema = z.object({
+	immediately: z.boolean().default(false),
+});
+
 /**
  * Cancel merchant subscription.
  * By default cancels at period end, but can be immediate.
  */
 export const cancelMerchantSubscription = createServerFn({ method: "POST" })
-	.inputValidator(cancelSubscriptionSchema)
-	.handler(async ({ data }) => {
+	.inputValidator(cancelSubscriptionInputSchema)
+	.middleware([withAuth])
+	.handler(async ({ context, data }) => {
+		const { merchantId } = context.auth;
 		const merchant = await db.query.merchants.findFirst({
-			where: eq(merchants.id, data.merchantId),
+			where: eq(merchants.id, merchantId),
 			columns: { subscriptionId: true },
 		});
 
@@ -148,10 +160,11 @@ export const cancelMerchantSubscription = createServerFn({ method: "POST" })
  * Called after merchant adds a payment method.
  */
 export const resumeMerchantSubscription = createServerFn({ method: "POST" })
-	.inputValidator(resumeSubscriptionSchema)
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
 		const merchant = await db.query.merchants.findFirst({
-			where: eq(merchants.id, data.merchantId),
+			where: eq(merchants.id, merchantId),
 			columns: { subscriptionId: true },
 		});
 
@@ -169,10 +182,11 @@ export const resumeMerchantSubscription = createServerFn({ method: "POST" })
  * Allows merchant to manage payment methods, view invoices, etc.
  */
 export const createMerchantBillingPortal = createServerFn({ method: "POST" })
-	.inputValidator(billingPortalSchema)
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
 		const merchant = await db.query.merchants.findFirst({
-			where: eq(merchants.id, data.merchantId),
+			where: eq(merchants.id, merchantId),
 			columns: { paymentAccountId: true },
 		});
 

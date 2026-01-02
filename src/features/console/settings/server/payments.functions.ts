@@ -1,9 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import { merchants } from "@/db/schema";
 import { env } from "@/env";
+import { withAuth } from "@/features/console/auth/server/auth-middleware";
 import { paymentsLogger } from "@/lib/logger";
 import { getStripeClient } from "@/lib/stripe/client";
 import { createAccountLink, createStripeAccount } from "@/lib/stripe/connect";
@@ -14,16 +14,14 @@ import { createTrialSubscription } from "@/lib/stripe/subscriptions";
  * Returns all payment and subscription fields to determine current state.
  */
 export const getPaymentStatus = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ merchantId: z.number() }))
-	.handler(async ({ data }) => {
-		paymentsLogger.debug(
-			{ merchantId: data.merchantId },
-			"Getting payment status",
-		);
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
+		paymentsLogger.debug({ merchantId }, "Getting payment status");
 
 		try {
 			const merchant = await db.query.merchants.findFirst({
-				where: eq(merchants.id, data.merchantId),
+				where: eq(merchants.id, merchantId),
 				columns: {
 					id: true,
 					name: true,
@@ -40,16 +38,13 @@ export const getPaymentStatus = createServerFn({ method: "GET" })
 			});
 
 			if (!merchant) {
-				paymentsLogger.error(
-					{ merchantId: data.merchantId },
-					"Merchant not found",
-				);
+				paymentsLogger.error({ merchantId }, "Merchant not found");
 				throw new Error("Merchant not found");
 			}
 
 			paymentsLogger.info(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					hasPaymentAccount: !!merchant.paymentAccountId,
 					subscriptionStatus: merchant.subscriptionStatus,
 				},
@@ -60,7 +55,7 @@ export const getPaymentStatus = createServerFn({ method: "GET" })
 		} catch (error) {
 			paymentsLogger.error(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					error: error instanceof Error ? error.message : String(error),
 				},
 				"Failed to get payment status",
@@ -75,17 +70,15 @@ export const getPaymentStatus = createServerFn({ method: "GET" })
  * Idempotent - returns existing account if already set up.
  */
 export const setupPaymentAccount = createServerFn({ method: "POST" })
-	.inputValidator(z.object({ merchantId: z.number() }))
-	.handler(async ({ data }) => {
-		paymentsLogger.info(
-			{ merchantId: data.merchantId },
-			"Setting up payment account",
-		);
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
+		paymentsLogger.info({ merchantId }, "Setting up payment account");
 
 		try {
 			// Fetch merchant
 			const merchant = await db.query.merchants.findFirst({
-				where: eq(merchants.id, data.merchantId),
+				where: eq(merchants.id, merchantId),
 				columns: {
 					id: true,
 					name: true,
@@ -97,10 +90,7 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 			});
 
 			if (!merchant) {
-				paymentsLogger.error(
-					{ merchantId: data.merchantId },
-					"Merchant not found for setup",
-				);
+				paymentsLogger.error({ merchantId }, "Merchant not found for setup");
 				throw new Error("Merchant not found");
 			}
 
@@ -108,7 +98,7 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 			if (merchant.paymentAccountId && merchant.subscriptionId) {
 				paymentsLogger.info(
 					{
-						merchantId: data.merchantId,
+						merchantId,
 						accountId: merchant.paymentAccountId,
 						subscriptionId: merchant.subscriptionId,
 					},
@@ -128,7 +118,7 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 			let accountId = merchant.paymentAccountId;
 			if (!accountId) {
 				paymentsLogger.info(
-					{ merchantId: data.merchantId, email: merchant.email },
+					{ merchantId, email: merchant.email },
 					"Creating Stripe Connect account",
 				);
 
@@ -139,7 +129,7 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 				accountId = result.accountId;
 
 				paymentsLogger.info(
-					{ merchantId: data.merchantId, accountId },
+					{ merchantId, accountId },
 					"Stripe Connect account created",
 				);
 
@@ -159,14 +149,14 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 			const priceId = env.STRIPE_PRICE_STARTER;
 			if (!priceId) {
 				paymentsLogger.error(
-					{ merchantId: data.merchantId },
+					{ merchantId },
 					"STRIPE_PRICE_STARTER not configured",
 				);
 				throw new Error("STRIPE_PRICE_STARTER not configured");
 			}
 
 			paymentsLogger.info(
-				{ merchantId: data.merchantId, accountId, priceId },
+				{ merchantId, accountId, priceId },
 				"Creating trial subscription",
 			);
 
@@ -174,7 +164,7 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 
 			paymentsLogger.info(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					subscriptionId: subscription.id,
 					trialEnd: subscription.trial_end,
 				},
@@ -205,7 +195,7 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 
 			paymentsLogger.info(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					accountId,
 					subscriptionId: subscription.id,
 					trialEndsAt,
@@ -222,7 +212,7 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 		} catch (error) {
 			paymentsLogger.error(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					error: error instanceof Error ? error.message : String(error),
 				},
 				"Failed to set up payment account",
@@ -236,26 +226,21 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
  * Redirects merchant to Stripe to complete identity verification, bank details, etc.
  */
 export const createPaymentOnboardingLink = createServerFn({ method: "POST" })
-	.inputValidator(z.object({ merchantId: z.number() }))
-	.handler(async ({ data }) => {
-		paymentsLogger.info(
-			{ merchantId: data.merchantId },
-			"Creating onboarding link",
-		);
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
+		paymentsLogger.info({ merchantId }, "Creating onboarding link");
 
 		try {
 			const merchant = await db.query.merchants.findFirst({
-				where: eq(merchants.id, data.merchantId),
+				where: eq(merchants.id, merchantId),
 				columns: {
 					paymentAccountId: true,
 				},
 			});
 
 			if (!merchant?.paymentAccountId) {
-				paymentsLogger.error(
-					{ merchantId: data.merchantId },
-					"Merchant has no payment account",
-				);
+				paymentsLogger.error({ merchantId }, "Merchant has no payment account");
 				throw new Error("Merchant has no payment account");
 			}
 
@@ -264,7 +249,7 @@ export const createPaymentOnboardingLink = createServerFn({ method: "POST" })
 
 			paymentsLogger.debug(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					accountId: merchant.paymentAccountId,
 					serverUrl,
 				},
@@ -279,7 +264,7 @@ export const createPaymentOnboardingLink = createServerFn({ method: "POST" })
 
 			paymentsLogger.info(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					accountId: merchant.paymentAccountId,
 					expiresAt: new Date(accountLink.expiresAt).toISOString(),
 				},
@@ -293,7 +278,7 @@ export const createPaymentOnboardingLink = createServerFn({ method: "POST" })
 		} catch (error) {
 			paymentsLogger.error(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					error: error instanceof Error ? error.message : String(error),
 					stripeError:
 						error && typeof error === "object" && "type" in error
@@ -315,16 +300,14 @@ export const createPaymentOnboardingLink = createServerFn({ method: "POST" })
  * Syncs the latest account status from Stripe API.
  */
 export const refreshPaymentStatus = createServerFn({ method: "POST" })
-	.inputValidator(z.object({ merchantId: z.number() }))
-	.handler(async ({ data }) => {
-		paymentsLogger.info(
-			{ merchantId: data.merchantId },
-			"Refreshing payment status",
-		);
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
+		paymentsLogger.info({ merchantId }, "Refreshing payment status");
 
 		try {
 			const merchant = await db.query.merchants.findFirst({
-				where: eq(merchants.id, data.merchantId),
+				where: eq(merchants.id, merchantId),
 				columns: {
 					id: true,
 					paymentAccountId: true,
@@ -333,7 +316,7 @@ export const refreshPaymentStatus = createServerFn({ method: "POST" })
 
 			if (!merchant?.paymentAccountId) {
 				paymentsLogger.error(
-					{ merchantId: data.merchantId },
+					{ merchantId },
 					"Merchant has no payment account for refresh",
 				);
 				throw new Error("Merchant has no payment account");
@@ -343,7 +326,7 @@ export const refreshPaymentStatus = createServerFn({ method: "POST" })
 
 			paymentsLogger.debug(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					accountId: merchant.paymentAccountId,
 				},
 				"Fetching account from Stripe",
@@ -377,7 +360,7 @@ export const refreshPaymentStatus = createServerFn({ method: "POST" })
 
 			paymentsLogger.debug(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					accountId: merchant.paymentAccountId,
 					requirements: accountData.requirements,
 					cardPaymentsStatus:
@@ -438,7 +421,7 @@ export const refreshPaymentStatus = createServerFn({ method: "POST" })
 
 			paymentsLogger.info(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					onboardingComplete,
 					requirementsStatus,
 					capabilitiesStatus,
@@ -454,7 +437,7 @@ export const refreshPaymentStatus = createServerFn({ method: "POST" })
 		} catch (error) {
 			paymentsLogger.error(
 				{
-					merchantId: data.merchantId,
+					merchantId,
 					error: error instanceof Error ? error.message : String(error),
 					stripeError:
 						error && typeof error === "object" && "type" in error

@@ -1,33 +1,5 @@
-import { z } from "zod";
-
-// Input schemas for server functions
-export const paymentStatusSchema = z.object({
-	merchantId: z.number(),
-});
-
-export const setupPaymentAccountSchema = z.object({
-	merchantId: z.number(),
-});
-
-export const createOnboardingLinkSchema = z.object({
-	merchantId: z.number(),
-});
-
-export const refreshPaymentStatusSchema = z.object({
-	merchantId: z.number(),
-});
-
-// Types
-export type PaymentStatusInput = z.infer<typeof paymentStatusSchema>;
-export type SetupPaymentAccountInput = z.infer<
-	typeof setupPaymentAccountSchema
->;
-export type CreateOnboardingLinkInput = z.infer<
-	typeof createOnboardingLinkSchema
->;
-export type RefreshPaymentStatusInput = z.infer<
-	typeof refreshPaymentStatusSchema
->;
+// Note: Payment server functions now use auth middleware to get merchantId from context.
+// Input schemas are no longer needed since these functions don't accept additional input.
 
 // Payment setup states for UI
 export const paymentSetupStates = [

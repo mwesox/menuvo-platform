@@ -1,11 +1,10 @@
+import slugify from "@sindresorhus/slugify";
+
 /**
  * Generate a URL-safe slug from a store name.
- * Converts to lowercase, replaces non-alphanumeric chars with hyphens,
- * and trims leading/trailing hyphens.
+ * Uses @sindresorhus/slugify for proper Unicode transliteration
+ * (handles umlauts, accents, non-Latin scripts, etc.)
  */
 export function generateSlug(name: string): string {
-	return name
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/^-|-$/g, "");
+	return slugify(name);
 }

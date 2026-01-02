@@ -1,10 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { MapPin, Search, Store } from "lucide-react";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { shopQueries } from "../../queries";
-import { useShop } from "../../shared";
 import { useStoreDiscovery } from "../hooks/use-store-discovery";
 import { DiscoveryEmptyState } from "./discovery-empty-state";
 import { StoreCard } from "./store-card";
@@ -14,7 +12,6 @@ import { StoreSearch } from "./store-search";
 export function DiscoveryPage() {
 	const { t } = useTranslation("discovery");
 	const { data: stores } = useSuspenseQuery(shopQueries.stores());
-	const { setStoreName } = useShop();
 
 	const {
 		cities,
@@ -26,11 +23,6 @@ export function DiscoveryPage() {
 		clearFilters,
 		hasActiveFilters,
 	} = useStoreDiscovery({ stores });
-
-	// Clear store name when on discovery page
-	useEffect(() => {
-		setStoreName(null);
-	}, [setStoreName]);
 
 	return (
 		<div className="min-h-screen">

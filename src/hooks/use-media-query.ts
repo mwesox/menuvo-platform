@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 /**
  * Hook to track media query matches.
  * Uses matchMedia API for efficient, native breakpoint detection.
+ * Properly handles SSR by using useSyncExternalStore.
  *
  * @param query - CSS media query string (e.g., "(max-width: 1023px)")
  * @returns boolean indicating if the query matches
@@ -12,29 +13,18 @@ import { useEffect, useState } from "react";
  * const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
  */
 export function useMediaQuery(query: string): boolean {
-	const [matches, setMatches] = useState(false);
-
-	useEffect(() => {
+	const subscribe = (callback: () => void) => {
 		const mediaQuery = window.matchMedia(query);
+		mediaQuery.addEventListener("change", callback);
+		return () => mediaQuery.removeEventListener("change", callback);
+	};
 
-		// Set initial value
-		setMatches(mediaQuery.matches);
+	const getSnapshot = () => window.matchMedia(query).matches;
 
-		// Create event listener
-		const handler = (event: MediaQueryListEvent) => {
-			setMatches(event.matches);
-		};
+	// During SSR, default to false (desktop-first approach)
+	const getServerSnapshot = () => false;
 
-		// Add listener
-		mediaQuery.addEventListener("change", handler);
-
-		// Cleanup
-		return () => {
-			mediaQuery.removeEventListener("change", handler);
-		};
-	}, [query]);
-
-	return matches;
+	return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
 /**

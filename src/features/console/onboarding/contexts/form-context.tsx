@@ -1,21 +1,20 @@
 import { useForm } from "@tanstack/react-form";
 import { createContext, useContext } from "react";
 import { useOnboardMerchant } from "../queries.ts";
-import { onboardingFormSchema } from "../validation.ts";
 
 const defaultValues = {
 	merchant: {
 		name: "",
+		ownerName: "",
 		email: "",
 		phone: "",
-		initialLanguage: "de" as "en" | "de" | "fr" | "es" | "it",
 	},
 	store: {
 		name: "",
 		street: "",
 		city: "",
 		postalCode: "",
-		country: "",
+		country: "Deutschland",
 	},
 };
 
@@ -24,9 +23,7 @@ function useCreateOnboardingForm() {
 
 	return useForm({
 		defaultValues,
-		validators: {
-			onSubmit: onboardingFormSchema,
-		},
+		// Field-level validators are defined on each <form.Field> with onBlur
 		onSubmit: async ({ value }) => {
 			await onboardMutation.mutateAsync(value);
 		},

@@ -6,28 +6,24 @@ import type { Item, Store } from "@/db/schema";
 import { ItemForm } from "@/features/console/menu/components/item-form";
 import { DisplayLanguageProvider } from "@/features/console/menu/contexts/display-language-context";
 import { useEntityDisplayName } from "@/features/console/menu/hooks";
+import { itemOptionQueries } from "@/features/console/menu/options.queries";
 import { itemQueries } from "@/features/console/menu/queries";
-import { getItemOptions } from "@/features/console/menu/server/options.functions";
-import { merchantQueries } from "@/features/console/settings/queries";
 import { storeQueries } from "@/features/console/stores/queries";
-
-const MERCHANT_ID = 1;
 
 export const Route = createFileRoute("/console/menu/items/$itemId")({
 	loader: async ({ context, params }) => {
 		const itemId = Number.parseInt(params.itemId, 10);
-		const [item, itemOptions, merchant] = await Promise.all([
+		const [item, itemOptions] = await Promise.all([
 			context.queryClient.ensureQueryData(itemQueries.detail(itemId)),
-			getItemOptions({ data: { itemId } }),
-			context.queryClient.ensureQueryData(merchantQueries.detail(MERCHANT_ID)),
+			context.queryClient.ensureQueryData(itemOptionQueries.byItem(itemId)),
 		]);
-		// Prefetch store data for merchantId
+		// Prefetch store data
 		await context.queryClient.ensureQueryData(
 			storeQueries.detail(item.storeId),
 		);
 		return {
 			initialOptionGroupIds: itemOptions.map((og) => og.id),
-			displayLanguage: merchant.supportedLanguages?.[0] ?? "de",
+			displayLanguage: context.displayLanguage,
 		};
 	},
 	component: EditItemPage,

@@ -3,11 +3,7 @@ import { z } from "zod";
 import { MenuPage } from "@/features/console/menu/components/menu-page";
 import { optionGroupQueries } from "@/features/console/menu/options.queries";
 import { categoryQueries, itemQueries } from "@/features/console/menu/queries";
-import { merchantQueries } from "@/features/console/settings/queries";
 import { storeQueries } from "@/features/console/stores/queries";
-
-// For now, hardcode merchantId=1 (in production, get from auth context)
-const MERCHANT_ID = 1;
 
 const tabSchema = z.enum(["categories", "items", "options", "translations"]);
 
@@ -21,11 +17,9 @@ export const Route = createFileRoute("/console/menu/")({
 	validateSearch: searchSchema,
 	loaderDeps: ({ search }) => ({ storeId: search.storeId, tab: search.tab }),
 	loader: async ({ context, deps }) => {
-		// Load stores and merchant in parallel
-		const [stores, merchant] = await Promise.all([
-			context.queryClient.ensureQueryData(storeQueries.list()),
-			context.queryClient.ensureQueryData(merchantQueries.detail(MERCHANT_ID)),
-		]);
+		// Stores already loaded by parent /console route
+		const stores =
+			context.queryClient.getQueryData(storeQueries.list().queryKey) ?? [];
 
 		// Auto-select if single store, otherwise use URL param
 		const effectiveStoreId =
@@ -45,14 +39,11 @@ export const Route = createFileRoute("/console/menu/")({
 			]);
 		}
 
-		// Get display language from merchant's supported languages (first = primary)
-		const displayLanguage = merchant.supportedLanguages?.[0] ?? "de";
-
 		return {
 			stores,
 			autoSelectedStoreId: stores.length === 1 ? stores[0].id : undefined,
-			merchantId: MERCHANT_ID,
-			displayLanguage,
+			// displayLanguage comes from parent route context
+			displayLanguage: context.displayLanguage,
 		};
 	},
 	component: RouteComponent,

@@ -1,15 +1,28 @@
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 import { db } from "@/db";
 import { merchants } from "@/db/schema.ts";
+import { withAuth } from "@/features/console/auth/server/auth-middleware";
 import { merchantGeneralSchema, merchantLanguageSchema } from "../validation";
 
+// Get first merchant (temporary until auth is implemented)
+// Note: This is used by useMerchant hook - keep as-is
+export const getFirstMerchant = createServerFn({ method: "GET" }).handler(
+	async () => {
+		const merchant = await db.query.merchants.findFirst();
+		if (!merchant) {
+			throw new Error("No merchant found");
+		}
+		return merchant;
+	},
+);
+
 export const getMerchant = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ merchantId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
 		const merchant = await db.query.merchants.findFirst({
-			where: eq(merchants.id, data.merchantId),
+			where: eq(merchants.id, merchantId),
 		});
 		if (!merchant) {
 			throw new Error("Merchant not found");
@@ -18,13 +31,14 @@ export const getMerchant = createServerFn({ method: "GET" })
 	});
 
 export const updateMerchantGeneral = createServerFn({ method: "POST" })
-	.inputValidator(merchantGeneralSchema.extend({ merchantId: z.number() }))
-	.handler(async ({ data }) => {
-		const { merchantId, ...updates } = data;
+	.inputValidator(merchantGeneralSchema)
+	.middleware([withAuth])
+	.handler(async ({ context, data }) => {
+		const { merchantId } = context.auth;
 
 		const [updatedMerchant] = await db
 			.update(merchants)
-			.set(updates)
+			.set(data)
 			.where(eq(merchants.id, merchantId))
 			.returning();
 
@@ -36,9 +50,11 @@ export const updateMerchantGeneral = createServerFn({ method: "POST" })
 	});
 
 export const updateMerchantLanguages = createServerFn({ method: "POST" })
-	.inputValidator(merchantLanguageSchema.extend({ merchantId: z.number() }))
-	.handler(async ({ data }) => {
-		const { merchantId, supportedLanguages } = data;
+	.inputValidator(merchantLanguageSchema)
+	.middleware([withAuth])
+	.handler(async ({ context, data }) => {
+		const { merchantId } = context.auth;
+		const { supportedLanguages } = data;
 
 		const [updatedMerchant] = await db
 			.update(merchants)

@@ -6,9 +6,9 @@ import type { WizardState } from "../hooks/use-onboarding-wizard.ts";
 // Field names for each step
 const MERCHANT_STEP_FIELDS = [
 	"merchant.name",
+	"merchant.ownerName",
 	"merchant.email",
 	"merchant.phone",
-	"merchant.primaryLanguage",
 ] as const;
 
 const STORE_STEP_FIELDS = [
@@ -16,7 +16,6 @@ const STORE_STEP_FIELDS = [
 	"store.street",
 	"store.city",
 	"store.postalCode",
-	"store.country",
 ] as const;
 
 type FieldName =
@@ -35,32 +34,35 @@ export function WizardNavigation({
 	const { t } = useTranslation("onboarding");
 	const form = useOnboardingForm();
 
-	async function handleNext() {
+	// Validate fields with onBlur validators (used for both steps)
+	async function validateCurrentStep(): Promise<boolean> {
 		const fieldsToValidate: readonly FieldName[] =
 			wizard.currentStep === 1 ? MERCHANT_STEP_FIELDS : STORE_STEP_FIELDS;
 
-		// Touch all fields in the current step to show validation errors
-		for (const fieldName of fieldsToValidate) {
-			form.setFieldMeta(fieldName, (prev) => ({
-				...prev,
-				isTouched: true,
-			}));
-		}
-
-		// Validate all fields in the current step
+		// Trigger onBlur validation for all fields in current step
 		const validationResults = await Promise.all(
 			fieldsToValidate.map((fieldName) =>
-				form.validateField(fieldName, "change"),
+				form.validateField(fieldName, "blur"),
 			),
 		);
 
-		// Check if all fields are valid
-		const allValid = validationResults.every(
+		// Check if all fields are valid (no errors returned)
+		return validationResults.every(
 			(result) => result === undefined || result.length === 0,
 		);
+	}
 
+	async function handleNext() {
+		const allValid = await validateCurrentStep();
 		if (allValid) {
 			wizard.goToNext();
+		}
+	}
+
+	async function handleSubmit() {
+		const allValid = await validateCurrentStep();
+		if (allValid) {
+			await form.handleSubmit();
 		}
 	}
 
@@ -76,7 +78,12 @@ export function WizardNavigation({
 
 			<div>
 				{wizard.isLastStep ? (
-					<Button type="submit" size="lg" disabled={isSubmitting}>
+					<Button
+						type="button"
+						size="lg"
+						disabled={isSubmitting}
+						onClick={handleSubmit}
+					>
 						{isSubmitting
 							? t("actions.creatingAccount")
 							: t("actions.createAccount")}

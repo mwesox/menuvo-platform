@@ -1,4 +1,5 @@
 import { Circle, Layers, ListChecks, UtensilsCrossed } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { EntityType, TranslationStatus } from "../validation";
 import { TranslationStatusBadge } from "./translation-status-badge";
@@ -21,13 +22,6 @@ const entityIcons = {
 	optionChoice: Circle,
 };
 
-const entityLabels = {
-	category: "Category",
-	item: "Item",
-	optionGroup: "Option Group",
-	optionChoice: "Option",
-};
-
 // Status color mapping for left border indicator
 const statusColors = {
 	complete: "border-l-green-500",
@@ -45,6 +39,7 @@ export function TranslationListItem({
 	isSelected,
 	onSelect,
 }: TranslationListItemProps) {
+	const { t } = useTranslation("common");
 	const Icon = entityIcons[entityType];
 
 	return (
@@ -72,7 +67,7 @@ export function TranslationListItem({
 				<div className="flex-1 min-w-0 overflow-hidden">
 					<span className="font-medium text-sm truncate block">{name}</span>
 					<span className="text-[11px] text-muted-foreground">
-						{entityLabels[entityType]}
+						{t(`entityTypes.${entityType}`)}
 					</span>
 				</div>
 

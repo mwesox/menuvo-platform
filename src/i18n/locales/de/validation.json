@@ -1,0 +1,37 @@
+{
+	"businessName": {
+		"min": "Der Geschäftsname muss mindestens 4 Zeichen lang sein",
+		"max": "Der Geschäftsname darf maximal 100 Zeichen lang sein"
+	},
+	"ownerName": {
+		"min": "Der Name muss mindestens 2 Zeichen lang sein",
+		"max": "Der Name darf maximal 100 Zeichen lang sein"
+	},
+	"email": {
+		"invalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein"
+	},
+	"phone": {
+		"required": "Telefonnummer ist erforderlich",
+		"invalid": "Bitte geben Sie eine gültige Telefonnummer ein (z.B. +49 123 456789)"
+	},
+	"storeName": {
+		"min": "Der Filialname muss mindestens 2 Zeichen lang sein",
+		"max": "Der Filialname darf maximal 100 Zeichen lang sein"
+	},
+	"street": {
+		"required": "Straße muss mindestens 3 Zeichen lang sein",
+		"max": "Die Straßenadresse ist zu lang"
+	},
+	"city": {
+		"required": "Stadt ist erforderlich",
+		"max": "Der Stadtname ist zu lang",
+		"invalid": "Bitte geben Sie einen gültigen Stadtnamen ein"
+	},
+	"postalCode": {
+		"invalid": "Bitte geben Sie eine gültige 5-stellige Postleitzahl ein"
+	},
+	"country": {
+		"required": "Land ist erforderlich",
+		"max": "Der Ländername ist zu lang"
+	}
+}

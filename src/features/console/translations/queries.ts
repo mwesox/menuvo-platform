@@ -5,12 +5,12 @@ import {
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { updateMerchantLanguages } from "@/features/console/settings/server/merchants.functions";
 import {
 	getMissingTranslationsReport,
 	getTranslationStatus,
 	updateCategoryTranslations,
 	updateItemTranslations,
-	updateMerchantLanguages,
 	updateOptionChoiceTranslations,
 	updateOptionGroupTranslations,
 } from "./server/translations.functions.ts";
@@ -22,42 +22,30 @@ import type {
 	UpdateOptionGroupTranslationsInput,
 } from "./validation.ts";
 
-// Query keys
+// Query keys - merchantId obtained from auth context on server
 export const translationKeys = {
-	status: (storeId: number, merchantId: number) =>
-		["translations", "status", storeId, merchantId] as const,
-	missingReport: (
-		storeId: number,
-		merchantId: number,
-		languageCode?: LanguageCode,
-	) => ["translations", "missing", storeId, merchantId, languageCode] as const,
+	status: (storeId: number) => ["translations", "status", storeId] as const,
+	missingReport: (storeId: number, languageCode?: LanguageCode) =>
+		["translations", "missing", storeId, languageCode] as const,
 };
 
-// Query options factories
+// Query options factories - merchantId obtained from auth context on server
 export const translationQueries = {
-	status: (storeId: number, merchantId: number) =>
+	status: (storeId: number) =>
 		queryOptions({
-			queryKey: translationKeys.status(storeId, merchantId),
-			queryFn: () => getTranslationStatus({ data: { storeId, merchantId } }),
-			enabled: !!storeId && !!merchantId,
+			queryKey: translationKeys.status(storeId),
+			queryFn: () => getTranslationStatus({ data: { storeId } }),
+			enabled: !!storeId,
 		}),
 
-	missingReport: (
-		storeId: number,
-		merchantId: number,
-		languageCode?: LanguageCode,
-	) =>
+	missingReport: (storeId: number, languageCode?: LanguageCode) =>
 		queryOptions({
-			queryKey: translationKeys.missingReport(
-				storeId,
-				merchantId,
-				languageCode,
-			),
+			queryKey: translationKeys.missingReport(storeId, languageCode),
 			queryFn: () =>
 				getMissingTranslationsReport({
-					data: { storeId, merchantId, languageCode },
+					data: { storeId, languageCode },
 				}),
-			enabled: !!storeId && !!merchantId,
+			enabled: !!storeId,
 		}),
 };
 
@@ -66,8 +54,9 @@ export const translationQueries = {
 /**
  * Update merchant's supported languages.
  * All languages are equal - first in array is used as fallback.
+ * merchantId is obtained from auth context on server.
  */
-export function useUpdateMerchantLanguages(merchantId: number) {
+export function useUpdateMerchantLanguages() {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -78,11 +67,12 @@ export function useUpdateMerchantLanguages(merchantId: number) {
 			supportedLanguages: LanguageCode[];
 		}) =>
 			updateMerchantLanguages({
-				data: { merchantId, supportedLanguages },
+				data: { supportedLanguages },
 			}),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["merchants"] });
 			queryClient.invalidateQueries({ queryKey: ["translations"] });
+			queryClient.invalidateQueries({ queryKey: ["current-merchant"] });
 			toast.success(t("success.languagesUpdated", "Languages updated"));
 		},
 		onError: () => {
@@ -93,11 +83,9 @@ export function useUpdateMerchantLanguages(merchantId: number) {
 
 /**
  * Update translations for a category.
+ * Only storeId needed for cache invalidation.
  */
-export function useUpdateCategoryTranslations(
-	storeId: number,
-	merchantId: number,
-) {
+export function useUpdateCategoryTranslations(storeId: number) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -106,7 +94,7 @@ export function useUpdateCategoryTranslations(
 			updateCategoryTranslations({ data: input }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: translationKeys.status(storeId, merchantId),
+				queryKey: translationKeys.status(storeId),
 			});
 			queryClient.invalidateQueries({
 				queryKey: ["categories"],
@@ -121,8 +109,9 @@ export function useUpdateCategoryTranslations(
 
 /**
  * Update translations for an item.
+ * Only storeId needed for cache invalidation.
  */
-export function useUpdateItemTranslations(storeId: number, merchantId: number) {
+export function useUpdateItemTranslations(storeId: number) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -131,7 +120,7 @@ export function useUpdateItemTranslations(storeId: number, merchantId: number) {
 			updateItemTranslations({ data: input }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: translationKeys.status(storeId, merchantId),
+				queryKey: translationKeys.status(storeId),
 			});
 			queryClient.invalidateQueries({
 				queryKey: ["items"],
@@ -146,11 +135,9 @@ export function useUpdateItemTranslations(storeId: number, merchantId: number) {
 
 /**
  * Update translations for an option group.
+ * Only storeId needed for cache invalidation.
  */
-export function useUpdateOptionGroupTranslations(
-	storeId: number,
-	merchantId: number,
-) {
+export function useUpdateOptionGroupTranslations(storeId: number) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -159,7 +146,7 @@ export function useUpdateOptionGroupTranslations(
 			updateOptionGroupTranslations({ data: input }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: translationKeys.status(storeId, merchantId),
+				queryKey: translationKeys.status(storeId),
 			});
 			queryClient.invalidateQueries({
 				queryKey: ["optionGroups"],
@@ -174,11 +161,9 @@ export function useUpdateOptionGroupTranslations(
 
 /**
  * Update translations for an option choice.
+ * Only storeId needed for cache invalidation.
  */
-export function useUpdateOptionChoiceTranslations(
-	storeId: number,
-	merchantId: number,
-) {
+export function useUpdateOptionChoiceTranslations(storeId: number) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -187,7 +172,7 @@ export function useUpdateOptionChoiceTranslations(
 			updateOptionChoiceTranslations({ data: input }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: translationKeys.status(storeId, merchantId),
+				queryKey: translationKeys.status(storeId),
 			});
 			toast.success(t("success.translationUpdated", "Translation updated"));
 		},

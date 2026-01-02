@@ -40,7 +40,7 @@ process.env.S3_FILES_BUCKET =
  * In tests, we want to call handlers directly.
  */
 vi.mock("@tanstack/react-start", () => ({
-	createServerFn: ({ method }: { method: string }) => {
+	createServerFn: ({ method: _method }: { method: string }) => {
 		let validator: ((data: unknown) => unknown) | null = null;
 		let handlerFn: ((ctx: { data: unknown }) => Promise<unknown>) | null = null;
 
@@ -56,7 +56,7 @@ vi.mock("@tanstack/react-start", () => ({
 				return async (input?: { data?: unknown }) => {
 					const data = input?.data;
 					const validated = validator ? validator(data) : data;
-					return handlerFn!({ data: validated });
+					return handlerFn?.({ data: validated });
 				};
 			},
 		};

@@ -1,5 +1,6 @@
 // Components
 export { DiscoveryEmptyState } from "./components/discovery-empty-state";
+export { DiscoveryHeader } from "./components/discovery-header";
 export {
 	DiscoveryPage,
 	DiscoveryPageError,

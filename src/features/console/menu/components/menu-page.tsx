@@ -63,7 +63,6 @@ interface MenuPageProps {
 	loaderData: {
 		stores: Array<{ id: number; name: string }>;
 		autoSelectedStoreId: number | undefined;
-		merchantId: number;
 		displayLanguage: string;
 	};
 }
@@ -71,8 +70,7 @@ interface MenuPageProps {
 export function MenuPage({ search, loaderData }: MenuPageProps) {
 	const { t } = useTranslation("menu");
 	const { storeId, tab = "categories", selected } = search;
-	const { stores, autoSelectedStoreId, merchantId, displayLanguage } =
-		loaderData;
+	const { stores, autoSelectedStoreId, displayLanguage } = loaderData;
 
 	const selectedStoreId = storeId ?? autoSelectedStoreId;
 
@@ -119,7 +117,6 @@ export function MenuPage({ search, loaderData }: MenuPageProps) {
 				storeId={selectedStoreId}
 				tab={tab}
 				selected={selected}
-				merchantId={merchantId}
 			/>
 		</DisplayLanguageProvider>
 	);
@@ -130,15 +127,9 @@ interface MenuPageContentProps {
 	storeId: number;
 	tab: TabValue;
 	selected?: number;
-	merchantId: number;
 }
 
-function MenuPageContent({
-	storeId,
-	tab,
-	selected,
-	merchantId,
-}: MenuPageContentProps) {
+function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 	const { t } = useTranslation("menu");
 	const navigate = useNavigate();
 	const language = useDisplayLanguage();
@@ -472,7 +463,7 @@ function MenuPageContent({
 			{/* Translations tab has its own layout */}
 			{tab === "translations" ? (
 				<div className="flex-1 mt-4 min-h-0">
-					<TranslationsTab storeId={storeId} merchantId={merchantId} />
+					<TranslationsTab storeId={storeId} />
 				</div>
 			) : (
 				<>

@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Plus, QrCode } from "lucide-react";
+import { Layers, Plus, QrCode } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -14,12 +14,22 @@ import {
 } from "@/components/ui/alert-dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { Card, CardContent } from "@/components/ui/card.tsx";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu.tsx";
 import type { ServicePoint, Store } from "@/db/schema.ts";
 import {
 	servicePointQueries,
 	useDeleteServicePoint,
 	useToggleServicePointActive,
+	useToggleZoneActive,
 } from "../queries.ts";
+import { BatchCreateDialog } from "./batch-create-dialog.tsx";
 import { QRCodeDialog } from "./qr-code-dialog.tsx";
 import { ServicePointCard } from "./service-point-card.tsx";
 import { ServicePointDialog } from "./service-point-dialog.tsx";
@@ -33,12 +43,15 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 	const { data: servicePoints } = useSuspenseQuery(
 		servicePointQueries.list(store.id),
 	);
+	const { data: zones } = useSuspenseQuery(servicePointQueries.zones(store.id));
 
 	const toggleMutation = useToggleServicePointActive(store.id);
+	const toggleZoneMutation = useToggleZoneActive(store.id);
 	const deleteMutation = useDeleteServicePoint(store.id);
 
 	// Dialog states
 	const [createDialogOpen, setCreateDialogOpen] = useState(false);
+	const [batchCreateDialogOpen, setBatchCreateDialogOpen] = useState(false);
 	const [editingServicePoint, setEditingServicePoint] =
 		useState<ServicePoint | null>(null);
 	const [qrServicePoint, setQrServicePoint] = useState<ServicePoint | null>(
@@ -69,6 +82,10 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 		}
 	};
 
+	const handleToggleZone = (zone: string, isActive: boolean) => {
+		toggleZoneMutation.mutate({ zone, isActive });
+	};
+
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
@@ -78,10 +95,52 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 						{t("descriptions.manageServicePoints")}
 					</p>
 				</div>
-				<Button onClick={() => setCreateDialogOpen(true)}>
-					<Plus className="mr-2 h-4 w-4" />
-					{t("buttons.addServicePoint")}
-				</Button>
+				<div className="flex items-center gap-2">
+					{zones.length > 0 && (
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant="outline">
+									<Layers className="mr-2 h-4 w-4" />
+									{t("buttons.zones")}
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuLabel>{t("zone.activateZone")}</DropdownMenuLabel>
+								{zones.map((zone) => (
+									<DropdownMenuItem
+										key={`activate-${zone}`}
+										onClick={() => handleToggleZone(zone, true)}
+									>
+										{zone}
+									</DropdownMenuItem>
+								))}
+								<DropdownMenuSeparator />
+								<DropdownMenuLabel>
+									{t("zone.deactivateZone")}
+								</DropdownMenuLabel>
+								{zones.map((zone) => (
+									<DropdownMenuItem
+										key={`deactivate-${zone}`}
+										onClick={() => handleToggleZone(zone, false)}
+									>
+										{zone}
+									</DropdownMenuItem>
+								))}
+							</DropdownMenuContent>
+						</DropdownMenu>
+					)}
+					<Button
+						variant="outline"
+						onClick={() => setBatchCreateDialogOpen(true)}
+					>
+						<Plus className="mr-2 h-4 w-4" />
+						{t("buttons.batchCreate")}
+					</Button>
+					<Button onClick={() => setCreateDialogOpen(true)}>
+						<Plus className="mr-2 h-4 w-4" />
+						{t("buttons.addServicePoint")}
+					</Button>
+				</div>
 			</div>
 
 			{servicePoints.length === 0 ? (
@@ -121,6 +180,13 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 			<ServicePointDialog
 				open={createDialogOpen}
 				onOpenChange={setCreateDialogOpen}
+				storeId={store.id}
+			/>
+
+			{/* Batch Create Dialog */}
+			<BatchCreateDialog
+				open={batchCreateDialogOpen}
+				onOpenChange={setBatchCreateDialogOpen}
 				storeId={store.id}
 			/>
 

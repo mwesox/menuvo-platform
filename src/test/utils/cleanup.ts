@@ -4,7 +4,7 @@
  */
 
 import { and, inArray, like, lt } from "drizzle-orm";
-import { merchants, orders, stores } from "@/db/schema";
+import { merchants, orders } from "@/db/schema";
 import { testDb } from "../db";
 
 /**

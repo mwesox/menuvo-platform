@@ -4,14 +4,34 @@
 		"createStore": "Filiale erstellen",
 		"editStore": "Filiale bearbeiten",
 		"storeDetails": "Filialdetails",
-		"contactSettings": "Kontakt & Einstellungen"
+		"contactSettings": "Kontakt & Einstellungen",
+		"storeImages": "Filialbilder"
 	},
 	"descriptions": {
 		"manageStores": "Verwalten Sie Ihre Filialstandorte",
 		"addNewStore": "Fügen Sie einen neuen Filialstandort hinzu",
 		"editingStore": "{{storeName}} bearbeiten",
 		"storeDetails": "Grundlegende Informationen über Ihren Filialstandort.",
-		"contactSettings": "Kontaktinformationen und regionale Einstellungen."
+		"contactSettings": "Kontaktinformationen und regionale Einstellungen.",
+		"storeImages": "Laden Sie Bilder für Ihre Filiale hoch, die im Shop angezeigt werden.",
+		"storeStatus": "Wenn inaktiv, ist diese Filiale für Kunden nicht sichtbar.",
+		"deleteStore": "Diese Filiale und alle zugehörigen Daten dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden."
+	},
+	"sections": {
+		"settings": "Einstellungen",
+		"dangerZone": "Gefahrenzone"
+	},
+	"fields": {
+		"storeLogo": "Filial-Logo",
+		"storeBanner": "Filial-Banner"
+	},
+	"hints": {
+		"storeLogoHint": "Wird auf Shop-Karten und in Suchergebnissen angezeigt.",
+		"storeBannerHint": "Breites Banner, das auf Ihrer Filialseite angezeigt wird."
+	},
+	"errors": {
+		"updateLogoFailed": "Filial-Logo konnte nicht aktualisiert werden",
+		"updateBannerFailed": "Filial-Banner konnte nicht aktualisiert werden"
 	},
 	"labels": {
 		"storeName": "Filialname",

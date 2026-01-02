@@ -31,7 +31,7 @@ const plans: { id: PlanTier; icon: typeof Zap }[] = [
 const planOrder: PlanTier[] = ["starter", "professional", "max"];
 
 export function SubscriptionPlanSelector({
-	merchantId,
+	merchantId: _merchantId, // Kept for interface compatibility, server gets from auth
 	currentPlan,
 	subscriptionStatus,
 }: SubscriptionPlanSelectorProps) {
@@ -58,7 +58,6 @@ export function SubscriptionPlanSelector({
 			});
 
 			changePlanMutation.mutate({
-				merchantId,
 				priceId,
 				newPlan: selectedPlan,
 			});

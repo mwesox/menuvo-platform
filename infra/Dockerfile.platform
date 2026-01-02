@@ -1,0 +1,61 @@
+# Menuvo Platform Dockerfile
+# TanStack Start application with Bun runtime
+# Single image for both platform (web server) and worker (background jobs)
+#
+# Usage:
+#   Platform: CMD ["bun", ".output/server/index.mjs"]  (default)
+#   Worker:   CMD ["bun", "--bun", "run", "worker"]    (override in docker-compose)
+
+FROM oven/bun:1-alpine AS builder
+WORKDIR /app
+
+# Copy package files
+COPY package.json bun.lock ./
+
+# Install dependencies
+RUN bun install --frozen-lockfile
+
+# Copy source code
+COPY . .
+
+# Build TanStack Start app with Bun preset
+RUN bun --bun run build
+
+# Remove source maps to reduce size
+RUN find .output -name "*.map" -delete 2>/dev/null || true
+
+# Production image
+FROM oven/bun:1-alpine
+
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup -S menuvo && adduser -S menuvo -G menuvo
+
+# Copy built output for platform server
+COPY --from=builder --chown=menuvo:menuvo /app/.output .output
+
+# Copy drizzle migrations
+COPY --from=builder --chown=menuvo:menuvo /app/drizzle drizzle
+
+# Copy source and dependencies for worker (runs TypeScript directly with Bun)
+COPY --from=builder --chown=menuvo:menuvo /app/node_modules node_modules
+COPY --from=builder --chown=menuvo:menuvo /app/src src
+COPY --from=builder --chown=menuvo:menuvo /app/package.json .
+COPY --from=builder --chown=menuvo:menuvo /app/tsconfig.json .
+
+USER menuvo:menuvo
+
+# Environment
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Health check (only applies to platform, worker has no HTTP endpoint)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD wget -q --spider http://localhost:3000/ || exit 1
+
+EXPOSE 3000
+
+# Default: run platform server with Bun
+# Override with docker-compose command for worker
+CMD ["bun", ".output/server/index.mjs"]

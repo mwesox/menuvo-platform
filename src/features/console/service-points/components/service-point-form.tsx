@@ -44,9 +44,9 @@ export function ServicePointForm({
 	const createMutation = useCreateServicePoint(storeId);
 	const updateMutation = useUpdateServicePoint(storeId);
 
-	// Get existing types for suggestions
-	const { data: existingTypes } = useSuspenseQuery(
-		servicePointQueries.types(storeId),
+	// Get existing zones for suggestions
+	const { data: existingZones } = useSuspenseQuery(
+		servicePointQueries.zones(storeId),
 	);
 
 	const [autoGenerateCode, setAutoGenerateCode] = useState(!isEditing);
@@ -55,7 +55,7 @@ export function ServicePointForm({
 		defaultValues: {
 			name: servicePoint?.name ?? "",
 			code: servicePoint?.code ?? "",
-			type: servicePoint?.type ?? "",
+			zone: servicePoint?.zone ?? "",
 			description: servicePoint?.description ?? "",
 			attributes: (servicePoint?.attributes ?? {}) as Record<
 				string,
@@ -68,7 +68,7 @@ export function ServicePointForm({
 					await updateMutation.mutateAsync({
 						id: servicePoint.id,
 						...value,
-						type: value.type || undefined,
+						zone: value.zone || undefined,
 						description: value.description || undefined,
 						attributes:
 							Object.keys(value.attributes).length > 0
@@ -78,7 +78,7 @@ export function ServicePointForm({
 				} else {
 					await createMutation.mutateAsync({
 						...value,
-						type: value.type || undefined,
+						zone: value.zone || undefined,
 						description: value.description || undefined,
 						attributes:
 							Object.keys(value.attributes).length > 0
@@ -171,32 +171,32 @@ export function ServicePointForm({
 					}}
 				</form.Field>
 
-				<form.Field name="type">
+				<form.Field name="zone">
 					{(field) => {
 						const isInvalid =
 							field.state.meta.isTouched && !field.state.meta.isValid;
 						return (
 							<Field data-invalid={isInvalid}>
-								<FieldLabel htmlFor={field.name}>{t("labels.type")}</FieldLabel>
+								<FieldLabel htmlFor={field.name}>{t("labels.zone")}</FieldLabel>
 								<Input
 									id={field.name}
 									name={field.name}
-									placeholder={t("placeholders.type")}
+									placeholder={t("placeholders.zone")}
 									value={field.state.value}
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
-									list="type-suggestions"
+									list="zone-suggestions"
 									aria-invalid={isInvalid}
 								/>
-								{existingTypes && existingTypes.length > 0 && (
-									<datalist id="type-suggestions">
-										{existingTypes.map((type) => (
-											<option key={type} value={type} />
+								{existingZones && existingZones.length > 0 && (
+									<datalist id="zone-suggestions">
+										{existingZones.map((zone) => (
+											<option key={zone} value={zone} />
 										))}
 									</datalist>
 								)}
 								<p className="text-xs text-muted-foreground">
-									{t("hints.type")}
+									{t("hints.zone")}
 								</p>
 								{isInvalid && <FieldError errors={field.state.meta.errors} />}
 							</Field>

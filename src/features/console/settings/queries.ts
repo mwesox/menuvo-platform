@@ -6,9 +6,9 @@ import {
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
+	getFirstMerchant,
 	getMerchant,
 	updateMerchantGeneral,
-	updateMerchantLanguages,
 } from "./server/merchants.functions.ts";
 import {
 	createPaymentOnboardingLink,
@@ -23,12 +23,7 @@ import {
 	getSubscriptionDetails,
 	resumeMerchantSubscription,
 } from "./server/subscription.functions.ts";
-import type {
-	CancelSubscriptionInput,
-	ChangePlanInput,
-	MerchantGeneralInput,
-	MerchantLanguageInput,
-} from "./validation";
+import type { ChangePlanInput, MerchantGeneralInput } from "./validation";
 
 // Query keys
 export const merchantKeys = {
@@ -42,26 +37,35 @@ export const merchantKeys = {
 
 // Query options factories
 export const merchantQueries = {
+	// Get first merchant (temporary until auth is implemented)
+	first: () =>
+		queryOptions({
+			queryKey: [...merchantKeys.all, "first"] as const,
+			queryFn: () => getFirstMerchant(),
+		}),
+	// merchantId is obtained from auth context on server
 	detail: (merchantId: number) =>
 		queryOptions({
 			queryKey: merchantKeys.detail(merchantId),
-			queryFn: () => getMerchant({ data: { merchantId } }),
+			queryFn: () => getMerchant(),
 		}),
 };
 
+// merchantId is obtained from auth context on server
 export const subscriptionQueries = {
 	detail: (merchantId: number) =>
 		queryOptions({
 			queryKey: merchantKeys.subscription(merchantId),
-			queryFn: () => getSubscriptionDetails({ data: { merchantId } }),
+			queryFn: () => getSubscriptionDetails(),
 		}),
 };
 
+// merchantId is obtained from auth context on server
 export const paymentQueries = {
 	status: (merchantId: number) =>
 		queryOptions({
 			queryKey: merchantKeys.payment(merchantId),
-			queryFn: () => getPaymentStatus({ data: { merchantId } }),
+			queryFn: () => getPaymentStatus(),
 		}),
 };
 
@@ -71,11 +75,12 @@ export function useUpdateMerchantGeneral() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
+		// merchantId is for cache invalidation, server gets it from auth context
 		mutationFn: (input: MerchantGeneralInput & { merchantId: number }) =>
 			updateMerchantGeneral({ data: input }),
-		onSuccess: (updatedMerchant) => {
+		onSuccess: (updatedMerchant, variables) => {
 			queryClient.setQueryData(
-				merchantKeys.detail(updatedMerchant.id),
+				merchantKeys.detail(variables.merchantId),
 				updatedMerchant,
 			);
 			toast.success(t("success.settingsSaved"));
@@ -86,27 +91,8 @@ export function useUpdateMerchantGeneral() {
 	});
 }
 
-export function useUpdateMerchantLanguages() {
-	const queryClient = useQueryClient();
-	const { t } = useTranslation("toasts");
-
-	return useMutation({
-		mutationFn: (input: MerchantLanguageInput & { merchantId: number }) =>
-			updateMerchantLanguages({ data: input }),
-		onSuccess: (updatedMerchant) => {
-			queryClient.setQueryData(
-				merchantKeys.detail(updatedMerchant.id),
-				updatedMerchant,
-			);
-			toast.success(t("success.languageUpdated"));
-		},
-		onError: () => {
-			toast.error(t("error.updateLanguage"));
-		},
-	});
-}
-
 // Subscription mutation hooks
+// Note: useUpdateMerchantLanguages is exported from translations/queries.ts
 export function useChangeSubscriptionPlan() {
 	const { t } = useTranslation("toasts");
 
@@ -130,8 +116,11 @@ export function useCancelSubscription() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (input: CancelSubscriptionInput) =>
-			cancelMerchantSubscription({ data: input }),
+		// merchantId is for cache invalidation, server gets it from auth context
+		mutationFn: (input: { merchantId: number; immediately?: boolean }) =>
+			cancelMerchantSubscription({
+				data: { immediately: input.immediately ?? false },
+			}),
 		onSuccess: (_, variables) => {
 			queryClient.invalidateQueries({
 				queryKey: merchantKeys.subscription(variables.merchantId),
@@ -152,8 +141,9 @@ export function useResumeSubscription() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (input: { merchantId: number }) =>
-			resumeMerchantSubscription({ data: input }),
+		// merchantId is for cache invalidation, server gets it from auth context
+		mutationFn: (_input: { merchantId: number }) =>
+			resumeMerchantSubscription(),
 		onSuccess: (_, variables) => {
 			queryClient.invalidateQueries({
 				queryKey: merchantKeys.subscription(variables.merchantId),
@@ -173,8 +163,9 @@ export function useOpenBillingPortal() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (input: { merchantId: number }) =>
-			createMerchantBillingPortal({ data: input }),
+		// merchantId is for consistency, server gets it from auth context
+		mutationFn: (_input: { merchantId: number }) =>
+			createMerchantBillingPortal(),
 		onSuccess: (data) => {
 			if (data.url) {
 				window.location.href = data.url;
@@ -192,8 +183,8 @@ export function useSetupPaymentAccount() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (input: { merchantId: number }) =>
-			setupPaymentAccount({ data: input }),
+		// merchantId is for cache invalidation, server gets it from auth context
+		mutationFn: (_input: { merchantId: number }) => setupPaymentAccount(),
 		onSuccess: (_, variables) => {
 			queryClient.invalidateQueries({
 				queryKey: merchantKeys.payment(variables.merchantId),
@@ -213,8 +204,9 @@ export function useCreateOnboardingLink() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (input: { merchantId: number }) =>
-			createPaymentOnboardingLink({ data: input }),
+		// merchantId is for consistency, server gets it from auth context
+		mutationFn: (_input: { merchantId: number }) =>
+			createPaymentOnboardingLink(),
 		onSuccess: (data) => {
 			if (data.url) {
 				window.location.href = data.url;
@@ -231,8 +223,8 @@ export function useRefreshPaymentStatus() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (input: { merchantId: number }) =>
-			refreshPaymentStatus({ data: input }),
+		// merchantId is for cache invalidation, server gets it from auth context
+		mutationFn: (_input: { merchantId: number }) => refreshPaymentStatus(),
 		onSuccess: (_, variables) => {
 			queryClient.invalidateQueries({
 				queryKey: merchantKeys.payment(variables.merchantId),

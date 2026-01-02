@@ -1,7 +1,14 @@
 import { createFileRoute, notFound, Outlet } from "@tanstack/react-router";
 import { z } from "zod";
+import { CartDrawer } from "@/features/shop/cart";
+import { ShopFooter, ShopHeader } from "@/features/shop/layout";
 import { shopQueries } from "@/features/shop/queries";
-import { StoreError, StoreNotFound } from "@/features/shop/shared";
+import {
+	ShopProvider,
+	StoreError,
+	StoreNotFound,
+	useShop,
+} from "@/features/shop/shared";
 
 const searchSchema = z.object({
 	sp: z.string().optional(),
@@ -24,5 +31,27 @@ export const Route = createFileRoute("/shop/$slug")({
 });
 
 function StoreSlugLayout() {
-	return <Outlet />;
+	return (
+		<ShopProvider>
+			<StoreLayoutContent />
+		</ShopProvider>
+	);
+}
+
+function StoreLayoutContent() {
+	const { isCartDrawerOpen, closeCartDrawer } = useShop();
+
+	return (
+		<>
+			<ShopHeader />
+			<main className="flex-1">
+				<Outlet />
+			</main>
+			<ShopFooter />
+			<CartDrawer
+				open={isCartDrawerOpen}
+				onOpenChange={(open) => !open && closeCartDrawer()}
+			/>
+		</>
+	);
 }

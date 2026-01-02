@@ -1,10 +1,12 @@
 import { CropIcon, ImageIcon, Trash2Icon, UploadIcon } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button.tsx";
 import type { ImageType } from "@/db/schema.ts";
 import { cn } from "@/lib/utils.ts";
 import { deleteImage } from "../server/images.functions.ts";
+import { getAspectRatioClassForImageType } from "../utils/crop-presets.ts";
 import { resizeCroppedImage } from "../utils/resize-image.ts";
 import { uploadImageBinary } from "../utils/upload-image.ts";
 import { ImageCropper } from "./image-cropper.tsx";
@@ -14,8 +16,6 @@ interface ImageUploadFieldProps {
 	onChange: (url: string | undefined) => void;
 	merchantId: number;
 	imageType: ImageType;
-	/** @deprecated Aspect ratio is now determined by imageType presets */
-	aspectRatio?: number;
 	className?: string;
 	disabled?: boolean;
 }
@@ -28,6 +28,7 @@ export function ImageUploadField({
 	className,
 	disabled = false,
 }: ImageUploadFieldProps) {
+	const { t } = useTranslation("common");
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [cropperOpen, setCropperOpen] = useState(false);
@@ -41,7 +42,7 @@ export function ImageUploadField({
 
 			// Validate file type
 			if (!file.type.startsWith("image/")) {
-				toast.error("Please select an image file");
+				toast.error(t("toasts.pleaseSelectImage"));
 				return;
 			}
 
@@ -53,7 +54,7 @@ export function ImageUploadField({
 			// Reset input so same file can be selected again
 			e.target.value = "";
 		},
-		[],
+		[t],
 	);
 
 	const handleCropComplete = useCallback(
@@ -75,9 +76,9 @@ export function ImageUploadField({
 				const imageUrl = result.displayUrl || result.originalUrl;
 				onChange(imageUrl);
 				setCurrentImageId(result.id);
-				toast.success("Image uploaded successfully");
+				toast.success(t("toasts.imageUploaded"));
 			} catch {
-				toast.error("Failed to upload image");
+				toast.error(t("toasts.imageUploadFailed"));
 			} finally {
 				setIsUploading(false);
 				if (previewSrc) {
@@ -86,7 +87,7 @@ export function ImageUploadField({
 				}
 			}
 		},
-		[merchantId, imageType, onChange, previewSrc],
+		[merchantId, imageType, onChange, previewSrc, t],
 	);
 
 	const handleRemove = useCallback(async () => {
@@ -105,11 +106,13 @@ export function ImageUploadField({
 			});
 			onChange(undefined);
 			setCurrentImageId(null);
-			toast.success("Image removed");
+			toast.success(t("toasts.imageRemoved"));
 		} catch {
-			toast.error("Failed to remove image");
+			toast.error(t("toasts.imageRemoveFailed"));
 		}
-	}, [currentImageId, merchantId, onChange]);
+	}, [currentImageId, merchantId, onChange, t]);
+
+	const aspectClass = getAspectRatioClassForImageType(imageType);
 
 	return (
 		<div className={cn("space-y-2", className)}>
@@ -126,8 +129,11 @@ export function ImageUploadField({
 				<div className="group relative max-w-xs">
 					<img
 						src={value}
-						alt="Preview"
-						className="w-full max-w-xs aspect-[4/3] rounded-lg border object-cover"
+						alt={t("images.preview")}
+						className={cn(
+							"w-full max-w-xs rounded-lg border object-cover",
+							aspectClass,
+						)}
 					/>
 					<div className="absolute inset-0 flex items-center justify-center gap-2 rounded-lg bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
 						<Button
@@ -156,19 +162,20 @@ export function ImageUploadField({
 					onClick={() => inputRef.current?.click()}
 					disabled={disabled || isUploading}
 					className={cn(
-						"flex w-full max-w-xs aspect-[4/3] flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed text-muted-foreground transition-colors hover:border-primary hover:text-primary",
+						"flex w-full max-w-xs flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed text-muted-foreground transition-colors hover:border-primary hover:text-primary",
+						aspectClass,
 						(disabled || isUploading) && "cursor-not-allowed opacity-50",
 					)}
 				>
 					{isUploading ? (
 						<>
 							<UploadIcon className="h-8 w-8 animate-pulse" />
-							<span className="text-sm">Uploading...</span>
+							<span className="text-sm">{t("images.uploading")}</span>
 						</>
 					) : (
 						<>
 							<ImageIcon className="h-8 w-8" />
-							<span className="text-sm">Click to upload image</span>
+							<span className="text-sm">{t("images.clickToUpload")}</span>
 						</>
 					)}
 				</button>

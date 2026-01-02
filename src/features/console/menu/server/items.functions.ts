@@ -1,16 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { items } from "@/db/schema.ts";
 import { createItemSchema, updateItemSchema } from "../validation.ts";
+
+// Sort by name extracted from translations JSONB (German as primary)
+const itemNameSort = asc(sql`${items.translations}->'de'->>'name'`);
 
 export const getItems = createServerFn({ method: "GET" })
 	.inputValidator(z.object({ categoryId: z.number() }))
 	.handler(async ({ data }) => {
 		const allItems = await db.query.items.findMany({
 			where: eq(items.categoryId, data.categoryId),
-			orderBy: [asc(items.displayOrder)],
+			orderBy: [asc(items.displayOrder), itemNameSort],
 		});
 		return allItems;
 	});
@@ -20,7 +23,7 @@ export const getItemsByStore = createServerFn({ method: "GET" })
 	.handler(async ({ data }) => {
 		const allItems = await db.query.items.findMany({
 			where: eq(items.storeId, data.storeId),
-			orderBy: [asc(items.displayOrder)],
+			orderBy: [asc(items.displayOrder), itemNameSort],
 		});
 		return allItems;
 	});

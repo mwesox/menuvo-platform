@@ -8,15 +8,23 @@ export const onboardMerchant = createServerFn({ method: "POST" })
 	.inputValidator(onboardingSchema)
 	.handler(async ({ data }) => {
 		const result = await db.transaction(async (tx) => {
-			// Create merchant
+			// Calculate trial end date (30 days from now)
+			const trialEndsAt = new Date();
+			trialEndsAt.setDate(trialEndsAt.getDate() + 30);
+
+			// Create merchant with trial subscription
 			const [newMerchant] = await tx
 				.insert(merchants)
 				.values({
 					name: data.merchant.name,
+					ownerName: data.merchant.ownerName,
 					email: data.merchant.email,
 					phone: data.merchant.phone,
-					// All languages are equal - start with one language
-					supportedLanguages: [data.merchant.initialLanguage],
+					// Default to German - can add more languages in settings later
+					supportedLanguages: ["de"],
+					// Start with 30-day trial
+					subscriptionStatus: "trialing",
+					subscriptionTrialEndsAt: trialEndsAt,
 				})
 				.returning();
 

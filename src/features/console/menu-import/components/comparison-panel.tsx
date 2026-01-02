@@ -6,6 +6,7 @@ import {
 	RefreshCw,
 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -25,24 +26,29 @@ interface ComparisonPanelProps {
 	onClearSelection: () => void;
 }
 
-function ActionBadge({ action }: { action: DiffAction }) {
+interface ActionBadgeProps {
+	action: DiffAction;
+	t: (key: string) => string;
+}
+
+function ActionBadge({ action, t }: ActionBadgeProps) {
 	switch (action) {
 		case "create":
 			return (
 				<Badge variant="default" className="gap-1">
-					<Plus className="h-3 w-3" /> New
+					<Plus className="h-3 w-3" /> {t("import.badges.new")}
 				</Badge>
 			);
 		case "update":
 			return (
 				<Badge variant="secondary" className="gap-1">
-					<RefreshCw className="h-3 w-3" /> Update
+					<RefreshCw className="h-3 w-3" /> {t("import.badges.update")}
 				</Badge>
 			);
 		case "skip":
 			return (
 				<Badge variant="outline" className="gap-1">
-					<Minus className="h-3 w-3" /> Skip
+					<Minus className="h-3 w-3" /> {t("import.badges.skip")}
 				</Badge>
 			);
 	}
@@ -59,6 +65,7 @@ export function ComparisonPanel({
 	onSelectAll,
 	onClearSelection,
 }: ComparisonPanelProps) {
+	const { t } = useTranslation("menu");
 	const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
 		new Set(comparison.categories.map((c) => c.extracted.name)),
 	);
@@ -78,6 +85,11 @@ export function ComparisonPanel({
 		comparison.categories.reduce((sum, c) => sum + c.items.length, 0) +
 		comparison.optionGroups.length;
 
+	const totalNew =
+		comparison.summary.newCategories + comparison.summary.newItems;
+	const totalUpdates =
+		comparison.summary.updatedCategories + comparison.summary.updatedItems;
+
 	return (
 		<div className="space-y-4">
 			{/* Toolbar */}
@@ -91,18 +103,17 @@ export function ComparisonPanel({
 						}}
 					/>
 					<span className="text-sm">
-						{selectedItems.size} of {totalSelectable} selected
+						{t("import.comparison.selectedCount", {
+							selected: selectedItems.size,
+							total: totalSelectable,
+						})}
 					</span>
 				</div>
 				<div className="flex gap-2 text-xs text-muted-foreground">
-					<span>
-						{comparison.summary.newCategories + comparison.summary.newItems} new
-					</span>
+					<span>{t("import.comparison.newCount", { count: totalNew })}</span>
 					<span>•</span>
 					<span>
-						{comparison.summary.updatedCategories +
-							comparison.summary.updatedItems}{" "}
-						updates
+						{totalUpdates} {t("import.comparison.updates")}
 					</span>
 				</div>
 			</div>
@@ -118,12 +129,15 @@ export function ComparisonPanel({
 							onToggleExpand={() => toggleExpanded(category.extracted.name)}
 							selectedItems={selectedItems}
 							onToggleSelection={onToggleSelection}
+							t={t}
 						/>
 					))}
 
 					{comparison.optionGroups.length > 0 && (
 						<div className="mt-6">
-							<h3 className="text-sm font-medium mb-3">Option Groups</h3>
+							<h3 className="text-sm font-medium mb-3">
+								{t("import.comparison.optionGroups")}
+							</h3>
 							<div className="space-y-2">
 								{comparison.optionGroups.map((og) => (
 									<div
@@ -143,10 +157,14 @@ export function ComparisonPanel({
 												{og.extracted.name}
 											</span>
 											<span className="text-xs text-muted-foreground ml-2">
-												({og.extracted.choices.length} choices)
+												(
+												{t("import.comparison.choicesCount", {
+													count: og.extracted.choices.length,
+												})}
+												)
 											</span>
 										</div>
-										<ActionBadge action={og.action} />
+										<ActionBadge action={og.action} t={t} />
 									</div>
 								))}
 							</div>
@@ -159,24 +177,36 @@ export function ComparisonPanel({
 			<div className="border-t pt-4">
 				<div className="grid grid-cols-3 gap-4 text-sm">
 					<div>
-						<p className="text-muted-foreground">Categories</p>
+						<p className="text-muted-foreground">
+							{t("import.comparison.categories")}
+						</p>
 						<p className="font-medium">
-							{comparison.summary.newCategories} new,{" "}
-							{comparison.summary.updatedCategories} updates
+							{t("import.comparison.summary", {
+								newCount: comparison.summary.newCategories,
+								updateCount: comparison.summary.updatedCategories,
+							})}
 						</p>
 					</div>
 					<div>
-						<p className="text-muted-foreground">Items</p>
+						<p className="text-muted-foreground">
+							{t("import.comparison.items")}
+						</p>
 						<p className="font-medium">
-							{comparison.summary.newItems} new,{" "}
-							{comparison.summary.updatedItems} updates
+							{t("import.comparison.summary", {
+								newCount: comparison.summary.newItems,
+								updateCount: comparison.summary.updatedItems,
+							})}
 						</p>
 					</div>
 					<div>
-						<p className="text-muted-foreground">Option Groups</p>
+						<p className="text-muted-foreground">
+							{t("import.comparison.optionGroups")}
+						</p>
 						<p className="font-medium">
-							{comparison.summary.newOptionGroups} new,{" "}
-							{comparison.summary.updatedOptionGroups} updates
+							{t("import.comparison.summary", {
+								newCount: comparison.summary.newOptionGroups,
+								updateCount: comparison.summary.updatedOptionGroups,
+							})}
 						</p>
 					</div>
 				</div>
@@ -191,6 +221,7 @@ interface CategoryCardProps {
 	onToggleExpand: () => void;
 	selectedItems: Set<string>;
 	onToggleSelection: (key: string) => void;
+	t: (key: string, options?: Record<string, unknown>) => string;
 }
 
 function CategoryCard({
@@ -199,6 +230,7 @@ function CategoryCard({
 	onToggleExpand,
 	selectedItems,
 	onToggleSelection,
+	t,
 }: CategoryCardProps) {
 	const categoryKey = `category:${category.extracted.name}`;
 	const isCategorySelected = selectedItems.has(categoryKey);
@@ -231,9 +263,9 @@ function CategoryCard({
 					)}
 				</div>
 				<span className="text-xs text-muted-foreground">
-					{category.items.length} items
+					{t("import.comparison.itemsCount", { count: category.items.length })}
 				</span>
-				<ActionBadge action={category.action} />
+				<ActionBadge action={category.action} t={t} />
 			</div>
 
 			{isExpanded && category.items.length > 0 && (
@@ -244,6 +276,7 @@ function CategoryCard({
 							item={item}
 							isSelected={selectedItems.has(`item:${item.extracted.name}`)}
 							onToggle={() => onToggleSelection(`item:${item.extracted.name}`)}
+							t={t}
 						/>
 					))}
 				</div>
@@ -256,9 +289,10 @@ interface ItemRowProps {
 	item: ItemComparison;
 	isSelected: boolean;
 	onToggle: () => void;
+	t: (key: string, options?: Record<string, unknown>) => string;
 }
 
-function ItemRow({ item, isSelected, onToggle }: ItemRowProps) {
+function ItemRow({ item, isSelected, onToggle, t }: ItemRowProps) {
 	return (
 		<div className="flex items-center gap-3 py-1 pl-8">
 			<Checkbox checked={isSelected} onCheckedChange={onToggle} />
@@ -266,14 +300,18 @@ function ItemRow({ item, isSelected, onToggle }: ItemRowProps) {
 				<span className="text-sm">{item.extracted.name}</span>
 				{item.changes && item.changes.length > 0 && (
 					<span className="text-xs text-muted-foreground ml-2">
-						({item.changes.map((c) => c.field).join(", ")} changed)
+						(
+						{t("import.changes.fieldChanged", {
+							fields: item.changes.map((c) => c.field).join(", "),
+						})}
+						)
 					</span>
 				)}
 			</div>
 			<span className="text-sm font-medium">
 				{formatPrice(item.extracted.price)}
 			</span>
-			<ActionBadge action={item.action} />
+			<ActionBadge action={item.action} t={t} />
 		</div>
 	);
 }

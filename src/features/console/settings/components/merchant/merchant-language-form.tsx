@@ -37,7 +37,8 @@ export function MerchantLanguageForm({
 	const { data: merchant } = useSuspenseQuery(
 		merchantQueries.detail(merchantId),
 	);
-	const updateMutation = useUpdateMerchantLanguages(merchantId);
+	// merchantId is obtained from auth context on server
+	const updateMutation = useUpdateMerchantLanguages();
 
 	// Get supported languages (default to ['de'] if empty)
 	const supportedLanguages = (merchant.supportedLanguages ?? [

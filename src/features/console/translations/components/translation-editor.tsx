@@ -24,7 +24,6 @@ interface TranslationEditorProps {
 	primaryLanguage: string;
 	targetLanguages: string[];
 	storeId: number;
-	merchantId: number;
 	onClose: () => void;
 }
 
@@ -51,27 +50,17 @@ export function TranslationEditor({
 	primaryLanguage,
 	targetLanguages,
 	storeId,
-	merchantId,
 	onClose,
 }: TranslationEditorProps) {
 	const { t } = useTranslation("common");
 	const { t: tForms } = useTranslation("forms");
 	const Icon = entityIcons[entityType];
 
-	// Mutation hooks
-	const updateCategoryMutation = useUpdateCategoryTranslations(
-		storeId,
-		merchantId,
-	);
-	const updateItemMutation = useUpdateItemTranslations(storeId, merchantId);
-	const updateOptionGroupMutation = useUpdateOptionGroupTranslations(
-		storeId,
-		merchantId,
-	);
-	const updateOptionChoiceMutation = useUpdateOptionChoiceTranslations(
-		storeId,
-		merchantId,
-	);
+	// Mutation hooks (only storeId needed for cache invalidation)
+	const updateCategoryMutation = useUpdateCategoryTranslations(storeId);
+	const updateItemMutation = useUpdateItemTranslations(storeId);
+	const updateOptionGroupMutation = useUpdateOptionGroupTranslations(storeId);
+	const updateOptionChoiceMutation = useUpdateOptionChoiceTranslations(storeId);
 
 	// Determine if entity has description field
 	const hasDescription = entityType !== "optionChoice";
