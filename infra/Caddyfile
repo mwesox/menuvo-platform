@@ -77,7 +77,7 @@ menuvo.app, www.menuvo.app {
 
 	# All other requests - prepend /shop and proxy
 	handle {
-		uri prefix /shop
+		rewrite * /shop{uri}
 		reverse_proxy menuvo-platform:3000 {
 			health_interval 30s
 			health_timeout 10s
@@ -145,7 +145,7 @@ console.menuvo.app {
 
 	# All other requests - prepend /console and proxy
 	handle {
-		uri prefix /console
+		rewrite * /console{uri}
 		reverse_proxy menuvo-platform:3000 {
 			transport http {
 				dial_timeout 10s
