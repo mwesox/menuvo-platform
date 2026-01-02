@@ -112,6 +112,27 @@ export type SaveOptionGroupWithChoicesInput = z.infer<
 // CLIENT-SIDE OPTION GROUP FORM SCHEMA
 // ============================================================================
 
+const integerString = (minValue: number, message: string) =>
+	z
+		.string()
+		.refine(
+			(value) => /^\d+$/.test(value) && Number.parseInt(value, 10) >= minValue,
+			message,
+		);
+
+const optionalIntegerString = (minValue: number, message: string) =>
+	z
+		.string()
+		.refine(
+			(value) =>
+				value === "" ||
+				(/^\d+$/.test(value) && Number.parseInt(value, 10) >= minValue),
+			message,
+		);
+
+const signedIntegerString = (message: string) =>
+	z.string().refine((value) => /^-?\d+$/.test(value), message);
+
 // Form schema for a specific language
 export const optionGroupFormSchema = z.object({
 	name: z
@@ -120,20 +141,26 @@ export const optionGroupFormSchema = z.object({
 		.max(100, "Option group name must be less than 100 characters"),
 	description: z.string(),
 	type: optionGroupTypeSchema,
-	minSelections: z.number().int().min(0),
-	maxSelections: z.number().int().min(1).nullable(),
+	minSelections: integerString(0, "Min selections must be 0 or more"),
+	maxSelections: optionalIntegerString(1, "Max selections must be 1 or more"),
 	isUnlimited: z.boolean(),
-	numFreeOptions: z.number().int().min(0),
-	aggregateMinQuantity: z.number().int().min(0).nullable(),
-	aggregateMaxQuantity: z.number().int().min(1).nullable(),
+	numFreeOptions: integerString(0, "Free options must be 0 or more"),
+	aggregateMinQuantity: optionalIntegerString(
+		0,
+		"Aggregate min must be 0 or more",
+	),
+	aggregateMaxQuantity: optionalIntegerString(
+		1,
+		"Aggregate max must be 1 or more",
+	),
 	choices: z.array(
 		z.object({
 			id: z.number().optional(),
 			name: z.string().min(1, "Choice name is required"),
-			priceModifier: z.number().int(), // in cents
+			priceModifier: signedIntegerString("Price must be an integer"), // in cents
 			isDefault: z.boolean(),
-			minQuantity: z.number().int().min(0),
-			maxQuantity: z.number().int().min(1).nullable(),
+			minQuantity: integerString(0, "Min quantity must be 0 or more"),
+			maxQuantity: optionalIntegerString(1, "Max quantity must be 1 or more"),
 		}),
 	),
 });
@@ -148,6 +175,10 @@ export function optionGroupFormToServer(
 	existingGroupTranslations?: EntityTranslations,
 	existingChoices?: Array<{ id: number; translations: ChoiceTranslations }>,
 ): SaveOptionGroupWithChoicesInput {
+	const parseIntValue = (value: string) => Number.parseInt(value, 10);
+	const parseOptionalInt = (value: string) =>
+		value === "" ? null : Number.parseInt(value, 10);
+
 	return {
 		storeId: 0, // Must be set by caller
 		translations: {
@@ -158,11 +189,13 @@ export function optionGroupFormToServer(
 			},
 		},
 		type: formData.type,
-		minSelections: formData.minSelections,
-		maxSelections: formData.isUnlimited ? null : formData.maxSelections,
-		numFreeOptions: formData.numFreeOptions,
-		aggregateMinQuantity: formData.aggregateMinQuantity,
-		aggregateMaxQuantity: formData.aggregateMaxQuantity,
+		minSelections: parseIntValue(formData.minSelections),
+		maxSelections: formData.isUnlimited
+			? null
+			: parseOptionalInt(formData.maxSelections),
+		numFreeOptions: parseIntValue(formData.numFreeOptions),
+		aggregateMinQuantity: parseOptionalInt(formData.aggregateMinQuantity),
+		aggregateMaxQuantity: parseOptionalInt(formData.aggregateMaxQuantity),
 		choices: formData.choices.map((choice) => {
 			const existingChoice = existingChoices?.find((c) => c.id === choice.id);
 			return {
@@ -171,10 +204,10 @@ export function optionGroupFormToServer(
 					...(existingChoice?.translations ?? {}),
 					[language]: { name: choice.name },
 				},
-				priceModifier: choice.priceModifier,
+				priceModifier: parseIntValue(choice.priceModifier),
 				isDefault: choice.isDefault,
-				minQuantity: choice.minQuantity,
-				maxQuantity: choice.maxQuantity,
+				minQuantity: parseIntValue(choice.minQuantity),
+				maxQuantity: parseOptionalInt(choice.maxQuantity),
 			};
 		}),
 	};

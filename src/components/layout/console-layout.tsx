@@ -1,17 +1,37 @@
-import { Outlet } from "@tanstack/react-router";
-import { Suspense } from "react";
-import { useStoreSelection } from "@/features/console/stores/contexts/store-selection-context";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Outlet, useNavigate, useSearch } from "@tanstack/react-router";
+import { Suspense, useCallback } from "react";
+import { storeQueries } from "@/features/console/stores/queries";
 import { ConsoleHeader } from "./console-header";
 import { Footer } from "./footer";
 import { MobileSidebar, Sidebar } from "./sidebar";
 
 function ConsoleHeaderWrapper() {
-	const storeContext = useStoreSelection();
+	const navigate = useNavigate();
+	const search = useSearch({ strict: false }) as { storeId?: number };
+	const { data: stores } = useSuspenseQuery(storeQueries.list());
+
+	// Auto-select first store if only one exists
+	const effectiveStoreId =
+		search.storeId ?? (stores.length === 1 ? stores[0].id : undefined);
+
+	const selectStore = useCallback(
+		(storeId: number) => {
+			// Navigate to menu page with the selected store
+			// This is the primary use case for store selection
+			navigate({
+				to: "/console/menu",
+				search: { storeId },
+			});
+		},
+		[navigate],
+	);
 
 	return (
 		<ConsoleHeader
-			storeId={storeContext.selectedStoreId}
-			onStoreChange={storeContext.selectStore}
+			stores={stores}
+			storeId={effectiveStoreId}
+			onStoreChange={selectStore}
 		/>
 	);
 }

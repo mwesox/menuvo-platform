@@ -87,41 +87,47 @@ export function OptionGroupDialog({
 			name: "",
 			description: "",
 			type: "multi_select" as OptionGroupType,
-			minSelections: 0,
-			maxSelections: null as number | null,
+			minSelections: "0",
+			maxSelections: "",
 			isUnlimited: true,
-			numFreeOptions: 0,
-			aggregateMinQuantity: null as number | null,
-			aggregateMaxQuantity: null as number | null,
+			numFreeOptions: "0",
+			aggregateMinQuantity: "",
+			aggregateMaxQuantity: "",
 			choices: [] as Array<{
 				id?: number;
 				name: string;
-				priceModifier: number;
+				priceModifier: string;
 				isDefault: boolean;
-				minQuantity: number;
-				maxQuantity: number | null;
+				minQuantity: string;
+				maxQuantity: string;
 			}>,
 		},
 		validators: {
 			onSubmit: optionGroupFormSchema,
 		},
 		onSubmit: async ({ value }) => {
+			const parseIntValue = (input: string) => Number.parseInt(input, 10);
+			const parseOptionalInt = (input: string) =>
+				input === "" ? null : Number.parseInt(input, 10);
+
 			await onSave({
 				name: value.name,
 				description: value.description || undefined,
 				type: value.type,
-				minSelections: value.minSelections,
-				maxSelections: value.isUnlimited ? null : value.maxSelections,
-				numFreeOptions: value.numFreeOptions,
-				aggregateMinQuantity: value.aggregateMinQuantity,
-				aggregateMaxQuantity: value.aggregateMaxQuantity,
+				minSelections: parseIntValue(value.minSelections),
+				maxSelections: value.isUnlimited
+					? null
+					: parseOptionalInt(value.maxSelections),
+				numFreeOptions: parseIntValue(value.numFreeOptions),
+				aggregateMinQuantity: parseOptionalInt(value.aggregateMinQuantity),
+				aggregateMaxQuantity: parseOptionalInt(value.aggregateMaxQuantity),
 				choices: value.choices.map((choice) => ({
 					id: choice.id,
 					name: choice.name,
-					priceModifier: choice.priceModifier,
+					priceModifier: parseIntValue(choice.priceModifier),
 					isDefault: choice.isDefault,
-					minQuantity: choice.minQuantity,
-					maxQuantity: choice.maxQuantity,
+					minQuantity: parseIntValue(choice.minQuantity),
+					maxQuantity: parseOptionalInt(choice.maxQuantity),
 				})),
 			});
 			onOpenChange(false);
@@ -141,27 +147,40 @@ export function OptionGroupDialog({
 				form.setFieldValue("name", formValues.name);
 				form.setFieldValue("description", formValues.description);
 				form.setFieldValue("type", optionGroup.type);
-				form.setFieldValue("minSelections", optionGroup.minSelections);
-				form.setFieldValue("maxSelections", optionGroup.maxSelections);
+				form.setFieldValue("minSelections", String(optionGroup.minSelections));
+				form.setFieldValue(
+					"maxSelections",
+					optionGroup.maxSelections === null
+						? ""
+						: String(optionGroup.maxSelections),
+				);
 				form.setFieldValue("isUnlimited", optionGroup.maxSelections === null);
-				form.setFieldValue("numFreeOptions", optionGroup.numFreeOptions);
+				form.setFieldValue(
+					"numFreeOptions",
+					String(optionGroup.numFreeOptions),
+				);
 				form.setFieldValue(
 					"aggregateMinQuantity",
-					optionGroup.aggregateMinQuantity,
+					optionGroup.aggregateMinQuantity === null
+						? ""
+						: String(optionGroup.aggregateMinQuantity),
 				);
 				form.setFieldValue(
 					"aggregateMaxQuantity",
-					optionGroup.aggregateMaxQuantity,
+					optionGroup.aggregateMaxQuantity === null
+						? ""
+						: String(optionGroup.aggregateMaxQuantity),
 				);
 				form.setFieldValue(
 					"choices",
 					optionGroup.optionChoices.map((choice) => ({
 						id: choice.id,
 						name: getDisplayName(choice.translations, language),
-						priceModifier: choice.priceModifier,
+						priceModifier: String(choice.priceModifier),
 						isDefault: choice.isDefault,
-						minQuantity: choice.minQuantity,
-						maxQuantity: choice.maxQuantity,
+						minQuantity: String(choice.minQuantity),
+						maxQuantity:
+							choice.maxQuantity === null ? "" : String(choice.maxQuantity),
 					})),
 				);
 			}
@@ -290,12 +309,12 @@ export function OptionGroupDialog({
 													field.handleChange(value);
 													// Auto-configure based on type
 													if (value === "single_select") {
-														form.setFieldValue("minSelections", 1);
-														form.setFieldValue("maxSelections", 1);
+														form.setFieldValue("minSelections", "1");
+														form.setFieldValue("maxSelections", "1");
 														form.setFieldValue("isUnlimited", false);
 													} else if (value === "quantity_select") {
-														form.setFieldValue("minSelections", 0);
-														form.setFieldValue("maxSelections", null);
+														form.setFieldValue("minSelections", "0");
+														form.setFieldValue("maxSelections", "");
 														form.setFieldValue("isUnlimited", true);
 													}
 												}}
@@ -348,10 +367,7 @@ export function OptionGroupDialog({
 																		value={field.state.value}
 																		onBlur={field.handleBlur}
 																		onChange={(e) =>
-																			field.handleChange(
-																				Number.parseInt(e.target.value, 10) ||
-																					0,
-																			)
+																			field.handleChange(e.target.value)
 																		}
 																		aria-invalid={isInvalid}
 																	/>
@@ -387,15 +403,10 @@ export function OptionGroupDialog({
 																				type="number"
 																				min={1}
 																				max={10}
-																				value={field.state.value ?? ""}
+																				value={field.state.value}
 																				onBlur={field.handleBlur}
 																				onChange={(e) =>
-																					field.handleChange(
-																						Number.parseInt(
-																							e.target.value,
-																							10,
-																						) || 1,
-																					)
+																					field.handleChange(e.target.value)
 																				}
 																				disabled={isUnlimited}
 																				aria-invalid={isInvalid}
@@ -413,9 +424,9 @@ export function OptionGroupDialog({
 																									checked === true,
 																								);
 																								if (checked) {
-																									field.handleChange(null);
+																									field.handleChange("");
 																								} else {
-																									field.handleChange(1);
+																									field.handleChange("1");
 																								}
 																							}}
 																						/>
@@ -457,14 +468,10 @@ export function OptionGroupDialog({
 																	id={`${id}-aggregate-min-quantity`}
 																	type="number"
 																	min={0}
-																	value={field.state.value ?? ""}
+																	value={field.state.value}
 																	onBlur={field.handleBlur}
 																	onChange={(e) =>
-																		field.handleChange(
-																			e.target.value
-																				? Number.parseInt(e.target.value, 10)
-																				: null,
-																		)
+																		field.handleChange(e.target.value)
 																	}
 																	placeholder={t(
 																		"placeholders.aggregateMinQuantity",
@@ -489,14 +496,10 @@ export function OptionGroupDialog({
 																	id={`${id}-aggregate-max-quantity`}
 																	type="number"
 																	min={1}
-																	value={field.state.value ?? ""}
+																	value={field.state.value}
 																	onBlur={field.handleBlur}
 																	onChange={(e) =>
-																		field.handleChange(
-																			e.target.value
-																				? Number.parseInt(e.target.value, 10)
-																				: null,
-																		)
+																		field.handleChange(e.target.value)
 																	}
 																	placeholder={t(
 																		"placeholders.aggregateMaxQuantity",
@@ -527,11 +530,7 @@ export function OptionGroupDialog({
 												min={0}
 												value={field.state.value}
 												onBlur={field.handleBlur}
-												onChange={(e) =>
-													field.handleChange(
-														Number.parseInt(e.target.value, 10) || 0,
-													)
-												}
+												onChange={(e) => field.handleChange(e.target.value)}
 											/>
 											<p className="text-xs text-muted-foreground">
 												{t("hints.numFreeOptions")}
@@ -577,8 +576,17 @@ export function OptionGroupDialog({
 																>
 																	{(priceField) => (
 																		<PriceInput
-																			value={priceField.state.value}
-																			onChange={priceField.handleChange}
+																			value={
+																				Number.parseInt(
+																					priceField.state.value,
+																					10,
+																				) || 0
+																			}
+																			onChange={(nextValue) =>
+																				priceField.handleChange(
+																					String(nextValue),
+																				)
+																			}
 																			onBlur={priceField.handleBlur}
 																			className="w-32"
 																		/>
@@ -639,10 +647,7 @@ export function OptionGroupDialog({
 																						value={minQtyField.state.value}
 																						onChange={(e) =>
 																							minQtyField.handleChange(
-																								Number.parseInt(
-																									e.target.value,
-																									10,
-																								) || 0,
+																								e.target.value,
 																							)
 																						}
 																					/>
@@ -661,17 +666,10 @@ export function OptionGroupDialog({
 																						type="number"
 																						min={1}
 																						className="w-16 h-8"
-																						value={
-																							maxQtyField.state.value ?? ""
-																						}
+																						value={maxQtyField.state.value}
 																						onChange={(e) =>
 																							maxQtyField.handleChange(
-																								e.target.value
-																									? Number.parseInt(
-																											e.target.value,
-																											10,
-																										)
-																									: null,
+																								e.target.value,
 																							)
 																						}
 																						placeholder="∞"
@@ -692,10 +690,10 @@ export function OptionGroupDialog({
 													onClick={() =>
 														field.pushValue({
 															name: "",
-															priceModifier: 0,
+															priceModifier: "0",
 															isDefault: false,
-															minQuantity: 0,
-															maxQuantity: null,
+															minQuantity: "0",
+															maxQuantity: "",
 														})
 													}
 													className="w-full"
@@ -750,18 +748,18 @@ export type OptionGroupFormValues = {
 	name: string;
 	description: string;
 	type: OptionGroupType;
-	minSelections: number;
-	maxSelections: number | null;
+	minSelections: string;
+	maxSelections: string;
 	isUnlimited: boolean;
-	numFreeOptions: number;
-	aggregateMinQuantity: number | null;
-	aggregateMaxQuantity: number | null;
+	numFreeOptions: string;
+	aggregateMinQuantity: string;
+	aggregateMaxQuantity: string;
 	choices: Array<{
 		id?: number;
 		name: string;
-		priceModifier: number;
+		priceModifier: string;
 		isDefault: boolean;
-		minQuantity: number;
-		maxQuantity: number | null;
+		minQuantity: string;
+		maxQuantity: string;
 	}>;
 };

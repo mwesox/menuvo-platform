@@ -13,8 +13,8 @@ import {
 	FieldLabel,
 } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
-import { useOnboardingForm } from "../../contexts/form-context.tsx";
 import { generateSlug } from "@/lib/slug";
+import { useOnboardingForm } from "../../contexts/form-context.tsx";
 import {
 	storeCitySchema,
 	storeNameSchema,

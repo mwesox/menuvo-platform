@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, HelpCircle, LogOut, Store, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -17,16 +16,19 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { storeQueries } from "@/features/console/stores/queries";
 
 interface ConsoleHeaderProps {
+	stores: Array<{ id: number; name: string; isActive: boolean }>;
 	storeId?: number;
 	onStoreChange?: (storeId: number) => void;
 }
 
-export function ConsoleHeader({ storeId, onStoreChange }: ConsoleHeaderProps) {
+export function ConsoleHeader({
+	stores,
+	storeId,
+	onStoreChange,
+}: ConsoleHeaderProps) {
 	const { t } = useTranslation("navigation");
-	const { data: stores } = useSuspenseQuery(storeQueries.list());
 
 	const hasMultipleStores = stores.length > 1;
 	const selectedStore = stores.find((s) => s.id === storeId) ?? stores[0];
