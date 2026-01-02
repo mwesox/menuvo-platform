@@ -61,8 +61,11 @@ menuvo.app, www.menuvo.app {
 		}
 	}
 
-	# API requests - pass through without prefix
-	handle /api/* {
+	# Static assets and API - pass through without prefix
+	@passthrough {
+		path /api/* /assets/* /_build/*
+	}
+	handle @passthrough {
 		reverse_proxy menuvo-platform:3000 {
 			transport http {
 				dial_timeout 10s
@@ -131,8 +134,11 @@ console.menuvo.app {
 		}
 	}
 
-	# API requests - pass through without prefix
-	handle /api/* {
+	# Static assets and API - pass through without prefix
+	@passthrough {
+		path /api/* /assets/* /_build/*
+	}
+	handle @passthrough {
 		reverse_proxy menuvo-platform:3000 {
 			transport http {
 				dial_timeout 10s
