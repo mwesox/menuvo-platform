@@ -26,7 +26,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	},
 	head: ({ matches }) => {
 		// Determine which CSS bundle to load based on matched routes
-		const isShopRoute = matches.some((m) => m.routeId.startsWith("/shop"));
 		const isConsoleRoute = matches.some((m) =>
 			m.routeId.startsWith("/console"),
 		);
@@ -45,7 +44,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			cssHref = businessCss;
 			title = "Menuvo";
 		} else {
-			// Default to shop (includes root "/" which redirects to /shop)
+			// Default to shop CSS (for /shop/*, / redirect, and any other routes)
 			cssHref = shopCss;
 			title = "Menuvo";
 		}
