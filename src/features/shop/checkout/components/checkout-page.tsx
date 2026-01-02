@@ -94,7 +94,6 @@ export function CheckoutPage({ storeId, storeSlug }: CheckoutPageProps) {
 			(item) => !item.name || typeof item.name !== "string",
 		);
 		if (invalidItems.length > 0) {
-			console.error("[Checkout] Cart contains corrupted items:", invalidItems);
 			toast.error(t("checkout.invalidCartItems"));
 			clearCart();
 			return;
@@ -103,7 +102,6 @@ export function CheckoutPage({ storeId, storeSlug }: CheckoutPageProps) {
 		// Transform cart items to order format
 		const orderItems = items.map(transformCartItemToSnapshot);
 
-		// Debug log the order data
 		const orderData = {
 			storeId,
 			items: orderItems,
@@ -115,10 +113,6 @@ export function CheckoutPage({ storeId, storeSlug }: CheckoutPageProps) {
 			tipAmount: 0,
 			totalAmount: subtotal,
 		};
-		console.log(
-			"[Checkout] Submitting order:",
-			JSON.stringify(orderData, null, 2),
-		);
 
 		try {
 			const order = await createOrderMutation.mutateAsync({
@@ -131,8 +125,7 @@ export function CheckoutPage({ storeId, storeSlug }: CheckoutPageProps) {
 				to: "/shop/$slug/order/$orderId",
 				params: { slug: storeSlug, orderId: String(order.id) },
 			});
-		} catch (error) {
-			console.error("[Checkout] Order submission failed:", error);
+		} catch {
 			// Error toast handled by mutation
 		}
 	};

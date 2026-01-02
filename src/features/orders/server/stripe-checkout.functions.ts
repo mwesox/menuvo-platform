@@ -18,6 +18,7 @@ import type Stripe from "stripe";
 import { z } from "zod";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
+import { stripeLogger } from "@/lib/logger";
 import { getStripeClient } from "@/lib/stripe";
 
 // ============================================================================
@@ -290,7 +291,7 @@ export const expireCheckoutSession = createServerFn({ method: "POST" })
 			}
 		} catch (error) {
 			// Session might already be expired - log but continue
-			console.warn("[Stripe] Error expiring session:", error);
+			stripeLogger.warn({ error }, "Error expiring session");
 		}
 
 		// Update order status

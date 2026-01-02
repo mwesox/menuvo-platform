@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { ordersLogger } from "@/lib/logger";
 import {
 	type OrderStatus,
 	type OrderType,
@@ -139,7 +140,7 @@ export function useCreateOrder(storeId: number) {
 			// Don't show toast - let the checkout flow handle messaging
 		},
 		onError: (error) => {
-			console.error("[useCreateOrder] Order creation failed:", error);
+			ordersLogger.error({ error }, "Order creation failed");
 			toast.error(t("error.createOrder"));
 		},
 	});

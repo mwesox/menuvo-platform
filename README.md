@@ -1,391 +1,101 @@
-Welcome to your new TanStack app! 
+# Menuvo Platform
 
-# Getting Started
+A full-stack restaurant management platform built with TanStack Start.
 
-To run this application:
+## Prerequisites
+
+- [Bun](https://bun.sh/) (v1.0+)
+- [Docker](https://www.docker.com/) (for PostgreSQL)
+
+## Quick Start
 
 ```bash
+# Install dependencies
 bun install
-bun --bun run start
+
+# Start database
+bun run db:start
+
+# Run migrations
+bun run db:migrate
+
+# Start dev server
+bun --bun run dev
+
+# In a separate terminal, start background workers
+bun run worker
 ```
 
-# Building For Production
+App runs at [http://localhost:3000](http://localhost:3000)
 
-To build this application for production:
+## Overview
+
+The platform has two main interfaces:
+
+- **Console** (`/console`) - Merchant dashboard for managing menus, orders, and settings
+- **Shop** (`/shop`) - Customer-facing storefront for browsing and ordering
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `bun --bun run dev` | Start development server |
+| `bun --bun run build` | Production build |
+| `bun --bun run start` | Run production server |
+| `bun --bun run check` | Lint and format code |
+| `bun --bun run test` | Run tests |
+| `bun run db:studio` | Open Drizzle Studio |
+| `bun run services:start` | Start all Docker services |
+| `bun run worker` | Start background workers |
+
+## Background Workers
+
+The platform uses background workers for async processing. Run in a separate terminal:
 
 ```bash
-bun --bun run build
+bun run worker
 ```
 
-## Testing
+Workers handle:
+- **Image processing** - Generates image variants (thumbnails, optimized sizes)
+- **Menu import** - Processes uploaded menu files asynchronously
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+Workers are required for full functionality in development.
+
+## Tech Stack
+
+- TanStack Start/Router/Query/Form
+- React 19
+- Drizzle ORM + PostgreSQL
+- Tailwind CSS v4
+- Shadcn/ui
+- Zustand
+
+## Project Structure
+
+```
+src/
+├── features/       # Business logic & components
+│   ├── console/    # Merchant admin features
+│   └── shop/       # Customer storefront features
+├── routes/         # Page routing (thin wiring)
+├── components/ui/  # Shared UI components
+└── db/             # Database schema & migrations
+```
+
+## Environment Variables
+
+Copy `.env.example` to `.env.local` and configure:
+
+```
+DATABASE_URL=postgresql://...
+OPENROUTER_API_KEY=sk-or-v1-xxxxx  # For AI features
+```
+
+## Adding Shadcn Components
 
 ```bash
-bun --bun run test
+bunx --bun shadcn@latest add <component>
 ```
 
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-
-## Linting & Formatting
-
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
-
-```bash
-bun --bun run lint
-bun --bun run format
-bun --bun run check
-```
-
-
-## T3Env
-
-- You can use T3Env to add type safety to your environment variables.
-- Add Environment variables to the `src/env.mjs` file.
-- Use the environment variables in your code.
-
-### Usage
-
-```ts
-import { env } from "@/env";
-
-console.log(env.VITE_APP_TITLE);
-```
-
-## AI Integration (OpenRouter)
-
-This project uses [OpenRouter](https://openrouter.ai/) to access 300+ AI models through a unified API.
-
-### Setup
-
-Add your API key to `.env.local`:
-
-```
-OPENROUTER_API_KEY=sk-or-v1-xxxxx
-```
-
-Get your API key from [openrouter.ai/settings/keys](https://openrouter.ai/settings/keys).
-
-### Usage
-
-The AI service provides three functions for use in server functions:
-
-```ts
-import { chat, streamChat, generateStructured } from "@/lib/ai";
-
-// Basic chat completion
-const response = await chat({
-  model: "anthropic/claude-3.5-sonnet",
-  messages: [
-    { role: "system", content: "You are a helpful assistant." },
-    { role: "user", content: "Hello!" }
-  ],
-  temperature: 0.7, // optional
-  maxTokens: 1000,  // optional
-});
-
-// Streaming response
-const fullText = await streamChat({
-  model: "openai/gpt-4o",
-  messages: [{ role: "user", content: "Write a story" }],
-  onChunk: (chunk) => console.log(chunk), // called for each chunk
-});
-
-// Structured JSON output with Zod schema
-import { z } from "zod/v4";
-
-const extractedDataSchema = z.object({
-  title: z.string(),
-  items: z.array(z.string()),
-});
-
-const data = await generateStructured({
-  model: "anthropic/claude-3.5-sonnet",
-  messages: [{ role: "user", content: "Extract data from: ..." }],
-  schema: extractedDataSchema,
-  schemaName: "extracted_data",
-});
-// data is typed as { title: string; items: string[] }
-```
-
-### Available Models
-
-See [openrouter.ai/docs#models](https://openrouter.ai/docs#models) for the full list. Common options:
-
-- `anthropic/claude-3.5-sonnet` - Best for complex tasks
-- `openai/gpt-4o` - Fast, multimodal
-- `openai/gpt-4o-mini` - Cheap, good for simple tasks
-- `meta-llama/llama-3.1-405b-instruct` - Open source, powerful
-
-
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
-
-```bash
-pnpm dlx shadcn@latest add button
-```
-
-
-
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add another a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
-```bash
-bun install @tanstack/react-query @tanstack/react-query-devtools
-```
-
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
-
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
-
-You can also add TanStack Query Devtools to the root route (optional).
-
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default App;
-```
-
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
-
-## State Management
-
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
-
-First you need to add TanStack Store as a dependency:
-
-```bash
-bun install @tanstack/store
-```
-
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+See `CLAUDE.md` for detailed architecture guidelines.

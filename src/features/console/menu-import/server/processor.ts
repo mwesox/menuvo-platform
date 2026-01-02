@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { menuImportJobs } from "@/db/schema";
+import { menuImportLogger } from "@/lib/logger";
 import { getFile } from "@/lib/storage/files-client";
 import { extractMenuFromText, type ModelConfig } from "../logic/ai-extractor";
 import { compareMenus } from "../logic/comparer";
@@ -31,34 +32,48 @@ export async function processMenuImportJob(jobId: number): Promise<void> {
 	}
 
 	if (job.status !== "PROCESSING") {
-		console.log(`Job ${jobId} already processed (status: ${job.status})`);
+		menuImportLogger.debug(
+			{ jobId, status: job.status },
+			"Job already processed",
+		);
 		return;
 	}
 
 	try {
-		console.log(`Processing menu import job ${jobId}...`);
+		menuImportLogger.info({ jobId }, "Processing menu import job");
 
 		// Step 1: Download file from internal bucket
-		console.log(`  Downloading file: ${job.fileKey}`);
+		menuImportLogger.debug({ jobId, fileKey: job.fileKey }, "Downloading file");
 		const fileBuffer = await getFile(job.fileKey);
 
 		// Step 2: Extract text from file
-		console.log(`  Extracting text from ${job.fileType} file...`);
+		menuImportLogger.debug(
+			{ jobId, fileType: job.fileType },
+			"Extracting text from file",
+		);
 		const { text } = extractTextFromFile(
 			fileBuffer,
 			job.fileType as AllowedFileType,
 		);
-		console.log(`  Extracted ${text.length} characters`);
+		menuImportLogger.debug({ jobId, charCount: text.length }, "Text extracted");
 
 		// Step 3: Get existing menu for context
-		console.log(`  Loading existing menu for store ${job.storeId}...`);
+		menuImportLogger.debug(
+			{ jobId, storeId: job.storeId },
+			"Loading existing menu",
+		);
 		const existingMenu = await getExistingMenuData(job.storeId);
-		console.log(
-			`  Found ${existingMenu.categories.length} categories, ${existingMenu.optionGroups.length} option groups`,
+		menuImportLogger.debug(
+			{
+				jobId,
+				categoryCount: existingMenu.categories.length,
+				optionGroupCount: existingMenu.optionGroups.length,
+			},
+			"Existing menu loaded",
 		);
 
 		// Step 4: AI extraction
-		console.log(`  Running AI extraction...`);
+		menuImportLogger.debug({ jobId }, "Running AI extraction");
 		const extractedMenu = await extractMenuFromText(text, {
 			model: DEFAULT_EXTRACTION_MODEL,
 			existingCategories: existingMenu.categories.map((c) => c.name),
@@ -66,28 +81,34 @@ export async function processMenuImportJob(jobId: number): Promise<void> {
 				c.items.map((i) => i.name),
 			),
 		});
-		console.log(
-			`  Extracted ${extractedMenu.categories.length} categories with ${extractedMenu.categories.reduce((sum, c) => sum + c.items.length, 0)} items`,
-		);
-		console.log(
-			`  Extracted ${extractedMenu.optionGroups.length} option groups`,
-		);
-		console.log(
-			`  Confidence: ${(extractedMenu.confidence * 100).toFixed(0)}%`,
+		menuImportLogger.info(
+			{
+				jobId,
+				categoryCount: extractedMenu.categories.length,
+				itemCount: extractedMenu.categories.reduce(
+					(sum, c) => sum + c.items.length,
+					0,
+				),
+				optionGroupCount: extractedMenu.optionGroups.length,
+				confidence: `${(extractedMenu.confidence * 100).toFixed(0)}%`,
+			},
+			"AI extraction complete",
 		);
 
 		// Step 5: Generate comparison
-		console.log(`  Generating comparison...`);
+		menuImportLogger.debug({ jobId }, "Generating comparison");
 		const comparisonData = compareMenus(extractedMenu, existingMenu);
-		console.log(`  Summary:`);
-		console.log(
-			`    Categories: ${comparisonData.summary.newCategories} new, ${comparisonData.summary.updatedCategories} updated`,
-		);
-		console.log(
-			`    Items: ${comparisonData.summary.newItems} new, ${comparisonData.summary.updatedItems} updated`,
-		);
-		console.log(
-			`    Option Groups: ${comparisonData.summary.newOptionGroups} new, ${comparisonData.summary.updatedOptionGroups} updated`,
+		menuImportLogger.info(
+			{
+				jobId,
+				newCategories: comparisonData.summary.newCategories,
+				updatedCategories: comparisonData.summary.updatedCategories,
+				newItems: comparisonData.summary.newItems,
+				updatedItems: comparisonData.summary.updatedItems,
+				newOptionGroups: comparisonData.summary.newOptionGroups,
+				updatedOptionGroups: comparisonData.summary.updatedOptionGroups,
+			},
+			"Comparison generated",
 		);
 
 		// Step 6: Save comparison and mark as ready
@@ -99,9 +120,9 @@ export async function processMenuImportJob(jobId: number): Promise<void> {
 			})
 			.where(eq(menuImportJobs.id, jobId));
 
-		console.log(`Job ${jobId} completed successfully`);
+		menuImportLogger.info({ jobId }, "Job completed successfully");
 	} catch (error) {
-		console.error(`Job ${jobId} failed:`, error);
+		menuImportLogger.error({ jobId, error }, "Job failed");
 
 		// Mark as failed
 		await db

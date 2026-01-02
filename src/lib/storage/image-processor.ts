@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import sharp from "sharp";
 import { db } from "@/db";
 import { images } from "@/db/schema";
+import { imageLogger } from "@/lib/logger";
 import {
 	deleteFile,
 	getFileBuffer,
@@ -43,7 +44,7 @@ export async function processImageVariants(imageId: number): Promise<void> {
 	});
 
 	if (!record) {
-		console.error(`Image ${imageId} not found for variant processing`);
+		imageLogger.error({ imageId }, "Image not found for variant processing");
 		return;
 	}
 
@@ -77,7 +78,7 @@ export async function processImageVariants(imageId: number): Promise<void> {
 		})
 		.where(eq(images.id, imageId));
 
-	console.log(`Generated variants for image ${imageId}`);
+	imageLogger.info({ imageId }, "Generated variants for image");
 }
 
 /**
@@ -93,7 +94,10 @@ export async function deleteImageVariants(key: string): Promise<void> {
 	await Promise.allSettled(
 		variants.map((k) =>
 			deleteFile(k).catch((err) => {
-				console.warn(`Failed to delete ${k}:`, err);
+				imageLogger.warn(
+					{ key: k, error: err },
+					"Failed to delete image variant",
+				);
 			}),
 		),
 	);

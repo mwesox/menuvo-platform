@@ -36,7 +36,9 @@ All subagents (Task tool) MUST read `docs/architecture.md` and `docs/coding-guid
    - Persistent client → Zustand + persist (`stores/`)
    - Transient UI → Context / useState
 
-6. **Never store server data in Zustand**
+6. **Never store server data in Zustand or Context**
+
+7. **Share server data via TanStack Query, not context** - When parent layouts need child route data, use the same query key. The child's loader caches data, parent's `useQuery` gets instant cache hit. Don't use context + useEffect (causes hydration mismatch).
 
 ---
 

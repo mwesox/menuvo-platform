@@ -62,8 +62,8 @@ export function SubscriptionPlanSelector({
 				priceId,
 				newPlan: selectedPlan,
 			});
-		} catch (err) {
-			console.error("Failed to get price ID:", err);
+		} catch {
+			// Error handled by mutation
 		}
 	};
 

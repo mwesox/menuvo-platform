@@ -5,6 +5,7 @@ import {
 	type PaymentCapabilitiesStatus,
 	type PaymentRequirementsStatus,
 } from "@/db/schema";
+import { stripeLogger } from "@/lib/logger";
 
 export type UpdatePaymentStatusInput = {
 	paymentAccountId: string;
@@ -42,9 +43,10 @@ export async function updateMerchantPaymentStatus(
 	// Find merchant by Stripe account ID
 	const merchant = await findMerchantByPaymentAccountId(input.paymentAccountId);
 	if (!merchant) {
-		console.warn("No merchant found for payment account", {
-			paymentAccountId: input.paymentAccountId,
-		});
+		stripeLogger.warn(
+			{ paymentAccountId: input.paymentAccountId },
+			"No merchant found for payment account",
+		);
 		return null;
 	}
 
@@ -67,13 +69,16 @@ export async function updateMerchantPaymentStatus(
 		.set(updateData)
 		.where(eq(merchants.id, merchant.id));
 
-	console.info("Updated merchant payment status", {
-		merchantId: merchant.id,
-		paymentAccountId: input.paymentAccountId,
-		onboardingComplete: input.onboardingComplete,
-		capabilitiesStatus: input.capabilitiesStatus,
-		requirementsStatus: input.requirementsStatus,
-	});
+	stripeLogger.info(
+		{
+			merchantId: merchant.id,
+			paymentAccountId: input.paymentAccountId,
+			onboardingComplete: input.onboardingComplete,
+			capabilitiesStatus: input.capabilitiesStatus,
+			requirementsStatus: input.requirementsStatus,
+		},
+		"Updated merchant payment status",
+	);
 
 	return merchant.id;
 }

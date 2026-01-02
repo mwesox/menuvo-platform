@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import { stripeLogger } from "@/lib/logger";
 
 /**
  * Handle checkout.session.completed event for subscription checkouts.
@@ -10,14 +11,15 @@ import type Stripe from "stripe";
 export async function handleCheckoutSessionCompleted(
 	session: Stripe.Checkout.Session,
 ): Promise<void> {
-	console.log(`[Webhook] Checkout session completed: ${session.id}`);
-	console.log(`  Payment status: ${session.payment_status}`);
-	console.log(`  Mode: ${session.mode}`);
-
-	// Log metadata for debugging
-	if (session.metadata && Object.keys(session.metadata).length > 0) {
-		console.log(`  Metadata: ${JSON.stringify(session.metadata)}`);
-	}
+	stripeLogger.info(
+		{
+			sessionId: session.id,
+			paymentStatus: session.payment_status,
+			mode: session.mode,
+			metadata: session.metadata,
+		},
+		"Checkout session completed",
+	);
 
 	// TODO: Add custom handling based on metadata
 	// Example: Mark onboarding tasks as completed
@@ -26,7 +28,7 @@ export async function handleCheckoutSessionCompleted(
 	//   await markOnboardingTaskComplete(taskId);
 	// }
 
-	console.log(`[Webhook] Checkout session ${session.id} processed`);
+	stripeLogger.debug({ sessionId: session.id }, "Checkout session processed");
 }
 
 /**
@@ -37,7 +39,7 @@ export async function handleCheckoutSessionCompleted(
 export async function handleCheckoutSessionExpired(
 	session: Stripe.Checkout.Session,
 ): Promise<void> {
-	console.log(`[Webhook] Checkout session expired: ${session.id}`);
+	stripeLogger.info({ sessionId: session.id }, "Checkout session expired");
 
 	// TODO: Add custom handling
 	// Example: Clean up pending orders, notify user, etc.

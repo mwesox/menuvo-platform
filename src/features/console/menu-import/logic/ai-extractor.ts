@@ -1,4 +1,5 @@
 import { chat, generateStructured } from "@/lib/ai/service";
+import { menuImportLogger } from "@/lib/logger";
 import type { ExtractedMenuData } from "../types";
 import { type AIMenuExtraction, aiMenuExtractionSchema } from "../validation";
 
@@ -285,7 +286,7 @@ async function extractWithChat(
 			{ role: "user", content: prompt },
 		],
 	});
-	console.log("  AI raw response:", content.slice(0, 300), "...");
+	menuImportLogger.debug({ preview: content.slice(0, 300) }, "AI raw response");
 	return parseAIResponse(content);
 }
 
@@ -310,7 +311,10 @@ export async function extractMenuFromText(
 		? extractWithStructuredOutput
 		: extractWithChat;
 	const methodName = model.supportsStructuredOutput ? "structured" : "chat";
-	console.log(`  Using ${methodName} extraction for ${model.id}`);
+	menuImportLogger.debug(
+		{ method: methodName, modelId: model.id },
+		"Using extraction method",
+	);
 
 	let extraction: AIMenuExtraction;
 

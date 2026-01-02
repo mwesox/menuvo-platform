@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useShop } from "../../shared/contexts/shop-context";
@@ -48,7 +48,7 @@ export function FloatingCart() {
 			{/* Left side - icon with badge + label */}
 			<div className="flex items-center gap-3">
 				<div className="relative">
-					<ShoppingBag className="w-5 h-5" />
+					<ShoppingCart className="w-5 h-5" />
 					{/* Item count badge */}
 					<span className="absolute -top-2 -right-2 bg-background text-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
 						{itemCount}

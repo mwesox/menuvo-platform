@@ -4,6 +4,7 @@ import {
 	type AllowedFileType,
 	allowedFileTypes,
 } from "@/features/console/menu-import/validation";
+import { menuImportLogger } from "@/lib/logger";
 import { enqueueImportJob } from "@/lib/queue/menu-import-queue";
 import { uploadFile } from "@/lib/storage/files-client";
 
@@ -75,7 +76,7 @@ export const Route = createFileRoute("/api/menu-import/upload")({
 
 					return Response.json({ jobId, status: "PROCESSING" });
 				} catch (error) {
-					console.error("Menu import upload failed:", error);
+					menuImportLogger.error({ error }, "Menu import upload failed");
 					return Response.json(
 						{
 							error: error instanceof Error ? error.message : "Upload failed",

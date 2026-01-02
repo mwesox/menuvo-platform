@@ -44,7 +44,10 @@
 	},
 	"header": {
 		"cartWithItems": "Shopping cart with {{count}} items",
-		"backToShop": "Back to shop"
+		"backToShop": "Back to shop",
+		"itemCount_one": "{{count}} item",
+		"itemCount_other": "{{count}} items",
+		"searchPlaceholder": "Search menu..."
 	},
 	"errors": {
 		"somethingWentWrong": "Something went wrong",

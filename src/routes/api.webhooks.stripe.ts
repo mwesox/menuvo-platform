@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type Stripe from "stripe";
 import { env } from "@/env";
+import { webhookLogger } from "@/lib/logger";
 import {
 	getStripeClient,
 	// Checkout handlers
@@ -42,7 +43,7 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
 			POST: async ({ request }) => {
 				// Validate environment
 				if (!env.STRIPE_WEBHOOK_SECRET) {
-					console.error("STRIPE_WEBHOOK_SECRET not configured");
+					webhookLogger.error("STRIPE_WEBHOOK_SECRET not configured");
 					return Response.json(
 						{ error: "Webhook not configured" },
 						{ status: 500 },
@@ -53,7 +54,7 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
 				const signature = request.headers.get("stripe-signature");
 
 				if (!signature) {
-					console.warn("Missing stripe-signature header");
+					webhookLogger.warn("Missing stripe-signature header");
 					return Response.json(
 						{ error: "Missing stripe-signature header" },
 						{ status: 400 },
@@ -72,13 +73,16 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
 						env.STRIPE_WEBHOOK_SECRET,
 					);
 				} catch (err) {
-					console.error("Webhook signature verification failed:", err);
+					webhookLogger.error(
+						{ error: err },
+						"Webhook signature verification failed",
+					);
 					return Response.json({ error: "Invalid signature" }, { status: 400 });
 				}
 
-				console.log(
-					`Webhook received: ${event.type} (${event.id})`,
-					event.account ? `account: ${event.account}` : "",
+				webhookLogger.info(
+					{ eventId: event.id, eventType: event.type, account: event.account },
+					"Webhook received",
 				);
 
 				// Ingest event to database (idempotency check)
@@ -94,7 +98,10 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
 
 				// If event already processed, return early
 				if (!ingestResult.isNew) {
-					console.log(`Event already processed (duplicate): ${event.id}`);
+					webhookLogger.debug(
+						{ eventId: event.id },
+						"Event already processed (duplicate)",
+					);
 					return Response.json({ received: true, duplicate: true });
 				}
 
@@ -154,17 +161,26 @@ export const Route = createFileRoute("/api/webhooks/stripe")({
 
 						default:
 							// All events are stored, but we log unhandled ones
-							console.log(`Unhandled event type: ${event.type}`);
+							webhookLogger.debug(
+								{ eventType: event.type },
+								"Unhandled event type",
+							);
 					}
 
 					// Mark event as processed
 					await markEventProcessed(event.id);
 
-					console.log(`Webhook processed: ${event.type} (${event.id})`);
+					webhookLogger.info(
+						{ eventId: event.id, eventType: event.type },
+						"Webhook processed",
+					);
 
 					return Response.json({ received: true });
 				} catch (err) {
-					console.error(`Webhook processing failed: ${event.type}`, err);
+					webhookLogger.error(
+						{ eventType: event.type, error: err },
+						"Webhook processing failed",
+					);
 
 					// Mark event as failed
 					await markEventFailed(event.id);

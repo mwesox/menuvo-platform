@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import { stripeLogger } from "@/lib/logger";
 
 export type CreateStripeAccountInput = {
 	email: string;
@@ -21,10 +22,10 @@ export async function createStripeAccount(
 	stripe: Stripe,
 	input: CreateStripeAccountInput,
 ): Promise<CreateStripeAccountOutput> {
-	console.info("[Stripe] Creating Connect account", {
-		email: input.email,
-		businessName: input.businessName,
-	});
+	stripeLogger.info(
+		{ email: input.email, businessName: input.businessName },
+		"Creating Connect account",
+	);
 
 	try {
 		const account = await stripe.v2.core.accounts.create({
@@ -63,22 +64,25 @@ export async function createStripeAccount(
 			],
 		});
 
-		console.info("[Stripe] Connect account created successfully", {
-			accountId: account.id,
-		});
+		stripeLogger.info(
+			{ accountId: account.id },
+			"Connect account created successfully",
+		);
 
 		return { accountId: account.id };
 	} catch (error) {
-		console.error("[Stripe] Failed to create Connect account", {
-			email: input.email,
-			businessName: input.businessName,
-			error: error instanceof Error ? error.message : String(error),
-			stack: error instanceof Error ? error.stack : undefined,
-			stripeError:
-				error && typeof error === "object" && "type" in error
-					? (error as { type?: string; code?: string; message?: string })
-					: undefined,
-		});
+		stripeLogger.error(
+			{
+				email: input.email,
+				businessName: input.businessName,
+				error: error instanceof Error ? error.message : String(error),
+				stripeError:
+					error && typeof error === "object" && "type" in error
+						? (error as { type?: string; code?: string; message?: string })
+						: undefined,
+			},
+			"Failed to create Connect account",
+		);
 		throw error;
 	}
 }
@@ -112,11 +116,14 @@ export async function createAccountLink(
 	stripe: Stripe,
 	input: CreateAccountLinkInput,
 ): Promise<CreateAccountLinkOutput> {
-	console.info("[Stripe] Creating account link", {
-		accountId: input.accountId,
-		refreshUrl: input.refreshUrl,
-		returnUrl: input.returnUrl,
-	});
+	stripeLogger.info(
+		{
+			accountId: input.accountId,
+			refreshUrl: input.refreshUrl,
+			returnUrl: input.returnUrl,
+		},
+		"Creating account link",
+	);
 
 	try {
 		const accountLink = await stripe.v2.core.accountLinks.create({
@@ -132,28 +139,33 @@ export async function createAccountLink(
 			},
 		});
 
-		console.info("[Stripe] Account link created successfully", {
-			accountId: input.accountId,
-			url: accountLink.url,
-			expiresAt: accountLink.expires_at,
-		});
+		stripeLogger.info(
+			{
+				accountId: input.accountId,
+				url: accountLink.url,
+				expiresAt: accountLink.expires_at,
+			},
+			"Account link created successfully",
+		);
 
 		return {
 			url: accountLink.url,
 			expiresAt: new Date(accountLink.expires_at).getTime(),
 		};
 	} catch (error) {
-		console.error("[Stripe] Failed to create account link", {
-			accountId: input.accountId,
-			refreshUrl: input.refreshUrl,
-			returnUrl: input.returnUrl,
-			error: error instanceof Error ? error.message : String(error),
-			stack: error instanceof Error ? error.stack : undefined,
-			stripeError:
-				error && typeof error === "object" && "type" in error
-					? (error as { type?: string; code?: string; message?: string })
-					: undefined,
-		});
+		stripeLogger.error(
+			{
+				accountId: input.accountId,
+				refreshUrl: input.refreshUrl,
+				returnUrl: input.returnUrl,
+				error: error instanceof Error ? error.message : String(error),
+				stripeError:
+					error && typeof error === "object" && "type" in error
+						? (error as { type?: string; code?: string; message?: string })
+						: undefined,
+			},
+			"Failed to create account link",
+		);
 		throw error;
 	}
 }

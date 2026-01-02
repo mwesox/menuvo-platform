@@ -10,7 +10,6 @@ export {
 	StorePageSkeleton,
 } from "./components/menu-item-skeleton";
 export { OptionGroup } from "./components/option-group";
-export { StoreHero } from "./components/store-hero";
 export {
 	StoreMenuPage,
 	StoreMenuPageSkeleton,
@@ -19,4 +18,5 @@ export {
 // Hooks
 export { useCategoryScroll } from "./hooks/use-category-scroll";
 export { useMenuItemSelection } from "./hooks/use-menu-item-selection";
+export { useMenuSearch } from "./hooks/use-menu-search";
 export { useQRTracking } from "./hooks/use-qr-tracking";

@@ -9,11 +9,14 @@ import {
 } from "react";
 
 interface ShopContextValue {
-	storeName: string | null;
-	setStoreName: (name: string | null) => void;
+	// Cart drawer
 	isCartDrawerOpen: boolean;
 	openCartDrawer: () => void;
 	closeCartDrawer: () => void;
+
+	// Menu search
+	searchQuery: string;
+	setSearchQuery: (query: string) => void;
 }
 
 const ShopContext = createContext<ShopContextValue | null>(null);
@@ -23,12 +26,11 @@ interface ShopProviderProps {
 }
 
 export function ShopProvider({ children }: ShopProviderProps) {
-	const [storeName, setStoreNameState] = useState<string | null>(null);
+	// Cart drawer
 	const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
 
-	const setStoreName = useCallback((name: string | null) => {
-		setStoreNameState(name);
-	}, []);
+	// Menu search
+	const [searchQuery, setSearchQueryState] = useState("");
 
 	const openCartDrawer = useCallback(() => {
 		setIsCartDrawerOpen(true);
@@ -38,14 +40,18 @@ export function ShopProvider({ children }: ShopProviderProps) {
 		setIsCartDrawerOpen(false);
 	}, []);
 
+	const setSearchQuery = useCallback((query: string) => {
+		setSearchQueryState(query);
+	}, []);
+
 	return (
 		<ShopContext.Provider
 			value={{
-				storeName,
-				setStoreName,
 				isCartDrawerOpen,
 				openCartDrawer,
 				closeCartDrawer,
+				searchQuery,
+				setSearchQuery,
 			}}
 		>
 			{children}

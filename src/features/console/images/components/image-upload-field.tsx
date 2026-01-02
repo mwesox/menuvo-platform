@@ -14,6 +14,7 @@ interface ImageUploadFieldProps {
 	onChange: (url: string | undefined) => void;
 	merchantId: number;
 	imageType: ImageType;
+	/** @deprecated Aspect ratio is now determined by imageType presets */
 	aspectRatio?: number;
 	className?: string;
 	disabled?: boolean;
@@ -24,7 +25,6 @@ export function ImageUploadField({
 	onChange,
 	merchantId,
 	imageType,
-	aspectRatio = 1,
 	className,
 	disabled = false,
 }: ImageUploadFieldProps) {
@@ -76,8 +76,7 @@ export function ImageUploadField({
 				onChange(imageUrl);
 				setCurrentImageId(result.id);
 				toast.success("Image uploaded successfully");
-			} catch (error) {
-				console.error("Upload failed:", error);
+			} catch {
 				toast.error("Failed to upload image");
 			} finally {
 				setIsUploading(false);
@@ -107,8 +106,7 @@ export function ImageUploadField({
 			onChange(undefined);
 			setCurrentImageId(null);
 			toast.success("Image removed");
-		} catch (error) {
-			console.error("Delete failed:", error);
+		} catch {
 			toast.error("Failed to remove image");
 		}
 	}, [currentImageId, merchantId, onChange]);
@@ -187,7 +185,7 @@ export function ImageUploadField({
 						}
 					}}
 					imageSrc={previewSrc}
-					aspectRatio={aspectRatio}
+					imageType={imageType}
 					onCropComplete={handleCropComplete}
 				/>
 			)}

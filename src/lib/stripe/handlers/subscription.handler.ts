@@ -2,6 +2,7 @@ import { eq, or } from "drizzle-orm";
 import type Stripe from "stripe";
 import { db } from "@/db";
 import { merchants, type SubscriptionStatus } from "@/db/schema";
+import { stripeLogger } from "@/lib/logger";
 
 /**
  * Stripe subscription with period fields.
@@ -71,8 +72,9 @@ function mapStripeStatus(
 export async function handleSubscriptionCreated(
 	subscription: SubscriptionWithPeriod,
 ): Promise<void> {
-	console.log(
-		`Subscription created: ${subscription.id}, status: ${subscription.status}`,
+	stripeLogger.info(
+		{ subscriptionId: subscription.id, status: subscription.status },
+		"Subscription created",
 	);
 
 	const merchant = await findMerchantBySubscription(subscription);
@@ -80,8 +82,9 @@ export async function handleSubscriptionCreated(
 	if (!merchant) {
 		// This may happen if the subscription is created before the merchant record
 		// (e.g., during onboarding where we create subscription first, then merchant in DB)
-		console.log(
-			`No merchant found for subscription ${subscription.id} - may be pending onboarding`,
+		stripeLogger.debug(
+			{ subscriptionId: subscription.id },
+			"No merchant found for subscription - may be pending onboarding",
 		);
 		return;
 	}
@@ -102,11 +105,14 @@ export async function handleSubscriptionCreated(
 		})
 		.where(eq(merchants.id, merchant.id));
 
-	console.info("Updated merchant subscription (created)", {
-		merchantId: merchant.id,
-		subscriptionId: subscription.id,
-		status,
-	});
+	stripeLogger.info(
+		{
+			merchantId: merchant.id,
+			subscriptionId: subscription.id,
+			status,
+		},
+		"Updated merchant subscription (created)",
+	);
 }
 
 /**
@@ -118,14 +124,18 @@ export async function handleSubscriptionCreated(
 export async function handleSubscriptionUpdated(
 	subscription: SubscriptionWithPeriod,
 ): Promise<void> {
-	console.log(
-		`Subscription updated: ${subscription.id}, status: ${subscription.status}`,
+	stripeLogger.info(
+		{ subscriptionId: subscription.id, status: subscription.status },
+		"Subscription updated",
 	);
 
 	const merchant = await findMerchantBySubscription(subscription);
 
 	if (!merchant) {
-		console.log(`No merchant found for subscription ${subscription.id}`);
+		stripeLogger.debug(
+			{ subscriptionId: subscription.id },
+			"No merchant found for subscription",
+		);
 		return;
 	}
 
@@ -144,11 +154,14 @@ export async function handleSubscriptionUpdated(
 		})
 		.where(eq(merchants.id, merchant.id));
 
-	console.info("Updated merchant subscription (updated)", {
-		merchantId: merchant.id,
-		subscriptionId: subscription.id,
-		status,
-	});
+	stripeLogger.info(
+		{
+			merchantId: merchant.id,
+			subscriptionId: subscription.id,
+			status,
+		},
+		"Updated merchant subscription (updated)",
+	);
 }
 
 /**
@@ -160,12 +173,18 @@ export async function handleSubscriptionUpdated(
 export async function handleSubscriptionDeleted(
 	subscription: SubscriptionWithPeriod,
 ): Promise<void> {
-	console.log(`Subscription deleted: ${subscription.id}`);
+	stripeLogger.info(
+		{ subscriptionId: subscription.id },
+		"Subscription deleted",
+	);
 
 	const merchant = await findMerchantBySubscription(subscription);
 
 	if (!merchant) {
-		console.log(`No merchant found for subscription ${subscription.id}`);
+		stripeLogger.debug(
+			{ subscriptionId: subscription.id },
+			"No merchant found for subscription",
+		);
 		return;
 	}
 
@@ -178,10 +197,13 @@ export async function handleSubscriptionDeleted(
 		})
 		.where(eq(merchants.id, merchant.id));
 
-	console.info("Marked merchant subscription as canceled", {
-		merchantId: merchant.id,
-		subscriptionId: subscription.id,
-	});
+	stripeLogger.info(
+		{
+			merchantId: merchant.id,
+			subscriptionId: subscription.id,
+		},
+		"Marked merchant subscription as canceled",
+	);
 }
 
 /**
@@ -193,12 +215,15 @@ export async function handleSubscriptionDeleted(
 export async function handleSubscriptionPaused(
 	subscription: SubscriptionWithPeriod,
 ): Promise<void> {
-	console.log(`Subscription paused: ${subscription.id}`);
+	stripeLogger.info({ subscriptionId: subscription.id }, "Subscription paused");
 
 	const merchant = await findMerchantBySubscription(subscription);
 
 	if (!merchant) {
-		console.log(`No merchant found for subscription ${subscription.id}`);
+		stripeLogger.debug(
+			{ subscriptionId: subscription.id },
+			"No merchant found for subscription",
+		);
 		return;
 	}
 
@@ -209,10 +234,13 @@ export async function handleSubscriptionPaused(
 		})
 		.where(eq(merchants.id, merchant.id));
 
-	console.info("Marked merchant subscription as paused", {
-		merchantId: merchant.id,
-		subscriptionId: subscription.id,
-	});
+	stripeLogger.info(
+		{
+			merchantId: merchant.id,
+			subscriptionId: subscription.id,
+		},
+		"Marked merchant subscription as paused",
+	);
 }
 
 /**
@@ -224,12 +252,18 @@ export async function handleSubscriptionPaused(
 export async function handleSubscriptionResumed(
 	subscription: SubscriptionWithPeriod,
 ): Promise<void> {
-	console.log(`Subscription resumed: ${subscription.id}`);
+	stripeLogger.info(
+		{ subscriptionId: subscription.id },
+		"Subscription resumed",
+	);
 
 	const merchant = await findMerchantBySubscription(subscription);
 
 	if (!merchant) {
-		console.log(`No merchant found for subscription ${subscription.id}`);
+		stripeLogger.debug(
+			{ subscriptionId: subscription.id },
+			"No merchant found for subscription",
+		);
 		return;
 	}
 
@@ -245,11 +279,14 @@ export async function handleSubscriptionResumed(
 		})
 		.where(eq(merchants.id, merchant.id));
 
-	console.info("Marked merchant subscription as resumed", {
-		merchantId: merchant.id,
-		subscriptionId: subscription.id,
-		status,
-	});
+	stripeLogger.info(
+		{
+			merchantId: merchant.id,
+			subscriptionId: subscription.id,
+			status,
+		},
+		"Marked merchant subscription as resumed",
+	);
 }
 
 /**
@@ -265,14 +302,18 @@ export async function handleTrialWillEnd(
 		? new Date(subscription.trial_end * 1000).toISOString()
 		: "unknown";
 
-	console.log(
-		`Trial ending soon for subscription ${subscription.id}, ends at: ${trialEnd}`,
+	stripeLogger.info(
+		{ subscriptionId: subscription.id, trialEndsAt: trialEnd },
+		"Trial ending soon",
 	);
 
 	const merchant = await findMerchantBySubscription(subscription);
 
 	if (!merchant) {
-		console.log(`No merchant found for subscription ${subscription.id}`);
+		stripeLogger.debug(
+			{ subscriptionId: subscription.id },
+			"No merchant found for subscription",
+		);
 		return;
 	}
 
@@ -280,9 +321,12 @@ export async function handleTrialWillEnd(
 	// const merchantDetails = await db.query.merchants.findFirst({ ... });
 	// await emailService.sendTrialEndingReminder(merchantDetails.email, trialEnd);
 
-	console.info("Trial will end notification", {
-		merchantId: merchant.id,
-		subscriptionId: subscription.id,
-		trialEndsAt: trialEnd,
-	});
+	stripeLogger.info(
+		{
+			merchantId: merchant.id,
+			subscriptionId: subscription.id,
+			trialEndsAt: trialEnd,
+		},
+		"Trial will end notification",
+	);
 }

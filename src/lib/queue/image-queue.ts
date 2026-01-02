@@ -1,5 +1,6 @@
 import { RedisClient } from "bun";
 import { env } from "@/env";
+import { imageLogger } from "@/lib/logger";
 import { processImageVariants } from "@/lib/storage/image-processor";
 
 const QUEUE_NAME = "image:variants";
@@ -14,7 +15,7 @@ const redis = new RedisClient(env.REDIS_URL ?? "redis://localhost:6379");
  */
 export async function enqueueVariantJob(imageId: number): Promise<void> {
 	await redis.send("LPUSH", [QUEUE_NAME, String(imageId)]);
-	console.log(`Enqueued image ${imageId} for variant processing`);
+	imageLogger.debug({ imageId }, "Enqueued image for variant processing");
 }
 
 /**
@@ -40,7 +41,7 @@ export async function processOneJob(): Promise<boolean> {
 		await processImageVariants(imageId);
 		return true;
 	} catch (error) {
-		console.error(`Failed to process image ${imageId}:`, error);
+		imageLogger.error({ imageId, error }, "Failed to process image");
 		// Move to dead letter queue for manual inspection
 		await redis.send("LPUSH", [DEAD_LETTER_QUEUE, String(imageId)]);
 		return true;
@@ -52,8 +53,7 @@ export async function processOneJob(): Promise<boolean> {
  * This should be run as a separate process.
  */
 export async function startWorker(): Promise<void> {
-	console.log("Image variant worker started");
-	console.log(`Listening on queue: ${QUEUE_NAME}`);
+	imageLogger.info({ queue: QUEUE_NAME }, "Image variant worker started");
 
 	while (true) {
 		try {
@@ -65,20 +65,20 @@ export async function startWorker(): Promise<void> {
 				const [, imageIdStr] = result as [string, string];
 				const imageId = Number(imageIdStr);
 
-				console.log(`Processing image ${imageId}...`);
+				imageLogger.debug({ imageId }, "Processing image...");
 
 				try {
 					await processImageVariants(imageId);
-					console.log(`Successfully processed image ${imageId}`);
+					imageLogger.info({ imageId }, "Successfully processed image");
 				} catch (error) {
-					console.error(`Failed to process image ${imageId}:`, error);
+					imageLogger.error({ imageId, error }, "Failed to process image");
 					// Move to dead letter queue for manual inspection
 					await redis.send("LPUSH", [DEAD_LETTER_QUEUE, String(imageId)]);
-					console.log(`Moved image ${imageId} to dead letter queue`);
+					imageLogger.warn({ imageId }, "Moved image to dead letter queue");
 				}
 			}
 		} catch (error) {
-			console.error("Worker error:", error);
+			imageLogger.error({ error }, "Worker error");
 			// Wait a bit before retrying to avoid spinning on errors
 			await new Promise((resolve) => setTimeout(resolve, 1000));
 		}

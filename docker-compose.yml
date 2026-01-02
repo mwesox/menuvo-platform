@@ -15,6 +15,22 @@ services:
       timeout: 5s
       retries: 5
 
+  postgres-test:
+    image: postgres:18-alpine
+    container_name: menuvo-platform-postgres-test
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: menuvo_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   redis:
     image: redis:8-alpine
     container_name: menuvo-platform-redis

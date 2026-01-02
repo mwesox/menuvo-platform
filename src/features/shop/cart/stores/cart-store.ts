@@ -210,10 +210,7 @@ export const useCartStore = create<CartStore>()(
 						typeof item.totalPrice === "number";
 
 					if (!isValid) {
-						console.warn(
-							"[CartStore] Filtered invalid item from localStorage:",
-							item,
-						);
+						// Silently filter invalid items - storage data corrupted
 					}
 					return isValid;
 				});

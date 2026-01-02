@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import { stripeLogger } from "@/lib/logger";
 import { getStripeClient } from "./client";
 
 /**
@@ -15,10 +16,7 @@ export async function createTrialSubscription(
 	accountId: string,
 	priceId: string,
 ): Promise<Stripe.Subscription> {
-	console.info("[Stripe] Creating trial subscription", {
-		accountId,
-		priceId,
-	});
+	stripeLogger.info({ accountId, priceId }, "Creating trial subscription");
 
 	try {
 		const stripe = getStripeClient();
@@ -38,25 +36,30 @@ export async function createTrialSubscription(
 			},
 		});
 
-		console.info("[Stripe] Trial subscription created successfully", {
-			accountId,
-			subscriptionId: subscription.id,
-			status: subscription.status,
-			trialEnd: subscription.trial_end,
-		});
+		stripeLogger.info(
+			{
+				accountId,
+				subscriptionId: subscription.id,
+				status: subscription.status,
+				trialEnd: subscription.trial_end,
+			},
+			"Trial subscription created successfully",
+		);
 
 		return subscription;
 	} catch (error) {
-		console.error("[Stripe] Failed to create trial subscription", {
-			accountId,
-			priceId,
-			error: error instanceof Error ? error.message : String(error),
-			stack: error instanceof Error ? error.stack : undefined,
-			stripeError:
-				error && typeof error === "object" && "type" in error
-					? (error as { type?: string; code?: string; message?: string })
-					: undefined,
-		});
+		stripeLogger.error(
+			{
+				accountId,
+				priceId,
+				error: error instanceof Error ? error.message : String(error),
+				stripeError:
+					error && typeof error === "object" && "type" in error
+						? (error as { type?: string; code?: string; message?: string })
+						: undefined,
+			},
+			"Failed to create trial subscription",
+		);
 		throw error;
 	}
 }

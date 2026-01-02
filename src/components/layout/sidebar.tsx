@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Logo } from "@/components/ui/logo";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -79,7 +80,10 @@ export function Sidebar() {
 				<Link to="/console" className="flex items-center gap-2">
 					<Logo height={28} />
 				</Link>
-				<LanguageSwitcher />
+				<div className="flex items-center gap-1">
+					<ThemeSwitcher />
+					<LanguageSwitcher />
+				</div>
 			</div>
 			<nav className="p-4">
 				<NavContent />
@@ -104,7 +108,10 @@ export function MobileSidebar() {
 					<Link to="/console" className="flex items-center gap-2">
 						<Logo height={28} />
 					</Link>
-					<LanguageSwitcher />
+					<div className="flex items-center gap-1">
+						<ThemeSwitcher />
+						<LanguageSwitcher />
+					</div>
 				</div>
 				<nav className="p-4">
 					<NavContent />

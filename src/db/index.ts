@@ -1,14 +1,13 @@
-import { SQL } from "bun";
-import { drizzle } from "drizzle-orm/bun-sql";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 import { env } from "@/env";
 import * as schema from "./schema.ts";
 
-const sql = new SQL({
-	url: env.DATABASE_URL,
+const sql = postgres(env.DATABASE_URL, {
 	max: 20, // Max concurrent connections
-	idleTimeout: 30, // Close idle connections after 30s
-	connectionTimeout: 10, // Connection timeout 10s
+	idle_timeout: 30, // Close idle connections after 30s
+	connect_timeout: 10, // Connection timeout 10s
 });
 
 export const db = drizzle(sql, { schema });

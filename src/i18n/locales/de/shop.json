@@ -44,7 +44,10 @@
 	},
 	"header": {
 		"cartWithItems": "Warenkorb mit {{count}} Artikeln",
-		"backToShop": "Zurück zum Shop"
+		"backToShop": "Zurück zum Shop",
+		"itemCount_one": "{{count}} Artikel",
+		"itemCount_other": "{{count}} Artikel",
+		"searchPlaceholder": "Menü durchsuchen..."
 	},
 	"errors": {
 		"somethingWentWrong": "Etwas ist schiefgelaufen",

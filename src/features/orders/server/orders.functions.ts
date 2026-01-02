@@ -9,6 +9,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { and, desc, eq, gte, ilike, inArray, lte, or } from "drizzle-orm";
 import { db } from "@/db";
 import { orderItemOptions, orderItems, orders } from "@/db/schema";
+import { ordersLogger } from "@/lib/logger";
 import { canTransitionTo, getInitialOrderStatus } from "../logic/order-status";
 import {
 	addMerchantNotesSchema,
@@ -32,25 +33,25 @@ import {
 export const createOrder = createServerFn({ method: "POST" })
 	.inputValidator(createOrderSchema)
 	.handler(async ({ data }) => {
-		console.log("[createOrder] Creating order:", {
-			storeId: data.storeId,
-			orderType: data.orderType,
-			customerName: data.customerName,
-			itemCount: data.items.length,
-			items: data.items.map((i) => ({
-				id: i.itemId,
-				name: i.name,
-				qty: i.quantity,
-			})),
-			subtotal: data.subtotal,
-			totalAmount: data.totalAmount,
-		});
+		ordersLogger.debug(
+			{
+				storeId: data.storeId,
+				orderType: data.orderType,
+				customerName: data.customerName,
+				itemCount: data.items.length,
+				subtotal: data.subtotal,
+				totalAmount: data.totalAmount,
+			},
+			"Creating order",
+		);
 
 		try {
 			const { orderStatus, paymentStatus } = getInitialOrderStatus(
 				data.orderType,
 				data.paymentMethod,
 			);
+
+			//TODO Validate order e.g. tax calculation etc?
 
 			const order = await db.transaction(async (tx) => {
 				const [newOrder] = await tx
@@ -109,10 +110,10 @@ export const createOrder = createServerFn({ method: "POST" })
 				return newOrder;
 			});
 
-			console.log("[createOrder] Order created successfully:", order.id);
+			ordersLogger.info({ orderId: order.id }, "Order created successfully");
 			return order;
 		} catch (error) {
-			console.error("[createOrder] FAILED:", error);
+			ordersLogger.error({ error }, "Order creation failed");
 			throw error;
 		}
 	});

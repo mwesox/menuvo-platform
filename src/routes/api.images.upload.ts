@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { db } from "@/db";
 import { type ImageType, images, imageType } from "@/db/schema";
+import { imageLogger } from "@/lib/logger";
 import { enqueueVariantJob } from "@/lib/queue/image-queue";
 import { processToWebp } from "@/lib/storage/image-processor";
 import { uploadFile } from "@/lib/storage/s3-client";
@@ -102,7 +103,7 @@ export const Route = createFileRoute("/api/images/upload")({
 
 					return Response.json(record);
 				} catch (error) {
-					console.error("Image upload failed:", error);
+					imageLogger.error({ error }, "Image upload failed");
 					return Response.json(
 						{ error: error instanceof Error ? error.message : "Upload failed" },
 						{ status: 500 },

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { env } from "@/env";
+import { webhookLogger } from "@/lib/logger";
 import {
 	getStripeClient,
 	ingestStripeEvent,
@@ -52,7 +53,7 @@ export const Route = createFileRoute("/api/webhooks/stripe/thin")({
 			POST: async ({ request }) => {
 				// Validate environment
 				if (!env.STRIPE_WEBHOOK_SECRET_THIN) {
-					console.error("STRIPE_WEBHOOK_SECRET_THIN not configured");
+					webhookLogger.error("STRIPE_WEBHOOK_SECRET_THIN not configured");
 					return Response.json(
 						{ error: "Webhook not configured" },
 						{ status: 500 },
@@ -81,7 +82,10 @@ export const Route = createFileRoute("/api/webhooks/stripe/thin")({
 					);
 				} catch (err) {
 					const message = err instanceof Error ? err.message : "Unknown error";
-					console.error("Webhook signature verification failed:", message);
+					webhookLogger.error(
+						{ error: message },
+						"Webhook signature verification failed",
+					);
 					return Response.json({ error: "Invalid signature" }, { status: 400 });
 				}
 
@@ -96,7 +100,10 @@ export const Route = createFileRoute("/api/webhooks/stripe/thin")({
 					);
 				}
 
-				console.log(`Received thin event: ${thinEvent.id} (${thinEvent.type})`);
+				webhookLogger.info(
+					{ eventId: thinEvent.id, eventType: thinEvent.type },
+					"Received thin event",
+				);
 
 				// Ingest event to database (idempotency check)
 				// ALL events are stored without filtering
@@ -111,7 +118,10 @@ export const Route = createFileRoute("/api/webhooks/stripe/thin")({
 
 				// If event already processed, return early
 				if (!ingestResult.isNew) {
-					console.log(`Event already processed: ${thinEvent.id}`);
+					webhookLogger.debug(
+						{ eventId: thinEvent.id },
+						"Event already processed",
+					);
 					return Response.json({ received: true, duplicate: true });
 				}
 
@@ -127,7 +137,10 @@ export const Route = createFileRoute("/api/webhooks/stripe/thin")({
 							break;
 
 						default:
-							console.log(`Unhandled thin event type: ${thinEvent.type}`);
+							webhookLogger.debug(
+								{ eventType: thinEvent.type },
+								"Unhandled thin event type",
+							);
 					}
 
 					// Mark event as processed
@@ -135,7 +148,10 @@ export const Route = createFileRoute("/api/webhooks/stripe/thin")({
 					return Response.json({ received: true });
 				} catch (err) {
 					const message = err instanceof Error ? err.message : "Unknown error";
-					console.error(`Error processing event ${thinEvent.id}:`, message);
+					webhookLogger.error(
+						{ eventId: thinEvent.id, error: message },
+						"Error processing event",
+					);
 
 					// Mark event as failed
 					await markEventFailed(thinEvent.id);
@@ -159,11 +175,11 @@ async function handleRequirementsUpdated(
 ): Promise<void> {
 	const accountId = thinEvent.related_object?.id;
 	if (!accountId) {
-		console.error("No related object in requirements.updated event");
+		webhookLogger.error("No related object in requirements.updated event");
 		return;
 	}
 
-	console.log(`Requirements updated for account: ${accountId}`);
+	webhookLogger.info({ accountId }, "Requirements updated for account");
 
 	// Fetch current account status from Stripe
 	const account = await stripe.v2.core.accounts.retrieve(accountId, {
@@ -177,8 +193,9 @@ async function handleRequirementsUpdated(
 	// Check if onboarding is complete (no requirements due)
 	const onboardingComplete = requirementsStatus === "none";
 
-	console.log(
-		`  Requirements status: ${requirementsStatus}, onboarding complete: ${onboardingComplete}`,
+	webhookLogger.info(
+		{ requirementsStatus, onboardingComplete },
+		"Requirements status",
 	);
 
 	// Update merchant record
@@ -200,11 +217,11 @@ async function handleCapabilityStatusUpdated(
 ): Promise<void> {
 	const accountId = thinEvent.related_object?.id;
 	if (!accountId) {
-		console.error("No related object in capability_status_updated event");
+		webhookLogger.error("No related object in capability_status_updated event");
 		return;
 	}
 
-	console.log(`Capability status updated for account: ${accountId}`);
+	webhookLogger.info({ accountId }, "Capability status updated for account");
 
 	// Fetch current account status from Stripe
 	const account = await stripe.v2.core.accounts.retrieve(accountId, {
@@ -216,7 +233,7 @@ async function handleCapabilityStatusUpdated(
 		account.configuration?.merchant?.capabilities?.card_payments?.status;
 	const capabilitiesStatus = mapCapabilityStatus(stripeStatus);
 
-	console.log(`  Card payments status: ${capabilitiesStatus}`);
+	webhookLogger.info({ capabilitiesStatus }, "Card payments status");
 
 	// Update merchant record
 	await updateMerchantPaymentStatus({

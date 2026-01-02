@@ -4,36 +4,37 @@
  *
  * Runs both image variant and menu import workers concurrently.
  */
+import { queueLogger } from "@/lib/logger";
 import { startWorker as startImageWorker } from "./image-queue";
 import { startMenuImportWorker } from "./menu-import-queue";
 
-console.log("Starting background workers...");
-console.log("- Image variant worker");
-console.log("- Menu import worker");
-console.log("Press Ctrl+C to stop");
+queueLogger.info("Starting background workers...");
+queueLogger.info("- Image variant worker");
+queueLogger.info("- Menu import worker");
+queueLogger.info("Press Ctrl+C to stop");
 
 // Handle graceful shutdown
 process.on("SIGINT", () => {
-	console.log("\nShutting down workers...");
+	queueLogger.info("Shutting down workers...");
 	process.exit(0);
 });
 
 process.on("SIGTERM", () => {
-	console.log("\nShutting down workers...");
+	queueLogger.info("Shutting down workers...");
 	process.exit(0);
 });
 
 // Start both workers concurrently
 Promise.all([
 	startImageWorker().catch((error) => {
-		console.error("Image worker failed:", error);
+		queueLogger.error({ error }, "Image worker failed");
 		throw error;
 	}),
 	startMenuImportWorker().catch((error) => {
-		console.error("Menu import worker failed:", error);
+		queueLogger.error({ error }, "Menu import worker failed");
 		throw error;
 	}),
 ]).catch((error) => {
-	console.error("Workers failed to start:", error);
+	queueLogger.error({ error }, "Workers failed to start");
 	process.exit(1);
 });

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { merchants } from "@/db/schema.ts";
 import { env } from "@/env";
+import { stripeLogger } from "@/lib/logger";
 import {
 	cancelSubscription,
 	createBillingPortalSession,
@@ -55,7 +56,10 @@ export const getSubscriptionDetails = createServerFn({ method: "GET" })
 				cancelAtPeriodEnd = stripeSubscription.cancel_at_period_end;
 				stripeStatus = stripeSubscription.status;
 			} catch (err) {
-				console.error("Failed to fetch Stripe subscription:", err);
+				stripeLogger.error(
+					{ subscriptionId: merchant.subscriptionId, error: err },
+					"Failed to fetch Stripe subscription",
+				);
 			}
 		}
 

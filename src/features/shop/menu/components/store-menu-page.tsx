@@ -3,12 +3,13 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getRouteApi } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { FloatingCart, useCartStore } from "../../cart";
 import { shopQueries } from "../../queries";
-import { useShop } from "../../shared";
 import {
 	useCategoryScroll,
 	useMenuItemSelection,
+	useMenuSearch,
 	useQRTracking,
 } from "../hooks";
 import { CategoryNav } from "./category-nav";
@@ -16,37 +17,39 @@ import { CategorySection } from "./category-section";
 import { EmptyMenuState } from "./empty-menu-state";
 import { ItemDrawer } from "./item-drawer";
 import { StorePageSkeleton } from "./menu-item-skeleton";
-import { StoreHero } from "./store-hero";
 
 const routeApi = getRouteApi("/shop/$slug/");
 
 /**
  * Main store menu page component.
- * Displays the store hero, category navigation, and menu items.
+ * Displays category navigation and menu items.
  */
 export function StoreMenuPage() {
+	const { t } = useTranslation("shop");
 	const { slug } = routeApi.useParams();
 	const { sp: servicePointCode } = routeApi.useSearch();
 	const { data: store } = useSuspenseQuery(shopQueries.storeBySlug(slug));
 
 	const setStore = useCartStore((s) => s.setStore);
-	const { setStoreName } = useShop();
 
-	// Set the store in cart context (clears cart if different store)
-	// and set store name in shop context for header
+	// Set the store in cart context
 	useEffect(() => {
 		if (store) {
 			setStore(store.slug);
-			setStoreName(store.name);
 		}
-	}, [store, setStore, setStoreName]);
+	}, [store, setStore]);
 
 	// Track QR code scans
 	useQRTracking(store, servicePointCode);
 
-	// Category scroll tracking
+	// Menu search filtering
+	const { filteredCategories, isSearching, hasResults } = useMenuSearch(
+		store.categories,
+	);
+
+	// Category scroll tracking (use filtered categories)
 	const { activeCategoryId, setCategoryRef, handleCategoryClick } =
-		useCategoryScroll({ categories: store.categories });
+		useCategoryScroll({ categories: filteredCategories });
 
 	// Item selection and drawer state
 	const {
@@ -58,11 +61,9 @@ export function StoreMenuPage() {
 
 	return (
 		<div className="min-h-screen pb-24">
-			<div className="mx-auto max-w-3xl">
-				<StoreHero store={store} />
-
+			<div className="mx-auto max-w-6xl">
 				<CategoryNav
-					categories={store.categories.map(
+					categories={filteredCategories.map(
 						(c: { id: number; name: string; items: unknown[] }) => ({
 							id: c.id,
 							name: c.name,
@@ -76,8 +77,14 @@ export function StoreMenuPage() {
 				<div className="px-4 py-4">
 					{store.categories.length === 0 ? (
 						<EmptyMenuState />
+					) : isSearching && !hasResults ? (
+						<div className="py-12 text-center">
+							<p className="text-muted-foreground">
+								{t("menu.noSearchResults", "No items found")}
+							</p>
+						</div>
 					) : (
-						store.categories.map(
+						filteredCategories.map(
 							(category: (typeof store.categories)[number]) => (
 								<CategorySection
 									key={category.id}

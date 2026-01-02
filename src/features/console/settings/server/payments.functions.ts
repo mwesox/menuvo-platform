@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { merchants } from "@/db/schema";
 import { env } from "@/env";
+import { paymentsLogger } from "@/lib/logger";
 import { getStripeClient } from "@/lib/stripe/client";
 import { createAccountLink, createStripeAccount } from "@/lib/stripe/connect";
 import { createTrialSubscription } from "@/lib/stripe/subscriptions";
@@ -15,9 +16,10 @@ import { createTrialSubscription } from "@/lib/stripe/subscriptions";
 export const getPaymentStatus = createServerFn({ method: "GET" })
 	.inputValidator(z.object({ merchantId: z.number() }))
 	.handler(async ({ data }) => {
-		console.info("[Payments] Getting payment status", {
-			merchantId: data.merchantId,
-		});
+		paymentsLogger.debug(
+			{ merchantId: data.merchantId },
+			"Getting payment status",
+		);
 
 		try {
 			const merchant = await db.query.merchants.findFirst({
@@ -38,25 +40,31 @@ export const getPaymentStatus = createServerFn({ method: "GET" })
 			});
 
 			if (!merchant) {
-				console.error("[Payments] Merchant not found", {
-					merchantId: data.merchantId,
-				});
+				paymentsLogger.error(
+					{ merchantId: data.merchantId },
+					"Merchant not found",
+				);
 				throw new Error("Merchant not found");
 			}
 
-			console.info("[Payments] Payment status retrieved", {
-				merchantId: data.merchantId,
-				hasPaymentAccount: !!merchant.paymentAccountId,
-				subscriptionStatus: merchant.subscriptionStatus,
-			});
+			paymentsLogger.info(
+				{
+					merchantId: data.merchantId,
+					hasPaymentAccount: !!merchant.paymentAccountId,
+					subscriptionStatus: merchant.subscriptionStatus,
+				},
+				"Payment status retrieved",
+			);
 
 			return merchant;
 		} catch (error) {
-			console.error("[Payments] Failed to get payment status", {
-				merchantId: data.merchantId,
-				error: error instanceof Error ? error.message : String(error),
-				stack: error instanceof Error ? error.stack : undefined,
-			});
+			paymentsLogger.error(
+				{
+					merchantId: data.merchantId,
+					error: error instanceof Error ? error.message : String(error),
+				},
+				"Failed to get payment status",
+			);
 			throw error;
 		}
 	});
@@ -69,9 +77,10 @@ export const getPaymentStatus = createServerFn({ method: "GET" })
 export const setupPaymentAccount = createServerFn({ method: "POST" })
 	.inputValidator(z.object({ merchantId: z.number() }))
 	.handler(async ({ data }) => {
-		console.info("[Payments] Setting up payment account", {
-			merchantId: data.merchantId,
-		});
+		paymentsLogger.info(
+			{ merchantId: data.merchantId },
+			"Setting up payment account",
+		);
 
 		try {
 			// Fetch merchant
@@ -88,19 +97,23 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 			});
 
 			if (!merchant) {
-				console.error("[Payments] Merchant not found for setup", {
-					merchantId: data.merchantId,
-				});
+				paymentsLogger.error(
+					{ merchantId: data.merchantId },
+					"Merchant not found for setup",
+				);
 				throw new Error("Merchant not found");
 			}
 
 			// Idempotent: return existing if already set up
 			if (merchant.paymentAccountId && merchant.subscriptionId) {
-				console.info("[Payments] Account already set up", {
-					merchantId: data.merchantId,
-					accountId: merchant.paymentAccountId,
-					subscriptionId: merchant.subscriptionId,
-				});
+				paymentsLogger.info(
+					{
+						merchantId: data.merchantId,
+						accountId: merchant.paymentAccountId,
+						subscriptionId: merchant.subscriptionId,
+					},
+					"Account already set up",
+				);
 				return {
 					accountId: merchant.paymentAccountId,
 					subscriptionId: merchant.subscriptionId,
@@ -114,10 +127,10 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 			// Step 1: Create Stripe Connect account (if not exists)
 			let accountId = merchant.paymentAccountId;
 			if (!accountId) {
-				console.info("[Payments] Creating Stripe Connect account", {
-					merchantId: data.merchantId,
-					email: merchant.email,
-				});
+				paymentsLogger.info(
+					{ merchantId: data.merchantId, email: merchant.email },
+					"Creating Stripe Connect account",
+				);
 
 				const result = await createStripeAccount(stripe, {
 					email: merchant.email,
@@ -125,10 +138,10 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 				});
 				accountId = result.accountId;
 
-				console.info("[Payments] Stripe Connect account created", {
-					merchantId: data.merchantId,
-					accountId,
-				});
+				paymentsLogger.info(
+					{ merchantId: data.merchantId, accountId },
+					"Stripe Connect account created",
+				);
 
 				// Update merchant with account ID
 				await db
@@ -145,25 +158,28 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 			// Step 2: Create trial subscription
 			const priceId = env.STRIPE_PRICE_STARTER;
 			if (!priceId) {
-				console.error("[Payments] STRIPE_PRICE_STARTER not configured", {
-					merchantId: data.merchantId,
-				});
+				paymentsLogger.error(
+					{ merchantId: data.merchantId },
+					"STRIPE_PRICE_STARTER not configured",
+				);
 				throw new Error("STRIPE_PRICE_STARTER not configured");
 			}
 
-			console.info("[Payments] Creating trial subscription", {
-				merchantId: data.merchantId,
-				accountId,
-				priceId,
-			});
+			paymentsLogger.info(
+				{ merchantId: data.merchantId, accountId, priceId },
+				"Creating trial subscription",
+			);
 
 			const subscription = await createTrialSubscription(accountId, priceId);
 
-			console.info("[Payments] Trial subscription created", {
-				merchantId: data.merchantId,
-				subscriptionId: subscription.id,
-				trialEnd: subscription.trial_end,
-			});
+			paymentsLogger.info(
+				{
+					merchantId: data.merchantId,
+					subscriptionId: subscription.id,
+					trialEnd: subscription.trial_end,
+				},
+				"Trial subscription created",
+			);
 
 			// Update merchant with subscription info
 			const trialEndsAt = subscription.trial_end
@@ -187,12 +203,15 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 				})
 				.where(eq(merchants.id, merchant.id));
 
-			console.info("[Payments] Payment account setup complete", {
-				merchantId: data.merchantId,
-				accountId,
-				subscriptionId: subscription.id,
-				trialEndsAt,
-			});
+			paymentsLogger.info(
+				{
+					merchantId: data.merchantId,
+					accountId,
+					subscriptionId: subscription.id,
+					trialEndsAt,
+				},
+				"Payment account setup complete",
+			);
 
 			return {
 				accountId,
@@ -201,11 +220,13 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 				alreadySetUp: false,
 			};
 		} catch (error) {
-			console.error("[Payments] Failed to set up payment account", {
-				merchantId: data.merchantId,
-				error: error instanceof Error ? error.message : String(error),
-				stack: error instanceof Error ? error.stack : undefined,
-			});
+			paymentsLogger.error(
+				{
+					merchantId: data.merchantId,
+					error: error instanceof Error ? error.message : String(error),
+				},
+				"Failed to set up payment account",
+			);
 			throw error;
 		}
 	});
@@ -217,9 +238,10 @@ export const setupPaymentAccount = createServerFn({ method: "POST" })
 export const createPaymentOnboardingLink = createServerFn({ method: "POST" })
 	.inputValidator(z.object({ merchantId: z.number() }))
 	.handler(async ({ data }) => {
-		console.info("[Payments] Creating onboarding link", {
-			merchantId: data.merchantId,
-		});
+		paymentsLogger.info(
+			{ merchantId: data.merchantId },
+			"Creating onboarding link",
+		);
 
 		try {
 			const merchant = await db.query.merchants.findFirst({
@@ -230,20 +252,24 @@ export const createPaymentOnboardingLink = createServerFn({ method: "POST" })
 			});
 
 			if (!merchant?.paymentAccountId) {
-				console.error("[Payments] Merchant has no payment account", {
-					merchantId: data.merchantId,
-				});
+				paymentsLogger.error(
+					{ merchantId: data.merchantId },
+					"Merchant has no payment account",
+				);
 				throw new Error("Merchant has no payment account");
 			}
 
 			const stripe = getStripeClient();
 			const serverUrl = env.SERVER_URL || "http://localhost:3000";
 
-			console.info("[Payments] Calling Stripe to create account link", {
-				merchantId: data.merchantId,
-				accountId: merchant.paymentAccountId,
-				serverUrl,
-			});
+			paymentsLogger.debug(
+				{
+					merchantId: data.merchantId,
+					accountId: merchant.paymentAccountId,
+					serverUrl,
+				},
+				"Calling Stripe to create account link",
+			);
 
 			const accountLink = await createAccountLink(stripe, {
 				accountId: merchant.paymentAccountId,
@@ -251,32 +277,35 @@ export const createPaymentOnboardingLink = createServerFn({ method: "POST" })
 				returnUrl: `${serverUrl}/console/settings/payments?from=stripe`,
 			});
 
-			console.info("[Payments] Onboarding link created successfully", {
-				merchantId: data.merchantId,
-				accountId: merchant.paymentAccountId,
-				url: accountLink.url,
-				expiresAt: new Date(accountLink.expiresAt).toISOString(),
-			});
+			paymentsLogger.info(
+				{
+					merchantId: data.merchantId,
+					accountId: merchant.paymentAccountId,
+					expiresAt: new Date(accountLink.expiresAt).toISOString(),
+				},
+				"Onboarding link created successfully",
+			);
 
 			return {
 				url: accountLink.url,
 				expiresAt: accountLink.expiresAt,
 			};
 		} catch (error) {
-			console.error("[Payments] Failed to create onboarding link", {
-				merchantId: data.merchantId,
-				error: error instanceof Error ? error.message : String(error),
-				stack: error instanceof Error ? error.stack : undefined,
-				// Extract Stripe error details if available
-				stripeError:
-					error && typeof error === "object" && "type" in error
-						? {
-								type: (error as { type?: string }).type,
-								code: (error as { code?: string }).code,
-								message: (error as { message?: string }).message,
-							}
-						: undefined,
-			});
+			paymentsLogger.error(
+				{
+					merchantId: data.merchantId,
+					error: error instanceof Error ? error.message : String(error),
+					stripeError:
+						error && typeof error === "object" && "type" in error
+							? {
+									type: (error as { type?: string }).type,
+									code: (error as { code?: string }).code,
+									message: (error as { message?: string }).message,
+								}
+							: undefined,
+				},
+				"Failed to create onboarding link",
+			);
 			throw error;
 		}
 	});
@@ -288,9 +317,10 @@ export const createPaymentOnboardingLink = createServerFn({ method: "POST" })
 export const refreshPaymentStatus = createServerFn({ method: "POST" })
 	.inputValidator(z.object({ merchantId: z.number() }))
 	.handler(async ({ data }) => {
-		console.info("[Payments] Refreshing payment status", {
-			merchantId: data.merchantId,
-		});
+		paymentsLogger.info(
+			{ merchantId: data.merchantId },
+			"Refreshing payment status",
+		);
 
 		try {
 			const merchant = await db.query.merchants.findFirst({
@@ -302,21 +332,22 @@ export const refreshPaymentStatus = createServerFn({ method: "POST" })
 			});
 
 			if (!merchant?.paymentAccountId) {
-				console.error(
-					"[Payments] Merchant has no payment account for refresh",
-					{
-						merchantId: data.merchantId,
-					},
+				paymentsLogger.error(
+					{ merchantId: data.merchantId },
+					"Merchant has no payment account for refresh",
 				);
 				throw new Error("Merchant has no payment account");
 			}
 
 			const stripe = getStripeClient();
 
-			console.info("[Payments] Fetching account from Stripe", {
-				merchantId: data.merchantId,
-				accountId: merchant.paymentAccountId,
-			});
+			paymentsLogger.debug(
+				{
+					merchantId: data.merchantId,
+					accountId: merchant.paymentAccountId,
+				},
+				"Fetching account from Stripe",
+			);
 
 			// Fetch account from Stripe V2 API
 			const account = await stripe.v2.core.accounts.retrieve(
@@ -344,14 +375,17 @@ export const refreshPaymentStatus = createServerFn({ method: "POST" })
 				};
 			};
 
-			console.info("[Payments] Stripe account data retrieved", {
-				merchantId: data.merchantId,
-				accountId: merchant.paymentAccountId,
-				requirements: accountData.requirements,
-				cardPaymentsStatus:
-					accountData.configuration?.merchant?.capabilities?.card_payments
-						?.status,
-			});
+			paymentsLogger.debug(
+				{
+					merchantId: data.merchantId,
+					accountId: merchant.paymentAccountId,
+					requirements: accountData.requirements,
+					cardPaymentsStatus:
+						accountData.configuration?.merchant?.capabilities?.card_payments
+							?.status,
+				},
+				"Stripe account data retrieved",
+			);
 
 			// Map requirements status
 			let requirementsStatus:
@@ -402,12 +436,15 @@ export const refreshPaymentStatus = createServerFn({ method: "POST" })
 				})
 				.where(eq(merchants.id, merchant.id));
 
-			console.info("[Payments] Payment status refreshed", {
-				merchantId: data.merchantId,
-				onboardingComplete,
-				requirementsStatus,
-				capabilitiesStatus,
-			});
+			paymentsLogger.info(
+				{
+					merchantId: data.merchantId,
+					onboardingComplete,
+					requirementsStatus,
+					capabilitiesStatus,
+				},
+				"Payment status refreshed",
+			);
 
 			return {
 				onboardingComplete,
@@ -415,19 +452,21 @@ export const refreshPaymentStatus = createServerFn({ method: "POST" })
 				capabilitiesStatus,
 			};
 		} catch (error) {
-			console.error("[Payments] Failed to refresh payment status", {
-				merchantId: data.merchantId,
-				error: error instanceof Error ? error.message : String(error),
-				stack: error instanceof Error ? error.stack : undefined,
-				stripeError:
-					error && typeof error === "object" && "type" in error
-						? {
-								type: (error as { type?: string }).type,
-								code: (error as { code?: string }).code,
-								message: (error as { message?: string }).message,
-							}
-						: undefined,
-			});
+			paymentsLogger.error(
+				{
+					merchantId: data.merchantId,
+					error: error instanceof Error ? error.message : String(error),
+					stripeError:
+						error && typeof error === "object" && "type" in error
+							? {
+									type: (error as { type?: string }).type,
+									code: (error as { code?: string }).code,
+									message: (error as { message?: string }).message,
+								}
+							: undefined,
+				},
+				"Failed to refresh payment status",
+			);
 			throw error;
 		}
 	});

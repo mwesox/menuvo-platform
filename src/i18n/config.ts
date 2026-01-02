@@ -68,7 +68,20 @@ const resources = {
 };
 
 export function initI18n(detectedLanguage?: string) {
-	if (i18n.isInitialized) return i18n;
+	if (i18n.isInitialized) {
+		// Ensure resources are up-to-date (important for HMR in development)
+		for (const lng of SUPPORTED_LANGUAGES) {
+			for (const ns of Object.keys(resources[lng])) {
+				const currentResources = resources[lng][ns as keyof (typeof resources)[typeof lng]];
+				i18n.addResourceBundle(lng, ns, currentResources, true, true);
+			}
+		}
+		// Update language if different
+		if (detectedLanguage && i18n.language !== detectedLanguage) {
+			i18n.changeLanguage(detectedLanguage);
+		}
+		return i18n;
+	}
 
 	i18n
 		.use(LanguageDetector)
