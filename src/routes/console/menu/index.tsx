@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 import { MenuPage } from "@/features/console/menu/components/menu-page";
 import { optionGroupQueries } from "@/features/console/menu/options.queries";
 import { categoryQueries, itemQueries } from "@/features/console/menu/queries";
@@ -16,8 +15,7 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/console/menu/")({
 	validateSearch: searchSchema,
-	beforeLoad: async () => requireMerchant(),
-	loaderDeps: ({ search }) => ({ storeId: search.storeId, tab: search.tab }),
+	loaderDeps: ({ search }) => ({ storeId: search.storeId }),
 	loader: async ({ context, deps }) => {
 		const stores = await context.queryClient.ensureQueryData(
 			storeQueries.list(),

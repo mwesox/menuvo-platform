@@ -18,6 +18,9 @@ export const getRouter = () => {
 			language: DEFAULT_LANGUAGE,
 		},
 		defaultPreload: "intent",
+		defaultPreloadDelay: 100, // Debounce hover prefetches
+		defaultStaleTime: 5 * 60 * 1000, // 5 min - don't re-run loaders if route data is fresh
+		defaultGcTime: 10 * 60 * 1000, // 10 min - keep route data in memory
 		defaultNotFoundComponent: () => <div>Page not found</div>,
 	});
 

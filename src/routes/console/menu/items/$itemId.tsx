@@ -3,7 +3,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
 import type { Item, Store } from "@/db/schema";
-import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 import { ItemForm } from "@/features/console/menu/components/item-form";
 import { useEntityDisplayName } from "@/features/console/menu/hooks";
 import { itemOptionQueries } from "@/features/console/menu/options.queries";
@@ -11,7 +10,6 @@ import { itemQueries } from "@/features/console/menu/queries";
 import { storeQueries } from "@/features/console/stores/queries";
 
 export const Route = createFileRoute("/console/menu/items/$itemId")({
-	beforeLoad: async () => requireMerchant(),
 	loader: async ({ context, params }) => {
 		const itemId = Number.parseInt(params.itemId, 10);
 		const [item, itemOptions] = await Promise.all([

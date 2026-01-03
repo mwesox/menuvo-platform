@@ -1,7 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 import { NewItemPage } from "@/features/console/menu/components/new-item-page";
 import { categoryQueries } from "@/features/console/menu/queries";
 import { storeQueries } from "@/features/console/stores/queries";
@@ -13,7 +12,6 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/console/menu/items/new")({
 	validateSearch: searchSchema,
-	beforeLoad: async () => requireMerchant(),
 	loaderDeps: ({ search }) => ({ storeId: search.storeId }),
 	loader: async ({ context, deps }) => {
 		await Promise.all([

@@ -4,12 +4,10 @@ import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
 import { Button } from "@/components/ui/button";
-import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 import { StoreCard } from "@/features/console/stores/components/store-card";
 import { storeQueries } from "@/features/console/stores/queries";
 
 export const Route = createFileRoute("/console/stores/")({
-	beforeLoad: async () => requireMerchant(),
 	loader: async ({ context }) => {
 		await context.queryClient.ensureQueryData(storeQueries.list());
 	},

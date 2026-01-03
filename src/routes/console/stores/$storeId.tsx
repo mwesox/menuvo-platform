@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 import {
 	ServicePointsPanel,
 	servicePointQueries,
@@ -45,7 +44,6 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/console/stores/$storeId")({
 	validateSearch: searchSchema,
-	beforeLoad: async () => requireMerchant(),
 	loader: async ({ context, params }) => {
 		const storeId = Number.parseInt(params.storeId, 10);
 		await Promise.all([

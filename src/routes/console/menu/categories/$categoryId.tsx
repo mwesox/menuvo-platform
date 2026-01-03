@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { requireMerchant } from "@/features/console/auth/server/merchant.functions";
 import { CategoryItemsPage } from "@/features/console/menu/components/category-items-page";
 import { categoryQueries } from "@/features/console/menu/queries";
 
@@ -10,7 +9,6 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/console/menu/categories/$categoryId")({
 	validateSearch: searchSchema,
-	beforeLoad: async () => requireMerchant(),
 	loader: async ({ context, params }) => {
 		const categoryId = Number.parseInt(params.categoryId, 10);
 		await context.queryClient.ensureQueryData(

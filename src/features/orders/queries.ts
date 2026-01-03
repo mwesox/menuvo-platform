@@ -93,6 +93,7 @@ export const orderQueries = {
 					},
 				}),
 			enabled: !!storeId,
+			staleTime: 30_000, // 30 seconds - orders need near-real-time updates
 		}),
 
 	/**
@@ -116,6 +117,7 @@ export const orderQueries = {
 			queryKey: orderKeys.detail(orderId),
 			queryFn: () => getOrder({ data: { orderId } }),
 			enabled: !!orderId,
+			staleTime: 30_000, // 30 seconds - orders need near-real-time updates
 		}),
 };
 
