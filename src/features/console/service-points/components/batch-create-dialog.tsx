@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Suspense, useMemo } from "react";
+import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -72,14 +72,14 @@ function BatchCreateForm({
 		},
 	});
 
-	// Subscribe to form values reactively
-	const formValues = form.useStore((state) => state.values);
-
 	// Generate preview of what will be created
-	const preview = useMemo(() => {
-		const prefix = formValues.prefix;
-		const start = Number.parseInt(formValues.startNumber, 10) || 0;
-		const end = Number.parseInt(formValues.endNumber, 10) || 0;
+	const generatePreview = (
+		prefix: string,
+		startNumber: string,
+		endNumber: string,
+	) => {
+		const start = Number.parseInt(startNumber, 10) || 0;
+		const end = Number.parseInt(endNumber, 10) || 0;
 
 		if (!prefix || start > end || end - start >= 100) {
 			return [];
@@ -93,9 +93,7 @@ function BatchCreateForm({
 			});
 		}
 		return items;
-	}, [formValues.prefix, formValues.startNumber, formValues.endNumber]);
-
-	const count = preview.length;
+	};
 
 	return (
 		<form
@@ -222,47 +220,64 @@ function BatchCreateForm({
 			</FieldGroup>
 
 			{/* Preview */}
-			{preview.length > 0 && (
-				<div className="space-y-2">
-					<p className="text-sm font-medium">{t("batch.labels.preview")}</p>
-					<ScrollArea className="h-40 rounded-md border">
-						<div className="p-3 space-y-1">
-							{preview.slice(0, 5).map((item) => (
-								<div
-									key={item.code}
-									className="flex items-center justify-between text-sm"
-								>
-									<span>{item.name}</span>
-									<span className="font-mono text-muted-foreground text-xs">
-										{item.code}
-									</span>
+			<form.Subscribe
+				selector={(state) => ({
+					prefix: state.values.prefix,
+					startNumber: state.values.startNumber,
+					endNumber: state.values.endNumber,
+					isSubmitting: state.isSubmitting,
+				})}
+			>
+				{({ prefix, startNumber, endNumber, isSubmitting }) => {
+					const preview = generatePreview(prefix, startNumber, endNumber);
+					const count = preview.length;
+					return (
+						<>
+							{preview.length > 0 && (
+								<div className="space-y-2">
+									<p className="text-sm font-medium">
+										{t("batch.labels.preview")}
+									</p>
+									<ScrollArea className="h-40 rounded-md border">
+										<div className="p-3 space-y-1">
+											{preview.slice(0, 5).map((item) => (
+												<div
+													key={item.code}
+													className="flex items-center justify-between text-sm"
+												>
+													<span>{item.name}</span>
+													<span className="font-mono text-muted-foreground text-xs">
+														{item.code}
+													</span>
+												</div>
+											))}
+											{preview.length > 5 && (
+												<p className="text-xs text-muted-foreground pt-2">
+													{t("batch.preview.more", {
+														count: preview.length - 5,
+													})}
+												</p>
+											)}
+										</div>
+									</ScrollArea>
 								</div>
-							))}
-							{preview.length > 5 && (
-								<p className="text-xs text-muted-foreground pt-2">
-									{t("batch.preview.more", { count: preview.length - 5 })}
-								</p>
 							)}
-						</div>
-					</ScrollArea>
-				</div>
-			)}
 
-			<form.Subscribe selector={(state) => state.isSubmitting}>
-				{(isSubmitting) => (
-					<div className="flex justify-end gap-2">
-						{onCancel && (
-							<Button type="button" variant="outline" onClick={onCancel}>
-								{t("buttons.cancel")}
-							</Button>
-						)}
-						<Button type="submit" disabled={isSubmitting || count === 0}>
-							{isSubmitting
-								? t("batch.buttons.creating")
-								: t("batch.buttons.create", { count })}
-						</Button>
-					</div>
-				)}
+							<div className="flex justify-end gap-2">
+								{onCancel && (
+									<Button type="button" variant="outline" onClick={onCancel}>
+										{t("buttons.cancel")}
+									</Button>
+								)}
+								<Button type="submit" disabled={isSubmitting || count === 0}>
+									{isSubmitting
+										? t("batch.buttons.creating")
+										: t("batch.buttons.create", { count })}
+								</Button>
+							</div>
+						</>
+					);
+				}}
 			</form.Subscribe>
 		</form>
 	);

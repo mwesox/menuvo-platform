@@ -1,0 +1,9 @@
+echo "🔍 Running biome check before push..."
+bun run check
+
+if [ $? -ne 0 ]; then
+  echo "❌ Biome check failed. Push aborted."
+  exit 1
+fi
+
+echo "✅ Biome check passed."
