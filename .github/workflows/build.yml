@@ -210,7 +210,7 @@ jobs:
       - name: Pull application images
         run: |
           cd /home/deploy/menuvo
-          docker compose pull platform-a platform-b worker-images worker-imports
+          docker compose pull platform-a platform-b worker
 
       - name: Run database migrations
         run: |
@@ -249,7 +249,7 @@ jobs:
       - name: Deploy workers and backup
         run: |
           cd /home/deploy/menuvo
-          docker compose up -d worker-images worker-imports postgres-backup
+          docker compose up -d worker postgres-backup
           docker compose up -d --no-deps --force-recreate gatus
 
       - name: Health checks
