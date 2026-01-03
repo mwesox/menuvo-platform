@@ -108,15 +108,10 @@ export function MerchantLanguageForm({
 													<Badge
 														key={langCode}
 														variant={isFirst ? "default" : "secondary"}
-														className="gap-1 pr-1"
+														className="gap-1 pr-2"
 													>
 														<GripVertical className="h-3 w-3 text-muted-foreground" />
 														{lang?.label ?? langCode}
-														{isFirst && (
-															<span className="text-xs opacity-70 ml-1">
-																({t("labels.fallback", "fallback")})
-															</span>
-														)}
 														{canRemove && (
 															<Button
 																type="button"
@@ -141,13 +136,6 @@ export function MerchantLanguageForm({
 												);
 											})}
 										</div>
-
-										<p className="text-xs text-muted-foreground">
-											{t(
-												"hints.languageOrder",
-												"First language is used as fallback when translations are missing",
-											)}
-										</p>
 
 										{/* Add language popover */}
 										{availableLanguages.length > 0 && (

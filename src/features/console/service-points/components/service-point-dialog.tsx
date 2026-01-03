@@ -28,7 +28,7 @@ export function ServicePointDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-lg">
+			<DialogContent className="flex max-h-[85vh] max-w-lg flex-col">
 				<DialogHeader>
 					<DialogTitle>
 						{isEditing
@@ -41,16 +41,20 @@ export function ServicePointDialog({
 							: t("descriptions.createDescription")}
 					</DialogDescription>
 				</DialogHeader>
-				<Suspense
-					fallback={<div className="py-8 text-center">{t("misc.loading")}</div>}
-				>
-					<ServicePointForm
-						storeId={storeId}
-						servicePoint={servicePoint}
-						onSuccess={() => onOpenChange(false)}
-						onCancel={() => onOpenChange(false)}
-					/>
-				</Suspense>
+				<div className="-mx-6 flex-1 overflow-y-auto px-6 pb-1">
+					<Suspense
+						fallback={
+							<div className="py-8 text-center">{t("misc.loading")}</div>
+						}
+					>
+						<ServicePointForm
+							storeId={storeId}
+							servicePoint={servicePoint}
+							onSuccess={() => onOpenChange(false)}
+							onCancel={() => onOpenChange(false)}
+						/>
+					</Suspense>
+				</div>
 			</DialogContent>
 		</Dialog>
 	);

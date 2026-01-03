@@ -64,6 +64,7 @@
 		"contactSettings": "Wie Kunden diese Filiale erreichen können"
 	},
 	"labels": {
+		"primary": "primär",
 		"defaultLanguage": "Standardsprache",
 		"additionalLanguages": "Zusätzliche Sprachen",
 		"paymentMethods": "Zahlungsmethoden",
@@ -81,6 +82,7 @@
 		"pickDate": "Datum wählen"
 	},
 	"actions": {
+		"addLanguage": "Sprache hinzufügen",
 		"addClosure": "Schließung hinzufügen",
 		"deleteClosure": "Schließung löschen"
 	},
@@ -92,6 +94,12 @@
 	},
 	"navigation": {
 		"backToSettings": "Zurück zu Einstellungen"
+	},
+	"fields": {
+		"supportedLanguages": "Unterstützte Sprachen"
+	},
+	"hints": {
+		"languageOrder": "Die erste Sprache ist die Hauptsprache"
 	},
 	"subscription": {
 		"currentPlan": "Aktueller Plan",

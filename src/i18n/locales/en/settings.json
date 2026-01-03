@@ -64,6 +64,7 @@
 		"contactSettings": "How customers can reach this store"
 	},
 	"labels": {
+		"primary": "primary",
 		"defaultLanguage": "Default Language",
 		"additionalLanguages": "Additional Languages",
 		"paymentMethods": "Payment Methods",
@@ -81,6 +82,7 @@
 		"pickDate": "Pick a date"
 	},
 	"actions": {
+		"addLanguage": "Add Language",
 		"addClosure": "Add Closure",
 		"deleteClosure": "Delete Closure"
 	},
@@ -92,6 +94,12 @@
 	},
 	"navigation": {
 		"backToSettings": "Back to Settings"
+	},
+	"fields": {
+		"supportedLanguages": "Supported Languages"
+	},
+	"hints": {
+		"languageOrder": "First language is the primary language"
 	},
 	"subscription": {
 		"currentPlan": "Current Plan",

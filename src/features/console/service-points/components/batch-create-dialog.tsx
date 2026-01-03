@@ -72,11 +72,14 @@ function BatchCreateForm({
 		},
 	});
 
+	// Subscribe to form values reactively
+	const formValues = form.useStore((state) => state.values);
+
 	// Generate preview of what will be created
 	const preview = useMemo(() => {
-		const prefix = form.state.values.prefix;
-		const start = Number.parseInt(form.state.values.startNumber, 10) || 0;
-		const end = Number.parseInt(form.state.values.endNumber, 10) || 0;
+		const prefix = formValues.prefix;
+		const start = Number.parseInt(formValues.startNumber, 10) || 0;
+		const end = Number.parseInt(formValues.endNumber, 10) || 0;
 
 		if (!prefix || start > end || end - start >= 100) {
 			return [];
@@ -90,11 +93,7 @@ function BatchCreateForm({
 			});
 		}
 		return items;
-	}, [
-		form.state.values.prefix,
-		form.state.values.startNumber,
-		form.state.values.endNumber,
-	]);
+	}, [formValues.prefix, formValues.startNumber, formValues.endNumber]);
 
 	const count = preview.length;
 

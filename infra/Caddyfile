@@ -1,6 +1,8 @@
 # Menuvo Production Caddyfile
 # TanStack Start Platform - Single domain routing
-# Routes: menuvo.app, console.menuvo.app, monitor.menuvo.app, status.menuvo.app
+# Main app: www.menuvo.app (Console at /console, Shop at /shop)
+# Infrastructure: monitor.menuvo.app (Beszel), status.menuvo.app (Gatus)
+# Legacy: console.menuvo.app redirects to www.menuvo.app/console
 
 # Global options (MUST be first!)
 {

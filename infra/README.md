@@ -10,10 +10,9 @@ Production infrastructure for the Menuvo Platform running on Hetzner VPS.
                                     │                                             │
     ┌──────────────┐                │  ┌─────────────────────────────────────┐   │
     │   Internet   │───────────────────│  Caddy (Reverse Proxy + TLS)        │   │
-    └──────────────┘                │  │  - menuvo.app                       │   │
-                                    │  │  - console.menuvo.app              │   │
-                                    │  │  - monitor.menuvo.app              │   │
-                                    │  │  - status.menuvo.app               │   │
+    └──────────────┘                │  │  - www.menuvo.app (Console + Shop)  │   │
+                                    │  │  - monitor.menuvo.app (Beszel)      │   │
+                                    │  │  - status.menuvo.app (Gatus)        │   │
                                     │  └──────────────┬──────────────────────┘   │
                                     │                 │                           │
                                     │     ┌───────────┴───────────┐               │

@@ -11,7 +11,12 @@ This file is a quick reference. The docs are the source of truth.
 
 ---
 
-## Important 
+## Important
+- **Domain is `menuvo.app`** - Always use menuvo.app (not menuvo.de) for all URLs
+- **No subdomains for app routes** - Use path-based routing:
+  - Console: `www.menuvo.app/console`
+  - Shop: `www.menuvo.app/shop/{storeSlug}`
+  - Only infrastructure uses subdomains: `status.menuvo.app`, `monitor.menuvo.app`
 - Use ShadCN MCP server to review latest docs and APIs and docs about ShadCN Components and the framework.
 
 
