@@ -1,9 +1,15 @@
-echo "🔍 Running biome check before push..."
+echo "🔍 Running biome check..."
 bun run check
-
 if [ $? -ne 0 ]; then
   echo "❌ Biome check failed. Push aborted."
   exit 1
 fi
 
-echo "✅ Biome check passed."
+echo "🔍 Running TypeScript check..."
+bunx --bun tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript check failed. Push aborted."
+  exit 1
+fi
+
+echo "✅ All checks passed."
