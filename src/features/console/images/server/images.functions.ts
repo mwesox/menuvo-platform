@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { images } from "@/db/schema.ts";
 import { deleteImageVariants } from "@/lib/storage/image-processor.ts";
-import { deleteImageSchema, getImageSchema } from "../validation.ts";
+import { deleteImageSchema, getImageSchema } from "../schemas.ts";
 
 /**
  * Delete an image and all its variants.

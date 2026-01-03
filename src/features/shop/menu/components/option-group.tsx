@@ -3,8 +3,8 @@
 import { Check, Minus, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import type { MenuItemChoice, OptionGroupType } from "../../schemas";
 import { formatPriceModifier } from "../../utils";
-import type { MenuItemChoice, OptionGroupType } from "../../validation";
 
 // ============================================================================
 // Types

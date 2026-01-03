@@ -21,7 +21,7 @@ import {
 	storePostalCodeSchema,
 	storeStreetSchema,
 	zodValidator,
-} from "../../validation.ts";
+} from "../../schemas.ts";
 
 export function StoreStep() {
 	const { t } = useTranslation(["onboarding", "common"]);

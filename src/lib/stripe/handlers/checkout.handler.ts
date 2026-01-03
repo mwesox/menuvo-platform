@@ -1,16 +1,21 @@
 import type Stripe from "stripe";
+import { updatePaymentStatus } from "@/features/orders/server/orders.functions";
 import { stripeLogger } from "@/lib/logger";
+import { registerV1Handler } from "./registry";
+
+// ============================================
+// Event Handlers (Self-Registering)
+// ============================================
 
 /**
- * Handle checkout.session.completed event for subscription checkouts.
+ * Handle checkout.session.completed event for order payments.
  *
- * This webhook serves as confirmation/audit log.
- * The actual record creation may happen synchronously when user returns from Stripe.
- * This can be used to mark tasks as completed or trigger other async workflows.
+ * Updates the order status to "confirmed" and payment status to "paid".
+ * Also stores the payment intent ID for reference.
  */
-export async function handleCheckoutSessionCompleted(
-	session: Stripe.Checkout.Session,
-): Promise<void> {
+registerV1Handler("checkout.session.completed", async (event) => {
+	const session = event.data.object as Stripe.Checkout.Session;
+
 	stripeLogger.info(
 		{
 			sessionId: session.id,
@@ -21,26 +26,51 @@ export async function handleCheckoutSessionCompleted(
 		"Checkout session completed",
 	);
 
-	// TODO: Add custom handling based on metadata
-	// Example: Mark onboarding tasks as completed
-	// const taskId = session.metadata?.onboarding_task_id;
-	// if (taskId) {
-	//   await markOnboardingTaskComplete(taskId);
-	// }
+	// Update order payment status if this is an order payment
+	const orderId = Number(session.metadata?.orderId);
+	if (orderId) {
+		await updatePaymentStatus({
+			data: {
+				orderId,
+				paymentStatus: "paid",
+				stripePaymentIntentId:
+					typeof session.payment_intent === "string"
+						? session.payment_intent
+						: undefined,
+			},
+		});
+		stripeLogger.info(
+			{ orderId, sessionId: session.id },
+			"Order payment confirmed",
+		);
+	}
 
 	stripeLogger.debug({ sessionId: session.id }, "Checkout session processed");
-}
+});
 
 /**
  * Handle checkout.session.expired event.
  *
  * Triggered when a checkout session expires without payment.
+ * Updates the order status to "cancelled" and payment status to "expired".
  */
-export async function handleCheckoutSessionExpired(
-	session: Stripe.Checkout.Session,
-): Promise<void> {
+registerV1Handler("checkout.session.expired", async (event) => {
+	const session = event.data.object as Stripe.Checkout.Session;
+
 	stripeLogger.info({ sessionId: session.id }, "Checkout session expired");
 
-	// TODO: Add custom handling
-	// Example: Clean up pending orders, notify user, etc.
-}
+	// Cancel the order if this is an order payment
+	const orderId = Number(session.metadata?.orderId);
+	if (orderId) {
+		await updatePaymentStatus({
+			data: {
+				orderId,
+				paymentStatus: "expired",
+			},
+		});
+		stripeLogger.info(
+			{ orderId, sessionId: session.id },
+			"Order payment expired",
+		);
+	}
+});

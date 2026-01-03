@@ -6,7 +6,7 @@ import { getFile } from "@/lib/storage/files-client";
 import { extractMenuFromText, type ModelConfig } from "../logic/ai-extractor";
 import { compareMenus } from "../logic/comparer";
 import { extractTextFromFile } from "../logic/text-extractor";
-import type { AllowedFileType } from "../validation";
+import type { AllowedFileType } from "../schemas";
 import { getExistingMenuData } from "./import.helpers";
 
 /**

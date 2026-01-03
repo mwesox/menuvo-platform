@@ -43,7 +43,7 @@ export const createOptionGroupSchema = z.object({
 	storeId: z.number().int().positive(),
 	translations: entityTranslationsSchema.refine(
 		(t) => Object.values(t).some((v) => v.name && v.name.length >= 2),
-		"At least one language must have a name (min 2 characters)",
+		"validation:optionGroupMultilang.required",
 	),
 	type: optionGroupTypeSchema.optional().default("multi_select"),
 	isRequired: z.boolean().optional().default(false),
@@ -94,7 +94,7 @@ export const saveOptionGroupWithChoicesSchema = z.object({
 	storeId: z.number().int().positive(),
 	translations: entityTranslationsSchema.refine(
 		(t) => Object.values(t).some((v) => v.name && v.name.length >= 2),
-		"At least one language must have a name (min 2 characters)",
+		"validation:optionGroupMultilang.required",
 	),
 	type: optionGroupTypeSchema.optional().default("multi_select"),
 	minSelections: z.number().int().min(0).optional().default(0),
@@ -137,30 +137,30 @@ const signedIntegerString = (message: string) =>
 export const optionGroupFormSchema = z.object({
 	name: z
 		.string()
-		.min(2, "Option group name must be at least 2 characters")
-		.max(100, "Option group name must be less than 100 characters"),
+		.min(2, "validation:optionGroupName.min")
+		.max(100, "validation:optionGroupName.max"),
 	description: z.string(),
 	type: optionGroupTypeSchema,
-	minSelections: integerString(0, "Min selections must be 0 or more"),
-	maxSelections: optionalIntegerString(1, "Max selections must be 1 or more"),
+	minSelections: integerString(0, "validation:optionGroupMin.min"),
+	maxSelections: optionalIntegerString(1, "validation:optionGroupMax.min"),
 	isUnlimited: z.boolean(),
-	numFreeOptions: integerString(0, "Free options must be 0 or more"),
+	numFreeOptions: integerString(0, "validation:optionGroupFree.min"),
 	aggregateMinQuantity: optionalIntegerString(
 		0,
-		"Aggregate min must be 0 or more",
+		"validation:optionGroupAggregateMin.min",
 	),
 	aggregateMaxQuantity: optionalIntegerString(
 		1,
-		"Aggregate max must be 1 or more",
+		"validation:optionGroupAggregateMax.min",
 	),
 	choices: z.array(
 		z.object({
 			id: z.number().optional(),
-			name: z.string().min(1, "Choice name is required"),
-			priceModifier: signedIntegerString("Price must be an integer"), // in cents
+			name: z.string().min(1, "validation:choiceName.required"),
+			priceModifier: signedIntegerString("validation:choicePrice.integer"), // in cents
 			isDefault: z.boolean(),
-			minQuantity: integerString(0, "Min quantity must be 0 or more"),
-			maxQuantity: optionalIntegerString(1, "Max quantity must be 1 or more"),
+			minQuantity: integerString(0, "validation:choiceMinQuantity.min"),
+			maxQuantity: optionalIntegerString(1, "validation:choiceMaxQuantity.min"),
 		}),
 	),
 });
@@ -273,7 +273,7 @@ export const createOptionChoiceSchema = z.object({
 	optionGroupId: z.number().int().positive(),
 	translations: choiceTranslationsSchema.refine(
 		(t) => Object.values(t).some((v) => v.name && v.name.length >= 1),
-		"At least one language must have a name",
+		"validation:choiceMultilang.required",
 	),
 	priceModifier: z.number().int().default(0),
 	displayOrder: z.number().int().min(0).default(0),

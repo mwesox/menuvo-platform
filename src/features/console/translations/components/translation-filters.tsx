@@ -8,11 +8,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import {
-	type EntityType,
-	languageOptions,
-	type TranslationStatus,
-} from "../validation";
+import { LANGUAGE_OPTIONS } from "../constants";
+import type { EntityType, TranslationStatus } from "../schemas";
 
 interface TranslationFiltersProps {
 	entityType: "all" | EntityType;
@@ -70,7 +67,7 @@ export function TranslationFilters({
 					<SelectContent>
 						<SelectItem value="all">All Languages</SelectItem>
 						{targetLanguages.map((lang) => {
-							const langOption = languageOptions.find((l) => l.value === lang);
+							const langOption = LANGUAGE_OPTIONS.find((l) => l.value === lang);
 							return (
 								<SelectItem key={lang} value={lang}>
 									{langOption?.label ?? lang}

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { type ProcessingStatus, stripeEvents } from "@/db/schema";
 
@@ -105,4 +105,34 @@ export async function markEventProcessed(eventId: string): Promise<void> {
 
 export async function markEventFailed(eventId: string): Promise<void> {
 	await updateEventStatus(eventId, "FAILED");
+}
+
+/**
+ * Get a Stripe event by its ID.
+ */
+export async function getEventById(eventId: string) {
+	return db.query.stripeEvents.findFirst({
+		where: eq(stripeEvents.id, eventId),
+	});
+}
+
+/**
+ * Increment the retry count for a Stripe event.
+ */
+export async function incrementRetryCount(eventId: string) {
+	await db
+		.update(stripeEvents)
+		.set({ retryCount: sql`${stripeEvents.retryCount} + 1` })
+		.where(eq(stripeEvents.id, eventId));
+}
+
+/**
+ * Get the retry count for a Stripe event.
+ */
+export async function getRetryCount(eventId: string): Promise<number> {
+	const event = await db.query.stripeEvents.findFirst({
+		where: eq(stripeEvents.id, eventId),
+		columns: { retryCount: true },
+	});
+	return event?.retryCount ?? 0;
 }

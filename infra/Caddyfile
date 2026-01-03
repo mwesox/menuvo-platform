@@ -55,7 +55,17 @@ menuvo.app, www.menuvo.app {
 		}
 	}
 
-	# Proxy all requests to platform
+	# Worker endpoints - route to background worker
+	# Stripe webhooks and image uploads bypass the platform
+	@worker_endpoints path /webhooks/* /api/images/upload
+	reverse_proxy @worker_endpoints worker:3001 {
+		import proxy_settings
+		health_uri /health
+		health_interval 30s
+		health_timeout 10s
+	}
+
+	# Proxy all other requests to platform
 	reverse_proxy platform-a:3000 platform-b:3000 {
 		import proxy_settings
 		lb_policy least_conn

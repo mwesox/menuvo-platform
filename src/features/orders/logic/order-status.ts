@@ -101,29 +101,14 @@ export function getStatusAfterPayment(currentStatus: OrderStatus): OrderStatus {
 }
 
 /**
- * Determine initial order status based on order type and payment method
+ * Determine initial order status based on order type and payment method.
+ * Currently all orders require online payment.
  */
 export function getInitialOrderStatus(
-	orderType: string,
-	paymentMethod: string,
+	_orderType: string,
+	_paymentMethod: string,
 ): { orderStatus: OrderStatus; paymentStatus: PaymentStatus } {
-	// Pay at counter skips online payment for any order type
-	if (paymentMethod === "pay_at_counter") {
-		return {
-			orderStatus: "confirmed",
-			paymentStatus: "pay_at_counter",
-		};
-	}
-
-	// Dine-in orders default to pay at counter
-	if (orderType === "dine_in") {
-		return {
-			orderStatus: "confirmed",
-			paymentStatus: "pay_at_counter",
-		};
-	}
-
-	// All other orders require payment first
+	// All orders require online payment for now
 	return {
 		orderStatus: "awaiting_payment",
 		paymentStatus: "pending",

@@ -19,8 +19,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import type { Store } from "@/db/schema";
+import { storeFormSchema } from "../schemas";
 import { createStore, updateStore } from "../server/stores.functions";
-import { storeFormSchema } from "../validation";
 
 interface StoreFormProps {
 	store?: Store;

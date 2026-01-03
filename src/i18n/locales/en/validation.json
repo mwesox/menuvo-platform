@@ -1,4 +1,61 @@
 {
+	"categoryName": {
+		"min": "Category name must be at least 2 characters",
+		"max": "Category name must be less than 100 characters"
+	},
+	"categoryMultilang": {
+		"required": "At least one language must have a name (min 2 characters)"
+	},
+	"itemName": {
+		"min": "Item name must be at least 2 characters",
+		"max": "Item name must be less than 100 characters"
+	},
+	"itemCategory": {
+		"required": "Category is required"
+	},
+	"itemPrice": {
+		"required": "Price is required"
+	},
+	"itemMultilang": {
+		"required": "At least one language must have a name (min 2 characters)"
+	},
+	"optionGroupName": {
+		"min": "Option group name must be at least 2 characters",
+		"max": "Option group name must be less than 100 characters"
+	},
+	"optionGroupMin": {
+		"min": "Min selections must be 0 or more"
+	},
+	"optionGroupMax": {
+		"min": "Max selections must be 1 or more"
+	},
+	"optionGroupFree": {
+		"min": "Free options must be 0 or more"
+	},
+	"optionGroupAggregateMin": {
+		"min": "Aggregate min must be 0 or more"
+	},
+	"optionGroupAggregateMax": {
+		"min": "Aggregate max must be 1 or more"
+	},
+	"optionGroupMultilang": {
+		"required": "At least one language must have a name (min 2 characters)"
+	},
+	"choiceName": {
+		"required": "Choice name is required"
+	},
+	"choicePrice": {
+		"integer": "Price must be an integer"
+	},
+	"choiceMinQuantity": {
+		"min": "Min quantity must be 0 or more"
+	},
+	"choiceMaxQuantity": {
+		"min": "Max quantity must be 1 or more"
+	},
+	"choiceMultilang": {
+		"required": "At least one language must have a name"
+	},
 	"businessName": {
 		"min": "Business name must be at least 4 characters",
 		"max": "Business name must be less than 100 characters"

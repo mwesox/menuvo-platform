@@ -14,7 +14,7 @@ import {
 	useOpenBillingPortal,
 	useResumeSubscription,
 } from "../../queries";
-import type { SubscriptionStatus } from "../../validation";
+import type { SubscriptionStatus } from "../../schemas";
 import { CancelSubscriptionDialog } from "./cancel-subscription-dialog";
 
 interface SubscriptionActionsProps {

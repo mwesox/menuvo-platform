@@ -135,7 +135,7 @@ export function ItemDetail({
 					<div className="flex flex-wrap gap-1.5">
 						{item.allergens.map((allergen) => (
 							<Badge key={allergen} variant="secondary">
-								{allergen}
+								{t(`allergens.${allergen}`, allergen)}
 							</Badge>
 						))}
 					</div>

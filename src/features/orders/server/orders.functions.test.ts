@@ -5,6 +5,7 @@
  * Uses unique IDs per test run to avoid conflicts.
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { extractError } from "@/lib/errors";
 import {
 	cleanupTestData,
 	closeTestDb,
@@ -160,10 +161,15 @@ describe("orders.functions", () => {
 			expect(result.store).toBeDefined();
 		});
 
-		it("should throw for non-existent order", async () => {
-			await expect(getOrder({ data: { orderId: 999999 } })).rejects.toThrow(
-				"Order not found",
-			);
+		it("should throw NotFoundError for non-existent order", async () => {
+			try {
+				await getOrder({ data: { orderId: 999999 } });
+				expect.fail("Should have thrown an error");
+			} catch (error) {
+				const appError = extractError(error);
+				expect(appError).toBeDefined();
+				expect(appError?._tag).toBe("NotFoundError");
+			}
 		});
 	});
 
@@ -251,11 +257,16 @@ describe("orders.functions", () => {
 			});
 
 			// confirmed -> completed (invalid, must go through preparing and ready)
-			await expect(
-				updateOrderStatus({
+			try {
+				await updateOrderStatus({
 					data: { orderId: order.id, status: "completed" },
-				}),
-			).rejects.toThrow("Cannot transition from confirmed to completed");
+				});
+				expect.fail("Should have thrown an error");
+			} catch (error) {
+				const appError = extractError(error);
+				expect(appError).toBeDefined();
+				expect(appError?._tag).toBe("InvalidOrderTransitionError");
+			}
 		});
 
 		it("should allow full status workflow", async () => {
@@ -312,9 +323,14 @@ describe("orders.functions", () => {
 				paymentStatus: "paid",
 			});
 
-			await expect(
-				cancelOrder({ data: { orderId: order.id } }),
-			).rejects.toThrow("Cannot cancel order with status: completed");
+			try {
+				await cancelOrder({ data: { orderId: order.id } });
+				expect.fail("Should have thrown an error");
+			} catch (error) {
+				const appError = extractError(error);
+				expect(appError).toBeDefined();
+				expect(appError?._tag).toBe("OrderNotCancellableError");
+			}
 		});
 
 		it("should reject cancellation of already cancelled order", async () => {
@@ -325,9 +341,14 @@ describe("orders.functions", () => {
 				paymentStatus: "paid",
 			});
 
-			await expect(
-				cancelOrder({ data: { orderId: order.id } }),
-			).rejects.toThrow("Cannot cancel order with status: cancelled");
+			try {
+				await cancelOrder({ data: { orderId: order.id } });
+				expect.fail("Should have thrown an error");
+			} catch (error) {
+				const appError = extractError(error);
+				expect(appError).toBeDefined();
+				expect(appError?._tag).toBe("OrderNotCancellableError");
+			}
 		});
 	});
 });

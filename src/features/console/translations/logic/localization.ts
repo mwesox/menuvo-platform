@@ -1,5 +1,5 @@
 import type { ChoiceTranslations, EntityTranslations } from "@/db/schema";
-import type { TranslationStatus } from "../validation";
+import type { TranslationStatus } from "../schemas";
 
 // ============================================================================
 // LOCALIZED CONTENT EXTRACTION

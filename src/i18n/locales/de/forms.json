@@ -12,6 +12,7 @@
 		"description": "Beschreibung",
 		"price": "Preis",
 		"language": "Sprache",
+		"category": "Kategorie",
 		"businessName": "Firmenname",
 		"storeName": "Filialname",
 		"storeNameRequired": "Filialname *",

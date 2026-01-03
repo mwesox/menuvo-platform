@@ -128,7 +128,7 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 										key={allergen}
 										className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded"
 									>
-										{allergen}
+										{t(`allergens.${allergen}`, allergen)}
 									</span>
 								))}
 								{remainingAllergens > 0 && (

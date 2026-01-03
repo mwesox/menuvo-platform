@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import type { MenuItem, MenuItemWithDefaults } from "../../schemas";
 import { enrichMenuItemWithDefaults } from "../../utils";
-import type { MenuItem, MenuItemWithDefaults } from "../../validation";
 
 interface UseMenuItemSelectionReturn {
 	selectedItem: MenuItemWithDefaults | null;

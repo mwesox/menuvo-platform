@@ -97,7 +97,8 @@ src/
 │   │       ├── stores/       # Zustand stores
 │   │       ├── logic/        # Pure functions
 │   │       ├── queries.ts
-│   │       └── validation.ts
+│   │       ├── schemas.ts
+│   │       └── constants.ts
 │   └── shop/                 # Customer storefront
 ├── routes/                   # Thin wiring only
 ├── components/ui/            # Shadcn primitives
@@ -140,7 +141,8 @@ bunx --bun shadcn@latest add <component>
 | Add server function | `features/{f}/server/*.functions.ts` |
 | Add business logic | `features/{f}/logic/*.ts` |
 | Configure queries | `features/{f}/queries.ts` |
-| Define validation | `features/{f}/validation.ts` |
+| Define schemas | `features/{f}/schemas.ts` |
+| Define constants | `features/{f}/constants.ts` |
 | Build UI component | `features/{f}/components/` |
 | Persist client state | `features/{f}/stores/*.ts` |
 | Wire up a page | `src/routes/` (thin wiring only) |

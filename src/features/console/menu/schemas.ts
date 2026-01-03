@@ -25,7 +25,7 @@ export const createCategorySchema = z.object({
 	storeId: z.number().int().positive(),
 	translations: entityTranslationsSchema.refine(
 		(t) => Object.values(t).some((v) => v.name && v.name.length >= 2),
-		"At least one language must have a name (min 2 characters)",
+		"validation:categoryMultilang.required",
 	),
 	displayOrder: z.number().int().min(0).optional(),
 });
@@ -40,8 +40,8 @@ export const updateCategorySchema = z.object({
 export const categoryFormSchema = z.object({
 	name: z
 		.string()
-		.min(2, "Category name must be at least 2 characters")
-		.max(100, "Category name must be less than 100 characters"),
+		.min(2, "validation:categoryName.min")
+		.max(100, "validation:categoryName.max"),
 	description: z.string(),
 });
 export type CategoryFormInput = z.infer<typeof categoryFormSchema>;
@@ -58,7 +58,7 @@ export const createItemSchema = z.object({
 	storeId: z.number().int().positive(),
 	translations: entityTranslationsSchema.refine(
 		(t) => Object.values(t).some((v) => v.name && v.name.length >= 2),
-		"At least one language must have a name (min 2 characters)",
+		"validation:itemMultilang.required",
 	),
 	price: z.number().int().min(0, "Price must be positive"), // Price in cents
 	imageUrl: z.string().url().optional().or(z.literal("")),
@@ -78,12 +78,13 @@ export const updateItemSchema = z.object({
 
 // Client-side item form schema (for a specific language, with price as string)
 export const itemFormSchema = z.object({
+	categoryId: z.string().min(1, "validation:itemCategory.required"),
 	name: z
 		.string()
-		.min(2, "Item name must be at least 2 characters")
-		.max(100, "Item name must be less than 100 characters"),
+		.min(2, "validation:itemName.min")
+		.max(100, "validation:itemName.max"),
 	description: z.string(),
-	price: z.string().min(1, "Price is required"),
+	price: z.string().min(1, "validation:itemPrice.required"),
 	imageUrl: z.string(),
 	allergens: z.array(z.string()),
 });
@@ -91,27 +92,6 @@ export type ItemFormInput = z.infer<typeof itemFormSchema>;
 
 export type CreateItemInput = z.infer<typeof createItemSchema>;
 export type UpdateItemInput = z.infer<typeof updateItemSchema>;
-
-// ============================================================================
-// COMMON ALLERGENS
-// ============================================================================
-
-export const allergensList = [
-	{ value: "gluten", label: "Gluten" },
-	{ value: "dairy", label: "Dairy" },
-	{ value: "eggs", label: "Eggs" },
-	{ value: "nuts", label: "Nuts" },
-	{ value: "peanuts", label: "Peanuts" },
-	{ value: "soy", label: "Soy" },
-	{ value: "fish", label: "Fish" },
-	{ value: "shellfish", label: "Shellfish" },
-	{ value: "sesame", label: "Sesame" },
-	{ value: "celery", label: "Celery" },
-	{ value: "mustard", label: "Mustard" },
-	{ value: "lupin", label: "Lupin" },
-	{ value: "molluscs", label: "Molluscs" },
-	{ value: "sulphites", label: "Sulphites" },
-] as const;
 
 // ============================================================================
 // HELPER FUNCTIONS

@@ -5,6 +5,12 @@ import {
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import type {
+	CreateCategoryInput,
+	CreateItemInput,
+	UpdateCategoryInput,
+	UpdateItemInput,
+} from "./schemas.ts";
 import {
 	createCategory,
 	deleteCategory,
@@ -21,12 +27,6 @@ import {
 	toggleItemAvailable,
 	updateItem,
 } from "./server/items.functions.ts";
-import type {
-	CreateCategoryInput,
-	CreateItemInput,
-	UpdateCategoryInput,
-	UpdateItemInput,
-} from "./validation.ts";
 
 // Query keys
 export const menuKeys = {
@@ -163,14 +163,18 @@ export function useDeleteCategory(storeId: number) {
 }
 
 // Item mutation hooks
-export function useCreateItem(categoryId: number) {
+export function useCreateItem(storeId: number, categoryId: number) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (input: Omit<CreateItemInput, "categoryId">) =>
-			createItem({ data: { categoryId, ...input } }),
+		mutationFn: (
+			input: Omit<CreateItemInput, "categoryId" | "storeId" | "displayOrder">,
+		) => createItem({ data: { categoryId, storeId, ...input } }),
 		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: menuKeys.items.byStore(storeId),
+			});
 			queryClient.invalidateQueries({
 				queryKey: menuKeys.categories.detail(categoryId),
 			});
@@ -182,7 +186,7 @@ export function useCreateItem(categoryId: number) {
 	});
 }
 
-export function useUpdateItem(categoryId: number) {
+export function useUpdateItem(storeId: number, categoryId: number) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -195,6 +199,9 @@ export function useUpdateItem(categoryId: number) {
 				updatedItem,
 			);
 			queryClient.invalidateQueries({
+				queryKey: menuKeys.items.byStore(storeId),
+			});
+			queryClient.invalidateQueries({
 				queryKey: menuKeys.categories.detail(categoryId),
 			});
 			toast.success(t("success.itemUpdated"));
@@ -205,7 +212,7 @@ export function useUpdateItem(categoryId: number) {
 	});
 }
 
-export function useToggleItemAvailable(categoryId: number) {
+export function useToggleItemAvailable(storeId: number, categoryId: number) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -218,6 +225,9 @@ export function useToggleItemAvailable(categoryId: number) {
 			isAvailable: boolean;
 		}) => toggleItemAvailable({ data: { itemId, isAvailable } }),
 		onSuccess: (item) => {
+			queryClient.invalidateQueries({
+				queryKey: menuKeys.items.byStore(storeId),
+			});
 			queryClient.invalidateQueries({
 				queryKey: menuKeys.categories.detail(categoryId),
 			});
@@ -233,13 +243,16 @@ export function useToggleItemAvailable(categoryId: number) {
 	});
 }
 
-export function useDeleteItem(categoryId: number) {
+export function useDeleteItem(storeId: number, categoryId: number) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
 		mutationFn: (itemId: number) => deleteItem({ data: { itemId } }),
 		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: menuKeys.items.byStore(storeId),
+			});
 			queryClient.invalidateQueries({
 				queryKey: menuKeys.categories.detail(categoryId),
 			});

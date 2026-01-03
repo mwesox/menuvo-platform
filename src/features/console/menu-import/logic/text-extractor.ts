@@ -1,6 +1,6 @@
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
-import type { AllowedFileType } from "../validation";
+import type { AllowedFileType } from "../schemas";
 
 /**
  * Result of text extraction from a file.

@@ -20,7 +20,7 @@ import {
 	getDisplayName,
 } from "@/features/console/menu/logic/display";
 import { translationQueries } from "../queries";
-import type { EntityType, TranslationStatus } from "../validation";
+import type { EntityType, TranslationStatus } from "../schemas";
 import { TranslationEditor } from "./translation-editor";
 import { TranslationFilters } from "./translation-filters";
 import { TranslationListItem } from "./translation-list-item";

@@ -79,6 +79,7 @@
 		"requiredField": "Customers must select from this group"
 	},
 	"placeholders": {
+		"selectCategory": "Select a category",
 		"categoryName": "e.g., Appetizers, Main Course",
 		"categoryDescription": "Optional description for this category",
 		"optionGroupName": "e.g., Size, Toppings, Extras",
@@ -91,7 +92,8 @@
 	"hints": {
 		"numFreeOptions": "Number of choices customers can add for free before being charged",
 		"aggregateMinQuantity": "Minimum total quantity customer must select",
-		"aggregateMaxQuantity": "Maximum total quantity customer can select"
+		"aggregateMaxQuantity": "Maximum total quantity customer can select",
+		"defaultSelected": "This option will be pre-selected by default when customers view the option group"
 	},
 	"optionTypes": {
 		"singleSelect": "Single Select",
@@ -179,6 +181,9 @@
 		"selectOptionGroup": "Select an option group",
 		"selectOptionGroupDescription": "Select an option group from the list to view details and manage choices."
 	},
+	"filters": {
+		"allCategories": "All categories"
+	},
 	"common": {
 		"yes": "Yes",
 		"no": "No"
@@ -255,5 +260,21 @@
 		"changes": {
 			"fieldChanged": "{{fields}} changed"
 		}
+	},
+	"allergens": {
+		"gluten": "Gluten",
+		"dairy": "Dairy",
+		"eggs": "Eggs",
+		"nuts": "Nuts",
+		"peanuts": "Peanuts",
+		"soy": "Soy",
+		"fish": "Fish",
+		"shellfish": "Shellfish",
+		"sesame": "Sesame",
+		"celery": "Celery",
+		"mustard": "Mustard",
+		"lupin": "Lupin",
+		"molluscs": "Molluscs",
+		"sulphites": "Sulphites"
 	}
 }

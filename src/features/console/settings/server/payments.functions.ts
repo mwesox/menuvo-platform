@@ -8,6 +8,7 @@ import { paymentsLogger } from "@/lib/logger";
 import { getStripeClient } from "@/lib/stripe/client";
 import { createAccountLink, createStripeAccount } from "@/lib/stripe/connect";
 import { createTrialSubscription } from "@/lib/stripe/subscriptions";
+import { parseV2AccountStatus } from "@/lib/stripe/v2-account";
 
 /**
  * Get payment account status for a merchant.
@@ -340,74 +341,22 @@ export const refreshPaymentStatus = createServerFn({ method: "POST" })
 				},
 			);
 
-			// Cast to flexible type to access V2 API response fields
-			const accountData = account as {
-				requirements?: {
-					past_due?: string[];
-					currently_due?: string[];
-					pending_verification?: string[];
-				};
-				configuration?: {
-					merchant?: {
-						capabilities?: {
-							card_payments?: {
-								status?: string;
-							};
-						};
-					};
-				};
-			};
-
 			paymentsLogger.debug(
 				{
 					merchantId,
 					accountId: merchant.paymentAccountId,
-					requirements: accountData.requirements,
+					requirementsStatus:
+						account.requirements?.summary?.minimum_deadline?.status,
 					cardPaymentsStatus:
-						accountData.configuration?.merchant?.capabilities?.card_payments
+						account.configuration?.merchant?.capabilities?.card_payments
 							?.status,
 				},
 				"Stripe account data retrieved",
 			);
 
-			// Map requirements status
-			let requirementsStatus:
-				| "none"
-				| "currently_due"
-				| "past_due"
-				| "pending_verification" = "none";
-			let onboardingComplete = true;
-
-			const reqs = accountData.requirements;
-			if (reqs) {
-				if (reqs.past_due && reqs.past_due.length > 0) {
-					requirementsStatus = "past_due";
-					onboardingComplete = false;
-				} else if (reqs.currently_due && reqs.currently_due.length > 0) {
-					requirementsStatus = "currently_due";
-					onboardingComplete = false;
-				} else if (
-					reqs.pending_verification &&
-					reqs.pending_verification.length > 0
-				) {
-					requirementsStatus = "pending_verification";
-					onboardingComplete = false;
-				}
-			}
-
-			// Map capabilities status
-			let capabilitiesStatus: "active" | "pending" | "inactive" = "pending";
-			const cardPaymentsStatus =
-				accountData.configuration?.merchant?.capabilities?.card_payments
-					?.status;
-			if (cardPaymentsStatus === "active") {
-				capabilitiesStatus = "active";
-			} else if (
-				cardPaymentsStatus === "inactive" ||
-				cardPaymentsStatus === "restricted"
-			) {
-				capabilitiesStatus = "inactive";
-			}
+			// Parse V2 account status using shared utility (uses SDK types + defensive defaults)
+			const { requirementsStatus, capabilitiesStatus, onboardingComplete } =
+				parseV2AccountStatus(account);
 
 			// Update merchant record
 			await db

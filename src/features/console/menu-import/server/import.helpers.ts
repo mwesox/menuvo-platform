@@ -3,7 +3,7 @@
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { categories, menuImportJobs, optionGroups } from "@/db/schema";
-import type { AllowedFileType } from "../validation";
+import type { AllowedFileType } from "../schemas";
 
 /**
  * Create import job record in database.

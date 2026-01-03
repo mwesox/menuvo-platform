@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
+import type { PublicStoresFilter } from "./schemas";
 import { getPublicStores, getStoreBySlug } from "./server/shop.functions";
-import type { PublicStoresFilter } from "./validation";
 
 // ============================================================================
 // QUERY KEYS

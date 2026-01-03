@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createImportJob } from "@/features/console/menu-import/server/import.helpers";
 import {
 	type AllowedFileType,
 	allowedFileTypes,
-} from "@/features/console/menu-import/validation";
+} from "@/features/console/menu-import/schemas";
+import { createImportJob } from "@/features/console/menu-import/server/import.helpers";
 import { menuImportLogger } from "@/lib/logger";
 import { enqueueImportJob } from "@/lib/queue/menu-import-queue";
 import { uploadFile } from "@/lib/storage/files-client";

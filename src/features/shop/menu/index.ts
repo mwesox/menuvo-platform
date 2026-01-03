@@ -19,4 +19,3 @@ export {
 export { useCategoryScroll } from "./hooks/use-category-scroll";
 export { useMenuItemSelection } from "./hooks/use-menu-item-selection";
 export { useMenuSearch } from "./hooks/use-menu-search";
-export { useQRTracking } from "./hooks/use-qr-tracking";

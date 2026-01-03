@@ -1,16 +1,17 @@
 /**
- * Development script that runs the Vite dev server and all background workers.
+ * Development script that runs the Vite dev server and background worker.
  * Usage: bun run dev
  *
- * Workers include:
- *   - Image processing worker (image variants generation)
- *   - Menu import worker (AI-powered menu parsing)
+ * Background worker handles:
+ *   - HTTP endpoints (health, webhooks, uploads)
+ *   - Image processing (variants generation)
+ *   - Menu import (AI-powered parsing)
+ *   - Stripe events (payment processing)
  */
 
 console.log("\n🚀 Starting development environment...\n");
 console.log("  📦 Vite dev server     → http://localhost:3000");
-console.log("  🖼️  Image worker        → processing image variants");
-console.log("  📋 Import worker       → processing menu imports");
+console.log("  ⚙️  Background worker   → http://localhost:3001");
 console.log("");
 
 const vite = Bun.spawn(["bun", "--bun", "vite", "dev", "--port", "3000"], {
@@ -20,7 +21,7 @@ const vite = Bun.spawn(["bun", "--bun", "vite", "dev", "--port", "3000"], {
 });
 
 const worker = Bun.spawn(
-	["bun", "--bun", "run", "src/lib/queue/worker.ts", "--type", "all"],
+	["bun", "--bun", "run", "src/worker/main.ts", "--type", "all"],
 	{
 		stdout: "inherit",
 		stderr: "inherit",

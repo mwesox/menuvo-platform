@@ -4,7 +4,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { stores } from "@/db/schema.ts";
 import { generateSlug } from "@/lib/slug";
-import { createStoreSchema, updateStoreSchema } from "../validation.ts";
+import { createStoreSchema, updateStoreSchema } from "../schemas.ts";
 
 export const getStores = createServerFn({ method: "GET" }).handler(async () => {
 	try {

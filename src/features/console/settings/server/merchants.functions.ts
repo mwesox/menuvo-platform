@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { merchants } from "@/db/schema.ts";
 import { withAuth } from "@/features/console/auth/server/auth-middleware";
-import { merchantGeneralSchema, merchantLanguageSchema } from "../validation";
+import { merchantGeneralSchema, merchantLanguageSchema } from "../schemas";
 
 // Get first merchant (temporary until auth is implemented)
 // Note: This is used by useMerchant hook - keep as-is

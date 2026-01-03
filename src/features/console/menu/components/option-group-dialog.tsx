@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { X } from "lucide-react";
+import { Info, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button.tsx";
@@ -34,6 +34,11 @@ import {
 	TabsTrigger,
 } from "@/components/ui/tabs.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip.tsx";
 import type {
 	OptionChoice,
 	OptionGroup,
@@ -41,8 +46,8 @@ import type {
 } from "@/db/schema.ts";
 import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
 import { getDisplayName } from "@/features/console/menu/logic/display";
-import { translationsToForm } from "@/features/console/menu/validation";
-import { optionGroupFormSchema } from "../options.validation.ts";
+import { translationsToForm } from "@/features/console/menu/schemas";
+import { optionGroupFormSchema } from "../options.schemas.ts";
 
 interface OptionGroupDialogProps {
 	open: boolean;
@@ -204,7 +209,7 @@ export function OptionGroupDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
@@ -588,7 +593,7 @@ export function OptionGroupDialog({
 																				)
 																			}
 																			onBlur={priceField.handleBlur}
-																			className="w-32"
+																			className="w-40"
 																		/>
 																	)}
 																</form.Field>
@@ -625,6 +630,14 @@ export function OptionGroupDialog({
 																			>
 																				{t("labels.defaultSelected")}
 																			</label>
+																			<Tooltip>
+																				<TooltipTrigger asChild>
+																					<Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+																				</TooltipTrigger>
+																				<TooltipContent>
+																					{t("hints.defaultSelected")}
+																				</TooltipContent>
+																			</Tooltip>
 																		</div>
 																	)}
 																</form.Field>

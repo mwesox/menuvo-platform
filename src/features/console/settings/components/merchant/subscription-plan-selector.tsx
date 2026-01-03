@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useChangeSubscriptionPlan } from "../../queries";
+import type { PlanTier, SubscriptionStatus } from "../../schemas";
 import { getPriceIdForPlan } from "../../server/subscription.functions";
-import type { PlanTier, SubscriptionStatus } from "../../validation";
 import { PlanChangeConfirmDialog } from "./plan-change-confirm-dialog";
 
 interface SubscriptionPlanSelectorProps {

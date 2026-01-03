@@ -3,6 +3,8 @@
  *
  * Provides query keys, query options factories, and mutation hooks
  * for order-related data fetching and mutations.
+ *
+ * Uses Effect error handling for typed error responses.
  */
 
 import {
@@ -12,6 +14,7 @@ import {
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { createErrorHandler } from "@/lib/errors";
 import { ordersLogger } from "@/lib/logger";
 import {
 	type OrderStatus,
@@ -133,7 +136,8 @@ export function useCreateOrder(storeId: number) {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: createOrder,
+		mutationFn: (input: Parameters<typeof createOrder>[0]) =>
+			createOrder(input),
 		onSuccess: () => {
 			// Invalidate store orders
 			queryClient.invalidateQueries({
@@ -141,10 +145,18 @@ export function useCreateOrder(storeId: number) {
 			});
 			// Don't show toast - let the checkout flow handle messaging
 		},
-		onError: (error) => {
-			ordersLogger.error({ error }, "Order creation failed");
-			toast.error(t("error.createOrder"));
-		},
+		onError: createErrorHandler(
+			{
+				DatabaseError: (e) => {
+					ordersLogger.error({ error: e }, "Order creation failed");
+					toast.error(t("error.createOrder"));
+				},
+			},
+			(e) => {
+				ordersLogger.error({ error: e }, "Order creation failed");
+				toast.error(t("error.createOrder"));
+			},
+		),
 	});
 }
 
@@ -156,16 +168,26 @@ export function useCreateCheckoutSession() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: createCheckoutSession,
+		mutationFn: (input: Parameters<typeof createCheckoutSession>[0]) =>
+			createCheckoutSession(input),
 		onSuccess: (_result, variables) => {
 			// Invalidate the order to reflect updated payment status
 			queryClient.invalidateQueries({
 				queryKey: orderKeys.detail(variables.data.orderId),
 			});
 		},
-		onError: () => {
-			toast.error(t("error.createCheckout"));
-		},
+		onError: createErrorHandler(
+			{
+				OrderNotAwaitingPayment: () =>
+					toast.error(t("error.orderNotAwaitingPayment")),
+				PaymentAlreadyInitiated: () =>
+					toast.error(t("error.paymentAlreadyInitiated")),
+				NotFoundError: () => toast.error(t("error.orderNotFound")),
+				StripeOperation: (e) =>
+					toast.error(t("error.stripeError", { details: e.context?.details })),
+			},
+			() => toast.error(t("error.createCheckout")),
+		),
 	});
 }
 
@@ -177,7 +199,8 @@ export function useUpdateOrderStatus(storeId: number, orderId: number) {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: updateOrderStatus,
+		mutationFn: (input: Parameters<typeof updateOrderStatus>[0]) =>
+			updateOrderStatus(input),
 		onSuccess: () => {
 			// Invalidate all related queries
 			queryClient.invalidateQueries({
@@ -192,9 +215,19 @@ export function useUpdateOrderStatus(storeId: number, orderId: number) {
 
 			toast.success(t("success.orderStatusUpdated"));
 		},
-		onError: () => {
-			toast.error(t("error.updateOrderStatus"));
-		},
+		onError: createErrorHandler(
+			{
+				InvalidOrderTransition: (e) =>
+					toast.error(
+						t("error.invalidOrderTransition", {
+							from: e.context?.from,
+							to: e.context?.to,
+						}),
+					),
+				NotFoundError: () => toast.error(t("error.orderNotFound")),
+			},
+			() => toast.error(t("error.updateOrderStatus")),
+		),
 	});
 }
 
@@ -206,7 +239,8 @@ export function useCancelOrder(storeId: number, orderId: number) {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: cancelOrder,
+		mutationFn: (input: Parameters<typeof cancelOrder>[0]) =>
+			cancelOrder(input),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: orderKeys.byStore(storeId),
@@ -220,9 +254,16 @@ export function useCancelOrder(storeId: number, orderId: number) {
 
 			toast.success(t("success.orderCancelled"));
 		},
-		onError: () => {
-			toast.error(t("error.cancelOrder"));
-		},
+		onError: createErrorHandler(
+			{
+				OrderNotCancellable: (e) =>
+					toast.error(
+						t("error.orderNotCancellable", { status: e.context?.status }),
+					),
+				NotFoundError: () => toast.error(t("error.orderNotFound")),
+			},
+			() => toast.error(t("error.cancelOrder")),
+		),
 	});
 }
 
@@ -234,7 +275,8 @@ export function useAddMerchantNotes(orderId: number) {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: addMerchantNotes,
+		mutationFn: (input: Parameters<typeof addMerchantNotes>[0]) =>
+			addMerchantNotes(input),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: orderKeys.detail(orderId),
@@ -242,9 +284,7 @@ export function useAddMerchantNotes(orderId: number) {
 
 			toast.success(t("success.notesSaved"));
 		},
-		onError: () => {
-			toast.error(t("error.saveNotes"));
-		},
+		onError: createErrorHandler({}, () => toast.error(t("error.saveNotes"))),
 	});
 }
 
@@ -256,7 +296,8 @@ export function useExpireCheckoutSession(storeId: number, orderId: number) {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: expireCheckoutSession,
+		mutationFn: (input: Parameters<typeof expireCheckoutSession>[0]) =>
+			expireCheckoutSession(input),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: orderKeys.detail(orderId),
@@ -265,8 +306,12 @@ export function useExpireCheckoutSession(storeId: number, orderId: number) {
 				queryKey: orderKeys.byStore(storeId),
 			});
 		},
-		onError: () => {
-			toast.error(t("error.cancelPayment"));
-		},
+		onError: createErrorHandler(
+			{
+				NoCheckoutSession: () => toast.error(t("error.noCheckoutSession")),
+				SessionNotExpirable: () => toast.error(t("error.sessionNotExpirable")),
+			},
+			() => toast.error(t("error.cancelPayment")),
+		),
 	});
 }

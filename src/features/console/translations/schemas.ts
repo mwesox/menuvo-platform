@@ -1,27 +1,14 @@
 import { z } from "zod";
+import { ENTITY_TYPES, LANGUAGE_CODES } from "./constants.ts";
+
+// Re-export types from constants
+export type { EntityType, LanguageCode } from "./constants.ts";
 
 // ============================================================================
 // LANGUAGE CONFIGURATION
 // ============================================================================
 
-/**
- * Supported language codes.
- * These match the languages defined in the onboarding flow.
- */
-export const languageCodes = ["en", "de", "fr", "es", "it"] as const;
-export const languageCodeSchema = z.enum(languageCodes);
-export type LanguageCode = z.infer<typeof languageCodeSchema>;
-
-/**
- * Language options with labels for UI display.
- */
-export const languageOptions = [
-	{ value: "en", label: "English" },
-	{ value: "de", label: "Deutsch" },
-	{ value: "fr", label: "Français" },
-	{ value: "es", label: "Español" },
-	{ value: "it", label: "Italiano" },
-] as const;
+export const languageCodeSchema = z.enum(LANGUAGE_CODES);
 
 // ============================================================================
 // MERCHANT LANGUAGE SETTINGS
@@ -179,21 +166,10 @@ export type ChoiceTranslationFormInput = z.infer<
 export type TranslationStatus = "complete" | "partial" | "missing";
 
 /**
- * Entity types that can have translations.
- */
-export const entityTypes = [
-	"category",
-	"item",
-	"optionGroup",
-	"optionChoice",
-] as const;
-export type EntityType = (typeof entityTypes)[number];
-
-/**
  * Filter options for the translation list.
  */
 export const translationFilterSchema = z.object({
-	entityType: z.enum(["all", ...entityTypes]).default("all"),
+	entityType: z.enum(["all", ...ENTITY_TYPES]).default("all"),
 	language: z.string().default("all"),
 	status: z.enum(["all", "complete", "partial", "missing"]).default("all"),
 	search: z.string().default(""),

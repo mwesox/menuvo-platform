@@ -2,8 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import type { OnboardingFormInput } from "./schemas.ts";
 import { onboardMerchant } from "./server/onboarding.functions.ts";
-import type { OnboardingFormInput } from "./validation.ts";
 
 export function useOnboardMerchant() {
 	const navigate = useNavigate();

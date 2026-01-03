@@ -7,7 +7,7 @@ import type {
 import { OptionGroupDialog } from "@/features/console/menu/components/option-group-dialog";
 import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
 import { useSaveOptionGroupWithChoices } from "@/features/console/menu/options.queries";
-import { formToTranslations } from "@/features/console/menu/validation";
+import { formToTranslations } from "@/features/console/menu/schemas";
 
 type OptionGroupWithChoices = OptionGroup & { optionChoices: OptionChoice[] };
 

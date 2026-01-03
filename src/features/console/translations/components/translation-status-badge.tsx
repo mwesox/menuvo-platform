@@ -1,7 +1,7 @@
 import { AlertTriangle, Check, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import type { TranslationStatus } from "../validation";
+import type { TranslationStatus } from "../schemas";
 
 interface TranslationStatusBadgeProps {
 	status: TranslationStatus;

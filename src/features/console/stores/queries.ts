@@ -11,6 +11,7 @@ import type {
 	UpdateStoreClosureInput,
 } from "./closures-validation.ts";
 import type { SaveStoreHoursInput } from "./hours-validation.ts";
+import type { CreateStoreInput, UpdateStoreInput } from "./schemas.ts";
 import {
 	createStoreClosure,
 	deleteStoreClosure,
@@ -27,7 +28,6 @@ import {
 	toggleStoreActive,
 	updateStore,
 } from "./server/stores.functions.ts";
-import type { CreateStoreInput, UpdateStoreInput } from "./validation.ts";
 
 // Query keys
 export const storeKeys = {

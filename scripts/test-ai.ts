@@ -5,7 +5,7 @@
 
 import { z } from "zod/v4";
 import { getOpenRouterClient } from "../src/lib/ai/client";
-import { aiMenuExtractionSchema } from "../src/features/console/menu-import/validation";
+import { aiMenuExtractionSchema } from "../src/features/console/menu-import/schemas";
 
 const TEST_MODEL = "nvidia/nemotron-3-nano-30b-a3b:free";
 

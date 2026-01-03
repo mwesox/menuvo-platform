@@ -11,7 +11,7 @@ import {
 	updateItemOptionsSchema,
 	updateOptionChoiceSchema,
 	updateOptionGroupSchema,
-} from "../options.validation.ts";
+} from "../options.schemas.ts";
 
 // ============================================================================
 // OPTION GROUPS

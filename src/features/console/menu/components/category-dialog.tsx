@@ -21,7 +21,7 @@ import { LoadingButton } from "@/components/ui/loading-button";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import type { Category } from "@/db/schema.ts";
 import { getLocalizedContent } from "@/features/console/translations/logic/localization.ts";
-import { categoryFormSchema } from "../validation.ts";
+import { categoryFormSchema } from "../schemas.ts";
 
 interface CategoryDialogProps {
 	open: boolean;

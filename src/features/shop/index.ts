@@ -7,6 +7,7 @@ export * from "./layout";
 export * from "./menu";
 // Queries and validation
 export { shopKeys, shopQueries } from "./queries";
+export * from "./schemas";
 export * from "./shared";
 // Shared utilities
 export {
@@ -14,4 +15,3 @@ export {
 	formatPrice,
 	generateCartItemId,
 } from "./utils";
-export * from "./validation";

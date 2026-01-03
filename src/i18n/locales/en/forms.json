@@ -12,6 +12,7 @@
 		"description": "Description",
 		"price": "Price",
 		"language": "Language",
+		"category": "Category",
 		"businessName": "Business Name",
 		"storeName": "Store Name",
 		"storeNameRequired": "Store Name *",

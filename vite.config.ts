@@ -6,6 +6,17 @@ import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 
 const config = defineConfig({
+  server: {
+    proxy: {
+      // Forward webhook endpoints to worker (mimics Caddy in production)
+      // Note: /api/images/upload uses VITE_WORKER_URL env var to bypass proxy
+      // due to Vite proxy issues with multipart/form-data
+      '/webhooks': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
+  },
   plugins: [
     nitro({
       // Default to bun preset (required for Bun-native S3Client/RedisClient)

@@ -104,29 +104,6 @@ export const toggleZoneSchema = z.object({
 });
 
 // ============================================================================
-// SCAN TRACKING SCHEMAS
-// ============================================================================
-
-/**
- * Schema for recording a QR code scan.
- * Used when a customer scans a service point QR code.
- */
-export const recordScanSchema = z.object({
-	storeSlug: z.string(),
-	servicePointCode: z.string(),
-	userAgent: z.string().optional(),
-	referrer: z.string().optional(),
-});
-
-/**
- * Schema for querying scan statistics.
- */
-export const scanStatsQuerySchema = z.object({
-	storeId: z.number().int().positive(),
-	days: z.number().int().min(1).max(365).optional(),
-});
-
-// ============================================================================
 // TYPE EXPORTS
 // ============================================================================
 
@@ -135,5 +112,3 @@ export type UpdateServicePointInput = z.infer<typeof updateServicePointSchema>;
 export type ServicePointFormInput = z.infer<typeof servicePointFormSchema>;
 export type BatchCreateInput = z.infer<typeof batchCreateSchema>;
 export type ToggleZoneInput = z.infer<typeof toggleZoneSchema>;
-export type RecordScanInput = z.infer<typeof recordScanSchema>;
-export type ScanStatsQueryInput = z.infer<typeof scanStatsQuerySchema>;

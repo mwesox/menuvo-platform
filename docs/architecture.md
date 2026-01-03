@@ -37,7 +37,8 @@ Thick business logic. Everything reusable.
 | `hooks/` | Reusable UI logic | Not for data fetching |
 | `logic/` | Pure functions | Testable, no side effects |
 | `queries.ts` | Query/mutation config | Keys, options, hooks |
-| `validation.ts` | Zod schemas | Server + form schemas |
+| `schemas.ts` | Zod schemas | Server + form schemas |
+| `constants.ts` | Static data | Lists, enums, config values |
 
 ### Components (`src/components/ui/`)
 
@@ -120,7 +121,8 @@ Loaders run on BOTH server and client. Never put secrets in loaders.
 | Access database | `features/{f}/server/*.functions.ts` |
 | Add business logic | `features/{f}/logic/*.ts` |
 | Configure queries | `features/{f}/queries.ts` |
-| Define validation | `features/{f}/validation.ts` |
+| Define schemas | `features/{f}/schemas.ts` |
+| Define constants | `features/{f}/constants.ts` |
 | Build UI | `features/{f}/components/` |
 | Wire up a page | `routes/` |
 | Persist client state | `features/{f}/stores/*.ts` |

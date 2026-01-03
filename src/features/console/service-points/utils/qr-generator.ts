@@ -1,36 +1,49 @@
 import QRCode from "qrcode";
 
 export interface QRCodeOptions {
-	storeSlug: string;
-	servicePointCode: string;
+	shortCode: string;
+	servicePointCode: string; // Used for filename
 	size?: number;
 }
 
 /**
- * Build the menu URL for a service point.
- * The URL includes the service point code as a query parameter.
+ * Build the short URL for QR codes.
+ * This URL never changes - protects printed QR codes from breaking.
+ */
+export function buildShortUrl(shortCode: string): string {
+	return `https://www.menuvo.app/q/${shortCode}`;
+}
+
+/**
+ * Build the full menu URL for sharing (human-readable).
+ * Use this for copy-to-clipboard, not for QR codes.
+ */
+export function buildFullUrl(
+	storeSlug: string,
+	servicePointCode: string,
+): string {
+	return `https://www.menuvo.app/shop/${storeSlug}?sp=${servicePointCode}`;
+}
+
+/**
+ * @deprecated Use buildFullUrl instead
  */
 export function buildMenuUrl(
 	storeSlug: string,
 	servicePointCode: string,
 ): string {
-	// Use window.location.origin in browser, fallback to placeholder in SSR
-	const baseUrl =
-		typeof window !== "undefined"
-			? window.location.origin
-			: "https://menuvo.app";
-	return `${baseUrl}/shop/${storeSlug}?sp=${servicePointCode}`;
+	return buildFullUrl(storeSlug, servicePointCode);
 }
 
 /**
  * Generate a QR code as a data URL.
- * Returns a base64-encoded PNG image.
+ * Uses short URL for permanence.
  */
 export async function generateQRCodeDataUrl(
 	options: QRCodeOptions,
 ): Promise<string> {
-	const { storeSlug, servicePointCode, size = 256 } = options;
-	const url = buildMenuUrl(storeSlug, servicePointCode);
+	const { shortCode, size = 256 } = options;
+	const url = buildShortUrl(shortCode);
 
 	return QRCode.toDataURL(url, {
 		width: size,
@@ -45,13 +58,13 @@ export async function generateQRCodeDataUrl(
 
 /**
  * Generate a QR code as SVG string.
- * Useful for scalable vector graphics.
+ * Uses short URL for permanence.
  */
 export async function generateQRCodeSVG(
 	options: QRCodeOptions,
 ): Promise<string> {
-	const { storeSlug, servicePointCode, size = 256 } = options;
-	const url = buildMenuUrl(storeSlug, servicePointCode);
+	const { shortCode, size = 256 } = options;
+	const url = buildShortUrl(shortCode);
 
 	return QRCode.toString(url, {
 		type: "svg",
@@ -84,12 +97,30 @@ export async function downloadQRCode(
 }
 
 /**
- * Copy the QR code URL to clipboard.
+ * Copy the short URL to clipboard.
+ */
+export async function copyShortUrl(shortCode: string): Promise<void> {
+	const url = buildShortUrl(shortCode);
+	await navigator.clipboard.writeText(url);
+}
+
+/**
+ * Copy the full menu URL to clipboard.
+ */
+export async function copyFullUrl(
+	storeSlug: string,
+	servicePointCode: string,
+): Promise<void> {
+	const url = buildFullUrl(storeSlug, servicePointCode);
+	await navigator.clipboard.writeText(url);
+}
+
+/**
+ * @deprecated Use copyFullUrl instead
  */
 export async function copyQRCodeUrl(
 	storeSlug: string,
 	servicePointCode: string,
 ): Promise<void> {
-	const url = buildMenuUrl(storeSlug, servicePointCode);
-	await navigator.clipboard.writeText(url);
+	return copyFullUrl(storeSlug, servicePointCode);
 }

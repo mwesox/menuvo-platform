@@ -1,4 +1,4 @@
-import type { MenuItem, MenuItemWithDefaults } from "./validation";
+import type { MenuItem, MenuItemWithDefaults } from "./schemas";
 
 /**
  * @deprecated Since API now returns isDefault directly, this is a pass-through.

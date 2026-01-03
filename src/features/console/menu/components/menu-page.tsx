@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Plus, Sparkles, Store } from "lucide-react";
+import { Filter, Plus, Sparkles, Store } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MasterDetailLayout } from "@/components/layout/master-detail-layout";
 import { PageActionBar } from "@/components/layout/page-action-bar";
@@ -13,6 +14,13 @@ import {
 	EmptyMedia,
 	EmptyTitle,
 } from "@/components/ui/empty";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	CategoryDetail,
 	EmptySelection,
@@ -137,6 +145,13 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 		optionGroupQueries.byStore(storeId),
 	);
 
+	// Category filter for Items tab
+	const [categoryFilter, setCategoryFilter] = useState<string>("all");
+	const filteredItems =
+		categoryFilter === "all"
+			? items
+			: items.filter((item) => item.categoryId === Number(categoryFilter));
+
 	// Mutations
 	const deleteCategoryMutation = useDeleteCategory(storeId);
 	const deleteItemMutation = useDeleteItemByStore(storeId);
@@ -256,20 +271,50 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 				);
 			case "items":
 				return (
-					<div className="space-y-1">
-						{items.map((item) => (
-							<ItemListItem
-								key={item.id}
-								item={item}
-								isSelected={item.id === selected}
-								onSelect={handleSelect}
-							/>
-						))}
-						{items.length === 0 && (
-							<div className="p-4 text-center text-sm text-muted-foreground">
-								{t("emptyStates.noItems")}
+					<div className="space-y-2">
+						{/* Category filter */}
+						{categories.length > 0 && (
+							<div className="px-3 py-2">
+								<Select
+									value={categoryFilter}
+									onValueChange={setCategoryFilter}
+								>
+									<SelectTrigger className="w-full">
+										<Filter className="mr-2 h-4 w-4" />
+										<SelectValue placeholder={t("filters.allCategories")} />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="all">
+											{t("filters.allCategories")}
+										</SelectItem>
+										{categories.map((category) => (
+											<SelectItem key={category.id} value={String(category.id)}>
+												{getDisplayName(category.translations, language)}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
 							</div>
 						)}
+
+						{/* Items list */}
+						<div className="space-y-1">
+							{filteredItems.map((item) => (
+								<ItemListItem
+									key={item.id}
+									item={item}
+									isSelected={item.id === selected}
+									onSelect={handleSelect}
+								/>
+							))}
+							{filteredItems.length === 0 && (
+								<div className="p-4 text-center text-sm text-muted-foreground">
+									{categoryFilter === "all"
+										? t("emptyStates.noItems")
+										: t("emptyStates.noItemsInCategory")}
+								</div>
+							)}
+						</div>
 					</div>
 				);
 			case "options":
@@ -309,16 +354,11 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 				return (
 					<CategoryDetail
 						category={selectedCategory}
-						storeId={storeId}
 						onEdit={categoryDialog.openEdit}
 						onDelete={(id) => deleteConfirmation.open("category", id)}
 						onToggleActive={(id, isActive) =>
 							toggleCategoryActiveMutation.mutate({ categoryId: id, isActive })
 						}
-						onToggleItemAvailable={(id, isAvailable) =>
-							toggleItemAvailableMutation.mutate({ itemId: id, isAvailable })
-						}
-						onDeleteItem={(id) => deleteConfirmation.open("item", id)}
 					/>
 				);
 			case "items":

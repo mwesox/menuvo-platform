@@ -1,4 +1,61 @@
 {
+	"categoryName": {
+		"min": "Kategoriename muss mindestens 2 Zeichen haben",
+		"max": "Kategoriename darf maximal 100 Zeichen haben"
+	},
+	"categoryMultilang": {
+		"required": "Mindestens eine Sprache muss einen Namen haben (min. 2 Zeichen)"
+	},
+	"itemName": {
+		"min": "Artikelname muss mindestens 2 Zeichen haben",
+		"max": "Artikelname darf maximal 100 Zeichen haben"
+	},
+	"itemCategory": {
+		"required": "Kategorie ist erforderlich"
+	},
+	"itemPrice": {
+		"required": "Preis ist erforderlich"
+	},
+	"itemMultilang": {
+		"required": "Mindestens eine Sprache muss einen Namen haben (min. 2 Zeichen)"
+	},
+	"optionGroupName": {
+		"min": "Name der Optionsgruppe muss mindestens 2 Zeichen haben",
+		"max": "Name der Optionsgruppe darf maximal 100 Zeichen haben"
+	},
+	"optionGroupMin": {
+		"min": "Mindestauswahl muss 0 oder mehr sein"
+	},
+	"optionGroupMax": {
+		"min": "Maximalauswahl muss 1 oder mehr sein"
+	},
+	"optionGroupFree": {
+		"min": "Kostenlose Optionen müssen 0 oder mehr sein"
+	},
+	"optionGroupAggregateMin": {
+		"min": "Aggregat-Minimum muss 0 oder mehr sein"
+	},
+	"optionGroupAggregateMax": {
+		"min": "Aggregat-Maximum muss 1 oder mehr sein"
+	},
+	"optionGroupMultilang": {
+		"required": "Mindestens eine Sprache muss einen Namen haben (min. 2 Zeichen)"
+	},
+	"choiceName": {
+		"required": "Name der Auswahl ist erforderlich"
+	},
+	"choicePrice": {
+		"integer": "Preis muss eine ganze Zahl sein"
+	},
+	"choiceMinQuantity": {
+		"min": "Mindestmenge muss 0 oder mehr sein"
+	},
+	"choiceMaxQuantity": {
+		"min": "Maximalmenge muss 1 oder mehr sein"
+	},
+	"choiceMultilang": {
+		"required": "Mindestens eine Sprache muss einen Namen haben"
+	},
 	"businessName": {
 		"min": "Der Geschäftsname muss mindestens 4 Zeichen lang sein",
 		"max": "Der Geschäftsname darf maximal 100 Zeichen lang sein"

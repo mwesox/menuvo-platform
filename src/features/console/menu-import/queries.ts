@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { optionKeys } from "../menu/options.queries";
 import { menuKeys } from "../menu/queries";
+import type { ApplyImportChangesInput } from "./schemas";
 import {
 	applyImportChanges,
 	getImportJobStatus,
 } from "./server/import.functions";
 import type { ImportJobStatusResponse } from "./types";
-import type { ApplyImportChangesInput } from "./validation";
 
 /**
  * Query keys for menu import.

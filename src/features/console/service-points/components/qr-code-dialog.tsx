@@ -1,4 +1,4 @@
-import { Check, Copy, Download } from "lucide-react";
+import { Check, Copy, Download, Link } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -11,10 +11,13 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { Label } from "@/components/ui/label.tsx";
 import type { ServicePoint } from "@/db/schema.ts";
 import {
-	buildMenuUrl,
-	copyQRCodeUrl,
+	buildFullUrl,
+	buildShortUrl,
+	copyFullUrl,
+	copyShortUrl,
 	downloadQRCode,
 	generateQRCodeDataUrl,
 } from "../utils/qr-generator.ts";
@@ -34,30 +37,39 @@ export function QRCodeDialog({
 }: QRCodeDialogProps) {
 	const { t } = useTranslation("servicePoints");
 	const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
-	const [copied, setCopied] = useState(false);
+	const [copiedShort, setCopiedShort] = useState(false);
+	const [copiedFull, setCopiedFull] = useState(false);
 
-	const menuUrl = buildMenuUrl(storeSlug, servicePoint.code);
+	const shortUrl = buildShortUrl(servicePoint.shortCode);
+	const fullUrl = buildFullUrl(storeSlug, servicePoint.code);
 
 	useEffect(() => {
 		if (open) {
 			generateQRCodeDataUrl({
-				storeSlug,
+				shortCode: servicePoint.shortCode,
 				servicePointCode: servicePoint.code,
 				size: 300,
 			}).then(setQrDataUrl);
 		}
-	}, [open, storeSlug, servicePoint.code]);
+	}, [open, servicePoint.shortCode, servicePoint.code]);
 
-	const handleCopy = async () => {
-		await copyQRCodeUrl(storeSlug, servicePoint.code);
-		setCopied(true);
+	const handleCopyShort = async () => {
+		await copyShortUrl(servicePoint.shortCode);
+		setCopiedShort(true);
 		toast.success(t("misc.urlCopied"));
-		setTimeout(() => setCopied(false), 2000);
+		setTimeout(() => setCopiedShort(false), 2000);
+	};
+
+	const handleCopyFull = async () => {
+		await copyFullUrl(storeSlug, servicePoint.code);
+		setCopiedFull(true);
+		toast.success(t("misc.urlCopied"));
+		setTimeout(() => setCopiedFull(false), 2000);
 	};
 
 	const handleDownload = async () => {
 		await downloadQRCode({
-			storeSlug,
+			shortCode: servicePoint.shortCode,
 			servicePointCode: servicePoint.code,
 			filename: `qr-${servicePoint.code}.png`,
 		});
@@ -89,21 +101,53 @@ export function QRCodeDialog({
 						</div>
 					)}
 
-					<div className="w-full space-y-3">
-						<div className="flex gap-2">
-							<Input value={menuUrl} readOnly className="flex-1 text-sm" />
-							<Button
-								variant="outline"
-								size="icon"
-								onClick={handleCopy}
-								className="shrink-0"
-							>
-								{copied ? (
-									<Check className="h-4 w-4 text-green-500" />
-								) : (
-									<Copy className="h-4 w-4" />
-								)}
-							</Button>
+					<div className="w-full space-y-4">
+						{/* Short URL - for QR code / printing */}
+						<div className="space-y-1.5">
+							<Label className="text-muted-foreground text-xs">
+								{t("labels.qrCodeUrl", "QR Code URL (for printing)")}
+							</Label>
+							<div className="flex gap-2">
+								<Input
+									value={shortUrl}
+									readOnly
+									className="flex-1 font-mono text-sm"
+								/>
+								<Button
+									variant="outline"
+									size="icon"
+									onClick={handleCopyShort}
+									className="shrink-0"
+								>
+									{copiedShort ? (
+										<Check className="h-4 w-4 text-green-500" />
+									) : (
+										<Copy className="h-4 w-4" />
+									)}
+								</Button>
+							</div>
+						</div>
+
+						{/* Full URL - for sharing */}
+						<div className="space-y-1.5">
+							<Label className="text-muted-foreground text-xs">
+								{t("labels.shareUrl", "Share URL (human-readable)")}
+							</Label>
+							<div className="flex gap-2">
+								<Input value={fullUrl} readOnly className="flex-1 text-sm" />
+								<Button
+									variant="outline"
+									size="icon"
+									onClick={handleCopyFull}
+									className="shrink-0"
+								>
+									{copiedFull ? (
+										<Check className="h-4 w-4 text-green-500" />
+									) : (
+										<Link className="h-4 w-4" />
+									)}
+								</Button>
+							</div>
 						</div>
 
 						<Button onClick={handleDownload} className="w-full">

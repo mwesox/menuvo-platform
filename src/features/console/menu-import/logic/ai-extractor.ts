@@ -1,7 +1,7 @@
 import { chat, generateStructured } from "@/lib/ai/service";
 import { menuImportLogger } from "@/lib/logger";
+import { type AIMenuExtraction, aiMenuExtractionSchema } from "../schemas";
 import type { ExtractedMenuData } from "../types";
-import { type AIMenuExtraction, aiMenuExtractionSchema } from "../validation";
 
 const CHUNK_SIZE_CHARS = 50000;
 

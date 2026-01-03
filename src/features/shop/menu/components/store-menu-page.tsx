@@ -10,7 +10,6 @@ import {
 	useCategoryScroll,
 	useMenuItemSelection,
 	useMenuSearch,
-	useQRTracking,
 } from "../hooks";
 import { CategoryNav } from "./category-nav";
 import { CategorySection } from "./category-section";
@@ -27,7 +26,6 @@ const routeApi = getRouteApi("/shop/$slug/");
 export function StoreMenuPage() {
 	const { t } = useTranslation("shop");
 	const { slug } = routeApi.useParams();
-	const { sp: servicePointCode } = routeApi.useSearch();
 	const { data: store } = useSuspenseQuery(shopQueries.storeBySlug(slug));
 
 	const setStore = useCartStore((s) => s.setStore);
@@ -38,9 +36,6 @@ export function StoreMenuPage() {
 			setStore(store.slug);
 		}
 	}, [store, setStore]);
-
-	// Track QR code scans
-	useQRTracking(store, servicePointCode);
 
 	// Menu search filtering
 	const { filteredCategories, isSearching, hasResults } = useMenuSearch(

@@ -19,7 +19,7 @@ import { parseArgs } from "util";
 import { extractMenuFromText, type ModelConfig } from "../src/features/console/menu-import/logic/ai-extractor";
 import { extractTextFromFile } from "../src/features/console/menu-import/logic/text-extractor";
 import { compareMenus } from "../src/features/console/menu-import/logic/comparer";
-import type { AllowedFileType } from "../src/features/console/menu-import/validation";
+import type { AllowedFileType } from "../src/features/console/menu-import/schemas";
 
 const TEST_DATA_DIR = "./scripts/test-data";
 

@@ -17,12 +17,12 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover.tsx";
+import { LANGUAGE_OPTIONS } from "@/features/console/translations/constants.ts";
 import { useUpdateMerchantLanguages } from "@/features/console/translations/queries.ts";
 import {
 	type LanguageCode,
-	languageOptions,
 	supportedLanguagesFormSchema,
-} from "@/features/console/translations/validation.ts";
+} from "@/features/console/translations/schemas.ts";
 import { merchantQueries } from "../../queries.ts";
 
 interface MerchantLanguageFormProps {
@@ -62,7 +62,7 @@ export function MerchantLanguageForm({
 	// Get available languages (not yet added)
 	const getAvailableLanguages = (current: LanguageCode[]) => {
 		const used = new Set(current);
-		return languageOptions.filter((lang) => !used.has(lang.value));
+		return LANGUAGE_OPTIONS.filter((lang) => !used.has(lang.value));
 	};
 
 	return (
@@ -98,7 +98,7 @@ export function MerchantLanguageForm({
 									<div className="space-y-2 mt-2">
 										<div className="flex flex-wrap gap-2">
 											{field.state.value.map((langCode, index) => {
-												const lang = languageOptions.find(
+												const lang = LANGUAGE_OPTIONS.find(
 													(l) => l.value === langCode,
 												);
 												const isFirst = index === 0;

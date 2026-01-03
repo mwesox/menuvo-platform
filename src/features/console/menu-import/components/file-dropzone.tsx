@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { type AllowedFileType, allowedFileTypes } from "../validation";
+import { type AllowedFileType, allowedFileTypes } from "../schemas";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 

@@ -54,7 +54,10 @@
 		"couldNotLoadRestaurant": "Wir konnten dieses Restaurant nicht laden. Bitte versuchen Sie es erneut.",
 		"tryAgain": "Erneut versuchen",
 		"restaurantNotFound": "Restaurant nicht gefunden",
-		"restaurantNotFoundDescription": "Das gesuchte Restaurant existiert nicht oder ist nicht mehr verfügbar."
+		"restaurantNotFoundDescription": "Das gesuchte Restaurant existiert nicht oder ist nicht mehr verfügbar.",
+		"storeTemporarilyUnavailable": "Wir sind gleich wieder da!",
+		"storeUnavailableDescription": "Die Online-Bestellung macht gerade eine kurze Pause. Bitte schauen Sie später vorbei oder besuchen Sie uns vor Ort.",
+		"backToMenu": "Zurück zum Menü"
 	},
 	"quantity": {
 		"decrease": "Menge verringern",
@@ -66,21 +69,44 @@
 	},
 	"checkout": {
 		"title": "Kasse",
+		"payment": "Bezahlung",
 		"orderType": "Bestellart",
 		"orderTypes": {
 			"dineIn": "Vor Ort essen",
 			"takeaway": "Zum Mitnehmen",
 			"delivery": "Lieferung"
 		},
-		"yourName": "Ihr Name",
+		"yourInfo": "Ihre Informationen",
+		"yourName": "Name",
 		"namePlaceholder": "Geben Sie Ihren Namen ein",
+		"yourEmail": "E-Mail",
+		"emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
 		"nameRequired": "Bitte geben Sie Ihren Namen ein",
+		"emailRequired": "E-Mail ist für die Online-Zahlung erforderlich",
+		"invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+		"emailRequiredForOnline": "Erforderlich für die Zahlungsbestätigung",
 		"cartEmpty": "Ihr Warenkorb ist leer",
+		"paymentMethod": "Zahlungsart",
+		"paymentMethods": {
+			"counter": "An der Kasse bezahlen",
+			"counterDescription": "Bezahlen Sie bei Abholung Ihrer Bestellung",
+			"online": "Online bezahlen",
+			"onlineDescription": "Sicher bezahlen mit Karte, Apple Pay oder Google Pay"
+		},
 		"orderSummary": "Bestellübersicht",
 		"subtotal": "Gesamt",
-		"submitting": "Bestellung wird aufgegeben...",
+		"submitting": "Wird verarbeitet...",
 		"placeOrder": "Bestellung aufgeben",
-		"invalidCartItems": "Dein Warenkorb enthält ungültige Artikel. Bitte füge die Artikel erneut hinzu."
+		"proceedToPayment": "Weiter zur Bezahlung",
+		"invalidCartItems": "Ihr Warenkorb enthält ungültige Artikel. Bitte fügen Sie die Artikel erneut hinzu.",
+		"return": {
+			"verifying": "Zahlung wird überprüft",
+			"pleaseWait": "Bitte warten Sie, während wir Ihre Zahlung bestätigen...",
+			"paymentFailed": "Zahlung fehlgeschlagen",
+			"sessionExpired": "Ihre Zahlungssitzung ist abgelaufen. Bitte versuchen Sie es erneut.",
+			"tryAgain": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+			"processing": "Wird verarbeitet..."
+		}
 	},
 	"confirmation": {
 		"title": "Bestellung eingegangen!",

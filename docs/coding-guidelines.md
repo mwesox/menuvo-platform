@@ -96,7 +96,7 @@ const deferredQuery = useDeferredValue(query);
 
 | Rule | Guideline |
 |------|-----------|
-| Location | Same `validation.ts` as server schemas |
+| Location | Same `schemas.ts` as server schemas |
 | Naming | `{entity}FormSchema` |
 | Types | Strings for all inputs (transform later) |
 | Messages | User-friendly error messages |
@@ -321,9 +321,10 @@ function StoreInfo() {
 ## Adding a New Feature
 
 1. **Database** → `src/db/schema.ts` (if new entity)
-2. **Validation** → `features/{f}/validation.ts`
-3. **Server** → `features/{f}/server/{domain}.functions.ts`
-4. **Queries** → `features/{f}/queries.ts`
-5. **Components** → `features/{f}/components/`
-6. **Route** → `src/routes/{path}/` (thin wiring only)
-7. **Tests** → `logic/*.test.ts`, `server/*.test.ts`
+2. **Schemas** → `features/{f}/schemas.ts`
+3. **Constants** → `features/{f}/constants.ts` (if static lists needed)
+4. **Server** → `features/{f}/server/{domain}.functions.ts`
+5. **Queries** → `features/{f}/queries.ts`
+6. **Components** → `features/{f}/components/`
+7. **Route** → `src/routes/{path}/` (thin wiring only)
+8. **Tests** → `logic/*.test.ts`, `server/*.test.ts`

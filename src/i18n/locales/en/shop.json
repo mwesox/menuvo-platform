@@ -54,7 +54,10 @@
 		"couldNotLoadRestaurant": "We couldn't load this restaurant. Please try again.",
 		"tryAgain": "Try again",
 		"restaurantNotFound": "Restaurant not found",
-		"restaurantNotFoundDescription": "The restaurant you're looking for doesn't exist or is no longer available."
+		"restaurantNotFoundDescription": "The restaurant you're looking for doesn't exist or is no longer available.",
+		"storeTemporarilyUnavailable": "We'll be right back!",
+		"storeUnavailableDescription": "Online ordering is taking a short break. Please check back soon or visit us in person.",
+		"backToMenu": "Back to Menu"
 	},
 	"quantity": {
 		"decrease": "Decrease quantity",
@@ -66,21 +69,44 @@
 	},
 	"checkout": {
 		"title": "Checkout",
+		"payment": "Payment",
 		"orderType": "Order Type",
 		"orderTypes": {
 			"dineIn": "Dine In",
 			"takeaway": "Takeaway",
 			"delivery": "Delivery"
 		},
-		"yourName": "Your Name",
+		"yourInfo": "Your Information",
+		"yourName": "Name",
 		"namePlaceholder": "Enter your name",
+		"yourEmail": "Email",
+		"emailPlaceholder": "Enter your email",
 		"nameRequired": "Please enter your name",
+		"emailRequired": "Email is required for online payment",
+		"invalidEmail": "Please enter a valid email address",
+		"emailRequiredForOnline": "Required for payment confirmation",
 		"cartEmpty": "Your cart is empty",
+		"paymentMethod": "Payment Method",
+		"paymentMethods": {
+			"counter": "Pay at Counter",
+			"counterDescription": "Pay when you pick up your order",
+			"online": "Pay Online",
+			"onlineDescription": "Pay securely with card, Apple Pay, or Google Pay"
+		},
 		"orderSummary": "Order Summary",
 		"subtotal": "Total",
-		"submitting": "Placing order...",
+		"submitting": "Processing...",
 		"placeOrder": "Place Order",
-		"invalidCartItems": "Your cart contains invalid items. Please add items again."
+		"proceedToPayment": "Proceed to Payment",
+		"invalidCartItems": "Your cart contains invalid items. Please add items again.",
+		"return": {
+			"verifying": "Verifying Payment",
+			"pleaseWait": "Please wait while we confirm your payment...",
+			"paymentFailed": "Payment Failed",
+			"sessionExpired": "Your payment session has expired. Please try again.",
+			"tryAgain": "Something went wrong. Please try again.",
+			"processing": "Processing..."
+		}
 	},
 	"confirmation": {
 		"title": "Order Received!",

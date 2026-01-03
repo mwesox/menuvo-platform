@@ -25,7 +25,7 @@ import {
 	updateItemTranslationsSchema,
 	updateOptionChoiceTranslationsSchema,
 	updateOptionGroupTranslationsSchema,
-} from "../validation.ts";
+} from "../schemas.ts";
 
 // ============================================================================
 // TRANSLATION STATUS QUERIES

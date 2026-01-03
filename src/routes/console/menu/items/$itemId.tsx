@@ -4,11 +4,14 @@ import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
 import type { Item, Store } from "@/db/schema";
 import { ConsoleError } from "@/features/console/components/console-error";
-import { ItemForm } from "@/features/console/menu/components/item-form";
+import {
+	type CategoryWithItems,
+	ItemForm,
+} from "@/features/console/menu/components/item-form";
 import { ItemFormSkeleton } from "@/features/console/menu/components/skeletons";
 import { useEntityDisplayName } from "@/features/console/menu/hooks";
 import { itemOptionQueries } from "@/features/console/menu/options.queries";
-import { itemQueries } from "@/features/console/menu/queries";
+import { categoryQueries, itemQueries } from "@/features/console/menu/queries";
 import { storeQueries } from "@/features/console/stores/queries";
 
 export const Route = createFileRoute("/console/menu/items/$itemId")({
@@ -18,10 +21,13 @@ export const Route = createFileRoute("/console/menu/items/$itemId")({
 			context.queryClient.ensureQueryData(itemQueries.detail(itemId)),
 			context.queryClient.ensureQueryData(itemOptionQueries.byItem(itemId)),
 		]);
-		// Prefetch store data
-		await context.queryClient.ensureQueryData(
-			storeQueries.detail(item.storeId),
-		);
+		// Prefetch store and categories data
+		await Promise.all([
+			context.queryClient.ensureQueryData(storeQueries.detail(item.storeId)),
+			context.queryClient.ensureQueryData(
+				categoryQueries.byStore(item.storeId),
+			),
+		]);
 		return {
 			initialOptionGroupIds: itemOptions.map((og) => og.id),
 		};
@@ -37,11 +43,15 @@ function EditItemPage() {
 	const itemIdNum = Number.parseInt(itemId, 10);
 	const { data: item } = useSuspenseQuery(itemQueries.detail(itemIdNum));
 	const { data: store } = useSuspenseQuery(storeQueries.detail(item.storeId));
+	const { data: categories = [] } = useSuspenseQuery(
+		categoryQueries.byStore(item.storeId),
+	);
 
 	return (
 		<EditItemPageContent
 			item={item}
 			store={store}
+			categories={categories}
 			initialOptionGroupIds={initialOptionGroupIds}
 		/>
 	);
@@ -50,10 +60,12 @@ function EditItemPage() {
 function EditItemPageContent({
 	item,
 	store,
+	categories,
 	initialOptionGroupIds,
 }: {
 	item: Item;
 	store: Store;
+	categories: CategoryWithItems[];
 	initialOptionGroupIds: number[];
 }) {
 	const { t } = useTranslation("menu");
@@ -68,6 +80,7 @@ function EditItemPageContent({
 
 			<ItemForm
 				item={item}
+				categories={categories}
 				categoryId={item.categoryId}
 				storeId={item.storeId}
 				merchantId={store.merchantId}

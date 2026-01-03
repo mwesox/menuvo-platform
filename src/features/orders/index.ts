@@ -8,7 +8,7 @@ export * from "./constants";
 export * from "./logic";
 // Query configuration
 export * from "./queries";
+// Validation schemas
+export * from "./schemas";
 // Types
 export * from "./types";
-// Validation schemas
-export * from "./validation";

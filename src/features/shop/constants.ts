@@ -13,6 +13,3 @@ export const HEADER_OFFSET = HEADER_HEIGHT + CATEGORY_NAV_HEIGHT + 16;
 
 /** Intersection observer root margin for category scroll tracking */
 export const CATEGORY_INTERSECTION_ROOT_MARGIN = "-120px 0px -70% 0px";
-
-/** localStorage key for service point tracking */
-export const SERVICE_POINT_STORAGE_KEY = "menuvo_service_point";

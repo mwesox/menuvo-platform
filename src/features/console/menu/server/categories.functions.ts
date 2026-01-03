@@ -3,7 +3,7 @@ import { asc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { categories } from "@/db/schema.ts";
-import { createCategorySchema, updateCategorySchema } from "../validation.ts";
+import { createCategorySchema, updateCategorySchema } from "../schemas.ts";
 
 // Sort by name extracted from translations JSONB (German as primary)
 const categoryNameSort = asc(sql`${categories.translations}->'de'->>'name'`);

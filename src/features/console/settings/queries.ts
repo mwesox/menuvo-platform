@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import type { ChangePlanInput, MerchantGeneralInput } from "./schemas";
 import {
 	getFirstMerchant,
 	getMerchant,
@@ -23,7 +24,6 @@ import {
 	getSubscriptionDetails,
 	resumeMerchantSubscription,
 } from "./server/subscription.functions.ts";
-import type { ChangePlanInput, MerchantGeneralInput } from "./validation";
 
 // Query keys
 export const merchantKeys = {

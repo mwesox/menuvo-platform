@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { merchantQueries, useUpdateMerchantGeneral } from "../../queries.ts";
-import { merchantGeneralSchema } from "../../validation";
+import { merchantGeneralSchema } from "../../schemas";
 
 interface MerchantGeneralFormProps {
 	merchantId: number;

@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { and, asc, eq } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import { z } from "zod";
 import { db } from "@/db";
 import { servicePoints, stores } from "@/db/schema.ts";
@@ -8,7 +9,30 @@ import {
 	createServicePointSchema,
 	toggleZoneSchema,
 	updateServicePointSchema,
-} from "../validation.ts";
+} from "../schemas.ts";
+
+/**
+ * Generate a unique 8-character short code for QR URLs.
+ * Uses lowercase alphanumeric characters for URL safety.
+ */
+async function generateUniqueShortCode(): Promise<string> {
+	const maxAttempts = 5;
+	for (let attempt = 0; attempt < maxAttempts; attempt++) {
+		// Generate 8-char lowercase alphanumeric code
+		const shortCode = nanoid(8).toLowerCase();
+
+		// Check for uniqueness
+		const existing = await db.query.servicePoints.findFirst({
+			where: eq(servicePoints.shortCode, shortCode),
+			columns: { id: true },
+		});
+
+		if (!existing) {
+			return shortCode;
+		}
+	}
+	throw new Error("Failed to generate unique short code");
+}
 
 /**
  * Get all service points for a store.
@@ -59,6 +83,44 @@ export const getServicePointByCode = createServerFn({ method: "GET" })
 	});
 
 /**
+ * Get service point by short code with store info.
+ * Used for QR code redirect route.
+ */
+export const getServicePointByShortCode = createServerFn({ method: "GET" })
+	.inputValidator(z.object({ shortCode: z.string() }))
+	.handler(async ({ data }) => {
+		const servicePoint = await db.query.servicePoints.findFirst({
+			where: eq(servicePoints.shortCode, data.shortCode),
+			with: {
+				store: {
+					columns: {
+						slug: true,
+						isActive: true,
+					},
+				},
+			},
+		});
+
+		if (!servicePoint) {
+			return { status: "not_found" as const };
+		}
+
+		if (!servicePoint.store.isActive) {
+			return { status: "store_inactive" as const };
+		}
+
+		if (!servicePoint.isActive) {
+			return { status: "service_point_inactive" as const };
+		}
+
+		return {
+			status: "active" as const,
+			storeSlug: servicePoint.store.slug,
+			servicePointCode: servicePoint.code,
+		};
+	});
+
+/**
  * Create a new service point.
  */
 export const createServicePoint = createServerFn({ method: "POST" })
@@ -85,11 +147,15 @@ export const createServicePoint = createServerFn({ method: "POST" })
 			displayOrder = (lastPoint?.displayOrder ?? -1) + 1;
 		}
 
+		// Generate unique short code for QR URLs
+		const shortCode = await generateUniqueShortCode();
+
 		const [newServicePoint] = await db
 			.insert(servicePoints)
 			.values({
 				storeId: data.storeId,
 				code: data.code,
+				shortCode,
 				name: data.name,
 				displayOrder,
 				description: data.description ?? null,
@@ -281,10 +347,16 @@ export const batchCreateServicePoints = createServerFn({ method: "POST" })
 		});
 		const startDisplayOrder = (lastPoint?.displayOrder ?? -1) + 1;
 
+		// Generate unique short codes for all service points
+		const shortCodes = await Promise.all(
+			pointsToCreate.map(() => generateUniqueShortCode()),
+		);
+
 		// Bulk insert
 		const values = pointsToCreate.map((p, index) => ({
 			storeId,
 			code: p.code,
+			shortCode: shortCodes[index],
 			name: p.name,
 			zone: zone ?? null,
 			displayOrder: startDisplayOrder + index,

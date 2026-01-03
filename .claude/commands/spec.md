@@ -24,14 +24,28 @@ You do NOT:
 - Write code or pseudocode
 - Define database schemas or API contracts
 
+## Input Handling
+
+`$ARGUMENTS` determines the mode:
+- **Issue number** (e.g., `#123`, `123`) → **Update mode**: edit existing issue
+- **Feature description** (anything else) → **Create mode**: create new issue
+
+Never search for existing issues. The user explicitly provides either an issue to update or a new feature to create.
+
 ## Workflow
 
-### 1. Understand the Request
-- Parse the user's feature request or wish
+### 1. Determine Mode
+Check `$ARGUMENTS`:
+- If issue number provided (e.g., `#123`, `123`) → **Update mode**: fetch issue with `gh issue view <number> -R mwesox/menuvo-platform`
+- Otherwise → **Create mode**: argument is the feature request
+
+### 2. Understand the Request
+- In create mode: Parse the feature request from arguments
+- In update mode: Review the fetched issue content
 - Identify the core problem being solved
 - Note any explicit constraints mentioned
 
-### 2. Gather Context
+### 3. Gather Context
 Use `AskUserQuestion` to clarify ONLY when:
 - The user story is ambiguous (who is the user?)
 - Success criteria are unclear
@@ -39,15 +53,6 @@ Use `AskUserQuestion` to clarify ONLY when:
 - Business rules have multiple valid interpretations
 
 Ask focused, specific questions. Batch related questions together.
-
-### 3. Search Existing Issues
-```bash
-gh issue list -R mwesox/menuvo-platform --search "<keywords>" --state all
-```
-Check if this feature:
-- Already exists (duplicate)
-- Was previously rejected (and why)
-- Is partially implemented
 
 ### 4. Create or Update Issue
 

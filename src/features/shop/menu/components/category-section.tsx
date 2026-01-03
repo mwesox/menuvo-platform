@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import type { MenuItem } from "../../validation";
+import type { MenuItem } from "../../schemas";
 import { MenuItemCard } from "./menu-item-card";
 
 interface CategorySectionProps {

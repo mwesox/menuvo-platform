@@ -1,21 +1,18 @@
-// Account handlers
+// Handler registry
+
+// Account handlers (exports updateMerchantPaymentStatus for direct use if needed)
 export {
-	mapCapabilityStatus,
-	mapRequirementsStatus,
 	type UpdatePaymentStatusInput,
 	updateMerchantPaymentStatus,
 } from "./account.handler";
-// Checkout handlers
 export {
-	handleCheckoutSessionCompleted,
-	handleCheckoutSessionExpired,
-} from "./checkout.handler";
-// Subscription handlers
-export {
-	handleSubscriptionCreated,
-	handleSubscriptionDeleted,
-	handleSubscriptionPaused,
-	handleSubscriptionResumed,
-	handleSubscriptionUpdated,
-	handleTrialWillEnd,
-} from "./subscription.handler";
+	dispatchV1Event,
+	dispatchV2Event,
+	getRegisteredV1Events,
+	getRegisteredV2Events,
+	registerV1Handler,
+	registerV2Handler,
+} from "./registry";
+
+// Note: Handlers self-register when imported via processor.ts
+// No need to export handler functions directly

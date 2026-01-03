@@ -6,10 +6,12 @@ import {
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { minutes } from "@/lib/utils";
-import {
-	getServicePointScanStats,
-	getStoreScanStats,
-} from "./server/scans.functions.ts";
+import type {
+	BatchCreateInput,
+	CreateServicePointInput,
+	ToggleZoneInput,
+	UpdateServicePointInput,
+} from "./schemas.ts";
 import {
 	batchCreateServicePoints,
 	createServicePoint,
@@ -21,12 +23,6 @@ import {
 	toggleZoneActive,
 	updateServicePoint,
 } from "./server/service-points.functions.ts";
-import type {
-	BatchCreateInput,
-	CreateServicePointInput,
-	ToggleZoneInput,
-	UpdateServicePointInput,
-} from "./validation.ts";
 
 // ============================================================================
 // QUERY KEYS
@@ -37,12 +33,6 @@ export const servicePointKeys = {
 	list: (storeId: number) => ["servicePoints", "list", storeId] as const,
 	detail: (id: number) => ["servicePoints", "detail", id] as const,
 	zones: (storeId: number) => ["servicePoints", "zones", storeId] as const,
-	scans: {
-		store: (storeId: number, days = 30) =>
-			["servicePoints", "scans", "store", storeId, days] as const,
-		servicePoint: (id: number, days = 30) =>
-			["servicePoints", "scans", "detail", id, days] as const,
-	},
 };
 
 // ============================================================================
@@ -69,19 +59,6 @@ export const servicePointQueries = {
 			queryKey: servicePointKeys.zones(storeId),
 			queryFn: () => getServicePointZones({ data: { storeId } }),
 			staleTime: minutes(5),
-		}),
-
-	storeScans: (storeId: number, days = 30) =>
-		queryOptions({
-			queryKey: servicePointKeys.scans.store(storeId, days),
-			queryFn: () => getStoreScanStats({ data: { storeId, days } }),
-		}),
-
-	servicePointScans: (servicePointId: number, days = 30) =>
-		queryOptions({
-			queryKey: servicePointKeys.scans.servicePoint(servicePointId, days),
-			queryFn: () =>
-				getServicePointScanStats({ data: { servicePointId, days } }),
 		}),
 };
 

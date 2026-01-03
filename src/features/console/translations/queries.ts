@@ -6,6 +6,13 @@ import {
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { updateMerchantLanguages } from "@/features/console/settings/server/merchants.functions";
+import type {
+	LanguageCode,
+	UpdateCategoryTranslationsInput,
+	UpdateItemTranslationsInput,
+	UpdateOptionChoiceTranslationsInput,
+	UpdateOptionGroupTranslationsInput,
+} from "./schemas.ts";
 import {
 	getMissingTranslationsReport,
 	getTranslationStatus,
@@ -14,13 +21,6 @@ import {
 	updateOptionChoiceTranslations,
 	updateOptionGroupTranslations,
 } from "./server/translations.functions.ts";
-import type {
-	LanguageCode,
-	UpdateCategoryTranslationsInput,
-	UpdateItemTranslationsInput,
-	UpdateOptionChoiceTranslationsInput,
-	UpdateOptionGroupTranslationsInput,
-} from "./validation.ts";
 
 // Query keys - merchantId obtained from auth context on server
 export const translationKeys = {

@@ -9,7 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import type { SubscriptionStatus } from "../../validation";
+import type { SubscriptionStatus } from "../../schemas";
 
 interface SubscriptionStatusCardProps {
 	subscription: {

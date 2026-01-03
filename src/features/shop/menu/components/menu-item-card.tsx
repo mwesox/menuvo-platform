@@ -17,7 +17,7 @@ interface MenuItemCardProps {
 }
 
 export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
-	const { t } = useTranslation("shop");
+	const { t } = useTranslation(["shop", "menu"]);
 
 	const handleCardClick = () => {
 		onSelect(item);
@@ -75,7 +75,7 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 								key={allergen}
 								className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded"
 							>
-								{allergen}
+								{t(`menu:allergens.${allergen}`, allergen)}
 							</span>
 						))}
 					</div>

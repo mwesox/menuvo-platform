@@ -1,8 +1,8 @@
 import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button.tsx";
 import {
 	Card,
@@ -22,6 +22,14 @@ import {
 } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { PriceInput } from "@/components/ui/price-input.tsx";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import {
 	Tabs,
@@ -30,22 +38,27 @@ import {
 	TabsTrigger,
 } from "@/components/ui/tabs.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
-import type { Item } from "@/db/schema.ts";
+import type { Category, Item } from "@/db/schema.ts";
 import { ImageUploadField } from "@/features/console/images/components/image-upload-field.tsx";
 import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
-import { createItem, updateItem } from "../server/items.functions.ts";
-import { updateItemOptions } from "../server/options.functions.ts";
+import { ALLERGEN_KEYS } from "../constants.ts";
+import { getDisplayName } from "../logic/display.ts";
+import { categoryQueries, itemQueries } from "../queries.ts";
 import {
-	allergensList,
 	formToTranslations,
 	itemFormSchema,
 	translationsToForm,
-} from "../validation.ts";
+} from "../schemas.ts";
+import { createItem, updateItem } from "../server/items.functions.ts";
+import { updateItemOptions } from "../server/options.functions.ts";
 import { ItemOptionsSelector } from "./item-options-selector.tsx";
+
+export type CategoryWithItems = Category & { items: unknown[] };
 
 interface ItemFormProps {
 	item?: Item;
-	categoryId: number;
+	categories: CategoryWithItems[];
+	categoryId?: number;
 	storeId: number;
 	merchantId: number;
 	initialOptionGroupIds?: number[];
@@ -53,6 +66,7 @@ interface ItemFormProps {
 
 export function ItemForm({
 	item,
+	categories,
 	categoryId,
 	storeId,
 	merchantId,
@@ -62,12 +76,74 @@ export function ItemForm({
 	const { t: tCommon } = useTranslation("common");
 	const { t: tForms } = useTranslation("forms");
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 	const language = useDisplayLanguage();
 	const isEditing = !!item;
 
 	const [selectedOptionGroupIds, setSelectedOptionGroupIds] = useState<
 		number[]
 	>(initialOptionGroupIds);
+
+	// Get initial category ID from props (edit mode uses item.categoryId, new mode uses categoryId prop)
+	const initialCategoryId = item?.categoryId ?? categoryId;
+
+	// Mutations that work with dynamic categoryId from form
+	const createItemMutation = useMutation({
+		mutationFn: (input: {
+			categoryId: number;
+			translations: Record<string, { name?: string; description?: string }>;
+			price: number;
+			imageUrl?: string;
+			allergens: string[];
+		}) =>
+			createItem({
+				data: {
+					categoryId: input.categoryId,
+					storeId,
+					translations: input.translations,
+					price: input.price,
+					imageUrl: input.imageUrl,
+					allergens: input.allergens,
+				},
+			}),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: itemQueries.byStore(storeId).queryKey,
+			});
+			queryClient.invalidateQueries({
+				queryKey: categoryQueries.byStore(storeId).queryKey,
+			});
+		},
+	});
+
+	const updateItemMutation = useMutation({
+		mutationFn: (input: {
+			itemId: number;
+			categoryId?: number;
+			translations?: Record<string, { name?: string; description?: string }>;
+			price?: number;
+			imageUrl?: string;
+			allergens?: string[];
+		}) =>
+			updateItem({
+				data: {
+					itemId: input.itemId,
+					categoryId: input.categoryId,
+					translations: input.translations,
+					price: input.price,
+					imageUrl: input.imageUrl,
+					allergens: input.allergens,
+				},
+			}),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: itemQueries.byStore(storeId).queryKey,
+			});
+			queryClient.invalidateQueries({
+				queryKey: categoryQueries.byStore(storeId).queryKey,
+			});
+		},
+	});
 
 	// Get form defaults from translations
 	const defaultTranslations = translationsToForm(
@@ -77,9 +153,10 @@ export function ItemForm({
 
 	const form = useForm({
 		defaultValues: {
+			categoryId: initialCategoryId ? String(initialCategoryId) : "",
 			name: defaultTranslations.name,
 			description: defaultTranslations.description,
-			price: item ? String(item.price / 100) : "",
+			price: item ? String(item.price) : "0",
 			imageUrl: item?.imageUrl ?? "",
 			allergens: item?.allergens ?? ([] as string[]),
 		},
@@ -87,7 +164,8 @@ export function ItemForm({
 			onSubmit: itemFormSchema,
 		},
 		onSubmit: async ({ value }) => {
-			const priceInCents = Math.round(Number.parseFloat(value.price) * 100);
+			const selectedCategoryId = Number.parseInt(value.categoryId, 10);
+			const priceInCents = Number.parseInt(value.price, 10) || 0;
 			const translations = formToTranslations(
 				{ name: value.name, description: value.description },
 				language,
@@ -98,26 +176,22 @@ export function ItemForm({
 				let itemId: number;
 
 				if (isEditing) {
-					await updateItem({
-						data: {
-							itemId: item.id,
-							translations,
-							price: priceInCents,
-							imageUrl: value.imageUrl || undefined,
-							allergens: value.allergens,
-						},
+					await updateItemMutation.mutateAsync({
+						itemId: item.id,
+						categoryId: selectedCategoryId,
+						translations,
+						price: priceInCents,
+						imageUrl: value.imageUrl || undefined,
+						allergens: value.allergens,
 					});
 					itemId = item.id;
 				} else {
-					const newItem = await createItem({
-						data: {
-							categoryId,
-							storeId,
-							translations,
-							price: priceInCents,
-							imageUrl: value.imageUrl || undefined,
-							allergens: value.allergens,
-						},
+					const newItem = await createItemMutation.mutateAsync({
+						categoryId: selectedCategoryId,
+						translations,
+						price: priceInCents,
+						imageUrl: value.imageUrl || undefined,
+						allergens: value.allergens,
 					});
 					itemId = newItem.id;
 				}
@@ -127,21 +201,12 @@ export function ItemForm({
 					data: { itemId, optionGroupIds: selectedOptionGroupIds },
 				});
 
-				toast.success(
-					isEditing
-						? t("messages.itemUpdatedSuccess")
-						: t("messages.itemCreatedSuccess"),
-				);
 				navigate({
 					to: "/console/menu",
 					search: { storeId, tab: "items" as const },
 				});
 			} catch {
-				toast.error(
-					isEditing
-						? t("messages.itemUpdateFailed")
-						: t("messages.itemCreationFailed"),
-				);
+				// Error toast is handled by mutation hooks
 			}
 		},
 	});
@@ -172,6 +237,49 @@ export function ItemForm({
 						</CardHeader>
 						<CardContent>
 							<FieldGroup>
+								<form.Field name="categoryId">
+									{(field) => {
+										const isInvalid =
+											field.state.meta.isTouched && !field.state.meta.isValid;
+										return (
+											<Field data-invalid={isInvalid}>
+												<FieldLabel htmlFor={field.name}>
+													{tForms("fields.category")} *
+												</FieldLabel>
+												<Select
+													value={field.state.value}
+													onValueChange={field.handleChange}
+												>
+													<SelectTrigger
+														id={field.name}
+														aria-invalid={isInvalid}
+													>
+														<SelectValue
+															placeholder={t("placeholders.selectCategory")}
+														/>
+													</SelectTrigger>
+													<SelectContent>
+														{categories.map((category) => (
+															<SelectItem
+																key={category.id}
+																value={String(category.id)}
+															>
+																{getDisplayName(
+																	category.translations,
+																	language,
+																)}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+												{isInvalid && (
+													<FieldError errors={field.state.meta.errors} />
+												)}
+											</Field>
+										);
+									}}
+								</form.Field>
+
 								<form.Field name="name">
 									{(field) => {
 										const isInvalid =
@@ -234,24 +342,15 @@ export function ItemForm({
 												<FieldLabel htmlFor={field.name}>
 													{tForms("fields.price")} *
 												</FieldLabel>
-												<div className="relative">
-													<span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-														€
-													</span>
-													<Input
-														id={field.name}
-														name={field.name}
-														type="number"
-														step="0.01"
-														min="0"
-														placeholder="0.00"
-														className="pl-7"
-														value={field.state.value}
-														onBlur={field.handleBlur}
-														onChange={(e) => field.handleChange(e.target.value)}
-														aria-invalid={isInvalid}
-													/>
-												</div>
+												<PriceInput
+													id={field.name}
+													name={field.name}
+													value={Number.parseInt(field.state.value, 10) || 0}
+													onChange={(cents) =>
+														field.handleChange(String(cents))
+													}
+													onBlur={field.handleBlur}
+												/>
 												{isInvalid && (
 													<FieldError errors={field.state.meta.errors} />
 												)}
@@ -307,24 +406,23 @@ export function ItemForm({
 											<FieldLegend className="sr-only">Allergens</FieldLegend>
 											<FieldGroup data-slot="checkbox-group">
 												<div className="grid gap-3 sm:grid-cols-3 md:grid-cols-4">
-													{allergensList.map((allergen) => (
+													{ALLERGEN_KEYS.map((allergenKey) => (
 														<Field
-															key={allergen.value}
+															key={allergenKey}
 															orientation="horizontal"
 															data-invalid={isInvalid}
 														>
 															<Checkbox
-																id={`allergen-${allergen.value}`}
+																id={`allergen-${allergenKey}`}
 																checked={field.state.value.includes(
-																	allergen.value,
+																	allergenKey,
 																)}
 																onCheckedChange={(checked) => {
 																	if (checked) {
-																		field.pushValue(allergen.value);
+																		field.pushValue(allergenKey);
 																	} else {
-																		const index = field.state.value.indexOf(
-																			allergen.value,
-																		);
+																		const index =
+																			field.state.value.indexOf(allergenKey);
 																		if (index > -1) {
 																			field.removeValue(index);
 																		}
@@ -332,10 +430,10 @@ export function ItemForm({
 																}}
 															/>
 															<FieldLabel
-																htmlFor={`allergen-${allergen.value}`}
+																htmlFor={`allergen-${allergenKey}`}
 																className="font-normal"
 															>
-																{allergen.label}
+																{t(`allergens.${allergenKey}`)}
 															</FieldLabel>
 														</Field>
 													))}

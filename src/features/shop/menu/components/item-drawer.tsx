@@ -11,10 +11,10 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "../../cart";
+import type { MenuItemWithDefaults } from "../../schemas";
 import { QuantityStepper } from "../../shared";
 import { ShopButton, ShopHeading } from "../../shared/components/ui";
 import { formatPrice } from "../../utils";
-import type { MenuItemWithDefaults } from "../../validation";
 import { OptionGroup } from "./option-group";
 
 interface ItemDrawerProps {

@@ -13,10 +13,12 @@ import { orderTypes } from "@/features/orders/constants";
 // ============================================================================
 
 /**
- * Checkout form schema - minimal for prototype
+ * Checkout form schema.
+ * All orders require online payment, so email is always required.
  */
 export const checkoutFormSchema = z.object({
 	customerName: z.string().min(1, "Name is required"),
+	customerEmail: z.string().email("Invalid email").min(1, "Email is required"),
 	orderType: z.enum(orderTypes),
 });
 

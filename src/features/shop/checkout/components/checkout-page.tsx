@@ -1,15 +1,17 @@
 "use client";
 
-import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import type { PaymentCapabilitiesStatus } from "@/db/schema";
 import type { OrderType } from "@/features/orders/constants";
 import { useCreateOrder } from "@/features/orders/queries";
+import { computeMerchantCapabilities } from "@/lib/capabilities";
 import { type CartItem, useCartStore } from "../../cart/stores/cart-store";
+import { StoreUnavailable } from "../../shared/components/store-unavailable";
 import {
 	ShopButton,
 	ShopCard,
@@ -18,10 +20,15 @@ import {
 	ShopPrice,
 	ShopPriceRow,
 } from "../../shared/components/ui";
+import { useCreateCheckoutSession } from "../queries";
+import { EmbeddedCheckoutWrapper } from "./embedded-checkout";
 
 interface CheckoutPageProps {
 	storeId: number;
 	storeSlug: string;
+	merchant: {
+		paymentCapabilitiesStatus: PaymentCapabilitiesStatus | null;
+	} | null;
 }
 
 /**
@@ -60,33 +67,66 @@ function transformCartItemToSnapshot(cartItem: CartItem) {
 	};
 }
 
-export function CheckoutPage({ storeId, storeSlug }: CheckoutPageProps) {
+export function CheckoutPage({
+	storeId,
+	storeSlug,
+	merchant,
+}: CheckoutPageProps) {
 	const { t } = useTranslation("shop");
-	const navigate = useNavigate();
 
 	// Cart state - compute subtotal from items (getters don't work with persist)
 	const items = useCartStore((s) => s.items);
-	const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
 	const clearCart = useCartStore((s) => s.clearCart);
 
 	// Form state
 	const [customerName, setCustomerName] = useState("");
+	const [customerEmail, setCustomerEmail] = useState("");
 	const [orderType, setOrderType] = useState<OrderType>("dine_in");
 
-	// Mutation
+	// Checkout session state (for embedded checkout)
+	const [checkoutSession, setCheckoutSession] = useState<{
+		clientSecret: string;
+		merchantAccountId: string | null;
+		orderId: number;
+	} | null>(null);
+
+	// Mutations
 	const createOrderMutation = useCreateOrder(storeId);
+	const createCheckoutSessionMutation = useCreateCheckoutSession();
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+	// Check if merchant can accept online payments
+	const merchantCaps = computeMerchantCapabilities({
+		paymentCapabilitiesStatus: merchant?.paymentCapabilitiesStatus ?? null,
+	});
 
+	// Show unavailable message if payment capabilities are not active
+	if (!merchantCaps.canAcceptOnlinePayment) {
+		return <StoreUnavailable backUrl={`/shop/${storeSlug}`} />;
+	}
+
+	// Compute subtotal from items
+	const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
+
+	const validateForm = (): boolean => {
 		if (!customerName.trim()) {
 			toast.error(t("checkout.nameRequired"));
-			return;
+			return false;
+		}
+
+		if (!customerEmail.trim()) {
+			toast.error(t("checkout.emailRequired"));
+			return false;
+		}
+
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(customerEmail)) {
+			toast.error(t("checkout.invalidEmail"));
+			return false;
 		}
 
 		if (items.length === 0) {
 			toast.error(t("checkout.cartEmpty"));
-			return;
+			return false;
 		}
 
 		// Validate cart items have required fields (catches corrupted localStorage)
@@ -96,8 +136,16 @@ export function CheckoutPage({ storeId, storeSlug }: CheckoutPageProps) {
 		if (invalidItems.length > 0) {
 			toast.error(t("checkout.invalidCartItems"));
 			clearCart();
-			return;
+			return false;
 		}
+
+		return true;
+	};
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!validateForm()) return;
 
 		// Transform cart items to order format
 		const orderItems = items.map(transformCartItemToSnapshot);
@@ -107,7 +155,8 @@ export function CheckoutPage({ storeId, storeSlug }: CheckoutPageProps) {
 			items: orderItems,
 			orderType,
 			customerName: customerName.trim(),
-			paymentMethod: "pay_at_counter",
+			customerEmail: customerEmail.trim(),
+			paymentMethod: "stripe" as const,
 			subtotal,
 			taxAmount: 0,
 			tipAmount: 0,
@@ -119,16 +168,52 @@ export function CheckoutPage({ storeId, storeSlug }: CheckoutPageProps) {
 				data: orderData,
 			});
 
-			// Clear cart and redirect to confirmation
-			clearCart();
-			navigate({
-				to: "/shop/$slug/order/$orderId",
-				params: { slug: storeSlug, orderId: String(order.id) },
+			// Create checkout session for online payment
+			const returnUrl = `${window.location.origin}/shop/${storeSlug}/checkout/return`;
+
+			const session = await createCheckoutSessionMutation.mutateAsync({
+				data: {
+					orderId: order.id,
+					returnUrl,
+				},
 			});
+
+			if (session.clientSecret) {
+				// Clear cart before showing checkout (order is already created)
+				clearCart();
+				setCheckoutSession({
+					clientSecret: session.clientSecret,
+					merchantAccountId: session.merchantAccountId,
+					orderId: order.id,
+				});
+			}
 		} catch {
 			// Error toast handled by mutation
 		}
 	};
+
+	// Show embedded checkout if session is created
+	if (checkoutSession) {
+		return (
+			<div className="min-h-screen bg-background">
+				<div className="max-w-lg mx-auto px-4 py-6">
+					<ShopHeading as="h1" size="xl" className="mb-6">
+						{t("checkout.payment")}
+					</ShopHeading>
+					<EmbeddedCheckoutWrapper
+						clientSecret={checkoutSession.clientSecret}
+						merchantAccountId={checkoutSession.merchantAccountId}
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	const isSubmitting =
+		createOrderMutation.isPending || createCheckoutSessionMutation.isPending;
+
+	const isFormValid =
+		customerName.trim() && customerEmail.trim() && items.length > 0;
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -173,22 +258,48 @@ export function CheckoutPage({ storeId, storeSlug }: CheckoutPageProps) {
 						</RadioGroup>
 					</ShopCard>
 
-					{/* Customer Name */}
-					<ShopCard padding="md" className="space-y-3">
-						<Label htmlFor="customerName">
-							<ShopHeading as="span" size="md">
-								{t("checkout.yourName")}
-							</ShopHeading>
-						</Label>
-						<Input
-							id="customerName"
-							type="text"
-							value={customerName}
-							onChange={(e) => setCustomerName(e.target.value)}
-							placeholder={t("checkout.namePlaceholder")}
-							className="w-full"
-							autoComplete="name"
-						/>
+					{/* Customer Info */}
+					<ShopCard padding="md" className="space-y-4">
+						<ShopHeading as="h2" size="md">
+							{t("checkout.yourInfo")}
+						</ShopHeading>
+
+						<div className="space-y-3">
+							<div>
+								<Label htmlFor="customerName" className="text-sm font-medium">
+									{t("checkout.yourName")}
+								</Label>
+								<Input
+									id="customerName"
+									type="text"
+									value={customerName}
+									onChange={(e) => setCustomerName(e.target.value)}
+									placeholder={t("checkout.namePlaceholder")}
+									className="mt-1 w-full"
+									autoComplete="name"
+								/>
+							</div>
+
+							{/* Email field - required for payment */}
+							<div>
+								<Label htmlFor="customerEmail" className="text-sm font-medium">
+									{t("checkout.yourEmail")}
+									<span className="text-destructive ml-1">*</span>
+								</Label>
+								<Input
+									id="customerEmail"
+									type="email"
+									value={customerEmail}
+									onChange={(e) => setCustomerEmail(e.target.value)}
+									placeholder={t("checkout.emailPlaceholder")}
+									className="mt-1 w-full"
+									autoComplete="email"
+								/>
+								<ShopMutedText className="text-xs mt-1">
+									{t("checkout.emailRequiredForOnline")}
+								</ShopMutedText>
+							</div>
+						</div>
 					</ShopCard>
 
 					{/* Order Summary */}
@@ -234,15 +345,11 @@ export function CheckoutPage({ storeId, storeSlug }: CheckoutPageProps) {
 						variant="primary"
 						size="lg"
 						className="w-full"
-						disabled={
-							createOrderMutation.isPending ||
-							items.length === 0 ||
-							!customerName.trim()
-						}
+						disabled={isSubmitting || !isFormValid}
 					>
-						{createOrderMutation.isPending
+						{isSubmitting
 							? t("checkout.submitting")
-							: t("checkout.placeOrder")}
+							: t("checkout.proceedToPayment")}
 					</ShopButton>
 				</form>
 			</div>

@@ -1,23 +1,6 @@
 import { z } from "zod";
 
 // ============================================================================
-// CONSTANTS
-// ============================================================================
-
-export const countries = [
-	{ value: "DE", label: "Germany" },
-	{ value: "AT", label: "Austria" },
-	{ value: "CH", label: "Switzerland" },
-	{ value: "NL", label: "Netherlands" },
-	{ value: "BE", label: "Belgium" },
-	{ value: "FR", label: "France" },
-	{ value: "IT", label: "Italy" },
-	{ value: "ES", label: "Spain" },
-	{ value: "GB", label: "United Kingdom" },
-	{ value: "US", label: "United States" },
-] as const;
-
-// ============================================================================
 // STORE SERVER SCHEMAS
 // ============================================================================
 

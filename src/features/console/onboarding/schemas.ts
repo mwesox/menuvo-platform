@@ -118,19 +118,3 @@ export const onboardingFormSchema = z.object({
 	store: storeStepFormSchema,
 });
 export type OnboardingFormInput = z.infer<typeof onboardingFormSchema>;
-
-export const currencies = [
-	{ value: "EUR", label: "Euro (€)" },
-	{ value: "USD", label: "US Dollar ($)" },
-	{ value: "GBP", label: "British Pound (£)" },
-	{ value: "CHF", label: "Swiss Franc (CHF)" },
-] as const;
-
-export const timezones = [
-	{ value: "Europe/Berlin", label: "Berlin (CET)" },
-	{ value: "Europe/London", label: "London (GMT)" },
-	{ value: "Europe/Paris", label: "Paris (CET)" },
-	{ value: "Europe/Zurich", label: "Zurich (CET)" },
-	{ value: "America/New_York", label: "New York (EST)" },
-	{ value: "America/Los_Angeles", label: "Los Angeles (PST)" },
-] as const;

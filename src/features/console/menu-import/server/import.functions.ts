@@ -9,11 +9,8 @@ import {
 	optionGroups,
 	stores,
 } from "@/db/schema";
+import { applyImportChangesSchema, getImportJobStatusSchema } from "../schemas";
 import type { MenuComparisonData } from "../types";
-import {
-	applyImportChangesSchema,
-	getImportJobStatusSchema,
-} from "../validation";
 
 /**
  * Get import job status for polling.

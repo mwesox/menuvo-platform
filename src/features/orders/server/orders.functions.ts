@@ -9,7 +9,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { and, desc, eq, gte, ilike, inArray, lte, or } from "drizzle-orm";
 import { db } from "@/db";
 import { orderItemOptions, orderItems, orders } from "@/db/schema";
+import { DatabaseError, NotFoundError } from "@/lib/errors";
 import { ordersLogger } from "@/lib/logger";
+import {
+	InvalidOrderTransitionError,
+	OrderNotCancellableError,
+} from "../errors";
 import { canTransitionTo, getInitialOrderStatus } from "../logic/order-status";
 import {
 	addMerchantNotesSchema,
@@ -20,7 +25,47 @@ import {
 	getOrdersByStoreSchema,
 	updateOrderStatusSchema,
 	updatePaymentStatusSchema,
-} from "../validation";
+} from "../schemas";
+
+// ============================================================================
+// HELPERS
+// ============================================================================
+
+async function findOrderById(orderId: number) {
+	const order = await db.query.orders.findFirst({
+		where: eq(orders.id, orderId),
+	});
+	if (!order) {
+		throw new NotFoundError("Order", orderId);
+	}
+	return order;
+}
+
+async function findOrderWithDetails(orderId: number) {
+	const order = await db.query.orders.findFirst({
+		where: eq(orders.id, orderId),
+		with: {
+			items: {
+				orderBy: (items, { asc }) => [asc(items.displayOrder)],
+				with: {
+					options: true,
+				},
+			},
+			store: {
+				columns: {
+					id: true,
+					name: true,
+					slug: true,
+				},
+			},
+			servicePoint: true,
+		},
+	});
+	if (!order) {
+		throw new NotFoundError("Order", orderId);
+	}
+	return order;
+}
 
 // ============================================================================
 // CREATE
@@ -45,14 +90,12 @@ export const createOrder = createServerFn({ method: "POST" })
 			"Creating order",
 		);
 
+		const { orderStatus, paymentStatus } = getInitialOrderStatus(
+			data.orderType,
+			data.paymentMethod,
+		);
+
 		try {
-			const { orderStatus, paymentStatus } = getInitialOrderStatus(
-				data.orderType,
-				data.paymentMethod,
-			);
-
-			//TODO Validate order e.g. tax calculation etc?
-
 			const order = await db.transaction(async (tx) => {
 				const [newOrder] = await tx
 					.insert(orders)
@@ -114,7 +157,10 @@ export const createOrder = createServerFn({ method: "POST" })
 			return order;
 		} catch (error) {
 			ordersLogger.error({ error }, "Order creation failed");
-			throw error;
+			throw new DatabaseError(
+				"createOrder",
+				error instanceof Error ? error.message : undefined,
+			);
 		}
 	});
 
@@ -128,31 +174,7 @@ export const createOrder = createServerFn({ method: "POST" })
 export const getOrder = createServerFn({ method: "GET" })
 	.inputValidator(getOrderSchema)
 	.handler(async ({ data }) => {
-		const order = await db.query.orders.findFirst({
-			where: eq(orders.id, data.orderId),
-			with: {
-				items: {
-					orderBy: (items, { asc }) => [asc(items.displayOrder)],
-					with: {
-						options: true,
-					},
-				},
-				store: {
-					columns: {
-						id: true,
-						name: true,
-						slug: true,
-					},
-				},
-				servicePoint: true,
-			},
-		});
-
-		if (!order) {
-			throw new Error("Order not found");
-		}
-
-		return order;
+		return findOrderWithDetails(data.orderId);
 	});
 
 /**
@@ -190,7 +212,7 @@ export const getOrdersByStore = createServerFn({ method: "GET" })
 			}
 		}
 
-		const result = await db.query.orders.findMany({
+		return db.query.orders.findMany({
 			where: and(...conditions),
 			orderBy: [desc(orders.createdAt)],
 			limit: data.limit,
@@ -204,8 +226,6 @@ export const getOrdersByStore = createServerFn({ method: "GET" })
 				},
 			},
 		});
-
-		return result;
 	});
 
 /**
@@ -214,7 +234,7 @@ export const getOrdersByStore = createServerFn({ method: "GET" })
 export const getKitchenOrders = createServerFn({ method: "GET" })
 	.inputValidator(getKitchenOrdersSchema)
 	.handler(async ({ data }) => {
-		const result = await db.query.orders.findMany({
+		return db.query.orders.findMany({
 			where: and(
 				eq(orders.storeId, data.storeId),
 				inArray(orders.status, ["confirmed", "preparing", "ready"]),
@@ -237,8 +257,6 @@ export const getKitchenOrders = createServerFn({ method: "GET" })
 				},
 			},
 		});
-
-		return result;
 	});
 
 // ============================================================================
@@ -251,20 +269,11 @@ export const getKitchenOrders = createServerFn({ method: "GET" })
 export const updateOrderStatus = createServerFn({ method: "POST" })
 	.inputValidator(updateOrderStatusSchema)
 	.handler(async ({ data }) => {
-		// Get current order
-		const order = await db.query.orders.findFirst({
-			where: eq(orders.id, data.orderId),
-		});
-
-		if (!order) {
-			throw new Error("Order not found");
-		}
+		const order = await findOrderById(data.orderId);
 
 		// Validate transition
 		if (!canTransitionTo(order.status, data.status)) {
-			throw new Error(
-				`Cannot transition from ${order.status} to ${data.status}`,
-			);
+			throw new InvalidOrderTransitionError(order.status, data.status);
 		}
 
 		// Update with appropriate timestamps
@@ -311,7 +320,7 @@ export const updatePaymentStatus = createServerFn({ method: "POST" })
 				where: eq(orders.id, data.orderId),
 			});
 
-			if (order && order.status === "awaiting_payment") {
+			if (order?.status === "awaiting_payment") {
 				updates.status = "confirmed";
 				updates.confirmedAt = new Date();
 			}
@@ -342,7 +351,6 @@ export const addMerchantNotes = createServerFn({ method: "POST" })
 			.set({ merchantNotes: data.notes })
 			.where(eq(orders.id, data.orderId))
 			.returning();
-
 		return updated;
 	});
 
@@ -352,16 +360,11 @@ export const addMerchantNotes = createServerFn({ method: "POST" })
 export const cancelOrder = createServerFn({ method: "POST" })
 	.inputValidator(cancelOrderSchema)
 	.handler(async ({ data }) => {
-		const order = await db.query.orders.findFirst({
-			where: eq(orders.id, data.orderId),
-		});
+		const order = await findOrderById(data.orderId);
 
-		if (!order) {
-			throw new Error("Order not found");
-		}
-
+		// Validate order can be cancelled
 		if (order.status === "completed" || order.status === "cancelled") {
-			throw new Error(`Cannot cancel order with status: ${order.status}`);
+			throw new OrderNotCancellableError(order.status);
 		}
 
 		const [updated] = await db

@@ -20,7 +20,7 @@ import {
 	merchantPhoneSchema,
 	ownerNameSchema,
 	zodValidator,
-} from "../../validation.ts";
+} from "../../schemas.ts";
 
 export function MerchantStep() {
 	const { t } = useTranslation(["onboarding", "common"]);

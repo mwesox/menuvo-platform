@@ -79,6 +79,7 @@
 		"requiredField": "Kunden müssen aus dieser Gruppe auswählen"
 	},
 	"placeholders": {
+		"selectCategory": "Kategorie auswählen",
 		"categoryName": "z. B. Vorspeisen, Hauptgerichte",
 		"categoryDescription": "Optionale Beschreibung für diese Kategorie",
 		"optionGroupName": "z. B. Größe, Toppings, Extras",
@@ -91,7 +92,8 @@
 	"hints": {
 		"numFreeOptions": "Anzahl der Optionen, die Kunden kostenlos hinzufügen können, bevor Kosten anfallen",
 		"aggregateMinQuantity": "Mindestgesamtmenge, die der Kunde auswählen muss",
-		"aggregateMaxQuantity": "Maximale Gesamtmenge, die der Kunde auswählen kann"
+		"aggregateMaxQuantity": "Maximale Gesamtmenge, die der Kunde auswählen kann",
+		"defaultSelected": "Diese Option wird automatisch vorausgewählt, wenn Kunden die Optionsgruppe sehen"
 	},
 	"optionTypes": {
 		"singleSelect": "Einzelauswahl",
@@ -179,6 +181,9 @@
 		"selectOptionGroup": "Optionsgruppe auswählen",
 		"selectOptionGroupDescription": "Wählen Sie eine Optionsgruppe aus der Liste, um Details anzuzeigen und Auswahlmöglichkeiten zu verwalten."
 	},
+	"filters": {
+		"allCategories": "Alle Kategorien"
+	},
 	"common": {
 		"yes": "Ja",
 		"no": "Nein"
@@ -255,5 +260,21 @@
 		"changes": {
 			"fieldChanged": "{{fields}} geändert"
 		}
+	},
+	"allergens": {
+		"gluten": "Gluten",
+		"dairy": "Milchprodukte",
+		"eggs": "Eier",
+		"nuts": "Nüsse",
+		"peanuts": "Erdnüsse",
+		"soy": "Soja",
+		"fish": "Fisch",
+		"shellfish": "Schalentiere",
+		"sesame": "Sesam",
+		"celery": "Sellerie",
+		"mustard": "Senf",
+		"lupin": "Lupinen",
+		"molluscs": "Weichtiere",
+		"sulphites": "Sulfite"
 	}
 }

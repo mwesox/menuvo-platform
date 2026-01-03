@@ -13,8 +13,8 @@ import {
 	getSubscription,
 	resumeSubscription,
 } from "@/lib/stripe/subscriptions";
-import type { PlanTier } from "../validation";
-import { planTiers } from "../validation";
+import type { PlanTier } from "../schemas";
+import { planTiers } from "../schemas";
 
 /**
  * Get subscription details for a merchant.

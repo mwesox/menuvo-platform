@@ -1,6 +1,6 @@
 #!/bin/bash
-# Forward Stripe webhooks to local TanStack Start server
-# Forwards all Stripe events to /api/webhooks/stripe
+# Forward Stripe webhooks to the background worker
+# Forwards all Stripe events to /webhooks/stripe on port 3001
 
 # Get script directory to make paths work regardless of where script is called from
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -23,14 +23,20 @@ if [[ ! -f "$ENV_FILE" ]]; then
     exit 1
 fi
 
-# Read configured secret
+# Read configured secrets
 CONFIGURED_SECRET=$(grep "^STRIPE_WEBHOOK_SECRET=" "$ENV_FILE" | cut -d'=' -f2)
+CONFIGURED_SECRET_THIN=$(grep "^STRIPE_WEBHOOK_SECRET_THIN=" "$ENV_FILE" | cut -d'=' -f2)
 
-echo -e "${CYAN}Configured secret in .env.local:${NC}"
+echo -e "${CYAN}Configured secrets in .env.local:${NC}"
 if [[ -n "$CONFIGURED_SECRET" ]]; then
     echo -e "  ${GREEN}STRIPE_WEBHOOK_SECRET${NC} = ${YELLOW}${CONFIGURED_SECRET}${NC}"
 else
     echo -e "  ${RED}STRIPE_WEBHOOK_SECRET${NC} = (not set)"
+fi
+if [[ -n "$CONFIGURED_SECRET_THIN" ]]; then
+    echo -e "  ${GREEN}STRIPE_WEBHOOK_SECRET_THIN${NC} = ${YELLOW}${CONFIGURED_SECRET_THIN}${NC}"
+else
+    echo -e "  ${RED}STRIPE_WEBHOOK_SECRET_THIN${NC} = (not set)"
 fi
 
 echo ""
@@ -57,7 +63,8 @@ fi
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo -e "${GREEN}Starting webhook listener...${NC}"
-echo "  → http://localhost:3000/api/webhooks/stripe"
+echo "  → V1 (snapshot): http://localhost:3001/webhooks/stripe"
+echo "  → V2 (thin):     http://localhost:3001/webhooks/stripe/thin"
 echo ""
 echo "Press Ctrl+C to stop"
 echo ""
@@ -70,6 +77,10 @@ cleanup() {
 }
 trap cleanup SIGINT SIGTERM
 
-# Start snapshot listener (handles all standard Stripe events)
-# Note: Thin events (V2) require specific event types, not wildcards
-stripe listen --forward-to http://localhost:3000/api/webhooks/stripe
+# Start listener for both V1 snapshot events and V2 thin events
+# V1: All standard Stripe events (checkout, subscription, etc.)
+# V2: Account status events (requirements, capabilities)
+stripe listen \
+    --forward-to http://localhost:3001/webhooks/stripe \
+    --forward-thin-to http://localhost:3001/webhooks/stripe/thin \
+    --thin-events "v2.core.account[requirements].updated,v2.core.account[configuration.merchant].capability_status_updated"

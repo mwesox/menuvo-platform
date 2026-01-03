@@ -3,6 +3,11 @@ import type Stripe from "stripe";
 import { db } from "@/db";
 import { merchants, type SubscriptionStatus } from "@/db/schema";
 import { stripeLogger } from "@/lib/logger";
+import { registerV1Handler } from "./registry";
+
+// ============================================
+// Types
+// ============================================
 
 /**
  * Stripe subscription with period fields.
@@ -13,6 +18,10 @@ type SubscriptionWithPeriod = Stripe.Subscription & {
 	current_period_end?: number | null;
 	trial_end?: number | null;
 };
+
+// ============================================
+// Helper Functions
+// ============================================
 
 /**
  * Find a merchant by subscription ID or payment account ID (customer_account).
@@ -63,15 +72,19 @@ function mapStripeStatus(
 	return statusMap[stripeStatus] ?? "none";
 }
 
+// ============================================
+// Event Handlers (Self-Registering)
+// ============================================
+
 /**
  * Handle customer.subscription.created event.
  *
  * Called when a new subscription is created for a customer_account.
  * Updates the merchant's subscription fields.
  */
-export async function handleSubscriptionCreated(
-	subscription: SubscriptionWithPeriod,
-): Promise<void> {
+registerV1Handler("customer.subscription.created", async (event) => {
+	const subscription = event.data.object as SubscriptionWithPeriod;
+
 	stripeLogger.info(
 		{ subscriptionId: subscription.id, status: subscription.status },
 		"Subscription created",
@@ -113,7 +126,7 @@ export async function handleSubscriptionCreated(
 		},
 		"Updated merchant subscription (created)",
 	);
-}
+});
 
 /**
  * Handle customer.subscription.updated event.
@@ -121,9 +134,9 @@ export async function handleSubscriptionCreated(
  * Called when a subscription is modified (status change, renewal, etc.).
  * Syncs the subscription status to our merchant record.
  */
-export async function handleSubscriptionUpdated(
-	subscription: SubscriptionWithPeriod,
-): Promise<void> {
+registerV1Handler("customer.subscription.updated", async (event) => {
+	const subscription = event.data.object as SubscriptionWithPeriod;
+
 	stripeLogger.info(
 		{ subscriptionId: subscription.id, status: subscription.status },
 		"Subscription updated",
@@ -162,7 +175,7 @@ export async function handleSubscriptionUpdated(
 		},
 		"Updated merchant subscription (updated)",
 	);
-}
+});
 
 /**
  * Handle customer.subscription.deleted event.
@@ -170,9 +183,9 @@ export async function handleSubscriptionUpdated(
  * Called when a subscription is canceled and reaches the end of its period.
  * Marks the merchant subscription as canceled.
  */
-export async function handleSubscriptionDeleted(
-	subscription: SubscriptionWithPeriod,
-): Promise<void> {
+registerV1Handler("customer.subscription.deleted", async (event) => {
+	const subscription = event.data.object as SubscriptionWithPeriod;
+
 	stripeLogger.info(
 		{ subscriptionId: subscription.id },
 		"Subscription deleted",
@@ -204,7 +217,7 @@ export async function handleSubscriptionDeleted(
 		},
 		"Marked merchant subscription as canceled",
 	);
-}
+});
 
 /**
  * Handle customer.subscription.paused event.
@@ -212,9 +225,9 @@ export async function handleSubscriptionDeleted(
  * Called when a subscription is paused (e.g., trial ended without payment method).
  * Restricts merchant access until payment method is added.
  */
-export async function handleSubscriptionPaused(
-	subscription: SubscriptionWithPeriod,
-): Promise<void> {
+registerV1Handler("customer.subscription.paused", async (event) => {
+	const subscription = event.data.object as SubscriptionWithPeriod;
+
 	stripeLogger.info({ subscriptionId: subscription.id }, "Subscription paused");
 
 	const merchant = await findMerchantBySubscription(subscription);
@@ -241,7 +254,7 @@ export async function handleSubscriptionPaused(
 		},
 		"Marked merchant subscription as paused",
 	);
-}
+});
 
 /**
  * Handle customer.subscription.resumed event.
@@ -249,9 +262,9 @@ export async function handleSubscriptionPaused(
  * Called when a paused subscription is resumed (payment method added).
  * Restores merchant access.
  */
-export async function handleSubscriptionResumed(
-	subscription: SubscriptionWithPeriod,
-): Promise<void> {
+registerV1Handler("customer.subscription.resumed", async (event) => {
+	const subscription = event.data.object as SubscriptionWithPeriod;
+
 	stripeLogger.info(
 		{ subscriptionId: subscription.id },
 		"Subscription resumed",
@@ -287,7 +300,7 @@ export async function handleSubscriptionResumed(
 		},
 		"Marked merchant subscription as resumed",
 	);
-}
+});
 
 /**
  * Handle customer.subscription.trial_will_end event.
@@ -295,9 +308,9 @@ export async function handleSubscriptionResumed(
  * Called 3 days before a trial ends. Used to notify the merchant.
  * TODO: Send email notification when email service is ready.
  */
-export async function handleTrialWillEnd(
-	subscription: SubscriptionWithPeriod,
-): Promise<void> {
+registerV1Handler("customer.subscription.trial_will_end", async (event) => {
+	const subscription = event.data.object as SubscriptionWithPeriod;
+
 	const trialEnd = subscription.trial_end
 		? new Date(subscription.trial_end * 1000).toISOString()
 		: "unknown";
@@ -329,4 +342,4 @@ export async function handleTrialWillEnd(
 		},
 		"Trial will end notification",
 	);
-}
+});

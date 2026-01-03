@@ -1,11 +1,18 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import {
-	merchants,
-	type PaymentCapabilitiesStatus,
-	type PaymentRequirementsStatus,
+import type {
+	PaymentCapabilitiesStatus,
+	PaymentRequirementsStatus,
 } from "@/db/schema";
+import { merchants } from "@/db/schema";
 import { stripeLogger } from "@/lib/logger";
+import { getStripeClient } from "../client";
+import { parseV2AccountStatus } from "../v2-account";
+import { registerV2Handler } from "./registry";
+
+// ============================================
+// Types
+// ============================================
 
 export type UpdatePaymentStatusInput = {
 	paymentAccountId: string;
@@ -13,6 +20,10 @@ export type UpdatePaymentStatusInput = {
 	capabilitiesStatus?: PaymentCapabilitiesStatus;
 	requirementsStatus?: PaymentRequirementsStatus;
 };
+
+// ============================================
+// Helper Functions
+// ============================================
 
 /**
  * Find a merchant by their Stripe payment account ID.
@@ -83,36 +94,78 @@ export async function updateMerchantPaymentStatus(
 	return merchant.id;
 }
 
-/**
- * Map Stripe requirements status to our enum.
- */
-export function mapRequirementsStatus(
-	stripeStatus: string | undefined,
-): PaymentRequirementsStatus {
-	switch (stripeStatus) {
-		case "past_due":
-			return "past_due";
-		case "currently_due":
-			return "currently_due";
-		case "pending_verification":
-			return "pending_verification";
-		default:
-			return "none";
-	}
-}
+// ============================================
+// V2 Account Event Handler (shared logic)
+// ============================================
 
 /**
- * Map Stripe capability status to our enum.
+ * Handle V2 account events by fetching full account data from Stripe.
+ *
+ * V2 thin events only contain minimal data (event ID + related object reference).
+ * We need to fetch the full account data from Stripe to process the event.
  */
-export function mapCapabilityStatus(
-	stripeStatus: string | undefined,
-): PaymentCapabilitiesStatus {
-	switch (stripeStatus) {
-		case "active":
-			return "active";
-		case "pending":
-			return "pending";
-		default:
-			return "inactive";
+async function handleAccountEvent(
+	eventType: string,
+	payload: Record<string, unknown>,
+): Promise<void> {
+	// V2 thin events have related_object with account ID
+	const relatedObject = payload.related_object as { id?: string } | undefined;
+	const accountId = relatedObject?.id;
+
+	if (!accountId) {
+		stripeLogger.error({ eventType }, "No account ID in V2 thin event");
+		return;
 	}
+
+	stripeLogger.info({ accountId, eventType }, "Handling V2 account event");
+
+	// Fetch full account data from Stripe
+	const stripe = getStripeClient();
+	const account = await stripe.v2.core.accounts.retrieve(accountId, {
+		include: ["requirements", "configuration.merchant"],
+	});
+
+	// Parse and update merchant status
+	const { requirementsStatus, capabilitiesStatus, onboardingComplete } =
+		parseV2AccountStatus(account);
+
+	await updateMerchantPaymentStatus({
+		paymentAccountId: accountId,
+		onboardingComplete,
+		requirementsStatus,
+		capabilitiesStatus,
+	});
+
+	stripeLogger.info(
+		{ accountId, requirementsStatus, capabilitiesStatus, onboardingComplete },
+		"Account status updated",
+	);
 }
+
+// ============================================
+// Event Handlers (Self-Registering)
+// ============================================
+
+/**
+ * Handle v2.core.account[requirements].updated event.
+ *
+ * Triggered when account requirements change (new documents needed, etc.).
+ */
+registerV2Handler(
+	"v2.core.account[requirements].updated",
+	async (eventType, payload) => {
+		await handleAccountEvent(eventType, payload);
+	},
+);
+
+/**
+ * Handle v2.core.account[configuration.merchant].capability_status_updated event.
+ *
+ * Triggered when payment capabilities status changes.
+ */
+registerV2Handler(
+	"v2.core.account[configuration.merchant].capability_status_updated",
+	async (eventType, payload) => {
+		await handleAccountEvent(eventType, payload);
+	},
+);

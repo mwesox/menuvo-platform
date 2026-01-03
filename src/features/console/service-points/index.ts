@@ -18,11 +18,25 @@ export {
 	useToggleZoneActive,
 	useUpdateServicePoint,
 } from "./queries.ts";
+
+// Types
+export type {
+	BatchCreateInput,
+	CreateServicePointInput,
+	ServicePointFormInput,
+	ToggleZoneInput,
+	UpdateServicePointInput,
+} from "./schemas.ts";
+
+// Schemas
 export {
-	getServicePointScanStats,
-	getStoreScanStats,
-	recordScan,
-} from "./server/scans.functions.ts";
+	batchCreateSchema,
+	createServicePointSchema,
+	servicePointFormSchema,
+	toggleZoneSchema,
+	updateServicePointSchema,
+} from "./schemas.ts";
+
 // Server functions
 export {
 	batchCreateServicePoints,
@@ -30,36 +44,23 @@ export {
 	deleteServicePoint,
 	getServicePoint,
 	getServicePointByCode,
+	getServicePointByShortCode,
 	getServicePoints,
 	getServicePointZones,
 	toggleServicePointActive,
 	toggleZoneActive,
 	updateServicePoint,
 } from "./server/service-points.functions.ts";
+
 // Utils
 export {
+	buildFullUrl,
 	buildMenuUrl,
+	buildShortUrl,
+	copyFullUrl,
 	copyQRCodeUrl,
+	copyShortUrl,
 	downloadQRCode,
 	generateQRCodeDataUrl,
 	generateQRCodeSVG,
 } from "./utils/qr-generator.ts";
-export type {
-	BatchCreateInput,
-	CreateServicePointInput,
-	RecordScanInput,
-	ScanStatsQueryInput,
-	ServicePointFormInput,
-	ToggleZoneInput,
-	UpdateServicePointInput,
-} from "./validation.ts";
-// Validation
-export {
-	batchCreateSchema,
-	createServicePointSchema,
-	recordScanSchema,
-	scanStatsQuerySchema,
-	servicePointFormSchema,
-	toggleZoneSchema,
-	updateServicePointSchema,
-} from "./validation.ts";

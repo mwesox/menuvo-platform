@@ -12,7 +12,7 @@ import {
 	type StoreHour,
 	stores,
 } from "@/db/schema";
-import { publicStoresFilterSchema, storeBySlugSchema } from "../validation";
+import { publicStoresFilterSchema, storeBySlugSchema } from "../schemas";
 
 // ============================================================================
 // HELPERS
@@ -251,6 +251,7 @@ export const getStoreBySlug = createServerFn({ method: "GET" })
 				merchant: {
 					columns: {
 						supportedLanguages: true,
+						paymentCapabilitiesStatus: true,
 					},
 				},
 				hours: {
@@ -412,5 +413,41 @@ export const getStoreBySlug = createServerFn({ method: "GET" })
 				: null,
 			hours,
 			categories: categoriesWithItems,
+			// Minimal merchant data needed for capabilities check
+			merchant: merchant
+				? {
+						paymentCapabilitiesStatus: merchant.paymentCapabilitiesStatus,
+					}
+				: null,
+		};
+	});
+
+/**
+ * Check if a store accepts online payments.
+ * Returns true if the merchant has completed Stripe Connect onboarding.
+ */
+export const getStorePaymentCapability = createServerFn({ method: "GET" })
+	.inputValidator(storeBySlugSchema)
+	.handler(async ({ data }) => {
+		const store = await db.query.stores.findFirst({
+			where: and(eq(stores.slug, data.slug), eq(stores.isActive, true)),
+			with: {
+				merchant: {
+					columns: {
+						paymentAccountId: true,
+						paymentOnboardingComplete: true,
+					},
+				},
+			},
+		});
+
+		if (!store) {
+			return { acceptsOnlinePayment: false };
+		}
+
+		return {
+			acceptsOnlinePayment:
+				!!store.merchant?.paymentAccountId &&
+				!!store.merchant?.paymentOnboardingComplete,
 		};
 	});

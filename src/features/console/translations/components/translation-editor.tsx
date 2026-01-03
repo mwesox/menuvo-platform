@@ -6,13 +6,14 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { LANGUAGE_OPTIONS } from "../constants";
 import {
 	useUpdateCategoryTranslations,
 	useUpdateItemTranslations,
 	useUpdateOptionChoiceTranslations,
 	useUpdateOptionGroupTranslations,
 } from "../queries";
-import { type EntityType, languageOptions } from "../validation";
+import type { EntityType } from "../schemas";
 import { TranslationStatusBadge } from "./translation-status-badge";
 
 interface TranslationEditorProps {
@@ -135,7 +136,7 @@ export function TranslationEditor({
 		updateOptionChoiceMutation.isPending;
 
 	const primaryLangLabel =
-		languageOptions.find((l) => l.value === primaryLanguage)?.label ??
+		LANGUAGE_OPTIONS.find((l) => l.value === primaryLanguage)?.label ??
 		primaryLanguage;
 
 	return (
@@ -199,7 +200,7 @@ export function TranslationEditor({
 					{/* Target languages */}
 					{targetLanguages.map((lang) => {
 						const langLabel =
-							languageOptions.find((l) => l.value === lang)?.label ?? lang;
+							LANGUAGE_OPTIONS.find((l) => l.value === lang)?.label ?? lang;
 
 						// Calculate status for this language
 						const hasName = !!translations[lang]?.name;

@@ -1,7 +1,7 @@
 import { Circle, Layers, ListChecks, UtensilsCrossed } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import type { EntityType, TranslationStatus } from "../validation";
+import type { EntityType, TranslationStatus } from "../schemas";
 import { TranslationStatusBadge } from "./translation-status-badge";
 
 interface TranslationListItemProps {

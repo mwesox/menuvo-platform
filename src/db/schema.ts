@@ -557,6 +557,8 @@ export const stripeEvents = pgTable(
 		processingStatus: text("processing_status", { enum: processingStatus })
 			.notNull()
 			.default("PENDING"),
+		// Retry count for failed processing attempts
+		retryCount: integer("retry_count").notNull().default(0),
 		// Connected account ID (for Connect events, null for platform events)
 		stripeAccountId: text("stripe_account_id"),
 		// Related object ID extracted from payload (e.g., "acct_xxx", "cs_xxx")
@@ -721,6 +723,9 @@ export const servicePoints = pgTable(
 			.references(() => stores.id, { onDelete: "cascade" }),
 		// URL-safe identifier (e.g., "table-5", "bar-counter")
 		code: varchar("code", { length: 100 }).notNull(),
+		// Permanent short code for QR URLs (e.g., "x7k2m9ab")
+		// Never changes after creation - protects printed QR codes from breaking
+		shortCode: varchar("short_code", { length: 8 }).notNull().unique(),
 		// Display name (e.g., "Table 5", "Bar Counter")
 		name: varchar("name", { length: 255 }).notNull(),
 		// Optional zone for grouping (e.g., "Outdoor", "Floor 1", "VIP Section")
@@ -748,64 +753,12 @@ export const servicePoints = pgTable(
 	],
 );
 
-export const servicePointsRelations = relations(
-	servicePoints,
-	({ one, many }) => ({
-		store: one(stores, {
-			fields: [servicePoints.storeId],
-			references: [stores.id],
-		}),
-		scans: many(servicePointScans),
+export const servicePointsRelations = relations(servicePoints, ({ one }) => ({
+	store: one(stores, {
+		fields: [servicePoints.storeId],
+		references: [stores.id],
 	}),
-);
-
-// ============================================================================
-// SERVICE POINT SCANS (Analytics)
-// ============================================================================
-
-/**
- * Tracks QR code scans for analytics purposes.
- * Records when and where users scan service point QR codes.
- */
-export const servicePointScans = pgTable(
-	"service_point_scans",
-	{
-		id: serial().primaryKey(),
-		servicePointId: integer("service_point_id")
-			.notNull()
-			.references(() => servicePoints.id, { onDelete: "cascade" }),
-		storeId: integer("store_id")
-			.notNull()
-			.references(() => stores.id, { onDelete: "cascade" }),
-		// When the scan occurred
-		scannedAt: timestamp("scanned_at").notNull().defaultNow(),
-		// User agent for device type detection
-		userAgent: text("user_agent"),
-		// Hashed IP for privacy-preserving analytics
-		ipHash: varchar("ip_hash", { length: 64 }),
-		// Referrer URL if available
-		referrer: text("referrer"),
-	},
-	(table) => [
-		index("idx_scans_service_point").on(table.servicePointId),
-		index("idx_scans_store").on(table.storeId),
-		index("idx_scans_date").on(table.scannedAt),
-	],
-);
-
-export const servicePointScansRelations = relations(
-	servicePointScans,
-	({ one }) => ({
-		servicePoint: one(servicePoints, {
-			fields: [servicePointScans.servicePointId],
-			references: [servicePoints.id],
-		}),
-		store: one(stores, {
-			fields: [servicePointScans.storeId],
-			references: [stores.id],
-		}),
-	}),
-);
+}));
 
 // ============================================================================
 // ORDERS
@@ -1021,10 +974,6 @@ export type NewImage = InferInsertModel<typeof images>;
 // Service Point types
 export type ServicePoint = InferSelectModel<typeof servicePoints>;
 export type NewServicePoint = InferInsertModel<typeof servicePoints>;
-
-// Service Point Scan types
-export type ServicePointScan = InferSelectModel<typeof servicePointScans>;
-export type NewServicePointScan = InferInsertModel<typeof servicePointScans>;
 
 // Order types
 export type Order = InferSelectModel<typeof orders>;

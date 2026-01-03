@@ -5,7 +5,7 @@ import {
 	useCreateCategory,
 	useUpdateCategory,
 } from "@/features/console/menu/queries";
-import { formToTranslations } from "@/features/console/menu/validation";
+import { formToTranslations } from "@/features/console/menu/schemas";
 
 interface CategoryDialogWrapperProps {
 	storeId: number;

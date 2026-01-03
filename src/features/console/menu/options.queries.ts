@@ -29,7 +29,7 @@ export type {
 	UpdateItemOptionsInput,
 	UpdateOptionChoiceInput,
 	UpdateOptionGroupInput,
-} from "./options.validation.ts";
+} from "./options.schemas.ts";
 
 import type {
 	CreateOptionChoiceInput,
@@ -37,7 +37,7 @@ import type {
 	SaveOptionGroupWithChoicesInput,
 	UpdateOptionChoiceInput,
 	UpdateOptionGroupInput,
-} from "./options.validation.ts";
+} from "./options.schemas.ts";
 
 // Query keys
 export const optionKeys = {
