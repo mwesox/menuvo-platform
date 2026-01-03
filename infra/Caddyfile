@@ -4,6 +4,7 @@
 
 # Global options (MUST be first!)
 {
+	admin :2019
 	email admin@menuvo.app
 	order rate_limit before basicauth
 	# Cloudflare trusted proxies (update from https://www.cloudflare.com/ips/)

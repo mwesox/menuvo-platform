@@ -4,6 +4,8 @@ import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
 import { Button } from "@/components/ui/button";
+import { ConsoleError } from "@/features/console/components/console-error";
+import { StoresPageSkeleton } from "@/features/console/stores/components/skeletons";
 import { StoreCard } from "@/features/console/stores/components/store-card";
 import { storeQueries } from "@/features/console/stores/queries";
 
@@ -12,6 +14,8 @@ export const Route = createFileRoute("/console/stores/")({
 		await context.queryClient.ensureQueryData(storeQueries.list());
 	},
 	component: StoresPage,
+	pendingComponent: StoresPageSkeleton,
+	errorComponent: ConsoleError,
 });
 
 function StoresPage() {

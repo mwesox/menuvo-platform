@@ -21,6 +21,7 @@ import {
 	FieldSet,
 } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import {
 	Tabs,
@@ -387,15 +388,17 @@ export function ItemForm({
 						>
 							{tCommon("buttons.cancel")}
 						</Button>
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting
-								? isEditing
+						<LoadingButton
+							type="submit"
+							isLoading={isSubmitting}
+							loadingText={
+								isEditing
 									? tCommon("states.updating")
 									: tCommon("states.creating")
-								: isEditing
-									? t("buttons.updateItem")
-									: t("buttons.createItem")}
-						</Button>
+							}
+						>
+							{isEditing ? t("buttons.updateItem") : t("buttons.createItem")}
+						</LoadingButton>
 					</Field>
 				)}
 			</form.Subscribe>

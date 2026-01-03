@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { CheckoutPage } from "@/features/shop/checkout";
+import { CheckoutPage, CheckoutPageSkeleton } from "@/features/shop/checkout";
 import { shopQueries } from "@/features/shop/queries";
+import { StoreError } from "@/features/shop/shared";
 
 export const Route = createFileRoute("/shop/$slug/checkout")({
 	loader: async ({ context, params }) => {
@@ -13,6 +14,8 @@ export const Route = createFileRoute("/shop/$slug/checkout")({
 		return store;
 	},
 	component: CheckoutRouteComponent,
+	pendingComponent: CheckoutPageSkeleton,
+	errorComponent: StoreError,
 });
 
 function CheckoutRouteComponent() {

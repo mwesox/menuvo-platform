@@ -211,7 +211,19 @@
 			"uploading": "Uploading...",
 			"analyzing": "Analyzing your menu...",
 			"applying": "Applying...",
-			"pleaseWait": "Please wait while we extract and analyze your menu data."
+			"pleaseWait": "Please wait while we process your menu data."
+		},
+		"progress": {
+			"extracting": "Extracting menu data...",
+			"analyzing": "Analyzing with AI...",
+			"comparing": "Comparing with existing menu...",
+			"complete": "Processing complete!",
+			"reviewReady": "Your menu is ready for review.",
+			"stages": {
+				"extracting": "Extracting",
+				"analyzing": "Analyzing",
+				"comparing": "Comparing"
+			}
 		},
 		"errors": {
 			"processingFailed": "Processing Failed",

@@ -45,3 +45,45 @@ endpoints:
         send-on-resolved: true
         failure-threshold: 3
         success-threshold: 2
+
+  # Internal monitoring (not on public status page)
+  - name: caddy
+    group: internal
+    url: http://menuvo-caddy:2019/config/
+    interval: 60s
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+        description: "Caddy reverse proxy is down"
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
+
+  - name: worker-images
+    group: internal
+    url: http://menuvo-worker-images:3001/health
+    interval: 60s
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+        description: "Image worker is down"
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
+
+  - name: worker-imports
+    group: internal
+    url: http://menuvo-worker-imports:3001/health
+    interval: 60s
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+        description: "Menu import worker is down"
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2

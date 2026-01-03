@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
+import { ConsoleError } from "@/features/console/components/console-error";
 import { MenuPage } from "@/features/console/menu/components/menu-page";
+import { MenuPageSkeleton } from "@/features/console/menu/components/skeletons";
 import { optionGroupQueries } from "@/features/console/menu/options.queries";
 import { categoryQueries, itemQueries } from "@/features/console/menu/queries";
 import { storeQueries } from "@/features/console/stores/queries";
@@ -45,6 +47,8 @@ export const Route = createFileRoute("/console/menu/")({
 		};
 	},
 	component: RouteComponent,
+	pendingComponent: MenuPageSkeleton,
+	errorComponent: ConsoleError,
 });
 
 function RouteComponent() {

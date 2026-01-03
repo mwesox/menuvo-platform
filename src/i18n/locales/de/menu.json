@@ -211,7 +211,19 @@
 			"uploading": "Wird hochgeladen...",
 			"analyzing": "Speisekarte wird analysiert...",
 			"applying": "Wird angewendet...",
-			"pleaseWait": "Bitte warten Sie, während wir Ihre Speisekartendaten extrahieren und analysieren."
+			"pleaseWait": "Bitte warten Sie, während wir Ihre Speisekartendaten verarbeiten."
+		},
+		"progress": {
+			"extracting": "Speisekartendaten werden extrahiert...",
+			"analyzing": "Analyse mit KI...",
+			"comparing": "Vergleich mit bestehender Speisekarte...",
+			"complete": "Verarbeitung abgeschlossen!",
+			"reviewReady": "Ihre Speisekarte ist zur Überprüfung bereit.",
+			"stages": {
+				"extracting": "Extrahieren",
+				"analyzing": "Analysieren",
+				"comparing": "Vergleichen"
+			}
 		},
 		"errors": {
 			"processingFailed": "Verarbeitung fehlgeschlagen",

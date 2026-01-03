@@ -19,10 +19,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { ConsoleError } from "@/features/console/components/console-error";
 import {
 	ServicePointsPanel,
 	servicePointQueries,
 } from "@/features/console/service-points";
+import { StoreDetailSkeleton } from "@/features/console/stores/components/skeletons";
 import { StoreClosuresForm } from "@/features/console/stores/components/store-closures-form";
 import { StoreForm } from "@/features/console/stores/components/store-form";
 import { StoreHoursForm } from "@/features/console/stores/components/store-hours-form";
@@ -46,6 +48,7 @@ export const Route = createFileRoute("/console/stores/$storeId")({
 	validateSearch: searchSchema,
 	loader: async ({ context, params }) => {
 		const storeId = Number.parseInt(params.storeId, 10);
+		// Load all tab data upfront - cached for 5 min via staleTime
 		await Promise.all([
 			context.queryClient.ensureQueryData(storeQueries.detail(storeId)),
 			context.queryClient.ensureQueryData(storeHoursQueries.list(storeId)),
@@ -54,6 +57,8 @@ export const Route = createFileRoute("/console/stores/$storeId")({
 		]);
 	},
 	component: EditStorePage,
+	pendingComponent: StoreDetailSkeleton,
+	errorComponent: ConsoleError,
 });
 
 function EditStorePage() {

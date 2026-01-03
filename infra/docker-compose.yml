@@ -177,6 +177,7 @@ services:
     command: ["bun", "--bun", "run", "worker", "--type", "images"]
     environment:
       NODE_ENV: production
+      HEALTH_PORT: 3001
       DATABASE_URL: postgres://menuvo:${DB_PASSWORD}@postgres:5432/menuvo
       REDIS_URL: redis://redis:6379
       AUTH_SECRET: ${AUTH_SECRET}
@@ -197,7 +198,11 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      disable: true
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - menuvo
 
@@ -211,6 +216,7 @@ services:
     command: ["bun", "--bun", "run", "worker", "--type", "imports"]
     environment:
       NODE_ENV: production
+      HEALTH_PORT: 3001
       DATABASE_URL: postgres://menuvo:${DB_PASSWORD}@postgres:5432/menuvo
       REDIS_URL: redis://redis:6379
       AUTH_SECRET: ${AUTH_SECRET}
@@ -231,7 +237,11 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      disable: true
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - menuvo
 

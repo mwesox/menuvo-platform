@@ -3,7 +3,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
 import type { Item, Store } from "@/db/schema";
+import { ConsoleError } from "@/features/console/components/console-error";
 import { ItemForm } from "@/features/console/menu/components/item-form";
+import { ItemFormSkeleton } from "@/features/console/menu/components/skeletons";
 import { useEntityDisplayName } from "@/features/console/menu/hooks";
 import { itemOptionQueries } from "@/features/console/menu/options.queries";
 import { itemQueries } from "@/features/console/menu/queries";
@@ -25,6 +27,8 @@ export const Route = createFileRoute("/console/menu/items/$itemId")({
 		};
 	},
 	component: EditItemPage,
+	pendingComponent: ItemFormSkeleton,
+	errorComponent: ConsoleError,
 });
 
 function EditItemPage() {

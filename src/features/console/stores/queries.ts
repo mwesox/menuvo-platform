@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { minutes } from "@/lib/utils";
 import type {
 	CreateStoreClosureInput,
 	UpdateStoreClosureInput,
@@ -55,6 +56,7 @@ export const storeQueries = {
 		queryOptions({
 			queryKey: storeKeys.detail(storeId),
 			queryFn: () => getStore({ data: { storeId } }),
+			staleTime: minutes(5),
 		}),
 };
 
@@ -144,6 +146,7 @@ export const storeHoursQueries = {
 		queryOptions({
 			queryKey: storeKeys.hours(storeId),
 			queryFn: () => getStoreHours({ data: { storeId } }),
+			staleTime: minutes(5),
 		}),
 };
 
@@ -174,6 +177,7 @@ export const storeClosuresQueries = {
 		queryOptions({
 			queryKey: storeKeys.closures(storeId),
 			queryFn: () => getStoreClosures({ data: { storeId } }),
+			staleTime: minutes(5),
 		}),
 };
 

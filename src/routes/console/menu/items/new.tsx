@@ -1,7 +1,9 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
+import { ConsoleError } from "@/features/console/components/console-error";
 import { NewItemPage } from "@/features/console/menu/components/new-item-page";
+import { NewItemPageSkeleton } from "@/features/console/menu/components/skeletons";
 import { categoryQueries } from "@/features/console/menu/queries";
 import { storeQueries } from "@/features/console/stores/queries";
 
@@ -22,6 +24,8 @@ export const Route = createFileRoute("/console/menu/items/new")({
 		]);
 	},
 	component: RouteComponent,
+	pendingComponent: NewItemPageSkeleton,
+	errorComponent: ConsoleError,
 });
 
 function RouteComponent() {

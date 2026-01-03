@@ -17,6 +17,7 @@ import {
 	FieldLabel,
 } from "@/components/ui/field.tsx";
 import { Input } from "@/components/ui/input.tsx";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import type { Category } from "@/db/schema.ts";
 import { getLocalizedContent } from "@/features/console/translations/logic/localization.ts";
@@ -166,15 +167,20 @@ export function CategoryDialog({
 									>
 										{tCommon("buttons.cancel")}
 									</Button>
-									<Button type="submit" disabled={isSubmitting || !canSubmit}>
-										{isSubmitting
-											? isEditing
+									<LoadingButton
+										type="submit"
+										disabled={!canSubmit}
+										isLoading={isSubmitting}
+										loadingText={
+											isEditing
 												? tCommon("states.saving")
 												: tCommon("states.creating")
-											: isEditing
-												? tCommon("buttons.saveChanges")
-												: t("buttons.createCategory")}
-									</Button>
+										}
+									>
+										{isEditing
+											? tCommon("buttons.saveChanges")
+											: t("buttons.createCategory")}
+									</LoadingButton>
 								</>
 							)}
 						</form.Subscribe>

@@ -1,5 +1,9 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { OrderConfirmationPage } from "@/features/shop/checkout";
+import {
+	OrderConfirmationPage,
+	OrderConfirmationPageSkeleton,
+} from "@/features/shop/checkout";
+import { StoreError } from "@/features/shop/shared";
 
 export const Route = createFileRoute("/shop/$slug/order/$orderId")({
 	loader: async ({ params }) => {
@@ -10,6 +14,8 @@ export const Route = createFileRoute("/shop/$slug/order/$orderId")({
 		return { orderId, storeSlug: params.slug };
 	},
 	component: OrderConfirmationRouteComponent,
+	pendingComponent: OrderConfirmationPageSkeleton,
+	errorComponent: StoreError,
 });
 
 function OrderConfirmationRouteComponent() {

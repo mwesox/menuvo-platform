@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
+import { ConsoleError } from "@/features/console/components/console-error";
 import { CategoryItemsPage } from "@/features/console/menu/components/category-items-page";
+import { CategoryItemsPageSkeleton } from "@/features/console/menu/components/skeletons";
 import { categoryQueries } from "@/features/console/menu/queries";
 
 const searchSchema = z.object({
@@ -16,6 +18,8 @@ export const Route = createFileRoute("/console/menu/categories/$categoryId")({
 		);
 	},
 	component: RouteComponent,
+	pendingComponent: CategoryItemsPageSkeleton,
+	errorComponent: ConsoleError,
 });
 
 function RouteComponent() {

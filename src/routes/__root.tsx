@@ -1,4 +1,4 @@
-import type { QueryClient } from "@tanstack/react-query";
+import { type QueryClient, queryOptions } from "@tanstack/react-query";
 import {
 	createRootRouteWithContext,
 	HeadContent,
@@ -14,14 +14,20 @@ import businessCss from "@/styles/business-bundle.css?url";
 import consoleCss from "@/styles/console-bundle.css?url";
 import shopCss from "@/styles/shop-bundle.css?url";
 
+const languageQuery = queryOptions({
+	queryKey: ["language"],
+	queryFn: () => detectLanguageFromRequest(),
+	staleTime: Number.POSITIVE_INFINITY, // Never refetch - language won't change during session
+});
+
 interface MyRouterContext {
 	queryClient: QueryClient;
 	language: SupportedLanguage;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-	beforeLoad: async () => {
-		const language = await detectLanguageFromRequest();
+	beforeLoad: async ({ context }) => {
+		const language = await context.queryClient.ensureQueryData(languageQuery);
 		return { language };
 	},
 	head: ({ matches }) => {

@@ -20,6 +20,7 @@ import { useApplyImportChanges, useImportJobStatus } from "../queries";
 import type { MenuComparisonData } from "../types";
 import { ComparisonPanel } from "./comparison-panel";
 import { FileDropzone } from "./file-dropzone";
+import { ProcessingProgress } from "./processing-progress";
 
 type WizardStep = "upload" | "processing" | "review";
 
@@ -219,9 +220,9 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 					)}
 
 					{step === "processing" && (
-						<div className="py-8 text-center">
+						<div className="py-8">
 							{jobStatus?.status === "FAILED" || jobError ? (
-								<>
+								<div className="text-center">
 									<AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
 									<p className="text-lg font-medium text-destructive mb-2">
 										{t("import.errors.processingFailed")}
@@ -232,17 +233,12 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 									<Button variant="outline" onClick={onClose}>
 										{t("import.buttons.close")}
 									</Button>
-								</>
+								</div>
 							) : (
-								<>
-									<Loader2 className="h-12 w-12 text-primary mx-auto mb-4 animate-spin" />
-									<p className="text-lg font-medium mb-2">
-										{t("import.status.analyzing")}
-									</p>
-									<p className="text-sm text-muted-foreground">
-										{t("import.status.pleaseWait")}
-									</p>
-								</>
+								<ProcessingProgress
+									isComplete={jobStatus?.status === "READY"}
+									isFailed={false}
+								/>
 							)}
 						</div>
 					)}

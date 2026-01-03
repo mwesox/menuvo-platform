@@ -17,6 +17,7 @@ import {
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/ui/loading-button";
 import type { Store } from "@/db/schema";
 import { createStore, updateStore } from "../server/stores.functions";
 import { storeFormSchema } from "../validation";
@@ -299,15 +300,19 @@ export function StoreForm({ store, merchantId }: StoreFormProps) {
 						>
 							{tCommon("buttons.cancel")}
 						</Button>
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting
-								? isEditing
+						<LoadingButton
+							type="submit"
+							isLoading={isSubmitting}
+							loadingText={
+								isEditing
 									? tCommon("states.updating")
 									: tCommon("states.creating")
-								: isEditing
-									? tCommon("buttons.update")
-									: tCommon("buttons.create")}
-						</Button>
+							}
+						>
+							{isEditing
+								? tCommon("buttons.update")
+								: tCommon("buttons.create")}
+						</LoadingButton>
 					</Field>
 				)}
 			</form.Subscribe>

@@ -9,9 +9,14 @@
  *   bun run worker --type all         # Run all workers
  */
 import { parseArgs } from "node:util";
+import { RedisClient } from "bun";
+import { env } from "@/env";
 import { queueLogger } from "@/lib/logger";
 import { startWorker as startImageWorker } from "./image-queue";
 import { startMenuImportWorker } from "./menu-import-queue";
+
+// Redis client for health checks
+const healthRedis = new RedisClient(env.REDIS_URL ?? "redis://localhost:6379");
 
 // Parse CLI arguments using Bun-recommended util.parseArgs
 const { values } = parseArgs({
@@ -37,6 +42,38 @@ if (!["images", "imports", "all"].includes(workerType)) {
 }
 
 queueLogger.info({ workerType }, "Starting background worker(s)...");
+
+// Start health server for monitoring
+const healthPort = Number(process.env.HEALTH_PORT) || 3001;
+
+Bun.serve({
+	port: healthPort,
+	async fetch(req) {
+		const url = new URL(req.url);
+		if (url.pathname === "/health") {
+			let redisOk = true;
+			try {
+				await healthRedis.send("PING", []);
+			} catch {
+				redisOk = false;
+			}
+
+			return Response.json(
+				{
+					status: redisOk ? "ok" : "error",
+					redis: redisOk ? "ok" : "error",
+					workerType,
+					uptime: process.uptime(),
+					timestamp: new Date().toISOString(),
+				},
+				{ status: redisOk ? 200 : 503 },
+			);
+		}
+		return new Response("Not Found", { status: 404 });
+	},
+});
+
+queueLogger.info({ port: healthPort }, "Health server started");
 
 // Handle graceful shutdown
 process.on("SIGINT", () => {

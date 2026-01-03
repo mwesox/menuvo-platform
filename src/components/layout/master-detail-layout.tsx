@@ -1,3 +1,4 @@
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import type { ReactNode } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -71,10 +72,14 @@ export function MasterDetailLayout({
 					onOpenChange={(open) => !open && onDetailClose?.()}
 				>
 					<SheetContent side="bottom" className="h-[85vh] flex flex-col">
-						{sheetTitle && (
+						{sheetTitle ? (
 							<SheetHeader>
 								<SheetTitle>{sheetTitle}</SheetTitle>
 							</SheetHeader>
+						) : (
+							<VisuallyHidden.Root>
+								<SheetTitle>Details</SheetTitle>
+							</VisuallyHidden.Root>
 						)}
 						<ScrollArea className="flex-1 -mx-4 px-4">{detail}</ScrollArea>
 					</SheetContent>

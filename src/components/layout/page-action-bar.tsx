@@ -47,6 +47,7 @@ export function PageActionBar({
 					{backHref ? (
 						<Link
 							to={backHref}
+							preload={false}
 							className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
 						>
 							<ArrowLeft className="h-4 w-4" />

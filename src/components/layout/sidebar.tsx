@@ -1,10 +1,16 @@
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, Menu, Settings, Store, UtensilsCrossed } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Logo } from "@/components/ui/logo";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+	Sheet,
+	SheetContent,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
 import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 import { cn } from "@/lib/utils";
 
@@ -105,6 +111,9 @@ export function MobileSidebar() {
 				</Button>
 			</SheetTrigger>
 			<SheetContent side="left" className="w-64 p-0">
+				<VisuallyHidden.Root>
+					<SheetTitle>{t("navigation")}</SheetTitle>
+				</VisuallyHidden.Root>
 				<div className="flex h-14 items-center justify-between border-b border-zinc-200 px-4 dark:border-zinc-800">
 					<Link to="/console" className="flex items-center gap-2">
 						<Logo height={28} />

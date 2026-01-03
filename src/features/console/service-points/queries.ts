@@ -5,6 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { minutes } from "@/lib/utils";
 import {
 	getServicePointScanStats,
 	getStoreScanStats,
@@ -53,18 +54,21 @@ export const servicePointQueries = {
 		queryOptions({
 			queryKey: servicePointKeys.list(storeId),
 			queryFn: () => getServicePoints({ data: { storeId } }),
+			staleTime: minutes(5),
 		}),
 
 	detail: (id: number) =>
 		queryOptions({
 			queryKey: servicePointKeys.detail(id),
 			queryFn: () => getServicePoint({ data: { id } }),
+			staleTime: minutes(5),
 		}),
 
 	zones: (storeId: number) =>
 		queryOptions({
 			queryKey: servicePointKeys.zones(storeId),
 			queryFn: () => getServicePointZones({ data: { storeId } }),
+			staleTime: minutes(5),
 		}),
 
 	storeScans: (storeId: number, days = 30) =>
