@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1767463387469,
-      "tag": "0000_bent_juggernaut",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1767482848648,
-      "tag": "0001_flaky_lethal_legion",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1767552042508,
-      "tag": "0002_giant_speed",
+      "when": 1767552172779,
+      "tag": "0000_serious_hardball",
       "breakpoints": true
     }
   ]

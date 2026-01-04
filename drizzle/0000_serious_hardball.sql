@@ -75,9 +75,36 @@ CREATE TABLE "merchants" (
 	"subscription_price_id" text,
 	"subscription_trial_ends_at" timestamp,
 	"subscription_current_period_end" timestamp,
+	"mollie_customer_id" text,
+	"mollie_organization_id" text,
+	"mollie_profile_id" text,
+	"mollie_access_token" text,
+	"mollie_refresh_token" text,
+	"mollie_token_expires_at" timestamp,
+	"mollie_onboarding_status" text,
+	"mollie_can_receive_payments" boolean DEFAULT false,
+	"mollie_can_receive_settlements" boolean DEFAULT false,
+	"mollie_mandate_id" text,
+	"mollie_mandate_status" text,
+	"mollie_subscription_id" text,
+	"mollie_subscription_status" text,
+	"payment_provider" text DEFAULT 'stripe',
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "merchants_email_unique" UNIQUE("email")
+);
+--> statement-breakpoint
+CREATE TABLE "mollie_events" (
+	"id" text PRIMARY KEY NOT NULL,
+	"event_type" text NOT NULL,
+	"resource_id" text NOT NULL,
+	"resource_type" text NOT NULL,
+	"merchant_id" integer,
+	"received_at" timestamp DEFAULT now() NOT NULL,
+	"processed_at" timestamp,
+	"processing_status" text DEFAULT 'PENDING' NOT NULL,
+	"retry_count" integer DEFAULT 0 NOT NULL,
+	"payload" jsonb NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "option_choices" (
@@ -152,6 +179,9 @@ CREATE TABLE "orders" (
 	"payment_method" varchar(50),
 	"stripe_checkout_session_id" varchar(255),
 	"stripe_payment_intent_id" varchar(255),
+	"mollie_payment_id" text,
+	"mollie_checkout_url" text,
+	"order_payment_provider" text,
 	"customer_notes" text,
 	"merchant_notes" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
@@ -240,6 +270,7 @@ ALTER TABLE "item_option_groups" ADD CONSTRAINT "item_option_groups_option_group
 ALTER TABLE "items" ADD CONSTRAINT "items_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "items" ADD CONSTRAINT "items_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "menu_import_jobs" ADD CONSTRAINT "menu_import_jobs_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "mollie_events" ADD CONSTRAINT "mollie_events_merchant_id_merchants_id_fk" FOREIGN KEY ("merchant_id") REFERENCES "public"."merchants"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "option_choices" ADD CONSTRAINT "option_choices_option_group_id_option_groups_id_fk" FOREIGN KEY ("option_group_id") REFERENCES "public"."option_groups"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "option_groups" ADD CONSTRAINT "option_groups_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_item_options" ADD CONSTRAINT "order_item_options_order_item_id_order_items_id_fk" FOREIGN KEY ("order_item_id") REFERENCES "public"."order_items"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -253,10 +284,22 @@ ALTER TABLE "service_points" ADD CONSTRAINT "service_points_store_id_stores_id_f
 ALTER TABLE "store_closures" ADD CONSTRAINT "store_closures_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "store_hours" ADD CONSTRAINT "store_hours_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "stores" ADD CONSTRAINT "stores_merchant_id_merchants_id_fk" FOREIGN KEY ("merchant_id") REFERENCES "public"."merchants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "idx_categories_store" ON "categories" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "idx_images_merchant" ON "images" USING btree ("merchant_id");--> statement-breakpoint
 CREATE INDEX "idx_images_type" ON "images" USING btree ("type");--> statement-breakpoint
+CREATE INDEX "idx_item_option_groups_item" ON "item_option_groups" USING btree ("item_id");--> statement-breakpoint
+CREATE INDEX "idx_item_option_groups_group" ON "item_option_groups" USING btree ("option_group_id");--> statement-breakpoint
+CREATE INDEX "idx_items_category" ON "items" USING btree ("category_id");--> statement-breakpoint
+CREATE INDEX "idx_items_store" ON "items" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "idx_menu_import_jobs_store" ON "menu_import_jobs" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "idx_menu_import_jobs_status" ON "menu_import_jobs" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "idx_mollie_events_type" ON "mollie_events" USING btree ("event_type");--> statement-breakpoint
+CREATE INDEX "idx_mollie_events_status" ON "mollie_events" USING btree ("processing_status");--> statement-breakpoint
+CREATE INDEX "idx_mollie_events_resource" ON "mollie_events" USING btree ("resource_id");--> statement-breakpoint
+CREATE INDEX "idx_mollie_events_received" ON "mollie_events" USING btree ("received_at");--> statement-breakpoint
+CREATE INDEX "idx_mollie_events_merchant" ON "mollie_events" USING btree ("merchant_id");--> statement-breakpoint
+CREATE INDEX "idx_option_choices_group" ON "option_choices" USING btree ("option_group_id");--> statement-breakpoint
+CREATE INDEX "idx_option_groups_store" ON "option_groups" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "idx_order_item_options_order_item_id" ON "order_item_options" USING btree ("order_item_id");--> statement-breakpoint
 CREATE INDEX "idx_order_items_order_id" ON "order_items" USING btree ("order_id");--> statement-breakpoint
 CREATE INDEX "idx_orders_store_id" ON "orders" USING btree ("store_id");--> statement-breakpoint
@@ -265,6 +308,7 @@ CREATE INDEX "idx_orders_payment_status" ON "orders" USING btree ("payment_statu
 CREATE INDEX "idx_orders_created_at" ON "orders" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "idx_orders_store_status" ON "orders" USING btree ("store_id","status");--> statement-breakpoint
 CREATE INDEX "idx_orders_stripe_session" ON "orders" USING btree ("stripe_checkout_session_id");--> statement-breakpoint
+CREATE INDEX "idx_orders_mollie_payment" ON "orders" USING btree ("mollie_payment_id");--> statement-breakpoint
 CREATE INDEX "idx_service_points_store" ON "service_points" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "idx_service_points_zone" ON "service_points" USING btree ("store_id","zone");--> statement-breakpoint
 CREATE INDEX "idx_store_closures_store" ON "store_closures" USING btree ("store_id");--> statement-breakpoint
