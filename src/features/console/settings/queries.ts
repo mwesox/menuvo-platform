@@ -13,8 +13,12 @@ import {
 } from "./server/merchants.functions.ts";
 import {
 	createPaymentOnboardingLink,
+	getMollieDashboardUrl,
+	getMolliePaymentStatus,
 	getPaymentStatus,
+	refreshMolliePaymentStatus,
 	refreshPaymentStatus,
+	setupMolliePaymentAccount,
 	setupPaymentAccount,
 } from "./server/payments.functions.ts";
 import {
@@ -33,6 +37,8 @@ export const merchantKeys = {
 		["merchants", merchantId, "subscription"] as const,
 	payment: (merchantId: number) =>
 		["merchants", merchantId, "payment"] as const,
+	molliePayment: (merchantId: number) =>
+		["merchants", merchantId, "mollie-payment"] as const,
 };
 
 // Query options factories
@@ -66,6 +72,15 @@ export const paymentQueries = {
 		queryOptions({
 			queryKey: merchantKeys.payment(merchantId),
 			queryFn: () => getPaymentStatus(),
+		}),
+};
+
+// Mollie payment queries
+export const molliePaymentQueries = {
+	status: (merchantId: number) =>
+		queryOptions({
+			queryKey: merchantKeys.molliePayment(merchantId),
+			queryFn: () => getMolliePaymentStatus(),
 		}),
 };
 
@@ -233,6 +248,84 @@ export function useRefreshPaymentStatus() {
 		},
 		onError: () => {
 			toast.error(t("error.refreshPaymentStatus"));
+		},
+	});
+}
+
+// ============================================================================
+// MOLLIE PAYMENT HOOKS
+// ============================================================================
+
+/**
+ * Set up Mollie payment account for a merchant.
+ * Creates a Client Link for co-branded onboarding.
+ */
+export function useSetupMolliePaymentAccount() {
+	const queryClient = useQueryClient();
+	const { t } = useTranslation("toasts");
+
+	return useMutation({
+		mutationFn: (_input: { merchantId: number }) => setupMolliePaymentAccount(),
+		onSuccess: (data, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: merchantKeys.molliePayment(variables.merchantId),
+			});
+			queryClient.invalidateQueries({
+				queryKey: merchantKeys.detail(variables.merchantId),
+			});
+
+			// If we got an onboarding URL, open it in a new tab
+			// so our app stays open during Mollie onboarding
+			if (data.onboardingUrl) {
+				window.open(data.onboardingUrl, "_blank");
+				toast.success(t("success.mollieOnboardingStarted"));
+			} else {
+				toast.success(t("success.mollieAccountSetup"));
+			}
+		},
+		onError: () => {
+			toast.error(t("error.setupMollieAccount"));
+		},
+	});
+}
+
+/**
+ * Refresh Mollie payment status from API.
+ */
+export function useRefreshMolliePaymentStatus() {
+	const queryClient = useQueryClient();
+	const { t } = useTranslation("toasts");
+
+	return useMutation({
+		mutationFn: (_input: { merchantId: number }) =>
+			refreshMolliePaymentStatus(),
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: merchantKeys.molliePayment(variables.merchantId),
+			});
+			toast.success(t("success.paymentStatusRefreshed"));
+		},
+		onError: () => {
+			toast.error(t("error.refreshPaymentStatus"));
+		},
+	});
+}
+
+/**
+ * Get Mollie dashboard URL for completing verification.
+ */
+export function useGetMollieDashboardUrl() {
+	const { t } = useTranslation("toasts");
+
+	return useMutation({
+		mutationFn: () => getMollieDashboardUrl(),
+		onSuccess: (data) => {
+			if (data.dashboardUrl) {
+				window.open(data.dashboardUrl, "_blank");
+			}
+		},
+		onError: () => {
+			toast.error(t("error.getMollieDashboardUrl"));
 		},
 	});
 }

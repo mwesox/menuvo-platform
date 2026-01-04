@@ -7,6 +7,10 @@ import { nitro } from 'nitro/vite'
 
 const config = defineConfig({
   server: {
+    // Bind to all interfaces for LAN access (Synology proxy, etc.)
+    host: true,
+    // Allow ngrok and other tunnel hosts for OAuth testing
+    allowedHosts: true,
     proxy: {
       // Forward webhook endpoints to worker (mimics Caddy in production)
       // Note: /api/images/upload uses VITE_WORKER_URL env var to bypass proxy

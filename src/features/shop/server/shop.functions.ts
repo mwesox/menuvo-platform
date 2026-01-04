@@ -12,6 +12,7 @@ import {
 	type StoreHour,
 	stores,
 } from "@/db/schema";
+import { computeMerchantCapabilities } from "@/lib/capabilities";
 import { publicStoresFilterSchema, storeBySlugSchema } from "../schemas";
 
 // ============================================================================
@@ -251,7 +252,7 @@ export const getStoreBySlug = createServerFn({ method: "GET" })
 				merchant: {
 					columns: {
 						supportedLanguages: true,
-						paymentCapabilitiesStatus: true,
+						mollieCanReceivePayments: true,
 					},
 				},
 				hours: {
@@ -413,12 +414,10 @@ export const getStoreBySlug = createServerFn({ method: "GET" })
 				: null,
 			hours,
 			categories: categoriesWithItems,
-			// Minimal merchant data needed for capabilities check
-			merchant: merchant
-				? {
-						paymentCapabilitiesStatus: merchant.paymentCapabilitiesStatus,
-					}
-				: null,
+			// Compute capabilities on server (env vars are server-only)
+			capabilities: computeMerchantCapabilities({
+				mollieCanReceivePayments: merchant?.mollieCanReceivePayments ?? null,
+			}),
 		};
 	});
 

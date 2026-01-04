@@ -25,6 +25,25 @@ export const env = createEnv({
 		S3_PUBLIC_URL: z.string().url().optional(),
 		// S3 internal files bucket (for imports, not public)
 		S3_FILES_BUCKET: z.string().min(1).optional(),
+		// Encryption (for OAuth tokens)
+		ENCRYPTION_KEY: z.string().min(32).optional(),
+		// Mollie
+		MOLLIE_API_KEY: z.string().min(1).optional(),
+		MOLLIE_CLIENT_ID: z.string().min(1).optional(),
+		MOLLIE_CLIENT_SECRET: z.string().min(1).optional(),
+		MOLLIE_REDIRECT_URI: z.string().url().optional(),
+		MOLLIE_ORG_ACCESS_TOKEN: z.string().min(1).optional(),
+		MOLLIE_PRICE_STARTER: z.string().optional(),
+		MOLLIE_PRICE_PRO: z.string().optional(),
+		MOLLIE_PRICE_MAX: z.string().optional(),
+		MOLLIE_TEST_MODE: z
+			.enum(["true", "false"])
+			.default("true")
+			.transform((v) => v === "true"),
+		MOLLIE_SKIP_ONBOARDING_CHECK: z
+			.enum(["true", "false"])
+			.default("false")
+			.transform((v) => v === "true"),
 	},
 
 	/**
@@ -63,6 +82,19 @@ export const env = createEnv({
 		S3_REGION: process.env.S3_REGION,
 		S3_PUBLIC_URL: process.env.S3_PUBLIC_URL,
 		S3_FILES_BUCKET: process.env.S3_FILES_BUCKET,
+		// Encryption
+		ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
+		// Mollie
+		MOLLIE_API_KEY: process.env.MOLLIE_API_KEY,
+		MOLLIE_CLIENT_ID: process.env.MOLLIE_CLIENT_ID,
+		MOLLIE_CLIENT_SECRET: process.env.MOLLIE_CLIENT_SECRET,
+		MOLLIE_REDIRECT_URI: process.env.MOLLIE_REDIRECT_URI,
+		MOLLIE_ORG_ACCESS_TOKEN: process.env.MOLLIE_ORG_ACCESS_TOKEN,
+		MOLLIE_PRICE_STARTER: process.env.MOLLIE_PRICE_STARTER,
+		MOLLIE_PRICE_PRO: process.env.MOLLIE_PRICE_PRO,
+		MOLLIE_PRICE_MAX: process.env.MOLLIE_PRICE_MAX,
+		MOLLIE_TEST_MODE: process.env.MOLLIE_TEST_MODE,
+		MOLLIE_SKIP_ONBOARDING_CHECK: process.env.MOLLIE_SKIP_ONBOARDING_CHECK,
 		// Client-side (from import.meta.env)
 		VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
 		VITE_STRIPE_PUBLISHABLE_KEY: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,

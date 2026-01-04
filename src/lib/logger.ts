@@ -32,6 +32,7 @@ export function createLogger(module: string) {
 
 // Pre-configured loggers for common modules
 export const stripeLogger = createLogger("stripe");
+export const mollieLogger = createLogger("mollie");
 export const queueLogger = createLogger("queue");
 export const imageLogger = createLogger("image");
 export const menuImportLogger = createLogger("menu-import");

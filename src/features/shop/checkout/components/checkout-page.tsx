@@ -1,15 +1,15 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type { PaymentCapabilitiesStatus } from "@/db/schema";
 import type { OrderType } from "@/features/orders/constants";
 import { useCreateOrder } from "@/features/orders/queries";
-import { computeMerchantCapabilities } from "@/lib/capabilities";
+import type { MerchantCapabilities } from "@/lib/capabilities";
 import { type CartItem, useCartStore } from "../../cart/stores/cart-store";
 import { StoreUnavailable } from "../../shared/components/store-unavailable";
 import {
@@ -20,15 +20,12 @@ import {
 	ShopPrice,
 	ShopPriceRow,
 } from "../../shared/components/ui";
-import { useCreateCheckoutSession } from "../queries";
-import { EmbeddedCheckoutWrapper } from "./embedded-checkout";
+import { useCreateMolliePayment } from "../queries";
 
 interface CheckoutPageProps {
 	storeId: number;
 	storeSlug: string;
-	merchant: {
-		paymentCapabilitiesStatus: PaymentCapabilitiesStatus | null;
-	} | null;
+	capabilities: MerchantCapabilities;
 }
 
 /**
@@ -70,7 +67,7 @@ function transformCartItemToSnapshot(cartItem: CartItem) {
 export function CheckoutPage({
 	storeId,
 	storeSlug,
-	merchant,
+	capabilities,
 }: CheckoutPageProps) {
 	const { t } = useTranslation("shop");
 
@@ -83,24 +80,15 @@ export function CheckoutPage({
 	const [customerEmail, setCustomerEmail] = useState("");
 	const [orderType, setOrderType] = useState<OrderType>("dine_in");
 
-	// Checkout session state (for embedded checkout)
-	const [checkoutSession, setCheckoutSession] = useState<{
-		clientSecret: string;
-		merchantAccountId: string | null;
-		orderId: number;
-	} | null>(null);
+	// Mollie redirect state
+	const [isMollieRedirecting, setIsMollieRedirecting] = useState(false);
 
 	// Mutations
 	const createOrderMutation = useCreateOrder(storeId);
-	const createCheckoutSessionMutation = useCreateCheckoutSession();
+	const createMolliePaymentMutation = useCreateMolliePayment();
 
-	// Check if merchant can accept online payments
-	const merchantCaps = computeMerchantCapabilities({
-		paymentCapabilitiesStatus: merchant?.paymentCapabilitiesStatus ?? null,
-	});
-
-	// Show unavailable message if payment capabilities are not active
-	if (!merchantCaps.canAcceptOnlinePayment) {
+	// Check if merchant can accept online payments (computed on server)
+	if (!capabilities.canAcceptOnlinePayment) {
 		return <StoreUnavailable backUrl={`/shop/${storeSlug}`} />;
 	}
 
@@ -156,7 +144,7 @@ export function CheckoutPage({
 			orderType,
 			customerName: customerName.trim(),
 			customerEmail: customerEmail.trim(),
-			paymentMethod: "stripe" as const,
+			paymentMethod: "mollie",
 			subtotal,
 			taxAmount: 0,
 			tipAmount: 0,
@@ -168,49 +156,47 @@ export function CheckoutPage({
 				data: orderData,
 			});
 
-			// Create checkout session for online payment
 			const returnUrl = `${window.location.origin}/shop/${storeSlug}/checkout/return`;
 
-			const session = await createCheckoutSessionMutation.mutateAsync({
-				data: {
-					orderId: order.id,
-					returnUrl,
-				},
+			// Create Mollie payment and redirect to hosted checkout
+			setIsMollieRedirecting(true);
+
+			const payment = await createMolliePaymentMutation.mutateAsync({
+				orderId: order.id,
+				returnUrl,
 			});
 
-			if (session.clientSecret) {
-				// Clear cart before showing checkout (order is already created)
+			if (payment.checkoutUrl) {
+				// Clear cart before redirect
 				clearCart();
-				setCheckoutSession({
-					clientSecret: session.clientSecret,
-					merchantAccountId: session.merchantAccountId,
-					orderId: order.id,
-				});
+				// Redirect to Mollie hosted checkout
+				window.location.href = payment.checkoutUrl;
 			}
 		} catch {
+			setIsMollieRedirecting(false);
 			// Error toast handled by mutation
 		}
 	};
 
-	// Show embedded checkout if session is created
-	if (checkoutSession) {
+	// Show Mollie redirect loading state
+	if (isMollieRedirecting) {
 		return (
 			<div className="min-h-screen bg-background">
-				<div className="max-w-lg mx-auto px-4 py-6">
-					<ShopHeading as="h1" size="xl" className="mb-6">
-						{t("checkout.payment")}
-					</ShopHeading>
-					<EmbeddedCheckoutWrapper
-						clientSecret={checkoutSession.clientSecret}
-						merchantAccountId={checkoutSession.merchantAccountId}
-					/>
+				<div className="max-w-lg mx-auto px-4 py-12">
+					<ShopCard padding="lg" className="text-center space-y-4">
+						<Loader2 className="w-12 h-12 mx-auto animate-spin text-primary" />
+						<ShopHeading as="h1" size="lg">
+							{t("checkout.mollie.redirecting")}
+						</ShopHeading>
+						<ShopMutedText>{t("checkout.mollie.pleaseWait")}</ShopMutedText>
+					</ShopCard>
 				</div>
 			</div>
 		);
 	}
 
 	const isSubmitting =
-		createOrderMutation.isPending || createCheckoutSessionMutation.isPending;
+		createOrderMutation.isPending || createMolliePaymentMutation.isPending;
 
 	const isFormValid =
 		customerName.trim() && customerEmail.trim() && items.length > 0;

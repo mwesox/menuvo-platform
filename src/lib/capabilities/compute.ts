@@ -1,11 +1,11 @@
-import type { PaymentCapabilitiesStatus } from "@/db/schema";
+import { env } from "@/env";
 import type { MerchantCapabilities, StoreCapabilities } from "./types";
 
 /**
  * Minimal merchant data needed to compute capabilities.
  */
 type MerchantData = {
-	paymentCapabilitiesStatus: PaymentCapabilitiesStatus | null;
+	mollieCanReceivePayments: boolean | null;
 };
 
 /**
@@ -21,7 +21,9 @@ export function computeMerchantCapabilities(
 	merchant: MerchantData,
 ): MerchantCapabilities {
 	return {
-		canAcceptOnlinePayment: merchant.paymentCapabilitiesStatus === "active",
+		canAcceptOnlinePayment:
+			env.MOLLIE_SKIP_ONBOARDING_CHECK ||
+			merchant.mollieCanReceivePayments === true,
 	};
 }
 

@@ -237,6 +237,63 @@
 		},
 		"actions": {
 			"refresh": "Refresh Status"
+		},
+		"mollie": {
+			"setup": {
+				"title": "Accept Online Payments",
+				"description": "Set up Mollie to accept credit cards, PayPal, iDEAL, and more from your customers.",
+				"benefitsTitle": "What's included:",
+				"paypalIncluded": "PayPal included — no separate setup needed",
+				"button": "Set Up Mollie Payments",
+				"creating": "Creating account..."
+			},
+			"benefits": {
+				"paypal": "PayPal payments built-in",
+				"ideal": "iDEAL for Dutch customers",
+				"lowFees": "Competitive transaction fees",
+				"fastPayout": "Fast payouts to your bank"
+			},
+			"status": {
+				"title": "Mollie Payments",
+				"description": "Your payment account status and capabilities",
+				"complete": "Active",
+				"inReview": "In Review",
+				"paypalEnabled": "PayPal payments are enabled",
+				"account": {
+					"label": "Account",
+					"connected": "Connected",
+					"notConnected": "Not Connected"
+				},
+				"onboarding": {
+					"label": "Verification",
+					"complete": "Verified",
+					"inReview": "Under Review",
+					"needsData": "Action Required"
+				},
+				"payments": {
+					"label": "Accept Payments",
+					"enabled": "Enabled",
+					"pending": "Pending Verification"
+				},
+				"settlements": {
+					"label": "Receive Payouts",
+					"enabled": "Enabled",
+					"pending": "Pending Verification"
+				}
+			},
+			"alerts": {
+				"inReview": {
+					"title": "Verification In Progress",
+					"description": "Mollie is reviewing your account. This usually takes 1-2 business days. You can already accept payments during this time."
+				},
+				"needsData": {
+					"title": "Additional Information Required",
+					"description": "Please complete your account verification in the Mollie dashboard to enable payouts."
+				}
+			},
+			"actions": {
+				"completeVerification": "Complete Verification"
+			}
 		}
 	}
 }

@@ -33,6 +33,62 @@ export type EntityTranslations = Record<
 export type ChoiceTranslations = Record<string, { name?: string }>;
 
 // ============================================================================
+// PAYMENT PROVIDER ENUM
+// ============================================================================
+
+/**
+ * Payment provider tracking.
+ * - stripe: Using Stripe for payments
+ * - mollie: Using Mollie for payments
+ */
+export const paymentProviders = ["stripe", "mollie"] as const;
+export type PaymentProvider = (typeof paymentProviders)[number];
+
+// ============================================================================
+// MOLLIE ENUMS
+// ============================================================================
+
+/**
+ * Mollie onboarding status.
+ * - needs-data: Merchant needs to provide more information
+ * - in-review: Application is being reviewed
+ * - completed: Onboarding complete, can receive payments
+ */
+export const mollieOnboardingStatuses = [
+	"needs-data",
+	"in-review",
+	"completed",
+] as const;
+export type MollieOnboardingStatus = (typeof mollieOnboardingStatuses)[number];
+
+/**
+ * Mollie mandate status.
+ * - pending: Mandate not yet valid
+ * - valid: Mandate is valid for recurring payments
+ * - invalid: Mandate is no longer valid
+ */
+export const mollieMandateStatuses = ["pending", "valid", "invalid"] as const;
+export type MollieMandateStatus = (typeof mollieMandateStatuses)[number];
+
+/**
+ * Mollie subscription status.
+ * - pending: Subscription pending activation
+ * - active: Subscription is active
+ * - canceled: Subscription was canceled
+ * - suspended: Subscription is suspended (payment failed)
+ * - completed: Subscription has completed all payments
+ */
+export const mollieSubscriptionStatuses = [
+	"pending",
+	"active",
+	"canceled",
+	"suspended",
+	"completed",
+] as const;
+export type MollieSubscriptionStatus =
+	(typeof mollieSubscriptionStatuses)[number];
+
+// ============================================================================
 // STRIPE ENUMS
 // ============================================================================
 
@@ -183,6 +239,35 @@ export const merchants = pgTable("merchants", {
 	subscriptionPriceId: text("subscription_price_id"),
 	subscriptionTrialEndsAt: timestamp("subscription_trial_ends_at"),
 	subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end"),
+	// Mollie Connect (OAuth tokens for M2M operations)
+	mollieCustomerId: text("mollie_customer_id"), // cst_xxx (for subscriptions)
+	mollieOrganizationId: text("mollie_organization_id"), // org_xxx
+	mollieProfileId: text("mollie_profile_id"), // pfl_xxx
+	mollieAccessToken: text("mollie_access_token"), // OAuth access token (encrypted)
+	mollieRefreshToken: text("mollie_refresh_token"), // OAuth refresh token (encrypted)
+	mollieTokenExpiresAt: timestamp("mollie_token_expires_at"),
+	mollieOnboardingStatus: text("mollie_onboarding_status", {
+		enum: mollieOnboardingStatuses,
+	}),
+	mollieCanReceivePayments: boolean("mollie_can_receive_payments").default(
+		false,
+	),
+	mollieCanReceiveSettlements: boolean(
+		"mollie_can_receive_settlements",
+	).default(false),
+	// Mollie Subscriptions (mandate-based)
+	mollieMandateId: text("mollie_mandate_id"), // mdt_xxx
+	mollieMandateStatus: text("mollie_mandate_status", {
+		enum: mollieMandateStatuses,
+	}),
+	mollieSubscriptionId: text("mollie_subscription_id"), // sub_xxx
+	mollieSubscriptionStatus: text("mollie_subscription_status", {
+		enum: mollieSubscriptionStatuses,
+	}),
+	// Payment provider tracking
+	paymentProvider: text("payment_provider", { enum: paymentProviders }).default(
+		"stripe",
+	),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -322,25 +407,29 @@ export const storeClosuresRelations = relations(storeClosures, ({ one }) => ({
 // CATEGORIES
 // ============================================================================
 
-export const categories = pgTable("categories", {
-	id: serial().primaryKey(),
-	storeId: integer("store_id")
-		.notNull()
-		.references(() => stores.id, { onDelete: "cascade" }),
-	displayOrder: integer("display_order").notNull().default(0),
-	isActive: boolean("is_active").notNull().default(true),
-	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
-	translations: jsonb("translations")
-		.$type<EntityTranslations>()
-		.notNull()
-		.default(sql`'{}'::jsonb`),
-	// Timestamps
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-	updatedAt: timestamp("updated_at")
-		.notNull()
-		.defaultNow()
-		.$onUpdate(() => new Date()),
-});
+export const categories = pgTable(
+	"categories",
+	{
+		id: serial().primaryKey(),
+		storeId: integer("store_id")
+			.notNull()
+			.references(() => stores.id, { onDelete: "cascade" }),
+		displayOrder: integer("display_order").notNull().default(0),
+		isActive: boolean("is_active").notNull().default(true),
+		// All translations stored uniformly: {"de": {name, description}, "en": {...}}
+		translations: jsonb("translations")
+			.$type<EntityTranslations>()
+			.notNull()
+			.default(sql`'{}'::jsonb`),
+		// Timestamps
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+		updatedAt: timestamp("updated_at")
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [index("idx_categories_store").on(table.storeId)],
+);
 
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
 	store: one(stores, {
@@ -354,31 +443,38 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
 // ITEMS
 // ============================================================================
 
-export const items = pgTable("items", {
-	id: serial().primaryKey(),
-	categoryId: integer("category_id")
-		.notNull()
-		.references(() => categories.id, { onDelete: "cascade" }),
-	storeId: integer("store_id")
-		.notNull()
-		.references(() => stores.id, { onDelete: "cascade" }),
-	price: integer().notNull(), // Price in cents
-	imageUrl: varchar("image_url", { length: 500 }),
-	allergens: text().array(), // PostgreSQL text array for allergens
-	displayOrder: integer("display_order").notNull().default(0),
-	isAvailable: boolean("is_available").notNull().default(true),
-	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
-	translations: jsonb("translations")
-		.$type<EntityTranslations>()
-		.notNull()
-		.default(sql`'{}'::jsonb`),
-	// Timestamps
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-	updatedAt: timestamp("updated_at")
-		.notNull()
-		.defaultNow()
-		.$onUpdate(() => new Date()),
-});
+export const items = pgTable(
+	"items",
+	{
+		id: serial().primaryKey(),
+		categoryId: integer("category_id")
+			.notNull()
+			.references(() => categories.id, { onDelete: "cascade" }),
+		storeId: integer("store_id")
+			.notNull()
+			.references(() => stores.id, { onDelete: "cascade" }),
+		price: integer().notNull(), // Price in cents
+		imageUrl: varchar("image_url", { length: 500 }),
+		allergens: text().array(), // PostgreSQL text array for allergens
+		displayOrder: integer("display_order").notNull().default(0),
+		isAvailable: boolean("is_available").notNull().default(true),
+		// All translations stored uniformly: {"de": {name, description}, "en": {...}}
+		translations: jsonb("translations")
+			.$type<EntityTranslations>()
+			.notNull()
+			.default(sql`'{}'::jsonb`),
+		// Timestamps
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+		updatedAt: timestamp("updated_at")
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [
+		index("idx_items_category").on(table.categoryId),
+		index("idx_items_store").on(table.storeId),
+	],
+);
 
 export const itemsRelations = relations(items, ({ one, many }) => ({
 	category: one(categories, {
@@ -413,37 +509,41 @@ export type OptionGroupType = (typeof optionGroupTypes)[number];
 // OPTION GROUPS
 // ============================================================================
 
-export const optionGroups = pgTable("option_groups", {
-	id: serial().primaryKey(),
-	storeId: integer("store_id")
-		.notNull()
-		.references(() => stores.id, { onDelete: "cascade" }),
-	// Option group type (determines UI rendering)
-	type: text("type", { enum: optionGroupTypes })
-		.notNull()
-		.default("multi_select"),
-	isRequired: boolean("is_required").notNull().default(false),
-	minSelections: integer("min_selections").notNull().default(0),
-	maxSelections: integer("max_selections"), // null = unlimited
-	// Free options (e.g., "first 2 toppings free, extras cost extra")
-	numFreeOptions: integer("num_free_options").notNull().default(0),
-	// Aggregate quantity constraints (for quantity_select type)
-	aggregateMinQuantity: integer("aggregate_min_quantity"), // null = no min
-	aggregateMaxQuantity: integer("aggregate_max_quantity"), // null = no max
-	displayOrder: integer("display_order").notNull().default(0),
-	isActive: boolean("is_active").notNull().default(true),
-	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
-	translations: jsonb("translations")
-		.$type<EntityTranslations>()
-		.notNull()
-		.default(sql`'{}'::jsonb`),
-	// Timestamps
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-	updatedAt: timestamp("updated_at")
-		.notNull()
-		.defaultNow()
-		.$onUpdate(() => new Date()),
-});
+export const optionGroups = pgTable(
+	"option_groups",
+	{
+		id: serial().primaryKey(),
+		storeId: integer("store_id")
+			.notNull()
+			.references(() => stores.id, { onDelete: "cascade" }),
+		// Option group type (determines UI rendering)
+		type: text("type", { enum: optionGroupTypes })
+			.notNull()
+			.default("multi_select"),
+		isRequired: boolean("is_required").notNull().default(false),
+		minSelections: integer("min_selections").notNull().default(0),
+		maxSelections: integer("max_selections"), // null = unlimited
+		// Free options (e.g., "first 2 toppings free, extras cost extra")
+		numFreeOptions: integer("num_free_options").notNull().default(0),
+		// Aggregate quantity constraints (for quantity_select type)
+		aggregateMinQuantity: integer("aggregate_min_quantity"), // null = no min
+		aggregateMaxQuantity: integer("aggregate_max_quantity"), // null = no max
+		displayOrder: integer("display_order").notNull().default(0),
+		isActive: boolean("is_active").notNull().default(true),
+		// All translations stored uniformly: {"de": {name, description}, "en": {...}}
+		translations: jsonb("translations")
+			.$type<EntityTranslations>()
+			.notNull()
+			.default(sql`'{}'::jsonb`),
+		// Timestamps
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+		updatedAt: timestamp("updated_at")
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [index("idx_option_groups_store").on(table.storeId)],
+);
 
 export const optionGroupsRelations = relations(
 	optionGroups,
@@ -461,31 +561,35 @@ export const optionGroupsRelations = relations(
 // OPTION CHOICES
 // ============================================================================
 
-export const optionChoices = pgTable("option_choices", {
-	id: serial().primaryKey(),
-	optionGroupId: integer("option_group_id")
-		.notNull()
-		.references(() => optionGroups.id, { onDelete: "cascade" }),
-	priceModifier: integer("price_modifier").notNull().default(0), // In cents, can be positive/negative
-	displayOrder: integer("display_order").notNull().default(0),
-	isAvailable: boolean("is_available").notNull().default(true),
-	// Pre-selected by default (reduces customer clicks for common options)
-	isDefault: boolean("is_default").notNull().default(false),
-	// Per-choice quantity limits (for quantity_select type)
-	minQuantity: integer("min_quantity").notNull().default(0), // Min qty customer can select
-	maxQuantity: integer("max_quantity"), // Max qty per choice, null = unlimited
-	// All translations stored uniformly: {"de": {name}, "en": {...}}
-	translations: jsonb("translations")
-		.$type<ChoiceTranslations>()
-		.notNull()
-		.default(sql`'{}'::jsonb`),
-	// Timestamps
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-	updatedAt: timestamp("updated_at")
-		.notNull()
-		.defaultNow()
-		.$onUpdate(() => new Date()),
-});
+export const optionChoices = pgTable(
+	"option_choices",
+	{
+		id: serial().primaryKey(),
+		optionGroupId: integer("option_group_id")
+			.notNull()
+			.references(() => optionGroups.id, { onDelete: "cascade" }),
+		priceModifier: integer("price_modifier").notNull().default(0), // In cents, can be positive/negative
+		displayOrder: integer("display_order").notNull().default(0),
+		isAvailable: boolean("is_available").notNull().default(true),
+		// Pre-selected by default (reduces customer clicks for common options)
+		isDefault: boolean("is_default").notNull().default(false),
+		// Per-choice quantity limits (for quantity_select type)
+		minQuantity: integer("min_quantity").notNull().default(0), // Min qty customer can select
+		maxQuantity: integer("max_quantity"), // Max qty per choice, null = unlimited
+		// All translations stored uniformly: {"de": {name}, "en": {...}}
+		translations: jsonb("translations")
+			.$type<ChoiceTranslations>()
+			.notNull()
+			.default(sql`'{}'::jsonb`),
+		// Timestamps
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+		updatedAt: timestamp("updated_at")
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [index("idx_option_choices_group").on(table.optionGroupId)],
+);
 
 export const optionChoicesRelations = relations(optionChoices, ({ one }) => ({
 	optionGroup: one(optionGroups, {
@@ -498,18 +602,25 @@ export const optionChoicesRelations = relations(optionChoices, ({ one }) => ({
 // ITEM OPTION GROUPS (Junction Table)
 // ============================================================================
 
-export const itemOptionGroups = pgTable("item_option_groups", {
-	id: serial().primaryKey(),
-	itemId: integer("item_id")
-		.notNull()
-		.references(() => items.id, { onDelete: "cascade" }),
-	optionGroupId: integer("option_group_id")
-		.notNull()
-		.references(() => optionGroups.id, { onDelete: "cascade" }),
-	displayOrder: integer("display_order").notNull().default(0),
-	// Timestamp
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+export const itemOptionGroups = pgTable(
+	"item_option_groups",
+	{
+		id: serial().primaryKey(),
+		itemId: integer("item_id")
+			.notNull()
+			.references(() => items.id, { onDelete: "cascade" }),
+		optionGroupId: integer("option_group_id")
+			.notNull()
+			.references(() => optionGroups.id, { onDelete: "cascade" }),
+		displayOrder: integer("display_order").notNull().default(0),
+		// Timestamp
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+	},
+	(table) => [
+		index("idx_item_option_groups_item").on(table.itemId),
+		index("idx_item_option_groups_group").on(table.optionGroupId),
+	],
+);
 
 export const itemOptionGroupsRelations = relations(
 	itemOptionGroups,
@@ -579,6 +690,58 @@ export const stripeEvents = pgTable(
 // Stripe Event types
 export type StripeEvent = InferSelectModel<typeof stripeEvents>;
 export type NewStripeEvent = InferInsertModel<typeof stripeEvents>;
+
+// ============================================================================
+// MOLLIE EVENTS
+// ============================================================================
+
+/**
+ * Stores all incoming Mollie webhook events for:
+ * - Idempotency (prevent duplicate processing)
+ * - Audit trail
+ * - Debugging and replay capability
+ *
+ * Mollie webhooks only send the resource ID - we must fetch full data from API.
+ * The payload field stores the fetched resource data.
+ */
+export const mollieEvents = pgTable(
+	"mollie_events",
+	{
+		// Generated event ID (Mollie doesn't send event IDs, we generate them)
+		id: text("id").primaryKey(),
+		// Event type (e.g., "payment.paid", "subscription.created")
+		eventType: text("event_type").notNull(),
+		// Resource ID from webhook (e.g., "tr_xxx", "sub_xxx")
+		resourceId: text("resource_id").notNull(),
+		// Resource type (e.g., "payment", "subscription", "refund")
+		resourceType: text("resource_type").notNull(),
+		// Merchant ID for this event (from payment metadata or context)
+		merchantId: integer("merchant_id").references(() => merchants.id),
+		// When we received the webhook
+		receivedAt: timestamp("received_at").defaultNow().notNull(),
+		// When we finished processing (null if pending)
+		processedAt: timestamp("processed_at"),
+		// Current processing status
+		processingStatus: text("processing_status", { enum: processingStatus })
+			.notNull()
+			.default("PENDING"),
+		// Retry count for failed processing attempts
+		retryCount: integer("retry_count").notNull().default(0),
+		// Full resource data fetched from Mollie API as JSONB
+		payload: jsonb("payload").notNull(),
+	},
+	(table) => [
+		index("idx_mollie_events_type").on(table.eventType),
+		index("idx_mollie_events_status").on(table.processingStatus),
+		index("idx_mollie_events_resource").on(table.resourceId),
+		index("idx_mollie_events_received").on(table.receivedAt),
+		index("idx_mollie_events_merchant").on(table.merchantId),
+	],
+);
+
+// Mollie Event types
+export type MollieEvent = InferSelectModel<typeof mollieEvents>;
+export type NewMollieEvent = InferInsertModel<typeof mollieEvents>;
 
 // ============================================================================
 // IMAGES
@@ -803,6 +966,13 @@ export const orders = pgTable(
 			length: 255,
 		}),
 		stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }),
+		// Mollie payment fields
+		molliePaymentId: text("mollie_payment_id"), // tr_xxx
+		mollieCheckoutUrl: text("mollie_checkout_url"),
+		// Payment provider tracking (per-order, overrides merchant default)
+		orderPaymentProvider: text("order_payment_provider", {
+			enum: paymentProviders,
+		}),
 
 		// Notes
 		customerNotes: text("customer_notes"), // Special requests from customer
@@ -824,6 +994,7 @@ export const orders = pgTable(
 		index("idx_orders_created_at").on(table.createdAt),
 		index("idx_orders_store_status").on(table.storeId, table.status),
 		index("idx_orders_stripe_session").on(table.stripeCheckoutSessionId),
+		index("idx_orders_mollie_payment").on(table.molliePaymentId),
 	],
 );
 

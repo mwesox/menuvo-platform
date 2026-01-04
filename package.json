@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun --bun run scripts/dev.ts",
+    "dev:tunnel": "bun --bun run scripts/dev.ts --tunnel",
     "dev:server": "bun --bun vite dev --port 3000",
     "build": "bun --bun vite build && cp instrument.server.mjs .output/server",
     "preview": "vite preview",
@@ -38,9 +39,18 @@
     "test:import": "bun --bun run scripts/test-menu-import-e2e.ts",
     "test:import:verbose": "bun --bun run scripts/test-menu-import-e2e.ts --verbose",
     "knip": "knip",
-    "prepare": "husky"
+    "prepare": "husky",
+    "k6:smoke": "k6 run --env TARGET_ENV=local k6/profiles/smoke.js",
+    "k6:load": "k6 run --env TARGET_ENV=local k6/profiles/load.js",
+    "k6:stress": "k6 run --env TARGET_ENV=local k6/profiles/stress.js",
+    "k6:soak": "k6 run --env TARGET_ENV=local k6/profiles/soak.js",
+    "k6:browsing": "k6 run --env TARGET_ENV=local k6/scenarios/customer-browsing.js",
+    "k6:ordering": "k6 run --env TARGET_ENV=local k6/scenarios/customer-ordering.js",
+    "k6:kitchen": "k6 run --env TARGET_ENV=local k6/scenarios/kitchen-operations.js",
+    "k6:mock:stripe": "bun run k6/mocks/stripe-mock-server.js"
   },
   "dependencies": {
+    "@mollie/api-client": "^4.3.3",
     "@openrouter/sdk": "^0.3.11",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -84,7 +94,7 @@
     "lucide-react": "^0.561.0",
     "nanoid": "^5.1.6",
     "next-themes": "^0.4.6",
-    "nitro": "^3.0.1-alpha.1",
+    "nitro": "npm:nitro-nightly@3.0.1-20260102-143448-301604f8",
     "papaparse": "^5.5.3",
     "pino": "^10.1.0",
     "postgres": "^3.4.7",

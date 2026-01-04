@@ -3,13 +3,14 @@
  *
  * Single process handling:
  * - HTTP endpoints (health, webhooks, uploads)
- * - Queue processors (images, imports, stripe events)
+ * - Queue processors (images, imports, stripe events, mollie events)
  *
  * Usage:
  *   bun run worker                    # Run all (default)
  *   bun run worker --type images      # Run only image processor
  *   bun run worker --type imports     # Run only menu import processor
  *   bun run worker --type stripe      # Run only Stripe event processor
+ *   bun run worker --type mollie      # Run only Mollie event processor
  *   bun run worker --type all         # Run all processors
  */
 import { parseArgs } from "node:util";
@@ -17,6 +18,7 @@ import { queueLogger } from "@/lib/logger";
 import { handleRequest } from "./http/router";
 import { startImageProcessor } from "./processors/images";
 import { startImportProcessor } from "./processors/imports";
+import { startMollieProcessor } from "./processors/mollie-events";
 import { startStripeProcessor } from "./processors/stripe-events";
 
 // Parse CLI arguments
@@ -34,10 +36,10 @@ const { values } = parseArgs({
 
 const workerType = values.type as string;
 
-if (!["images", "imports", "stripe", "all"].includes(workerType)) {
+if (!["images", "imports", "stripe", "mollie", "all"].includes(workerType)) {
 	queueLogger.error(
 		{ workerType },
-		"Invalid worker type. Use: images, imports, stripe, or all",
+		"Invalid worker type. Use: images, imports, stripe, mollie, or all",
 	);
 	process.exit(1);
 }
@@ -93,6 +95,16 @@ if (workerType === "stripe" || workerType === "all") {
 	processors.push(
 		startStripeProcessor().catch((error) => {
 			queueLogger.error({ error }, "Stripe event processor failed");
+			throw error;
+		}),
+	);
+}
+
+if (workerType === "mollie" || workerType === "all") {
+	queueLogger.info("- Starting Mollie event processor");
+	processors.push(
+		startMollieProcessor().catch((error) => {
+			queueLogger.error({ error }, "Mollie event processor failed");
 			throw error;
 		}),
 	);

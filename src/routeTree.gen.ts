@@ -31,6 +31,7 @@ import { Route as ConsoleSettingsSubscriptionRouteImport } from './routes/consol
 import { Route as ConsoleSettingsPaymentsRouteImport } from './routes/console/settings/payments'
 import { Route as ConsoleSettingsMerchantRouteImport } from './routes/console/settings/merchant'
 import { Route as ConsoleMenuImportRouteImport } from './routes/console/menu/import'
+import { Route as ApiMollieCallbackRouteImport } from './routes/api.mollie.callback'
 import { Route as ApiMenuImportUploadRouteImport } from './routes/api.menu-import.upload'
 import { Route as ShopSlugCheckoutIndexRouteImport } from './routes/shop/$slug/checkout/index'
 import { Route as ShopSlugOrderOrderIdRouteImport } from './routes/shop/$slug/order/$orderId'
@@ -149,6 +150,11 @@ const ConsoleMenuImportRoute = ConsoleMenuImportRouteImport.update({
   path: '/menu/import',
   getParentRoute: () => ConsoleRouteRoute,
 } as any)
+const ApiMollieCallbackRoute = ApiMollieCallbackRouteImport.update({
+  id: '/api/mollie/callback',
+  path: '/api/mollie/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMenuImportUploadRoute = ApiMenuImportUploadRouteImport.update({
   id: '/api/menu-import/upload',
   path: '/api/menu-import/upload',
@@ -194,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/console/': typeof ConsoleIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
+  '/api/mollie/callback': typeof ApiMollieCallbackRoute
   '/console/menu/import': typeof ConsoleMenuImportRoute
   '/console/settings/merchant': typeof ConsoleSettingsMerchantRoute
   '/console/settings/payments': typeof ConsoleSettingsPaymentsRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/console': typeof ConsoleIndexRoute
   '/shop': typeof ShopIndexRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
+  '/api/mollie/callback': typeof ApiMollieCallbackRoute
   '/console/menu/import': typeof ConsoleMenuImportRoute
   '/console/settings/merchant': typeof ConsoleSettingsMerchantRoute
   '/console/settings/payments': typeof ConsoleSettingsPaymentsRoute
@@ -251,6 +259,7 @@ export interface FileRoutesById {
   '/console/': typeof ConsoleIndexRoute
   '/shop/': typeof ShopIndexRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
+  '/api/mollie/callback': typeof ApiMollieCallbackRoute
   '/console/menu/import': typeof ConsoleMenuImportRoute
   '/console/settings/merchant': typeof ConsoleSettingsMerchantRoute
   '/console/settings/payments': typeof ConsoleSettingsPaymentsRoute
@@ -283,6 +292,7 @@ export interface FileRouteTypes {
     | '/console/'
     | '/shop/'
     | '/api/menu-import/upload'
+    | '/api/mollie/callback'
     | '/console/menu/import'
     | '/console/settings/merchant'
     | '/console/settings/payments'
@@ -309,6 +319,7 @@ export interface FileRouteTypes {
     | '/console'
     | '/shop'
     | '/api/menu-import/upload'
+    | '/api/mollie/callback'
     | '/console/menu/import'
     | '/console/settings/merchant'
     | '/console/settings/payments'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/console/'
     | '/shop/'
     | '/api/menu-import/upload'
+    | '/api/mollie/callback'
     | '/console/menu/import'
     | '/console/settings/merchant'
     | '/console/settings/payments'
@@ -365,6 +377,7 @@ export interface RootRouteChildren {
   LiveRoute: typeof LiveRoute
   QShortCodeRoute: typeof QShortCodeRoute
   ApiMenuImportUploadRoute: typeof ApiMenuImportUploadRoute
+  ApiMollieCallbackRoute: typeof ApiMollieCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -523,6 +536,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleMenuImportRouteImport
       parentRoute: typeof ConsoleRouteRoute
     }
+    '/api/mollie/callback': {
+      id: '/api/mollie/callback'
+      path: '/api/mollie/callback'
+      fullPath: '/api/mollie/callback'
+      preLoaderRoute: typeof ApiMollieCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/menu-import/upload': {
       id: '/api/menu-import/upload'
       path: '/api/menu-import/upload'
@@ -657,6 +677,7 @@ const rootRouteChildren: RootRouteChildren = {
   LiveRoute: LiveRoute,
   QShortCodeRoute: QShortCodeRoute,
   ApiMenuImportUploadRoute: ApiMenuImportUploadRoute,
+  ApiMollieCallbackRoute: ApiMollieCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

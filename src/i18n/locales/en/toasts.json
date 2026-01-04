@@ -46,6 +46,7 @@
 		"subscriptionResumed": "Subscription has been resumed",
 		"paymentAccountCreated": "Payment account created successfully",
 		"paymentStatusRefreshed": "Payment status updated",
+		"mollieOnboardingStarted": "Complete the Mollie setup in the new tab",
 		"orderStatusUpdated": "Order status updated",
 		"orderCancelled": "Order cancelled",
 		"notesSaved": "Notes saved"
@@ -90,6 +91,7 @@
 		"setupPaymentAccount": "Failed to set up payment account. Please try again.",
 		"createOnboardingLink": "Failed to create onboarding link. Please try again.",
 		"refreshPaymentStatus": "Failed to refresh payment status. Please try again.",
+		"getMollieDashboardUrl": "Failed to open Mollie dashboard. Please try again.",
 		"createOrder": "Failed to create order",
 		"createCheckout": "Failed to start checkout",
 		"updateOrderStatus": "Failed to update order status",

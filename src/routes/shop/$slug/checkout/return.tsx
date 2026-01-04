@@ -6,7 +6,8 @@ import { shopQueries } from "@/features/shop/queries";
 import { StoreError } from "@/features/shop/shared";
 
 const searchSchema = z.object({
-	session_id: z.string().optional(),
+	session_id: z.string().optional(), // Stripe session ID
+	order_id: z.coerce.string().optional(), // Mollie order ID (passed in return URL)
 });
 
 export const Route = createFileRoute("/shop/$slug/checkout/return")({

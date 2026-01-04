@@ -28,7 +28,7 @@ function CheckoutRouteComponent() {
 		<CheckoutPage
 			storeId={store.id}
 			storeSlug={store.slug}
-			merchant={store.merchant}
+			capabilities={store.capabilities}
 		/>
 	);
 }

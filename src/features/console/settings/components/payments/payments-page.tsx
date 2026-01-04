@@ -4,7 +4,15 @@ import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
 import { Skeleton } from "@/components/ui/skeleton";
-import { paymentQueries, useRefreshPaymentStatus } from "../../queries";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+	molliePaymentQueries,
+	paymentQueries,
+	useRefreshMolliePaymentStatus,
+	useRefreshPaymentStatus,
+} from "../../queries";
+import { MollieSetupCard } from "./mollie-setup-card";
+import { MollieStatusCard } from "./mollie-status-card";
 import { OnboardingInstructions } from "./onboarding-instructions";
 import { PaymentSetupCard } from "./payment-setup-card";
 import { PaymentStatusCard } from "./payment-status-card";
@@ -17,26 +25,48 @@ export function PaymentsPage({ merchantId }: PaymentsPageProps) {
 	const { t } = useTranslation("settings");
 	const search = useSearch({ from: "/console/settings/payments" });
 	const navigate = useNavigate();
-	const { data: paymentStatus } = useSuspenseQuery(
+
+	// Stripe payment status
+	const { data: stripeStatus } = useSuspenseQuery(
 		paymentQueries.status(merchantId),
 	);
-	const refreshStatus = useRefreshPaymentStatus();
+
+	// Mollie payment status
+	const { data: mollieStatus } = useSuspenseQuery(
+		molliePaymentQueries.status(merchantId),
+	);
+
+	const refreshStripeStatus = useRefreshPaymentStatus();
+	const refreshMollieStatus = useRefreshMolliePaymentStatus();
 
 	// Track if we've already triggered a refresh for this URL to prevent double-triggers
 	const hasTriggeredRefresh = useRef(false);
 
-	// Auto-refresh status when returning from Stripe
+	// Auto-refresh status when returning from Stripe or Mollie
 	useEffect(() => {
-		const shouldRefresh = search.from === "stripe" || search.refresh;
+		const shouldRefresh =
+			search.from === "stripe" || search.from === "mollie" || search.refresh;
 
 		if (shouldRefresh && !hasTriggeredRefresh.current) {
 			hasTriggeredRefresh.current = true;
-			refreshStatus.mutate({ merchantId });
+
+			if (search.from === "mollie") {
+				refreshMollieStatus.mutate({ merchantId });
+			} else {
+				refreshStripeStatus.mutate({ merchantId });
+			}
 
 			// Clear URL params to prevent re-triggering on page refresh
 			navigate({ to: "/console/settings/payments", search: {}, replace: true });
 		}
-	}, [search.from, search.refresh, merchantId, navigate, refreshStatus]);
+	}, [
+		search.from,
+		search.refresh,
+		merchantId,
+		navigate,
+		refreshStripeStatus,
+		refreshMollieStatus,
+	]);
 
 	// Reset the ref when URL params are cleared
 	useEffect(() => {
@@ -45,10 +75,14 @@ export function PaymentsPage({ merchantId }: PaymentsPageProps) {
 		}
 	}, [search.from, search.refresh]);
 
-	const hasPaymentAccount = !!paymentStatus.paymentAccountId;
+	const hasStripeAccount = !!stripeStatus.paymentAccountId;
+	const hasMollieAccount = !!mollieStatus.mollieOrganizationId;
+
+	const isLoading =
+		refreshStripeStatus.isPending || refreshMollieStatus.isPending;
 
 	// Show loading skeleton while refresh is in progress
-	if (refreshStatus.isPending) {
+	if (isLoading) {
 		return (
 			<div className="space-y-6">
 				<PageActionBar
@@ -67,20 +101,53 @@ export function PaymentsPage({ merchantId }: PaymentsPageProps) {
 				backLabel={t("navigation.backToSettings")}
 			/>
 
-			{!hasPaymentAccount ? (
-				<PaymentSetupCard merchantId={merchantId} />
-			) : (
-				<div className="space-y-6">
-					<PaymentStatusCard
-						paymentStatus={paymentStatus}
-						merchantId={merchantId}
-					/>
+			<Tabs defaultValue="mollie" className="space-y-6">
+				<TabsList className="grid w-full grid-cols-2">
+					<TabsTrigger value="mollie" className="flex items-center gap-2">
+						{t("payments.tabs.mollie")}
+						{hasMollieAccount &&
+							mollieStatus.mollieOnboardingStatus === "completed" && (
+								<span className="h-2 w-2 rounded-full bg-green-500" />
+							)}
+					</TabsTrigger>
+					<TabsTrigger value="stripe" className="flex items-center gap-2">
+						{t("payments.tabs.stripe")}
+						{hasStripeAccount && stripeStatus.paymentOnboardingComplete && (
+							<span className="h-2 w-2 rounded-full bg-green-500" />
+						)}
+					</TabsTrigger>
+				</TabsList>
 
-					{!paymentStatus.paymentOnboardingComplete && (
-						<OnboardingInstructions merchantId={merchantId} />
+				{/* Mollie Tab */}
+				<TabsContent value="mollie" className="space-y-6">
+					{!hasMollieAccount ? (
+						<MollieSetupCard merchantId={merchantId} />
+					) : (
+						<MollieStatusCard
+							mollieStatus={mollieStatus}
+							merchantId={merchantId}
+						/>
 					)}
-				</div>
-			)}
+				</TabsContent>
+
+				{/* Stripe Tab */}
+				<TabsContent value="stripe" className="space-y-6">
+					{!hasStripeAccount ? (
+						<PaymentSetupCard merchantId={merchantId} />
+					) : (
+						<div className="space-y-6">
+							<PaymentStatusCard
+								paymentStatus={stripeStatus}
+								merchantId={merchantId}
+							/>
+
+							{!stripeStatus.paymentOnboardingComplete && (
+								<OnboardingInstructions merchantId={merchantId} />
+							)}
+						</div>
+					)}
+				</TabsContent>
+			</Tabs>
 		</div>
 	);
 }
@@ -88,6 +155,9 @@ export function PaymentsPage({ merchantId }: PaymentsPageProps) {
 function PaymentStatusSkeleton() {
 	return (
 		<div className="space-y-6">
+			{/* Tabs Skeleton */}
+			<Skeleton className="h-10 w-full" />
+
 			{/* Status Card Skeleton */}
 			<div className="rounded-lg border bg-card p-6 space-y-4">
 				<div className="flex items-center justify-between">

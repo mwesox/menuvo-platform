@@ -1,5 +1,6 @@
 import { handleHealth } from "./handlers/health";
 import { handleImageUpload } from "./handlers/images";
+import { handleMollieWebhook } from "./handlers/mollie";
 import { handleStripeV1, handleStripeV2 } from "./handlers/stripe";
 
 interface RouterContext {
@@ -68,6 +69,11 @@ export async function handleRequest(
 	// Stripe V2 webhooks (thin events)
 	if (url.pathname === "/webhooks/stripe/thin" && method === "POST") {
 		return handleStripeV2(req);
+	}
+
+	// Mollie webhooks
+	if (url.pathname === "/webhooks/mollie" && method === "POST") {
+		return handleMollieWebhook(req);
 	}
 
 	return new Response("Not Found", { status: 404 });

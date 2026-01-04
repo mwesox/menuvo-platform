@@ -1,43 +1,73 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { orderQueries } from "@/features/orders/queries";
 import {
 	ShopCard,
 	ShopHeading,
 	ShopMutedText,
 } from "../../shared/components/ui";
-import { useCheckoutSessionStatus } from "../queries";
+import { useCheckoutSessionStatus, useMolliePaymentStatus } from "../queries";
 
 interface CheckoutReturnPageProps {
 	storeSlug: string;
 }
 
 /**
- * Handles post-payment redirect from Stripe Embedded Checkout.
+ * Handles post-payment redirect from both:
+ * - Stripe Embedded Checkout (session_id in URL)
+ * - Mollie Hosted Checkout (order_id in URL)
+ *
  * Polls for payment confirmation and redirects to order confirmation on success.
  */
 export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 	const { t } = useTranslation("shop");
 	const navigate = useNavigate();
 	const search = useSearch({ from: "/shop/$slug/checkout/return" });
+
+	// Stripe session ID from query params
 	const sessionId = search.session_id;
 
-	const { data, isLoading, isError } = useCheckoutSessionStatus(
-		sessionId ?? null,
-	);
+	// Mollie order ID from query params (added by our return URL)
+	const orderId = search.order_id ? Number(search.order_id) : null;
+
+	// Query for order details (to get Mollie payment ID)
+	const { data: order } = useQuery({
+		...orderQueries.detail(orderId ?? 0),
+		enabled: !!orderId && !sessionId,
+	});
+
+	// Stripe: Poll checkout session status
+	const stripeStatus = useCheckoutSessionStatus(sessionId ?? null);
+
+	// Mollie: Poll payment status using the payment ID from the order
+	const molliePaymentId = order?.molliePaymentId ?? null;
+	const mollieStatus = useMolliePaymentStatus(molliePaymentId);
+
+	// Determine which provider we're dealing with
+	const isMollie = !!orderId && !sessionId;
+
+	// Get the relevant status data
+	const data = isMollie ? mollieStatus.data : stripeStatus.data;
+	const isLoading = isMollie
+		? mollieStatus.isLoading || (!molliePaymentId && !!orderId)
+		: stripeStatus.isLoading;
+	const isError = isMollie ? mollieStatus.isError : stripeStatus.isError;
 
 	// Redirect to order confirmation when payment is confirmed
 	useEffect(() => {
-		if (data?.paymentStatus === "paid" && data.orderId) {
+		const targetOrderId = data?.orderId ?? orderId;
+		if (data?.paymentStatus === "paid" && targetOrderId) {
 			navigate({
 				to: "/shop/$slug/order/$orderId",
-				params: { slug: storeSlug, orderId: String(data.orderId) },
+				params: { slug: storeSlug, orderId: String(targetOrderId) },
 			});
 		}
-	}, [data, storeSlug, navigate]);
+	}, [data, orderId, storeSlug, navigate]);
 
 	// Show loading state while verifying payment
 	if (isLoading || data?.paymentStatus === "awaiting_confirmation") {

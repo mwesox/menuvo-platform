@@ -5,7 +5,13 @@ import { db } from "@/db";
 import { merchants } from "@/db/schema.ts";
 import { env } from "@/env";
 import { withAuth } from "@/features/console/auth/server/auth-middleware";
-import { stripeLogger } from "@/lib/logger";
+import { mollieLogger, stripeLogger } from "@/lib/logger";
+import { getMollieClient } from "@/lib/mollie/client";
+import {
+	cancelSubscription as cancelMollieSubscriptionApi,
+	createFirstPaymentForMandate,
+	getSubscription as getMollieSubscriptionApi,
+} from "@/lib/mollie/subscriptions";
 import {
 	cancelSubscription,
 	createBillingPortalSession,
@@ -235,3 +241,272 @@ function getPlanTierFromPriceId(priceId: string | null): PlanTier | null {
 	if (priceId === env.STRIPE_PRICE_MAX) return "max";
 	return null;
 }
+
+// ============================================================================
+// MOLLIE SUBSCRIPTION FUNCTIONS
+// ============================================================================
+
+/**
+ * Get Mollie price for a plan tier from environment variables.
+ * Returns amount in EUR format (e.g., "29.00").
+ */
+function getMolliePriceForPlan(plan: PlanTier): string {
+	const prices: Record<PlanTier, string | undefined> = {
+		starter: env.MOLLIE_PRICE_STARTER,
+		professional: env.MOLLIE_PRICE_PRO,
+		max: env.MOLLIE_PRICE_MAX,
+	};
+
+	const price = prices[plan];
+	if (!price) {
+		throw new Error(`Mollie price not configured for plan: ${plan}`);
+	}
+	return price;
+}
+
+// Schema for createMollieSubscriptionPayment
+const createMollieSubscriptionInputSchema = z.object({
+	plan: z.enum(planTiers),
+});
+
+/**
+ * Create first payment to establish a mandate for Mollie subscription.
+ *
+ * Mollie subscription flow:
+ * 1. Create first payment with sequenceType: "first" -> this creates the mandate
+ * 2. Customer is redirected to Mollie checkout page
+ * 3. Payment webhook confirms payment -> mandate becomes "valid"
+ * 4. Webhook handler creates actual subscription using the valid mandate
+ *
+ * The customer is charged the first month immediately, then recurring monthly.
+ */
+export const createMollieSubscriptionPayment = createServerFn({
+	method: "POST",
+})
+	.inputValidator(createMollieSubscriptionInputSchema)
+	.middleware([withAuth])
+	.handler(async ({ context, data }) => {
+		const { merchantId } = context.auth;
+
+		const merchant = await db.query.merchants.findFirst({
+			where: eq(merchants.id, merchantId),
+			columns: {
+				id: true,
+				mollieCustomerId: true,
+				mollieSubscriptionId: true,
+				mollieSubscriptionStatus: true,
+			},
+		});
+
+		if (!merchant) {
+			throw new Error("Merchant not found");
+		}
+
+		// Check if already has an active subscription
+		if (
+			merchant.mollieSubscriptionId &&
+			merchant.mollieSubscriptionStatus === "active"
+		) {
+			throw new Error("Merchant already has an active Mollie subscription");
+		}
+
+		// Ensure merchant has a Mollie customer ID
+		let customerId = merchant.mollieCustomerId;
+		if (!customerId) {
+			// Create a Mollie customer for this merchant
+			const mollie = getMollieClient();
+			const customer = await mollie.customers.create({
+				name: `Merchant ${merchantId}`,
+				metadata: { merchantId: String(merchantId) },
+			});
+			customerId = customer.id;
+
+			// Store the customer ID
+			await db
+				.update(merchants)
+				.set({ mollieCustomerId: customerId })
+				.where(eq(merchants.id, merchantId));
+
+			mollieLogger.info(
+				{ merchantId, customerId },
+				"Created Mollie customer for subscription",
+			);
+		}
+
+		const price = getMolliePriceForPlan(data.plan);
+		const serverUrl = env.SERVER_URL || "http://localhost:3000";
+
+		// Create first payment to establish mandate
+		const payment = await createFirstPaymentForMandate({
+			customerId,
+			amount: { value: price, currency: "EUR" },
+			description: `Menuvo ${data.plan.charAt(0).toUpperCase() + data.plan.slice(1)} Plan - First Payment`,
+			redirectUrl: `${serverUrl}/console/settings/merchant?tab=subscription&mollie_payment=complete`,
+			webhookUrl: `${serverUrl}/webhooks/mollie`,
+			metadata: {
+				merchantId: String(merchantId),
+				type: "subscription_first_payment",
+				plan: data.plan,
+			},
+		});
+
+		// Update merchant with pending mandate status
+		await db
+			.update(merchants)
+			.set({
+				mollieMandateStatus: "pending",
+			})
+			.where(eq(merchants.id, merchantId));
+
+		mollieLogger.info(
+			{
+				merchantId,
+				customerId,
+				paymentId: payment.id,
+				plan: data.plan,
+			},
+			"Created first payment for Mollie subscription mandate",
+		);
+
+		const checkoutUrl = payment._links.checkout?.href;
+		if (!checkoutUrl) {
+			throw new Error("Failed to get checkout URL from Mollie payment");
+		}
+
+		return { checkoutUrl };
+	});
+
+/**
+ * Get Mollie subscription status for the current merchant.
+ * Fetches from database and enriches with live Mollie data if available.
+ */
+export const getMollieSubscriptionStatus = createServerFn({ method: "GET" })
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
+
+		const merchant = await db.query.merchants.findFirst({
+			where: eq(merchants.id, merchantId),
+			columns: {
+				id: true,
+				mollieCustomerId: true,
+				mollieMandateId: true,
+				mollieMandateStatus: true,
+				mollieSubscriptionId: true,
+				mollieSubscriptionStatus: true,
+			},
+		});
+
+		if (!merchant) {
+			throw new Error("Merchant not found");
+		}
+
+		// If no Mollie subscription, return minimal info
+		if (!merchant.mollieSubscriptionId) {
+			return {
+				hasSubscription: false,
+				subscriptionId: null,
+				status: null,
+				mandateId: merchant.mollieMandateId,
+				mandateStatus: merchant.mollieMandateStatus,
+				nextPaymentDate: null,
+				amount: null,
+			};
+		}
+
+		// Fetch live subscription data from Mollie
+		let nextPaymentDate: string | null = null;
+		let amount: { value: string; currency: string } | null = null;
+		let liveStatus: string | null = null;
+
+		if (merchant.mollieCustomerId && merchant.mollieSubscriptionId) {
+			try {
+				const subscription = await getMollieSubscriptionApi(
+					merchant.mollieCustomerId,
+					merchant.mollieSubscriptionId,
+				);
+				nextPaymentDate = subscription.nextPaymentDate ?? null;
+				amount = subscription.amount;
+				liveStatus = subscription.status;
+			} catch (error) {
+				mollieLogger.error(
+					{
+						merchantId,
+						subscriptionId: merchant.mollieSubscriptionId,
+						error: error instanceof Error ? error.message : String(error),
+					},
+					"Failed to fetch Mollie subscription status",
+				);
+			}
+		}
+
+		return {
+			hasSubscription: true,
+			subscriptionId: merchant.mollieSubscriptionId,
+			status: liveStatus ?? merchant.mollieSubscriptionStatus,
+			mandateId: merchant.mollieMandateId,
+			mandateStatus: merchant.mollieMandateStatus,
+			nextPaymentDate,
+			amount,
+		};
+	});
+
+/**
+ * Cancel Mollie subscription for the current merchant.
+ * Cancellation takes effect immediately. No more payments will be collected.
+ * Already collected payments are not refunded.
+ */
+export const cancelMollieSubscription = createServerFn({ method: "POST" })
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
+
+		const merchant = await db.query.merchants.findFirst({
+			where: eq(merchants.id, merchantId),
+			columns: {
+				id: true,
+				mollieCustomerId: true,
+				mollieSubscriptionId: true,
+				mollieSubscriptionStatus: true,
+			},
+		});
+
+		if (!merchant) {
+			throw new Error("Merchant not found");
+		}
+
+		if (!merchant.mollieCustomerId || !merchant.mollieSubscriptionId) {
+			throw new Error("No active Mollie subscription found");
+		}
+
+		if (merchant.mollieSubscriptionStatus === "canceled") {
+			throw new Error("Subscription is already canceled");
+		}
+
+		// Cancel the subscription via Mollie API
+		const canceledSubscription = await cancelMollieSubscriptionApi(
+			merchant.mollieCustomerId,
+			merchant.mollieSubscriptionId,
+		);
+
+		// Update merchant subscription status
+		await db
+			.update(merchants)
+			.set({
+				mollieSubscriptionStatus: "canceled",
+			})
+			.where(eq(merchants.id, merchantId));
+
+		mollieLogger.info(
+			{
+				merchantId,
+				subscriptionId: merchant.mollieSubscriptionId,
+			},
+			"Mollie subscription canceled",
+		);
+
+		return {
+			success: true,
+			status: canceledSubscription.status,
+		};
+	});

@@ -4,7 +4,9 @@ import { db } from "@/db";
 import { merchants } from "@/db/schema";
 import { env } from "@/env";
 import { withAuth } from "@/features/console/auth/server/auth-middleware";
+import { decryptToken } from "@/lib/crypto";
 import { paymentsLogger } from "@/lib/logger";
+import { createClientLink, getOnboardingStatus } from "@/lib/mollie";
 import { getStripeClient } from "@/lib/stripe/client";
 import { createAccountLink, createStripeAccount } from "@/lib/stripe/connect";
 import { createTrialSubscription } from "@/lib/stripe/subscriptions";
@@ -398,6 +400,286 @@ export const refreshPaymentStatus = createServerFn({ method: "POST" })
 							: undefined,
 				},
 				"Failed to refresh payment status",
+			);
+			throw error;
+		}
+	});
+
+// ============================================================================
+// MOLLIE PAYMENT FUNCTIONS
+// ============================================================================
+
+/**
+ * Get Mollie payment status for a merchant.
+ * Returns Mollie-specific payment and onboarding fields.
+ */
+export const getMolliePaymentStatus = createServerFn({ method: "GET" })
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
+		paymentsLogger.debug({ merchantId }, "Getting Mollie payment status");
+
+		try {
+			const merchant = await db.query.merchants.findFirst({
+				where: eq(merchants.id, merchantId),
+				columns: {
+					id: true,
+					name: true,
+					email: true,
+					paymentProvider: true,
+					mollieOrganizationId: true,
+					mollieProfileId: true,
+					mollieOnboardingStatus: true,
+					mollieCanReceivePayments: true,
+					mollieCanReceiveSettlements: true,
+					mollieMandateId: true,
+					mollieMandateStatus: true,
+					mollieSubscriptionId: true,
+					mollieSubscriptionStatus: true,
+				},
+			});
+
+			if (!merchant) {
+				paymentsLogger.error({ merchantId }, "Merchant not found");
+				throw new Error("Merchant not found");
+			}
+
+			paymentsLogger.info(
+				{
+					merchantId,
+					hasMollieAccount: !!merchant.mollieOrganizationId,
+					onboardingStatus: merchant.mollieOnboardingStatus,
+				},
+				"Mollie payment status retrieved",
+			);
+
+			return merchant;
+		} catch (error) {
+			paymentsLogger.error(
+				{
+					merchantId,
+					error: error instanceof Error ? error.message : String(error),
+				},
+				"Failed to get Mollie payment status",
+			);
+			throw error;
+		}
+	});
+
+/**
+ * Set up Mollie payment account for a merchant.
+ * Uses Client Links API to create a Mollie account for the merchant,
+ * then redirects them to complete OAuth authorization.
+ * Idempotent - returns existing if already set up.
+ */
+export const setupMolliePaymentAccount = createServerFn({ method: "POST" })
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
+		paymentsLogger.info({ merchantId }, "Setting up Mollie payment account");
+
+		try {
+			// Fetch merchant
+			const merchant = await db.query.merchants.findFirst({
+				where: eq(merchants.id, merchantId),
+				columns: {
+					id: true,
+					name: true,
+					email: true,
+					mollieOrganizationId: true,
+					mollieOnboardingStatus: true,
+				},
+			});
+
+			if (!merchant) {
+				paymentsLogger.error({ merchantId }, "Merchant not found for setup");
+				throw new Error("Merchant not found");
+			}
+
+			// If already fully connected with tokens, don't start new OAuth flow
+			if (
+				merchant.mollieOrganizationId &&
+				merchant.mollieOnboardingStatus === "completed"
+			) {
+				paymentsLogger.info(
+					{
+						merchantId,
+						organizationId: merchant.mollieOrganizationId,
+					},
+					"Mollie account already set up",
+				);
+				return {
+					organizationId: merchant.mollieOrganizationId,
+					alreadySetUp: true,
+				};
+			}
+
+			// If they started but didn't complete OAuth (no tokens yet),
+			// allow them to try again - create a new client link
+
+			// State parameter includes merchantId for verification on callback
+			const state = Buffer.from(JSON.stringify({ merchantId })).toString(
+				"base64url",
+			);
+
+			// Create a Client Link with OAuth params embedded
+			// This URL takes merchant directly to Mollie signup with pre-filled data
+			const clientLink = await createClientLink({
+				name: merchant.name,
+				email: merchant.email,
+				state,
+			});
+
+			// Update merchant with pending onboarding status
+			await db
+				.update(merchants)
+				.set({
+					mollieOnboardingStatus: "needs-data",
+				})
+				.where(eq(merchants.id, merchantId));
+
+			paymentsLogger.info(
+				{
+					merchantId,
+					clientLinkId: clientLink.clientLinkId,
+					onboardingUrl: clientLink.onboardingUrl,
+				},
+				"Mollie client link created",
+			);
+
+			return {
+				onboardingUrl: clientLink.onboardingUrl,
+				alreadySetUp: false,
+			};
+		} catch (error) {
+			paymentsLogger.error(
+				{
+					merchantId,
+					error: error instanceof Error ? error.message : String(error),
+				},
+				"Failed to set up Mollie payment account",
+			);
+			throw error;
+		}
+	});
+
+/**
+ * Refresh Mollie payment status from API.
+ * Syncs the latest onboarding and capability status using the Onboarding API.
+ */
+export const refreshMolliePaymentStatus = createServerFn({ method: "POST" })
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
+		paymentsLogger.info({ merchantId }, "Refreshing Mollie payment status");
+
+		try {
+			const merchant = await db.query.merchants.findFirst({
+				where: eq(merchants.id, merchantId),
+				columns: {
+					mollieAccessToken: true,
+				},
+			});
+
+			if (!merchant?.mollieAccessToken) {
+				paymentsLogger.error(
+					{ merchantId },
+					"Merchant has no Mollie access token",
+				);
+				throw new Error("Merchant has no Mollie account connected");
+			}
+
+			// Use onboarding API to get correct status (not organization API)
+			const accessToken = await decryptToken(merchant.mollieAccessToken);
+			const onboardingStatus = await getOnboardingStatus(accessToken);
+
+			// Map Mollie status to our enum values
+			const mappedStatus = onboardingStatus.canReceivePayments
+				? "completed"
+				: onboardingStatus.status === "in-review"
+					? "in-review"
+					: "needs-data";
+
+			// Update merchant record
+			await db
+				.update(merchants)
+				.set({
+					mollieOnboardingStatus: mappedStatus,
+					mollieCanReceivePayments: onboardingStatus.canReceivePayments,
+					mollieCanReceiveSettlements: onboardingStatus.canReceiveSettlements,
+				})
+				.where(eq(merchants.id, merchantId));
+
+			paymentsLogger.info(
+				{
+					merchantId,
+					status: onboardingStatus.status,
+					canReceivePayments: onboardingStatus.canReceivePayments,
+					canReceiveSettlements: onboardingStatus.canReceiveSettlements,
+				},
+				"Mollie payment status refreshed",
+			);
+
+			return {
+				onboardingStatus: onboardingStatus.status,
+				canReceivePayments: onboardingStatus.canReceivePayments,
+				canReceiveSettlements: onboardingStatus.canReceiveSettlements,
+			};
+		} catch (error) {
+			paymentsLogger.error(
+				{
+					merchantId,
+					error: error instanceof Error ? error.message : String(error),
+				},
+				"Failed to refresh Mollie payment status",
+			);
+			throw error;
+		}
+	});
+
+/**
+ * Get the Mollie onboarding dashboard URL.
+ * Returns the link from Mollie's onboarding API to complete verification.
+ */
+export const getMollieDashboardUrl = createServerFn({ method: "GET" })
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { merchantId } = context.auth;
+		paymentsLogger.info({ merchantId }, "Getting Mollie dashboard URL");
+
+		try {
+			// Get merchant token
+			const merchant = await db.query.merchants.findFirst({
+				where: eq(merchants.id, merchantId),
+				columns: {
+					mollieAccessToken: true,
+				},
+			});
+
+			if (!merchant?.mollieAccessToken) {
+				throw new Error("Merchant has no Mollie account connected");
+			}
+
+			// Decrypt token and get onboarding status with dashboard link
+			const accessToken = await decryptToken(merchant.mollieAccessToken);
+			const status = await getOnboardingStatus(accessToken);
+
+			if (!status.dashboardUrl) {
+				throw new Error("Mollie did not provide a dashboard URL");
+			}
+
+			paymentsLogger.info(
+				{ merchantId, dashboardUrl: status.dashboardUrl },
+				"Dashboard URL retrieved from Mollie API",
+			);
+			return { dashboardUrl: status.dashboardUrl };
+		} catch (error) {
+			paymentsLogger.error(
+				{
+					merchantId,
+					error: error instanceof Error ? error.message : String(error),
+				},
+				"Failed to get Mollie dashboard URL",
 			);
 			throw error;
 		}

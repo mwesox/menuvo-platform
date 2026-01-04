@@ -237,6 +237,63 @@
 		},
 		"actions": {
 			"refresh": "Status aktualisieren"
+		},
+		"mollie": {
+			"setup": {
+				"title": "Online-Zahlungen akzeptieren",
+				"description": "Richten Sie Mollie ein, um Kreditkarten, PayPal, iDEAL und mehr von Ihren Kunden zu akzeptieren.",
+				"benefitsTitle": "Was enthalten ist:",
+				"paypalIncluded": "PayPal inklusive — keine separate Einrichtung nötig",
+				"button": "Mollie-Zahlungen einrichten",
+				"creating": "Konto wird erstellt..."
+			},
+			"benefits": {
+				"paypal": "PayPal-Zahlungen integriert",
+				"ideal": "iDEAL für niederländische Kunden",
+				"lowFees": "Wettbewerbsfähige Transaktionsgebühren",
+				"fastPayout": "Schnelle Auszahlungen auf Ihr Konto"
+			},
+			"status": {
+				"title": "Mollie-Zahlungen",
+				"description": "Status und Funktionen Ihres Zahlungskontos",
+				"complete": "Aktiv",
+				"inReview": "In Prüfung",
+				"paypalEnabled": "PayPal-Zahlungen sind aktiviert",
+				"account": {
+					"label": "Konto",
+					"connected": "Verbunden",
+					"notConnected": "Nicht verbunden"
+				},
+				"onboarding": {
+					"label": "Verifizierung",
+					"complete": "Verifiziert",
+					"inReview": "Wird geprüft",
+					"needsData": "Handlung erforderlich"
+				},
+				"payments": {
+					"label": "Zahlungen empfangen",
+					"enabled": "Aktiviert",
+					"pending": "Verifizierung ausstehend"
+				},
+				"settlements": {
+					"label": "Auszahlungen erhalten",
+					"enabled": "Aktiviert",
+					"pending": "Verifizierung ausstehend"
+				}
+			},
+			"alerts": {
+				"inReview": {
+					"title": "Verifizierung läuft",
+					"description": "Mollie prüft Ihr Konto. Dies dauert in der Regel 1-2 Werktage. Sie können in dieser Zeit bereits Zahlungen akzeptieren."
+				},
+				"needsData": {
+					"title": "Zusätzliche Informationen erforderlich",
+					"description": "Bitte vervollständigen Sie Ihre Kontoverifizierung im Mollie-Dashboard, um Auszahlungen zu aktivieren."
+				}
+			},
+			"actions": {
+				"completeVerification": "Verifizierung abschließen"
+			}
 		}
 	}
 }

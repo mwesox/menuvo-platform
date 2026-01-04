@@ -46,6 +46,7 @@
 		"subscriptionResumed": "Abonnement wurde fortgesetzt",
 		"paymentAccountCreated": "Zahlungskonto erfolgreich erstellt",
 		"paymentStatusRefreshed": "Zahlungsstatus aktualisiert",
+		"mollieOnboardingStarted": "Schließen Sie die Mollie-Einrichtung im neuen Tab ab",
 		"orderStatusUpdated": "Bestellstatus aktualisiert",
 		"orderCancelled": "Bestellung storniert",
 		"notesSaved": "Notizen gespeichert"
@@ -90,6 +91,7 @@
 		"setupPaymentAccount": "Zahlungskonto konnte nicht eingerichtet werden. Bitte versuchen Sie es erneut.",
 		"createOnboardingLink": "Einrichtungslink konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
 		"refreshPaymentStatus": "Zahlungsstatus konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+		"getMollieDashboardUrl": "Mollie-Dashboard konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
 		"createOrder": "Bestellung konnte nicht erstellt werden",
 		"createCheckout": "Checkout konnte nicht gestartet werden",
 		"updateOrderStatus": "Bestellstatus konnte nicht aktualisiert werden",
