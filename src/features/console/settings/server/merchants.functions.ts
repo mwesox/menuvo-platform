@@ -5,18 +5,6 @@ import { merchants } from "@/db/schema.ts";
 import { withAuth } from "@/features/console/auth/server/auth-middleware";
 import { merchantGeneralSchema, merchantLanguageSchema } from "../schemas";
 
-// Get first merchant (temporary until auth is implemented)
-// Note: This is used by useMerchant hook - keep as-is
-export const getFirstMerchant = createServerFn({ method: "GET" }).handler(
-	async () => {
-		const merchant = await db.query.merchants.findFirst();
-		if (!merchant) {
-			throw new Error("No merchant found");
-		}
-		return merchant;
-	},
-);
-
 export const getMerchant = createServerFn({ method: "GET" })
 	.middleware([withAuth])
 	.handler(async ({ context }) => {

@@ -15,29 +15,24 @@ export type AuthContext = {
 /**
  * Get the authenticated merchant context.
  *
- * Reads merchantId from cookie. Falls back to first merchant if no cookie.
+ * Reads merchantId from cookie. No fallbacks for security.
  * MUST be called from within a server function context.
  *
- * @throws Error if no merchant found (unauthorized)
+ * @throws Error if not authenticated or merchant not found
  */
 export async function getAuthContext(): Promise<AuthContext> {
 	const merchantIdFromCookie = await getMerchantIdFromCookie();
 
-	let merchant: typeof merchants.$inferSelect | undefined;
-
-	if (merchantIdFromCookie) {
-		merchant = await db.query.merchants.findFirst({
-			where: eq(merchants.id, merchantIdFromCookie),
-		});
+	if (!merchantIdFromCookie) {
+		throw new Error("Unauthorized: No merchant session");
 	}
 
-	// Fallback: get first merchant if cookie is invalid or no cookie
-	if (!merchant) {
-		merchant = await db.query.merchants.findFirst();
-	}
+	const merchant = await db.query.merchants.findFirst({
+		where: eq(merchants.id, merchantIdFromCookie),
+	});
 
 	if (!merchant) {
-		throw new Error("Unauthorized: No merchant found");
+		throw new Error("Unauthorized: Invalid merchant session");
 	}
 
 	return {

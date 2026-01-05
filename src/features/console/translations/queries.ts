@@ -72,7 +72,6 @@ export function useUpdateMerchantLanguages() {
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["merchants"] });
 			queryClient.invalidateQueries({ queryKey: ["translations"] });
-			queryClient.invalidateQueries({ queryKey: ["current-merchant"] });
 			toast.success(t("success.languagesUpdated", "Languages updated"));
 		},
 		onError: () => {

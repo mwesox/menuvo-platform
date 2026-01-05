@@ -1,8 +1,4 @@
-import {
-	useMutation,
-	useQueryClient,
-	useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { Building2, Mail, Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +14,6 @@ import { loginAsMerchant } from "../server/fake-auth.functions";
 
 export function MerchantLoginPage() {
 	const router = useRouter();
-	const queryClient = useQueryClient();
 
 	const { data: merchants } = useSuspenseQuery(authQueries.allMerchants);
 
@@ -26,7 +21,8 @@ export function MerchantLoginPage() {
 		mutationFn: (merchantId: number) =>
 			loginAsMerchant({ data: { merchantId } }),
 		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ["current-merchant"] });
+			// Invalidate router to re-run beforeLoad with new cookie
+			await router.invalidate();
 			router.navigate({ to: "/console" });
 		},
 	});

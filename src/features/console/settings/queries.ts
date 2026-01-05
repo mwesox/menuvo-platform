@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { ChangePlanInput, MerchantGeneralInput } from "./schemas";
 import {
-	getFirstMerchant,
 	getMerchant,
 	updateMerchantGeneral,
 } from "./server/merchants.functions.ts";
@@ -43,12 +42,6 @@ export const merchantKeys = {
 
 // Query options factories
 export const merchantQueries = {
-	// Get first merchant (temporary until auth is implemented)
-	first: () =>
-		queryOptions({
-			queryKey: [...merchantKeys.all, "first"] as const,
-			queryFn: () => getFirstMerchant(),
-		}),
 	// merchantId is obtained from auth context on server
 	detail: (merchantId: number) =>
 		queryOptions({

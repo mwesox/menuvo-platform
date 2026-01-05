@@ -4,26 +4,22 @@ import { getMerchantOrNull } from "@/features/console/auth/server/merchant.funct
 
 /**
  * Parent console route - provides layout and merchant context.
- * Fetches merchant once and caches forever (until page refresh).
- * All child routes inherit merchant from context - no need for requireMerchant().
+ * Fetches merchant from server on each navigation (reads from cookie).
+ * All child routes inherit merchant from context.
  */
 export const Route = createFileRoute("/console")({
-	beforeLoad: async ({ context }) => {
-		// Use TanStack Query cache - fetch once, cache forever
-		const merchant = await context.queryClient.ensureQueryData({
-			queryKey: ["current-merchant"],
-			queryFn: () => getMerchantOrNull(),
-			staleTime: Number.POSITIVE_INFINITY,
-		});
+	beforeLoad: async () => {
+		// Get merchant from server (reads cookie via getMerchantIdFromCookie)
+		const merchant = await getMerchantOrNull();
 
-		// Redirect to onboarding if no merchant
+		// Redirect to onboarding if no merchant session
 		if (!merchant) {
 			throw redirect({ to: "/onboarding" });
 		}
 
 		return {
 			merchant,
-			merchantId: merchant?.id ?? null,
+			merchantId: merchant.id,
 		};
 	},
 	component: ConsoleLayout,

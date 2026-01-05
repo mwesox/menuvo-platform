@@ -29,7 +29,7 @@ import {
 	updateStore,
 } from "./server/stores.functions.ts";
 
-// Query keys
+// Query keys - server handles tenant isolation via auth middleware
 export const storeKeys = {
 	all: ["stores"] as const,
 	cities: ["stores", "cities"] as const,
@@ -38,7 +38,7 @@ export const storeKeys = {
 	closures: (storeId: number) => ["stores", storeId, "closures"] as const,
 };
 
-// Query options factories
+// Query options factories - server handles auth, no merchantId needed
 export const storeQueries = {
 	list: () =>
 		queryOptions({

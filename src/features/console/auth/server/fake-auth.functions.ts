@@ -93,17 +93,3 @@ export const loginAsMerchant = createServerFn({ method: "POST" })
 
 		return { success: true, merchantId: data.merchantId };
 	});
-
-/**
- * Logout (clear cookie).
- */
-export const logout = createServerFn({ method: "POST" }).handler(async () => {
-	setCookie(MERCHANT_ID_COOKIE, "", {
-		httpOnly: true,
-		secure: process.env.NODE_ENV === "production",
-		sameSite: "lax",
-		maxAge: 0, // Expire immediately
-		path: "/",
-	});
-	return { success: true };
-});
