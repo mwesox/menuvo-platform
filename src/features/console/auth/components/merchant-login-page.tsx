@@ -2,12 +2,8 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { Building2, Mail, Plus, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription, CardHeader } from "@/components/ui/card";
+import { LinkCard } from "@/components/ui/link-card";
 import { Logo } from "@/components/ui/logo";
 import { authQueries } from "../queries";
 import { loginAsMerchant } from "../server/fake-auth.functions";
@@ -54,19 +50,15 @@ export function MerchantLoginPage() {
 				) : (
 					<div className="grid gap-4">
 						{merchants.map((merchant) => (
-							<Card
+							<LinkCard
 								key={merchant.id}
-								className="cursor-pointer transition-colors hover:border-primary/50 hover:bg-accent/50"
+								icon={Building2}
+								title={merchant.name}
 								onClick={() => loginMutation.mutate(merchant.id)}
-							>
-								<CardHeader className="pb-4">
-									<div className="flex items-center justify-between">
-										<CardTitle className="text-lg">{merchant.name}</CardTitle>
-										<Button size="sm" disabled={loginMutation.isPending}>
-											{loginMutation.isPending ? "Logging in..." : "Login"}
-										</Button>
-									</div>
-									<CardDescription className="flex flex-wrap items-center gap-4 pt-2">
+								disabled={loginMutation.isPending}
+								showChevron
+								description={
+									<span className="flex flex-wrap items-center gap-4">
 										<span className="flex items-center gap-1">
 											<User className="size-4" />
 											{merchant.ownerName}
@@ -81,9 +73,9 @@ export function MerchantLoginPage() {
 												{merchant.stores[0].name}
 											</span>
 										)}
-									</CardDescription>
-								</CardHeader>
-							</Card>
+									</span>
+								}
+							/>
 						))}
 
 						<Card className="border-dashed">

@@ -10,23 +10,25 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-interface LinkCardProps {
-	href: string;
+type LinkCardProps = {
 	icon: LucideIcon;
 	title: string;
 	description?: React.ReactNode;
 	badge?: React.ReactNode;
+	action?: React.ReactNode;
 	disabled?: boolean;
 	showChevron?: boolean;
 	children?: React.ReactNode;
-}
+} & ({ href: string; onClick?: never } | { href?: never; onClick: () => void });
 
 export function LinkCard({
 	href,
+	onClick,
 	icon: Icon,
 	title,
 	description,
 	badge,
+	action,
 	disabled,
 	showChevron,
 	children,
@@ -62,6 +64,7 @@ export function LinkCard({
 						<CardDescription className="text-sm">{description}</CardDescription>
 					)}
 				</div>
+				{action}
 				{showChevron && !disabled && (
 					<ChevronRight className="mt-1 h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
 				)}
@@ -74,9 +77,17 @@ export function LinkCard({
 		return content;
 	}
 
+	if (href) {
+		return (
+			<Link to={href} className="block">
+				{content}
+			</Link>
+		);
+	}
+
 	return (
-		<Link to={href} className="block">
+		<button type="button" onClick={onClick} className="block w-full text-left">
 			{content}
-		</Link>
+		</button>
 	);
 }
