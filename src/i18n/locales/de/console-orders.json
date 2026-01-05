@@ -49,6 +49,7 @@
 		"pending": "Ausstehend",
 		"awaiting_confirmation": "Wird verarbeitet",
 		"paid": "Bezahlt",
+		"pay_at_counter": "Bezahlung an Kasse",
 		"failed": "Fehlgeschlagen",
 		"refunded": "Erstattet",
 		"expired": "Abgelaufen"

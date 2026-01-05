@@ -4,6 +4,7 @@ import { initReactI18next } from "react-i18next";
 // German translations
 import businessDe from "./locales/de/business.json";
 import commonDe from "./locales/de/common.json";
+import consoleOrdersDe from "./locales/de/console-orders.json";
 import discoveryDe from "./locales/de/discovery.json";
 import formsDe from "./locales/de/forms.json";
 import legalDe from "./locales/de/legal.json";
@@ -19,6 +20,7 @@ import validationDe from "./locales/de/validation.json";
 // English translations
 import businessEn from "./locales/en/business.json";
 import commonEn from "./locales/en/common.json";
+import consoleOrdersEn from "./locales/en/console-orders.json";
 import discoveryEn from "./locales/en/discovery.json";
 import formsEn from "./locales/en/forms.json";
 import legalEn from "./locales/en/legal.json";
@@ -40,6 +42,7 @@ const resources = {
 	en: {
 		business: businessEn,
 		common: commonEn,
+		"console-orders": consoleOrdersEn,
 		navigation: navigationEn,
 		forms: formsEn,
 		toasts: toastsEn,
@@ -56,6 +59,7 @@ const resources = {
 	de: {
 		business: businessDe,
 		common: commonDe,
+		"console-orders": consoleOrdersDe,
 		navigation: navigationDe,
 		forms: formsDe,
 		toasts: toastsDe,
@@ -100,6 +104,7 @@ export function initI18n(detectedLanguage?: string) {
 			ns: [
 				"business",
 				"common",
+				"console-orders",
 				"navigation",
 				"forms",
 				"toasts",

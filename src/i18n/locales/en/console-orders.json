@@ -49,6 +49,7 @@
 		"pending": "Pending",
 		"awaiting_confirmation": "Processing",
 		"paid": "Paid",
+		"pay_at_counter": "Pay at Counter",
 		"failed": "Failed",
 		"refunded": "Refunded",
 		"expired": "Expired"
