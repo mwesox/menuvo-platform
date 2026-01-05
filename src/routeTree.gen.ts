@@ -9,36 +9,41 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LiveRouteImport } from './routes/live'
 import { Route as HealthRouteImport } from './routes/health'
-import { Route as ShopRouteRouteImport } from './routes/shop/route'
 import { Route as ConsoleRouteRouteImport } from './routes/console/route'
 import { Route as BusinessRouteRouteImport } from './routes/business/route'
+import { Route as SlugRouteRouteImport } from './routes/$slug/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ShopIndexRouteImport } from './routes/shop/index'
 import { Route as ConsoleIndexRouteImport } from './routes/console/index'
 import { Route as BusinessIndexRouteImport } from './routes/business/index'
+import { Route as SlugIndexRouteImport } from './routes/$slug/index'
 import { Route as QShortCodeRouteImport } from './routes/q/$shortCode'
-import { Route as ConsoleOnboardingRouteImport } from './routes/console/onboarding'
-import { Route as ShopSlugRouteRouteImport } from './routes/shop/$slug/route'
-import { Route as ShopSlugIndexRouteImport } from './routes/shop/$slug/index'
 import { Route as ConsoleStoresIndexRouteImport } from './routes/console/stores/index'
 import { Route as ConsoleSettingsIndexRouteImport } from './routes/console/settings/index'
+import { Route as ConsoleOrdersIndexRouteImport } from './routes/console/orders/index'
 import { Route as ConsoleMenuIndexRouteImport } from './routes/console/menu/index'
+import { Route as SlugCheckoutIndexRouteImport } from './routes/$slug/checkout/index'
 import { Route as ConsoleStoresNewRouteImport } from './routes/console/stores/new'
 import { Route as ConsoleStoresStoreIdRouteImport } from './routes/console/stores/$storeId'
 import { Route as ConsoleSettingsSubscriptionRouteImport } from './routes/console/settings/subscription'
 import { Route as ConsoleSettingsPaymentsRouteImport } from './routes/console/settings/payments'
 import { Route as ConsoleSettingsMerchantRouteImport } from './routes/console/settings/merchant'
 import { Route as ConsoleMenuImportRouteImport } from './routes/console/menu/import'
+import { Route as AuthMerchantLoginRouteImport } from './routes/auth/merchant/login'
 import { Route as ApiMollieCallbackRouteImport } from './routes/api.mollie.callback'
 import { Route as ApiMenuImportUploadRouteImport } from './routes/api.menu-import.upload'
-import { Route as ShopSlugCheckoutIndexRouteImport } from './routes/shop/$slug/checkout/index'
-import { Route as ShopSlugOrderOrderIdRouteImport } from './routes/shop/$slug/order/$orderId'
-import { Route as ShopSlugCheckoutReturnRouteImport } from './routes/shop/$slug/checkout/return'
+import { Route as SlugOrderOrderIdRouteImport } from './routes/$slug/order/$orderId'
+import { Route as SlugCheckoutReturnRouteImport } from './routes/$slug/checkout/return'
 import { Route as ConsoleMenuItemsNewRouteImport } from './routes/console/menu/items/new'
 import { Route as ConsoleMenuItemsItemIdRouteImport } from './routes/console/menu/items/$itemId'
 
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LiveRoute = LiveRouteImport.update({
   id: '/live',
   path: '/live',
@@ -47,11 +52,6 @@ const LiveRoute = LiveRouteImport.update({
 const HealthRoute = HealthRouteImport.update({
   id: '/health',
   path: '/health',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShopRouteRoute = ShopRouteRouteImport.update({
-  id: '/shop',
-  path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConsoleRouteRoute = ConsoleRouteRouteImport.update({
@@ -64,15 +64,15 @@ const BusinessRouteRoute = BusinessRouteRouteImport.update({
   path: '/business',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SlugRouteRoute = SlugRouteRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const ShopIndexRoute = ShopIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ShopRouteRoute,
 } as any)
 const ConsoleIndexRoute = ConsoleIndexRouteImport.update({
   id: '/',
@@ -84,25 +84,15 @@ const BusinessIndexRoute = BusinessIndexRouteImport.update({
   path: '/',
   getParentRoute: () => BusinessRouteRoute,
 } as any)
+const SlugIndexRoute = SlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SlugRouteRoute,
+} as any)
 const QShortCodeRoute = QShortCodeRouteImport.update({
   id: '/q/$shortCode',
   path: '/q/$shortCode',
   getParentRoute: () => rootRouteImport,
-} as any)
-const ConsoleOnboardingRoute = ConsoleOnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => ConsoleRouteRoute,
-} as any)
-const ShopSlugRouteRoute = ShopSlugRouteRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => ShopRouteRoute,
-} as any)
-const ShopSlugIndexRoute = ShopSlugIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => ShopSlugRouteRoute,
 } as any)
 const ConsoleStoresIndexRoute = ConsoleStoresIndexRouteImport.update({
   id: '/stores/',
@@ -114,10 +104,20 @@ const ConsoleSettingsIndexRoute = ConsoleSettingsIndexRouteImport.update({
   path: '/settings/',
   getParentRoute: () => ConsoleRouteRoute,
 } as any)
+const ConsoleOrdersIndexRoute = ConsoleOrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => ConsoleRouteRoute,
+} as any)
 const ConsoleMenuIndexRoute = ConsoleMenuIndexRouteImport.update({
   id: '/menu/',
   path: '/menu/',
   getParentRoute: () => ConsoleRouteRoute,
+} as any)
+const SlugCheckoutIndexRoute = SlugCheckoutIndexRouteImport.update({
+  id: '/checkout/',
+  path: '/checkout/',
+  getParentRoute: () => SlugRouteRoute,
 } as any)
 const ConsoleStoresNewRoute = ConsoleStoresNewRouteImport.update({
   id: '/stores/new',
@@ -150,6 +150,11 @@ const ConsoleMenuImportRoute = ConsoleMenuImportRouteImport.update({
   path: '/menu/import',
   getParentRoute: () => ConsoleRouteRoute,
 } as any)
+const AuthMerchantLoginRoute = AuthMerchantLoginRouteImport.update({
+  id: '/auth/merchant/login',
+  path: '/auth/merchant/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMollieCallbackRoute = ApiMollieCallbackRouteImport.update({
   id: '/api/mollie/callback',
   path: '/api/mollie/callback',
@@ -160,20 +165,15 @@ const ApiMenuImportUploadRoute = ApiMenuImportUploadRouteImport.update({
   path: '/api/menu-import/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShopSlugCheckoutIndexRoute = ShopSlugCheckoutIndexRouteImport.update({
-  id: '/checkout/',
-  path: '/checkout/',
-  getParentRoute: () => ShopSlugRouteRoute,
-} as any)
-const ShopSlugOrderOrderIdRoute = ShopSlugOrderOrderIdRouteImport.update({
+const SlugOrderOrderIdRoute = SlugOrderOrderIdRouteImport.update({
   id: '/order/$orderId',
   path: '/order/$orderId',
-  getParentRoute: () => ShopSlugRouteRoute,
+  getParentRoute: () => SlugRouteRoute,
 } as any)
-const ShopSlugCheckoutReturnRoute = ShopSlugCheckoutReturnRouteImport.update({
+const SlugCheckoutReturnRoute = SlugCheckoutReturnRouteImport.update({
   id: '/checkout/return',
   path: '/checkout/return',
-  getParentRoute: () => ShopSlugRouteRoute,
+  getParentRoute: () => SlugRouteRoute,
 } as any)
 const ConsoleMenuItemsNewRoute = ConsoleMenuItemsNewRouteImport.update({
   id: '/menu/items/new',
@@ -188,200 +188,211 @@ const ConsoleMenuItemsItemIdRoute = ConsoleMenuItemsItemIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRouteRouteWithChildren
   '/business': typeof BusinessRouteRouteWithChildren
   '/console': typeof ConsoleRouteRouteWithChildren
-  '/shop': typeof ShopRouteRouteWithChildren
   '/health': typeof HealthRoute
   '/live': typeof LiveRoute
-  '/shop/$slug': typeof ShopSlugRouteRouteWithChildren
-  '/console/onboarding': typeof ConsoleOnboardingRoute
+  '/onboarding': typeof OnboardingRoute
   '/q/$shortCode': typeof QShortCodeRoute
+  '/$slug/': typeof SlugIndexRoute
   '/business/': typeof BusinessIndexRoute
   '/console/': typeof ConsoleIndexRoute
-  '/shop/': typeof ShopIndexRoute
+  '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
+  '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/mollie/callback': typeof ApiMollieCallbackRoute
+  '/auth/merchant/login': typeof AuthMerchantLoginRoute
   '/console/menu/import': typeof ConsoleMenuImportRoute
   '/console/settings/merchant': typeof ConsoleSettingsMerchantRoute
   '/console/settings/payments': typeof ConsoleSettingsPaymentsRoute
   '/console/settings/subscription': typeof ConsoleSettingsSubscriptionRoute
   '/console/stores/$storeId': typeof ConsoleStoresStoreIdRoute
   '/console/stores/new': typeof ConsoleStoresNewRoute
+  '/$slug/checkout': typeof SlugCheckoutIndexRoute
   '/console/menu': typeof ConsoleMenuIndexRoute
+  '/console/orders': typeof ConsoleOrdersIndexRoute
   '/console/settings': typeof ConsoleSettingsIndexRoute
   '/console/stores': typeof ConsoleStoresIndexRoute
-  '/shop/$slug/': typeof ShopSlugIndexRoute
   '/console/menu/items/$itemId': typeof ConsoleMenuItemsItemIdRoute
   '/console/menu/items/new': typeof ConsoleMenuItemsNewRoute
-  '/shop/$slug/checkout/return': typeof ShopSlugCheckoutReturnRoute
-  '/shop/$slug/order/$orderId': typeof ShopSlugOrderOrderIdRoute
-  '/shop/$slug/checkout': typeof ShopSlugCheckoutIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/health': typeof HealthRoute
   '/live': typeof LiveRoute
-  '/console/onboarding': typeof ConsoleOnboardingRoute
+  '/onboarding': typeof OnboardingRoute
   '/q/$shortCode': typeof QShortCodeRoute
+  '/$slug': typeof SlugIndexRoute
   '/business': typeof BusinessIndexRoute
   '/console': typeof ConsoleIndexRoute
-  '/shop': typeof ShopIndexRoute
+  '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
+  '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/mollie/callback': typeof ApiMollieCallbackRoute
+  '/auth/merchant/login': typeof AuthMerchantLoginRoute
   '/console/menu/import': typeof ConsoleMenuImportRoute
   '/console/settings/merchant': typeof ConsoleSettingsMerchantRoute
   '/console/settings/payments': typeof ConsoleSettingsPaymentsRoute
   '/console/settings/subscription': typeof ConsoleSettingsSubscriptionRoute
   '/console/stores/$storeId': typeof ConsoleStoresStoreIdRoute
   '/console/stores/new': typeof ConsoleStoresNewRoute
+  '/$slug/checkout': typeof SlugCheckoutIndexRoute
   '/console/menu': typeof ConsoleMenuIndexRoute
+  '/console/orders': typeof ConsoleOrdersIndexRoute
   '/console/settings': typeof ConsoleSettingsIndexRoute
   '/console/stores': typeof ConsoleStoresIndexRoute
-  '/shop/$slug': typeof ShopSlugIndexRoute
   '/console/menu/items/$itemId': typeof ConsoleMenuItemsItemIdRoute
   '/console/menu/items/new': typeof ConsoleMenuItemsNewRoute
-  '/shop/$slug/checkout/return': typeof ShopSlugCheckoutReturnRoute
-  '/shop/$slug/order/$orderId': typeof ShopSlugOrderOrderIdRoute
-  '/shop/$slug/checkout': typeof ShopSlugCheckoutIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$slug': typeof SlugRouteRouteWithChildren
   '/business': typeof BusinessRouteRouteWithChildren
   '/console': typeof ConsoleRouteRouteWithChildren
-  '/shop': typeof ShopRouteRouteWithChildren
   '/health': typeof HealthRoute
   '/live': typeof LiveRoute
-  '/shop/$slug': typeof ShopSlugRouteRouteWithChildren
-  '/console/onboarding': typeof ConsoleOnboardingRoute
+  '/onboarding': typeof OnboardingRoute
   '/q/$shortCode': typeof QShortCodeRoute
+  '/$slug/': typeof SlugIndexRoute
   '/business/': typeof BusinessIndexRoute
   '/console/': typeof ConsoleIndexRoute
-  '/shop/': typeof ShopIndexRoute
+  '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
+  '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/mollie/callback': typeof ApiMollieCallbackRoute
+  '/auth/merchant/login': typeof AuthMerchantLoginRoute
   '/console/menu/import': typeof ConsoleMenuImportRoute
   '/console/settings/merchant': typeof ConsoleSettingsMerchantRoute
   '/console/settings/payments': typeof ConsoleSettingsPaymentsRoute
   '/console/settings/subscription': typeof ConsoleSettingsSubscriptionRoute
   '/console/stores/$storeId': typeof ConsoleStoresStoreIdRoute
   '/console/stores/new': typeof ConsoleStoresNewRoute
+  '/$slug/checkout/': typeof SlugCheckoutIndexRoute
   '/console/menu/': typeof ConsoleMenuIndexRoute
+  '/console/orders/': typeof ConsoleOrdersIndexRoute
   '/console/settings/': typeof ConsoleSettingsIndexRoute
   '/console/stores/': typeof ConsoleStoresIndexRoute
-  '/shop/$slug/': typeof ShopSlugIndexRoute
   '/console/menu/items/$itemId': typeof ConsoleMenuItemsItemIdRoute
   '/console/menu/items/new': typeof ConsoleMenuItemsNewRoute
-  '/shop/$slug/checkout/return': typeof ShopSlugCheckoutReturnRoute
-  '/shop/$slug/order/$orderId': typeof ShopSlugOrderOrderIdRoute
-  '/shop/$slug/checkout/': typeof ShopSlugCheckoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$slug'
     | '/business'
     | '/console'
-    | '/shop'
     | '/health'
     | '/live'
-    | '/shop/$slug'
-    | '/console/onboarding'
+    | '/onboarding'
     | '/q/$shortCode'
+    | '/$slug/'
     | '/business/'
     | '/console/'
-    | '/shop/'
+    | '/$slug/checkout/return'
+    | '/$slug/order/$orderId'
     | '/api/menu-import/upload'
     | '/api/mollie/callback'
+    | '/auth/merchant/login'
     | '/console/menu/import'
     | '/console/settings/merchant'
     | '/console/settings/payments'
     | '/console/settings/subscription'
     | '/console/stores/$storeId'
     | '/console/stores/new'
+    | '/$slug/checkout'
     | '/console/menu'
+    | '/console/orders'
     | '/console/settings'
     | '/console/stores'
-    | '/shop/$slug/'
     | '/console/menu/items/$itemId'
     | '/console/menu/items/new'
-    | '/shop/$slug/checkout/return'
-    | '/shop/$slug/order/$orderId'
-    | '/shop/$slug/checkout'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/health'
     | '/live'
-    | '/console/onboarding'
+    | '/onboarding'
     | '/q/$shortCode'
+    | '/$slug'
     | '/business'
     | '/console'
-    | '/shop'
+    | '/$slug/checkout/return'
+    | '/$slug/order/$orderId'
     | '/api/menu-import/upload'
     | '/api/mollie/callback'
+    | '/auth/merchant/login'
     | '/console/menu/import'
     | '/console/settings/merchant'
     | '/console/settings/payments'
     | '/console/settings/subscription'
     | '/console/stores/$storeId'
     | '/console/stores/new'
+    | '/$slug/checkout'
     | '/console/menu'
+    | '/console/orders'
     | '/console/settings'
     | '/console/stores'
-    | '/shop/$slug'
     | '/console/menu/items/$itemId'
     | '/console/menu/items/new'
-    | '/shop/$slug/checkout/return'
-    | '/shop/$slug/order/$orderId'
-    | '/shop/$slug/checkout'
   id:
     | '__root__'
     | '/'
+    | '/$slug'
     | '/business'
     | '/console'
-    | '/shop'
     | '/health'
     | '/live'
-    | '/shop/$slug'
-    | '/console/onboarding'
+    | '/onboarding'
     | '/q/$shortCode'
+    | '/$slug/'
     | '/business/'
     | '/console/'
-    | '/shop/'
+    | '/$slug/checkout/return'
+    | '/$slug/order/$orderId'
     | '/api/menu-import/upload'
     | '/api/mollie/callback'
+    | '/auth/merchant/login'
     | '/console/menu/import'
     | '/console/settings/merchant'
     | '/console/settings/payments'
     | '/console/settings/subscription'
     | '/console/stores/$storeId'
     | '/console/stores/new'
+    | '/$slug/checkout/'
     | '/console/menu/'
+    | '/console/orders/'
     | '/console/settings/'
     | '/console/stores/'
-    | '/shop/$slug/'
     | '/console/menu/items/$itemId'
     | '/console/menu/items/new'
-    | '/shop/$slug/checkout/return'
-    | '/shop/$slug/order/$orderId'
-    | '/shop/$slug/checkout/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SlugRouteRoute: typeof SlugRouteRouteWithChildren
   BusinessRouteRoute: typeof BusinessRouteRouteWithChildren
   ConsoleRouteRoute: typeof ConsoleRouteRouteWithChildren
-  ShopRouteRoute: typeof ShopRouteRouteWithChildren
   HealthRoute: typeof HealthRoute
   LiveRoute: typeof LiveRoute
+  OnboardingRoute: typeof OnboardingRoute
   QShortCodeRoute: typeof QShortCodeRoute
   ApiMenuImportUploadRoute: typeof ApiMenuImportUploadRoute
   ApiMollieCallbackRoute: typeof ApiMollieCallbackRoute
+  AuthMerchantLoginRoute: typeof AuthMerchantLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/live': {
       id: '/live'
       path: '/live'
@@ -394,13 +405,6 @@ declare module '@tanstack/react-router' {
       path: '/health'
       fullPath: '/health'
       preLoaderRoute: typeof HealthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/shop': {
-      id: '/shop'
-      path: '/shop'
-      fullPath: '/shop'
-      preLoaderRoute: typeof ShopRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/console': {
@@ -417,19 +421,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BusinessRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$slug': {
+      id: '/$slug'
+      path: '/$slug'
+      fullPath: '/$slug'
+      preLoaderRoute: typeof SlugRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/shop/': {
-      id: '/shop/'
-      path: '/'
-      fullPath: '/shop/'
-      preLoaderRoute: typeof ShopIndexRouteImport
-      parentRoute: typeof ShopRouteRoute
     }
     '/console/': {
       id: '/console/'
@@ -445,33 +449,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BusinessIndexRouteImport
       parentRoute: typeof BusinessRouteRoute
     }
+    '/$slug/': {
+      id: '/$slug/'
+      path: '/'
+      fullPath: '/$slug/'
+      preLoaderRoute: typeof SlugIndexRouteImport
+      parentRoute: typeof SlugRouteRoute
+    }
     '/q/$shortCode': {
       id: '/q/$shortCode'
       path: '/q/$shortCode'
       fullPath: '/q/$shortCode'
       preLoaderRoute: typeof QShortCodeRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/console/onboarding': {
-      id: '/console/onboarding'
-      path: '/onboarding'
-      fullPath: '/console/onboarding'
-      preLoaderRoute: typeof ConsoleOnboardingRouteImport
-      parentRoute: typeof ConsoleRouteRoute
-    }
-    '/shop/$slug': {
-      id: '/shop/$slug'
-      path: '/$slug'
-      fullPath: '/shop/$slug'
-      preLoaderRoute: typeof ShopSlugRouteRouteImport
-      parentRoute: typeof ShopRouteRoute
-    }
-    '/shop/$slug/': {
-      id: '/shop/$slug/'
-      path: '/'
-      fullPath: '/shop/$slug/'
-      preLoaderRoute: typeof ShopSlugIndexRouteImport
-      parentRoute: typeof ShopSlugRouteRoute
     }
     '/console/stores/': {
       id: '/console/stores/'
@@ -487,12 +477,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleSettingsIndexRouteImport
       parentRoute: typeof ConsoleRouteRoute
     }
+    '/console/orders/': {
+      id: '/console/orders/'
+      path: '/orders'
+      fullPath: '/console/orders'
+      preLoaderRoute: typeof ConsoleOrdersIndexRouteImport
+      parentRoute: typeof ConsoleRouteRoute
+    }
     '/console/menu/': {
       id: '/console/menu/'
       path: '/menu'
       fullPath: '/console/menu'
       preLoaderRoute: typeof ConsoleMenuIndexRouteImport
       parentRoute: typeof ConsoleRouteRoute
+    }
+    '/$slug/checkout/': {
+      id: '/$slug/checkout/'
+      path: '/checkout'
+      fullPath: '/$slug/checkout'
+      preLoaderRoute: typeof SlugCheckoutIndexRouteImport
+      parentRoute: typeof SlugRouteRoute
     }
     '/console/stores/new': {
       id: '/console/stores/new'
@@ -536,6 +540,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsoleMenuImportRouteImport
       parentRoute: typeof ConsoleRouteRoute
     }
+    '/auth/merchant/login': {
+      id: '/auth/merchant/login'
+      path: '/auth/merchant/login'
+      fullPath: '/auth/merchant/login'
+      preLoaderRoute: typeof AuthMerchantLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/mollie/callback': {
       id: '/api/mollie/callback'
       path: '/api/mollie/callback'
@@ -550,26 +561,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMenuImportUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/shop/$slug/checkout/': {
-      id: '/shop/$slug/checkout/'
-      path: '/checkout'
-      fullPath: '/shop/$slug/checkout'
-      preLoaderRoute: typeof ShopSlugCheckoutIndexRouteImport
-      parentRoute: typeof ShopSlugRouteRoute
-    }
-    '/shop/$slug/order/$orderId': {
-      id: '/shop/$slug/order/$orderId'
+    '/$slug/order/$orderId': {
+      id: '/$slug/order/$orderId'
       path: '/order/$orderId'
-      fullPath: '/shop/$slug/order/$orderId'
-      preLoaderRoute: typeof ShopSlugOrderOrderIdRouteImport
-      parentRoute: typeof ShopSlugRouteRoute
+      fullPath: '/$slug/order/$orderId'
+      preLoaderRoute: typeof SlugOrderOrderIdRouteImport
+      parentRoute: typeof SlugRouteRoute
     }
-    '/shop/$slug/checkout/return': {
-      id: '/shop/$slug/checkout/return'
+    '/$slug/checkout/return': {
+      id: '/$slug/checkout/return'
       path: '/checkout/return'
-      fullPath: '/shop/$slug/checkout/return'
-      preLoaderRoute: typeof ShopSlugCheckoutReturnRouteImport
-      parentRoute: typeof ShopSlugRouteRoute
+      fullPath: '/$slug/checkout/return'
+      preLoaderRoute: typeof SlugCheckoutReturnRouteImport
+      parentRoute: typeof SlugRouteRoute
     }
     '/console/menu/items/new': {
       id: '/console/menu/items/new'
@@ -588,6 +592,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface SlugRouteRouteChildren {
+  SlugIndexRoute: typeof SlugIndexRoute
+  SlugCheckoutReturnRoute: typeof SlugCheckoutReturnRoute
+  SlugOrderOrderIdRoute: typeof SlugOrderOrderIdRoute
+  SlugCheckoutIndexRoute: typeof SlugCheckoutIndexRoute
+}
+
+const SlugRouteRouteChildren: SlugRouteRouteChildren = {
+  SlugIndexRoute: SlugIndexRoute,
+  SlugCheckoutReturnRoute: SlugCheckoutReturnRoute,
+  SlugOrderOrderIdRoute: SlugOrderOrderIdRoute,
+  SlugCheckoutIndexRoute: SlugCheckoutIndexRoute,
+}
+
+const SlugRouteRouteWithChildren = SlugRouteRoute._addFileChildren(
+  SlugRouteRouteChildren,
+)
+
 interface BusinessRouteRouteChildren {
   BusinessIndexRoute: typeof BusinessIndexRoute
 }
@@ -601,7 +623,6 @@ const BusinessRouteRouteWithChildren = BusinessRouteRoute._addFileChildren(
 )
 
 interface ConsoleRouteRouteChildren {
-  ConsoleOnboardingRoute: typeof ConsoleOnboardingRoute
   ConsoleIndexRoute: typeof ConsoleIndexRoute
   ConsoleMenuImportRoute: typeof ConsoleMenuImportRoute
   ConsoleSettingsMerchantRoute: typeof ConsoleSettingsMerchantRoute
@@ -610,6 +631,7 @@ interface ConsoleRouteRouteChildren {
   ConsoleStoresStoreIdRoute: typeof ConsoleStoresStoreIdRoute
   ConsoleStoresNewRoute: typeof ConsoleStoresNewRoute
   ConsoleMenuIndexRoute: typeof ConsoleMenuIndexRoute
+  ConsoleOrdersIndexRoute: typeof ConsoleOrdersIndexRoute
   ConsoleSettingsIndexRoute: typeof ConsoleSettingsIndexRoute
   ConsoleStoresIndexRoute: typeof ConsoleStoresIndexRoute
   ConsoleMenuItemsItemIdRoute: typeof ConsoleMenuItemsItemIdRoute
@@ -617,7 +639,6 @@ interface ConsoleRouteRouteChildren {
 }
 
 const ConsoleRouteRouteChildren: ConsoleRouteRouteChildren = {
-  ConsoleOnboardingRoute: ConsoleOnboardingRoute,
   ConsoleIndexRoute: ConsoleIndexRoute,
   ConsoleMenuImportRoute: ConsoleMenuImportRoute,
   ConsoleSettingsMerchantRoute: ConsoleSettingsMerchantRoute,
@@ -626,6 +647,7 @@ const ConsoleRouteRouteChildren: ConsoleRouteRouteChildren = {
   ConsoleStoresStoreIdRoute: ConsoleStoresStoreIdRoute,
   ConsoleStoresNewRoute: ConsoleStoresNewRoute,
   ConsoleMenuIndexRoute: ConsoleMenuIndexRoute,
+  ConsoleOrdersIndexRoute: ConsoleOrdersIndexRoute,
   ConsoleSettingsIndexRoute: ConsoleSettingsIndexRoute,
   ConsoleStoresIndexRoute: ConsoleStoresIndexRoute,
   ConsoleMenuItemsItemIdRoute: ConsoleMenuItemsItemIdRoute,
@@ -636,48 +658,18 @@ const ConsoleRouteRouteWithChildren = ConsoleRouteRoute._addFileChildren(
   ConsoleRouteRouteChildren,
 )
 
-interface ShopSlugRouteRouteChildren {
-  ShopSlugIndexRoute: typeof ShopSlugIndexRoute
-  ShopSlugCheckoutReturnRoute: typeof ShopSlugCheckoutReturnRoute
-  ShopSlugOrderOrderIdRoute: typeof ShopSlugOrderOrderIdRoute
-  ShopSlugCheckoutIndexRoute: typeof ShopSlugCheckoutIndexRoute
-}
-
-const ShopSlugRouteRouteChildren: ShopSlugRouteRouteChildren = {
-  ShopSlugIndexRoute: ShopSlugIndexRoute,
-  ShopSlugCheckoutReturnRoute: ShopSlugCheckoutReturnRoute,
-  ShopSlugOrderOrderIdRoute: ShopSlugOrderOrderIdRoute,
-  ShopSlugCheckoutIndexRoute: ShopSlugCheckoutIndexRoute,
-}
-
-const ShopSlugRouteRouteWithChildren = ShopSlugRouteRoute._addFileChildren(
-  ShopSlugRouteRouteChildren,
-)
-
-interface ShopRouteRouteChildren {
-  ShopSlugRouteRoute: typeof ShopSlugRouteRouteWithChildren
-  ShopIndexRoute: typeof ShopIndexRoute
-}
-
-const ShopRouteRouteChildren: ShopRouteRouteChildren = {
-  ShopSlugRouteRoute: ShopSlugRouteRouteWithChildren,
-  ShopIndexRoute: ShopIndexRoute,
-}
-
-const ShopRouteRouteWithChildren = ShopRouteRoute._addFileChildren(
-  ShopRouteRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SlugRouteRoute: SlugRouteRouteWithChildren,
   BusinessRouteRoute: BusinessRouteRouteWithChildren,
   ConsoleRouteRoute: ConsoleRouteRouteWithChildren,
-  ShopRouteRoute: ShopRouteRouteWithChildren,
   HealthRoute: HealthRoute,
   LiveRoute: LiveRoute,
+  OnboardingRoute: OnboardingRoute,
   QShortCodeRoute: QShortCodeRoute,
   ApiMenuImportUploadRoute: ApiMenuImportUploadRoute,
   ApiMollieCallbackRoute: ApiMollieCallbackRoute,
+  AuthMerchantLoginRoute: AuthMerchantLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

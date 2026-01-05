@@ -96,6 +96,7 @@ describe("ItemDrawer", () => {
 				onOpenChange={vi.fn()}
 				storeId={1}
 				storeSlug="test-store"
+				isOpen={true}
 			/>,
 		);
 
@@ -111,6 +112,7 @@ describe("ItemDrawer", () => {
 				onOpenChange={vi.fn()}
 				storeId={1}
 				storeSlug="test-store"
+				isOpen={true}
 			/>,
 		);
 
@@ -126,6 +128,7 @@ describe("ItemDrawer", () => {
 				onOpenChange={vi.fn()}
 				storeId={1}
 				storeSlug="test-store"
+				isOpen={true}
 			/>,
 		);
 
@@ -142,6 +145,7 @@ describe("ItemDrawer", () => {
 				onOpenChange={vi.fn()}
 				storeId={1}
 				storeSlug="test-store"
+				isOpen={true}
 			/>,
 		);
 
@@ -158,6 +162,7 @@ describe("ItemDrawer", () => {
 				onOpenChange={vi.fn()}
 				storeId={1}
 				storeSlug="test-store"
+				isOpen={true}
 			/>,
 		);
 
@@ -172,6 +177,7 @@ describe("ItemDrawer", () => {
 				onOpenChange={vi.fn()}
 				storeId={1}
 				storeSlug="test-store"
+				isOpen={true}
 			/>,
 		);
 
@@ -188,6 +194,7 @@ describe("ItemDrawer", () => {
 				onOpenChange={vi.fn()}
 				storeId={1}
 				storeSlug="test-store"
+				isOpen={true}
 			/>,
 		);
 
@@ -207,6 +214,7 @@ describe("ItemDrawer DOM verification", () => {
 				onOpenChange={vi.fn()}
 				storeId={1}
 				storeSlug="test-store"
+				isOpen={true}
 			/>,
 		);
 

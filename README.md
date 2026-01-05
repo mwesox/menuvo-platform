@@ -30,10 +30,11 @@ App runs at [http://localhost:3000](http://localhost:3000)
 
 ## Overview
 
-The platform has two main interfaces:
+The platform has three main interfaces:
 
+- **Discovery** (`/`) - Customer-facing store discovery page
+- **Store** (`/{storeSlug}`) - Customer-facing storefront for browsing and ordering
 - **Console** (`/console`) - Merchant dashboard for managing menus, orders, and settings
-- **Shop** (`/shop`) - Customer-facing storefront for browsing and ordering
 
 ## Commands
 

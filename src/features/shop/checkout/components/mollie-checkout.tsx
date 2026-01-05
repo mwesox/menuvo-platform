@@ -27,7 +27,7 @@ export function MollieCheckout({ orderId, storeSlug }: MollieCheckoutProps) {
 	const createPayment = useCreateMolliePayment();
 
 	const handlePayNow = async () => {
-		const returnUrl = `${window.location.origin}/shop/${storeSlug}/checkout/return`;
+		const returnUrl = `${window.location.origin}/${storeSlug}/checkout/return`;
 
 		const result = await createPayment.mutateAsync({
 			orderId,
@@ -50,10 +50,10 @@ export function MollieCheckout({ orderId, storeSlug }: MollieCheckoutProps) {
 				<ShopCard padding="lg" className="space-y-6">
 					<div className="text-center space-y-3">
 						<ShopHeading as="h2" size="md">
-							{t("checkout.mollie.title")}
+							{t("checkout.payment.title")}
 						</ShopHeading>
 						<p className="text-sm text-muted-foreground">
-							{t("checkout.mollie.description")}
+							{t("checkout.payment.description")}
 						</p>
 					</div>
 
@@ -67,7 +67,7 @@ export function MollieCheckout({ orderId, storeSlug }: MollieCheckoutProps) {
 
 					{createPayment.isError && (
 						<div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm text-center">
-							{t("checkout.mollie.error")}
+							{t("checkout.payment.error")}
 						</div>
 					)}
 
@@ -81,15 +81,15 @@ export function MollieCheckout({ orderId, storeSlug }: MollieCheckoutProps) {
 						{createPayment.isPending ? (
 							<>
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								{t("checkout.mollie.redirecting")}
+								{t("checkout.payment.redirecting")}
 							</>
 						) : (
-							t("checkout.mollie.payNow")
+							t("checkout.payment.payNow")
 						)}
 					</ShopButton>
 
 					<p className="text-xs text-muted-foreground text-center">
-						{t("checkout.mollie.securePayment")}
+						{t("checkout.payment.securePayment")}
 					</p>
 				</ShopCard>
 			</div>

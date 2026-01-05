@@ -27,7 +27,7 @@ interface CheckoutReturnPageProps {
 export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 	const { t } = useTranslation("shop");
 	const navigate = useNavigate();
-	const search = useSearch({ from: "/shop/$slug/checkout/return" });
+	const search = useSearch({ from: "/$slug/checkout/return" });
 
 	// Stripe session ID from query params
 	const sessionId = search.session_id;
@@ -63,7 +63,7 @@ export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 		const targetOrderId = data?.orderId ?? orderId;
 		if (data?.paymentStatus === "paid" && targetOrderId) {
 			navigate({
-				to: "/shop/$slug/order/$orderId",
+				to: "/$slug/order/$orderId",
 				params: { slug: storeSlug, orderId: String(targetOrderId) },
 			});
 		}

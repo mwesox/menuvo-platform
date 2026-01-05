@@ -39,7 +39,7 @@ function browsingFlow() {
 
 	group("browsing", function () {
 		// Load store listing
-		const listingResponse = http.get(`${baseUrl}/shop`, {
+		const listingResponse = http.get(`${baseUrl}/`, {
 			headers: { Accept: "text/html" },
 			tags: { name: "shop_listing", scenario: "browsing" },
 		});
@@ -52,7 +52,7 @@ function browsingFlow() {
 
 		// Load specific menu
 		const startTime = Date.now();
-		const menuResponse = http.get(`${baseUrl}/shop/${TEST_STORE_SLUG}`, {
+		const menuResponse = http.get(`${baseUrl}/${TEST_STORE_SLUG}`, {
 			headers: { Accept: "text/html" },
 			tags: { name: "shop_menu", scenario: "browsing" },
 		});
@@ -83,7 +83,7 @@ function orderingFlow() {
 	group("ordering", function () {
 		// Load menu
 		const startTime = Date.now();
-		http.get(`${baseUrl}/shop/${TEST_STORE_SLUG}`, {
+		http.get(`${baseUrl}/${TEST_STORE_SLUG}`, {
 			headers: { Accept: "text/html" },
 			tags: { name: "shop_menu", scenario: "ordering" },
 		});
@@ -93,7 +93,7 @@ function orderingFlow() {
 		sleep(Math.random() * 15 + 10);
 
 		// Load checkout
-		http.get(`${baseUrl}/shop/${TEST_STORE_SLUG}/checkout`, {
+		http.get(`${baseUrl}/${TEST_STORE_SLUG}/checkout`, {
 			headers: { Accept: "text/html" },
 			tags: { name: "shop_checkout", scenario: "ordering" },
 		});

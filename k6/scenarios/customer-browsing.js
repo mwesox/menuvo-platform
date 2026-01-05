@@ -29,7 +29,7 @@ export default function customerBrowsing() {
 
 	group("store_discovery", function () {
 		// Step 1: Load the store listing page
-		const listingResponse = http.get(`${baseUrl}/shop`, {
+		const listingResponse = http.get(`${baseUrl}/`, {
 			headers: {
 				Accept: "text/html,application/xhtml+xml,application/xml",
 			},
@@ -49,7 +49,7 @@ export default function customerBrowsing() {
 		// Step 2: Load a specific restaurant menu
 		const startTime = Date.now();
 
-		const menuResponse = http.get(`${baseUrl}/shop/${TEST_STORE_SLUG}`, {
+		const menuResponse = http.get(`${baseUrl}/${TEST_STORE_SLUG}`, {
 			headers: {
 				Accept: "text/html,application/xhtml+xml,application/xml",
 			},

@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { UtensilsCrossed } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Logo } from "@/components/ui/logo";
 import { OnboardingForm } from "@/features/console/onboarding/components/onboarding-form";
 
-export const Route = createFileRoute("/console/onboarding")({
+export const Route = createFileRoute("/onboarding")({
 	component: OnboardingPage,
 });
 
@@ -14,13 +14,9 @@ function OnboardingPage() {
 		<div className="min-h-screen bg-zinc-50 dark:bg-zinc-900">
 			<div className="mx-auto max-w-2xl px-4 py-12">
 				<div className="mb-8 text-center">
-					<div className="mb-4 flex justify-center">
-						<div className="rounded-full bg-zinc-900 p-3 dark:bg-zinc-100">
-							<UtensilsCrossed className="h-8 w-8 text-white dark:text-zinc-900" />
-						</div>
-					</div>
-					<h1 className="text-3xl font-bold tracking-tight">
+					<h1 className="flex items-center justify-center gap-2 text-3xl font-bold tracking-tight">
 						{t("page.title")}
+						<Logo height={66} />
 					</h1>
 					<p className="mt-2 text-zinc-600 dark:text-zinc-400">
 						{t("page.subtitle")}

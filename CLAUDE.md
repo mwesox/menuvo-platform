@@ -14,8 +14,9 @@ This file is a quick reference. The docs are the source of truth.
 ## Important
 - **Domain is `menuvo.app`** - Always use menuvo.app (not menuvo.de) for all URLs
 - **No subdomains for app routes** - Use path-based routing:
+  - Discovery: `www.menuvo.app/` (root)
+  - Store: `www.menuvo.app/{storeSlug}`
   - Console: `www.menuvo.app/console`
-  - Shop: `www.menuvo.app/shop/{storeSlug}`
   - Only infrastructure uses subdomains: `status.menuvo.app`, `monitor.menuvo.app`
 - Use ShadCN MCP server to review latest docs and APIs and docs about ShadCN Components and the framework.
 
@@ -109,19 +110,21 @@ src/
 
 ## Theming
 
-Two themes via `data-theme` attribute:
+Three themes via CSS bundle swapping:
 
-| Theme | Attribute | Style |
-|-------|-----------|-------|
-| Console | `data-theme="console"` | Zinc, dark mode support |
-| Shop | `data-theme="shop"` | Warm brown/cream, light only |
+| Theme | Route | Style |
+|-------|-------|-------|
+| Discovery | `/` (root) | Fresh modern neutral, sans-serif, light only |
+| Shop | `/{storeSlug}/*` | Editorial neutral, serif headings, light only |
+| Console | `/console/*` | Zinc, dark mode support |
 
-Auto-detected by hostname/path in `src/lib/theme.ts`.
+Auto-detected by route in `src/routes/__root.tsx`.
 
 CSS files:
-- `src/styles/base.css` - Tailwind + theme mappings
-- `src/styles/themes/console.css`
+- `src/styles/core.css` - Tailwind + theme mappings
+- `src/styles/themes/discovery.css`
 - `src/styles/themes/shop.css`
+- `src/styles/themes/console.css`
 
 ---
 

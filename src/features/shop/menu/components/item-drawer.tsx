@@ -23,6 +23,7 @@ interface ItemDrawerProps {
 	onOpenChange: (open: boolean) => void;
 	storeId: number;
 	storeSlug: string;
+	isOpen: boolean;
 }
 
 /**
@@ -143,6 +144,7 @@ export function ItemDrawer({
 	onOpenChange,
 	storeId,
 	storeSlug,
+	isOpen: isStoreOpen,
 }: ItemDrawerProps) {
 	const { t } = useTranslation("shop");
 	const addItem = useCartStore((s) => s.addItem);
@@ -301,13 +303,15 @@ export function ItemDrawer({
 		<Drawer open={open} onOpenChange={onOpenChange}>
 			<DrawerContent
 				className="max-h-[85dvh] overflow-hidden md:max-w-lg md:mx-auto md:rounded-t-(--radius)"
-				hideHandle={!!item.imageUrl}
+				hideHandle
 			>
+				{/* Handle */}
+				<div className="mx-auto mt-4 mb-2 h-1.5 w-12 shrink-0 rounded-full bg-muted-foreground/40" />
 				{/* Scrollable content */}
 				<div className="flex-1 overflow-y-auto min-h-0 overscroll-contain">
 					{/* Hero image - full width, edge to edge */}
 					{item.imageUrl && (
-						<div className="relative h-48 md:h-56 overflow-hidden md:rounded-t-(--radius)">
+						<div className="relative h-48 md:h-56 overflow-hidden">
 							<img
 								src={item.imageUrl}
 								alt={item.name}
@@ -384,7 +388,7 @@ export function ItemDrawer({
 							variant="primary"
 							size="lg"
 							onClick={handleAddToCart}
-							disabled={!isValid}
+							disabled={!isValid || !isStoreOpen}
 							className="flex-1 h-14 text-base font-medium shadow-lg shadow-primary/20"
 						>
 							{/* Mobile: icon + price only */}

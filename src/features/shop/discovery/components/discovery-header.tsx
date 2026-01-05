@@ -1,18 +1,12 @@
-import { Link } from "@tanstack/react-router";
-
+/**
+ * Minimal discovery header - logo is now in hero.
+ * Reserved for future customer login button.
+ */
 export function DiscoveryHeader() {
 	return (
-		<header
-			className="sticky top-0 z-50 border-b backdrop-blur-md"
-			style={{
-				backgroundColor: "oklch(0.988 0.003 90 / 0.95)",
-				borderColor: "var(--border)",
-			}}
-		>
-			<div className="flex h-14 items-center px-4">
-				<Link to="/shop" className="shrink-0">
-					<img src="/menuvo-logo-horizontal.svg" alt="Menuvo" className="h-8" />
-				</Link>
+		<header className="absolute top-0 left-0 right-0 z-50">
+			<div className="mx-auto flex h-16 max-w-6xl items-center justify-end px-4 sm:px-6 lg:px-8">
+				{/* Future: Login button will go here */}
 			</div>
 		</header>
 	);

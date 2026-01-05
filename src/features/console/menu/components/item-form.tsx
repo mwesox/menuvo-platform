@@ -237,6 +237,62 @@ export function ItemForm({
 						</CardHeader>
 						<CardContent>
 							<FieldGroup>
+								{/* Row 1: Name + Price (responsive grid) */}
+								<div className="grid gap-6 md:grid-cols-[1fr,200px]">
+									<form.Field name="name">
+										{(field) => {
+											const isInvalid =
+												field.state.meta.isTouched && !field.state.meta.isValid;
+											return (
+												<Field data-invalid={isInvalid}>
+													<FieldLabel htmlFor={field.name}>
+														{tForms("fields.name")} *
+													</FieldLabel>
+													<Input
+														id={field.name}
+														name={field.name}
+														placeholder={t("placeholders.itemName")}
+														value={field.state.value}
+														onBlur={field.handleBlur}
+														onChange={(e) => field.handleChange(e.target.value)}
+														aria-invalid={isInvalid}
+													/>
+													{isInvalid && (
+														<FieldError errors={field.state.meta.errors} />
+													)}
+												</Field>
+											);
+										}}
+									</form.Field>
+
+									<form.Field name="price">
+										{(field) => {
+											const isInvalid =
+												field.state.meta.isTouched && !field.state.meta.isValid;
+											return (
+												<Field data-invalid={isInvalid}>
+													<FieldLabel htmlFor={field.name}>
+														{tForms("fields.price")} *
+													</FieldLabel>
+													<PriceInput
+														id={field.name}
+														name={field.name}
+														value={Number.parseInt(field.state.value, 10) || 0}
+														onChange={(cents) =>
+															field.handleChange(String(cents))
+														}
+														onBlur={field.handleBlur}
+													/>
+													{isInvalid && (
+														<FieldError errors={field.state.meta.errors} />
+													)}
+												</Field>
+											);
+										}}
+									</form.Field>
+								</div>
+
+								{/* Row 2: Category (full width) */}
 								<form.Field name="categoryId">
 									{(field) => {
 										const isInvalid =
@@ -280,32 +336,7 @@ export function ItemForm({
 									}}
 								</form.Field>
 
-								<form.Field name="name">
-									{(field) => {
-										const isInvalid =
-											field.state.meta.isTouched && !field.state.meta.isValid;
-										return (
-											<Field data-invalid={isInvalid}>
-												<FieldLabel htmlFor={field.name}>
-													{tForms("fields.name")} *
-												</FieldLabel>
-												<Input
-													id={field.name}
-													name={field.name}
-													placeholder={t("placeholders.itemName")}
-													value={field.state.value}
-													onBlur={field.handleBlur}
-													onChange={(e) => field.handleChange(e.target.value)}
-													aria-invalid={isInvalid}
-												/>
-												{isInvalid && (
-													<FieldError errors={field.state.meta.errors} />
-												)}
-											</Field>
-										);
-									}}
-								</form.Field>
-
+								{/* Row 3: Description (full width, 2 rows) */}
 								<form.Field name="description">
 									{(field) => {
 										const isInvalid =
@@ -322,34 +353,8 @@ export function ItemForm({
 													value={field.state.value}
 													onBlur={field.handleBlur}
 													onChange={(e) => field.handleChange(e.target.value)}
-													rows={3}
+													rows={2}
 													aria-invalid={isInvalid}
-												/>
-												{isInvalid && (
-													<FieldError errors={field.state.meta.errors} />
-												)}
-											</Field>
-										);
-									}}
-								</form.Field>
-
-								<form.Field name="price">
-									{(field) => {
-										const isInvalid =
-											field.state.meta.isTouched && !field.state.meta.isValid;
-										return (
-											<Field data-invalid={isInvalid} className="max-w-xs">
-												<FieldLabel htmlFor={field.name}>
-													{tForms("fields.price")} *
-												</FieldLabel>
-												<PriceInput
-													id={field.name}
-													name={field.name}
-													value={Number.parseInt(field.state.value, 10) || 0}
-													onChange={(cents) =>
-														field.handleChange(String(cents))
-													}
-													onBlur={field.handleBlur}
 												/>
 												{isInvalid && (
 													<FieldError errors={field.state.meta.errors} />

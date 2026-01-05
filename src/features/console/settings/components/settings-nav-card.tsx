@@ -32,16 +32,26 @@ export function SettingsNavCard({
 	const content = (
 		<Card
 			className={cn(
-				"transition-colors",
-				!disabled && "hover:bg-muted/50 cursor-pointer",
-				disabled && "opacity-60",
+				"transition-colors duration-150",
+				!disabled && "hover:bg-primary/5 cursor-pointer group",
+				disabled && "opacity-70 cursor-not-allowed",
 			)}
 		>
 			<CardHeader className="flex-row items-center gap-4">
-				<div className="bg-primary/10 rounded-lg p-2.5">
-					<Icon className="text-primary h-5 w-5" />
+				<div
+					className={cn(
+						"rounded-lg p-3",
+						disabled ? "bg-muted" : "bg-primary/10",
+					)}
+				>
+					<Icon
+						className={cn(
+							"h-5 w-5",
+							disabled ? "text-muted-foreground" : "text-primary",
+						)}
+					/>
 				</div>
-				<div className="flex-1 space-y-1">
+				<div className="min-w-0 flex-1 space-y-1">
 					<CardTitle className="flex items-center gap-2 text-base">
 						{title}
 						{badge === "coming-soon" && (
@@ -50,10 +60,12 @@ export function SettingsNavCard({
 							</Badge>
 						)}
 					</CardTitle>
-					<CardDescription>{description}</CardDescription>
+					<CardDescription className="line-clamp-1">
+						{description}
+					</CardDescription>
 				</div>
 				{!disabled && (
-					<ChevronRight className="text-muted-foreground h-5 w-5" />
+					<ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
 				)}
 			</CardHeader>
 		</Card>

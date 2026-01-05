@@ -10,7 +10,7 @@ const searchSchema = z.object({
 	order_id: z.coerce.string().optional(), // Mollie order ID (passed in return URL)
 });
 
-export const Route = createFileRoute("/shop/$slug/checkout/return")({
+export const Route = createFileRoute("/$slug/checkout/return")({
 	validateSearch: searchSchema,
 	loader: async ({ context, params }) => {
 		const store = await context.queryClient.ensureQueryData(

@@ -29,14 +29,14 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 			onClick={handleCardClick}
 			className={cn(
 				"group flex gap-4 p-4 bg-card rounded-2xl text-left w-full",
-				"border border-border/30 shadow-sm shadow-stone-200/50",
+				"border border-border/50 shadow-md shadow-stone-300/50",
 				"transition-all duration-300 ease-out",
 				"hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-900/10 hover:border-border/60",
 				focusRing,
 			)}
 		>
-			{/* Image - neutral placeholder */}
-			<div className="relative w-24 h-24 rounded-xl flex-shrink-0 overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50">
+			{/* Image - 4:3 ratio for better food photography */}
+			<div className="relative w-32 h-24 rounded-xl flex-shrink-0 overflow-hidden bg-gradient-to-br from-stone-100 to-stone-50">
 				{item.imageUrl ? (
 					<img
 						src={item.imageUrl}
@@ -91,19 +91,16 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 					<span
 						aria-hidden="true"
 						className={cn(
-							"px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+							"transition-colors",
 							item.hasOptions
-								? "bg-muted text-foreground border border-border hover:bg-muted/80"
-								: "bg-foreground text-background hover:bg-foreground/90",
+								? "px-3 py-1.5 rounded-lg text-sm font-medium bg-muted text-foreground border border-border/60 hover:bg-muted/80"
+								: "flex items-center justify-center w-9 h-9 rounded-full border border-border/60 text-foreground hover:bg-foreground hover:text-background",
 						)}
 					>
 						{item.hasOptions ? (
 							t("menu.customize")
 						) : (
-							<span className="flex items-center gap-1">
-								<Plus className="w-4 h-4" />
-								{t("menu.add")}
-							</span>
+							<Plus className="w-5 h-5" />
 						)}
 					</span>
 				</div>

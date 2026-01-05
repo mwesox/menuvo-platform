@@ -407,29 +407,25 @@ export const storeClosuresRelations = relations(storeClosures, ({ one }) => ({
 // CATEGORIES
 // ============================================================================
 
-export const categories = pgTable(
-	"categories",
-	{
-		id: serial().primaryKey(),
-		storeId: integer("store_id")
-			.notNull()
-			.references(() => stores.id, { onDelete: "cascade" }),
-		displayOrder: integer("display_order").notNull().default(0),
-		isActive: boolean("is_active").notNull().default(true),
-		// All translations stored uniformly: {"de": {name, description}, "en": {...}}
-		translations: jsonb("translations")
-			.$type<EntityTranslations>()
-			.notNull()
-			.default(sql`'{}'::jsonb`),
-		// Timestamps
-		createdAt: timestamp("created_at").notNull().defaultNow(),
-		updatedAt: timestamp("updated_at")
-			.notNull()
-			.defaultNow()
-			.$onUpdate(() => new Date()),
-	},
-	(table) => [index("idx_categories_store").on(table.storeId)],
-);
+export const categories = pgTable("categories", {
+	id: serial().primaryKey(),
+	storeId: integer("store_id")
+		.notNull()
+		.references(() => stores.id, { onDelete: "cascade" }),
+	displayOrder: integer("display_order").notNull().default(0),
+	isActive: boolean("is_active").notNull().default(true),
+	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
+	translations: jsonb("translations")
+		.$type<EntityTranslations>()
+		.notNull()
+		.default(sql`'{}'::jsonb`),
+	// Timestamps
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at")
+		.notNull()
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
 
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
 	store: one(stores, {
@@ -443,38 +439,31 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
 // ITEMS
 // ============================================================================
 
-export const items = pgTable(
-	"items",
-	{
-		id: serial().primaryKey(),
-		categoryId: integer("category_id")
-			.notNull()
-			.references(() => categories.id, { onDelete: "cascade" }),
-		storeId: integer("store_id")
-			.notNull()
-			.references(() => stores.id, { onDelete: "cascade" }),
-		price: integer().notNull(), // Price in cents
-		imageUrl: varchar("image_url", { length: 500 }),
-		allergens: text().array(), // PostgreSQL text array for allergens
-		displayOrder: integer("display_order").notNull().default(0),
-		isAvailable: boolean("is_available").notNull().default(true),
-		// All translations stored uniformly: {"de": {name, description}, "en": {...}}
-		translations: jsonb("translations")
-			.$type<EntityTranslations>()
-			.notNull()
-			.default(sql`'{}'::jsonb`),
-		// Timestamps
-		createdAt: timestamp("created_at").notNull().defaultNow(),
-		updatedAt: timestamp("updated_at")
-			.notNull()
-			.defaultNow()
-			.$onUpdate(() => new Date()),
-	},
-	(table) => [
-		index("idx_items_category").on(table.categoryId),
-		index("idx_items_store").on(table.storeId),
-	],
-);
+export const items = pgTable("items", {
+	id: serial().primaryKey(),
+	categoryId: integer("category_id")
+		.notNull()
+		.references(() => categories.id, { onDelete: "cascade" }),
+	storeId: integer("store_id")
+		.notNull()
+		.references(() => stores.id, { onDelete: "cascade" }),
+	price: integer().notNull(), // Price in cents
+	imageUrl: varchar("image_url", { length: 500 }),
+	allergens: text().array(), // PostgreSQL text array for allergens
+	displayOrder: integer("display_order").notNull().default(0),
+	isAvailable: boolean("is_available").notNull().default(true),
+	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
+	translations: jsonb("translations")
+		.$type<EntityTranslations>()
+		.notNull()
+		.default(sql`'{}'::jsonb`),
+	// Timestamps
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at")
+		.notNull()
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
 
 export const itemsRelations = relations(items, ({ one, many }) => ({
 	category: one(categories, {
@@ -509,41 +498,37 @@ export type OptionGroupType = (typeof optionGroupTypes)[number];
 // OPTION GROUPS
 // ============================================================================
 
-export const optionGroups = pgTable(
-	"option_groups",
-	{
-		id: serial().primaryKey(),
-		storeId: integer("store_id")
-			.notNull()
-			.references(() => stores.id, { onDelete: "cascade" }),
-		// Option group type (determines UI rendering)
-		type: text("type", { enum: optionGroupTypes })
-			.notNull()
-			.default("multi_select"),
-		isRequired: boolean("is_required").notNull().default(false),
-		minSelections: integer("min_selections").notNull().default(0),
-		maxSelections: integer("max_selections"), // null = unlimited
-		// Free options (e.g., "first 2 toppings free, extras cost extra")
-		numFreeOptions: integer("num_free_options").notNull().default(0),
-		// Aggregate quantity constraints (for quantity_select type)
-		aggregateMinQuantity: integer("aggregate_min_quantity"), // null = no min
-		aggregateMaxQuantity: integer("aggregate_max_quantity"), // null = no max
-		displayOrder: integer("display_order").notNull().default(0),
-		isActive: boolean("is_active").notNull().default(true),
-		// All translations stored uniformly: {"de": {name, description}, "en": {...}}
-		translations: jsonb("translations")
-			.$type<EntityTranslations>()
-			.notNull()
-			.default(sql`'{}'::jsonb`),
-		// Timestamps
-		createdAt: timestamp("created_at").notNull().defaultNow(),
-		updatedAt: timestamp("updated_at")
-			.notNull()
-			.defaultNow()
-			.$onUpdate(() => new Date()),
-	},
-	(table) => [index("idx_option_groups_store").on(table.storeId)],
-);
+export const optionGroups = pgTable("option_groups", {
+	id: serial().primaryKey(),
+	storeId: integer("store_id")
+		.notNull()
+		.references(() => stores.id, { onDelete: "cascade" }),
+	// Option group type (determines UI rendering)
+	type: text("type", { enum: optionGroupTypes })
+		.notNull()
+		.default("multi_select"),
+	isRequired: boolean("is_required").notNull().default(false),
+	minSelections: integer("min_selections").notNull().default(0),
+	maxSelections: integer("max_selections"), // null = unlimited
+	// Free options (e.g., "first 2 toppings free, extras cost extra")
+	numFreeOptions: integer("num_free_options").notNull().default(0),
+	// Aggregate quantity constraints (for quantity_select type)
+	aggregateMinQuantity: integer("aggregate_min_quantity"), // null = no min
+	aggregateMaxQuantity: integer("aggregate_max_quantity"), // null = no max
+	displayOrder: integer("display_order").notNull().default(0),
+	isActive: boolean("is_active").notNull().default(true),
+	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
+	translations: jsonb("translations")
+		.$type<EntityTranslations>()
+		.notNull()
+		.default(sql`'{}'::jsonb`),
+	// Timestamps
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at")
+		.notNull()
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
 
 export const optionGroupsRelations = relations(
 	optionGroups,
@@ -561,35 +546,31 @@ export const optionGroupsRelations = relations(
 // OPTION CHOICES
 // ============================================================================
 
-export const optionChoices = pgTable(
-	"option_choices",
-	{
-		id: serial().primaryKey(),
-		optionGroupId: integer("option_group_id")
-			.notNull()
-			.references(() => optionGroups.id, { onDelete: "cascade" }),
-		priceModifier: integer("price_modifier").notNull().default(0), // In cents, can be positive/negative
-		displayOrder: integer("display_order").notNull().default(0),
-		isAvailable: boolean("is_available").notNull().default(true),
-		// Pre-selected by default (reduces customer clicks for common options)
-		isDefault: boolean("is_default").notNull().default(false),
-		// Per-choice quantity limits (for quantity_select type)
-		minQuantity: integer("min_quantity").notNull().default(0), // Min qty customer can select
-		maxQuantity: integer("max_quantity"), // Max qty per choice, null = unlimited
-		// All translations stored uniformly: {"de": {name}, "en": {...}}
-		translations: jsonb("translations")
-			.$type<ChoiceTranslations>()
-			.notNull()
-			.default(sql`'{}'::jsonb`),
-		// Timestamps
-		createdAt: timestamp("created_at").notNull().defaultNow(),
-		updatedAt: timestamp("updated_at")
-			.notNull()
-			.defaultNow()
-			.$onUpdate(() => new Date()),
-	},
-	(table) => [index("idx_option_choices_group").on(table.optionGroupId)],
-);
+export const optionChoices = pgTable("option_choices", {
+	id: serial().primaryKey(),
+	optionGroupId: integer("option_group_id")
+		.notNull()
+		.references(() => optionGroups.id, { onDelete: "cascade" }),
+	priceModifier: integer("price_modifier").notNull().default(0), // In cents, can be positive/negative
+	displayOrder: integer("display_order").notNull().default(0),
+	isAvailable: boolean("is_available").notNull().default(true),
+	// Pre-selected by default (reduces customer clicks for common options)
+	isDefault: boolean("is_default").notNull().default(false),
+	// Per-choice quantity limits (for quantity_select type)
+	minQuantity: integer("min_quantity").notNull().default(0), // Min qty customer can select
+	maxQuantity: integer("max_quantity"), // Max qty per choice, null = unlimited
+	// All translations stored uniformly: {"de": {name}, "en": {...}}
+	translations: jsonb("translations")
+		.$type<ChoiceTranslations>()
+		.notNull()
+		.default(sql`'{}'::jsonb`),
+	// Timestamps
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at")
+		.notNull()
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
 
 export const optionChoicesRelations = relations(optionChoices, ({ one }) => ({
 	optionGroup: one(optionGroups, {
@@ -602,25 +583,18 @@ export const optionChoicesRelations = relations(optionChoices, ({ one }) => ({
 // ITEM OPTION GROUPS (Junction Table)
 // ============================================================================
 
-export const itemOptionGroups = pgTable(
-	"item_option_groups",
-	{
-		id: serial().primaryKey(),
-		itemId: integer("item_id")
-			.notNull()
-			.references(() => items.id, { onDelete: "cascade" }),
-		optionGroupId: integer("option_group_id")
-			.notNull()
-			.references(() => optionGroups.id, { onDelete: "cascade" }),
-		displayOrder: integer("display_order").notNull().default(0),
-		// Timestamp
-		createdAt: timestamp("created_at").notNull().defaultNow(),
-	},
-	(table) => [
-		index("idx_item_option_groups_item").on(table.itemId),
-		index("idx_item_option_groups_group").on(table.optionGroupId),
-	],
-);
+export const itemOptionGroups = pgTable("item_option_groups", {
+	id: serial().primaryKey(),
+	itemId: integer("item_id")
+		.notNull()
+		.references(() => items.id, { onDelete: "cascade" }),
+	optionGroupId: integer("option_group_id")
+		.notNull()
+		.references(() => optionGroups.id, { onDelete: "cascade" }),
+	displayOrder: integer("display_order").notNull().default(0),
+	// Timestamp
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 
 export const itemOptionGroupsRelations = relations(
 	itemOptionGroups,

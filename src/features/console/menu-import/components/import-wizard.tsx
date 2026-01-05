@@ -1,11 +1,4 @@
-import {
-	AlertCircle,
-	ArrowLeft,
-	Check,
-	CheckCircle,
-	Loader2,
-	Upload,
-} from "lucide-react";
+import { AlertCircle, Check, CheckCircle, Loader2, Upload } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -139,18 +132,7 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 	};
 
 	return (
-		<div className="max-w-3xl mx-auto py-8 px-4">
-			{/* Back Button */}
-			<Button
-				variant="ghost"
-				size="sm"
-				onClick={onClose}
-				className="mb-6 -ml-2"
-			>
-				<ArrowLeft className="mr-2 h-4 w-4" />
-				{t("import.backToMenu")}
-			</Button>
-
+		<div className="w-full py-4 px-4">
 			{/* Progress Steps */}
 			<div className="flex items-center justify-center gap-4 mb-8">
 				<StepIndicator

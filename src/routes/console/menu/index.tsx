@@ -7,7 +7,13 @@ import { optionGroupQueries } from "@/features/console/menu/options.queries";
 import { categoryQueries, itemQueries } from "@/features/console/menu/queries";
 import { storeQueries } from "@/features/console/stores/queries";
 
-const tabSchema = z.enum(["categories", "items", "options", "translations"]);
+const tabSchema = z.enum([
+	"categories",
+	"items",
+	"options",
+	"translations",
+	"import",
+]);
 
 const searchSchema = z.object({
 	storeId: z.number().optional(),

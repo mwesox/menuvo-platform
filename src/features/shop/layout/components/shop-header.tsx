@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Search, ShoppingCart, X } from "lucide-react";
+import { ChevronLeft, Search, ShoppingCart, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -159,8 +159,16 @@ function useStoreSlug() {
 	const routerState = useRouterState();
 	const matches = routerState.matches;
 	// Find the $slug route match
-	const slugMatch = matches.find((m) => m.routeId === "/shop/$slug");
+	const slugMatch = matches.find((m) => m.routeId === "/$slug");
 	return (slugMatch?.params as { slug?: string })?.slug ?? null;
+}
+
+/** Detect if on a deep page (checkout, order) where we should show "Back to Menu" */
+function useIsDeepPage() {
+	const routerState = useRouterState();
+	const pathname = routerState.location.pathname;
+	// Check if we're on checkout or order pages (not the main menu)
+	return pathname.includes("/checkout") || pathname.includes("/order/");
 }
 
 function StoreInfo() {
@@ -173,7 +181,7 @@ function StoreInfo() {
 		enabled: !!slug,
 	});
 
-	if (!store) {
+	if (!store || !slug) {
 		return null;
 	}
 
@@ -181,11 +189,23 @@ function StoreInfo() {
 	const storeAddress = addressParts.join(", ") || null;
 
 	return (
-		<div className="flex min-w-0 flex-col items-center md:flex-row md:gap-2">
-			{/* Store name - always visible */}
-			<span className="truncate text-sm font-medium text-foreground">
+		<Link
+			to="/$slug"
+			params={{ slug }}
+			className="group flex min-w-0 flex-col items-center md:flex-row md:gap-2"
+		>
+			{/* Store name - always visible, with editorial hover underline */}
+			<span className="truncate font-serif text-base font-medium text-foreground decoration-1 underline-offset-4 group-hover:underline">
 				{store.name}
 			</span>
+
+			{/* Mobile closed indicator - only when closed */}
+			{store.isOpen === false && (
+				<span className="flex items-center gap-1 text-xs text-destructive md:hidden">
+					<span className="size-1.5 rounded-full bg-destructive" />
+					{t("status.closed")}
+				</span>
+			)}
 
 			{/* Address + Status - desktop only */}
 			<div className="hidden items-center gap-2 md:flex">
@@ -203,15 +223,13 @@ function StoreInfo() {
 						<span
 							className={cn(
 								"flex items-center gap-1.5 text-sm",
-								store.isOpen ? "text-success" : "text-muted-foreground",
+								store.isOpen ? "text-success" : "text-destructive",
 							)}
 						>
 							<span
 								className={cn(
 									"size-1.5 rounded-full",
-									store.isOpen
-										? "bg-success"
-										: "border border-muted-foreground",
+									store.isOpen ? "bg-success" : "bg-destructive",
 								)}
 							/>
 							{store.isOpen ? t("status.openNow") : t("status.closed")}
@@ -219,12 +237,15 @@ function StoreInfo() {
 					</>
 				)}
 			</div>
-		</div>
+		</Link>
 	);
 }
 
 export function ShopHeader() {
+	const { t } = useTranslation("shop");
 	const shop = useShopOptional();
+	const slug = useStoreSlug();
+	const isDeepPage = useIsDeepPage();
 
 	return (
 		<header
@@ -235,10 +256,29 @@ export function ShopHeader() {
 			}}
 		>
 			<div className="flex h-14 items-center gap-4 px-4">
-				{/* Left: Logo */}
-				<Link to="/shop" className="shrink-0">
-					<img src="/menuvo-logo-horizontal.svg" alt="Menuvo" className="h-8" />
-				</Link>
+				{/* Left: Context-aware back link */}
+				{isDeepPage && slug ? (
+					<Link
+						to="/$slug"
+						params={{ slug }}
+						className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+					>
+						<ChevronLeft className="size-4" />
+						<span>{t("header.backToMenu")}</span>
+					</Link>
+				) : (
+					<Link
+						to="/"
+						className="flex shrink-0 items-center gap-1 transition-opacity hover:opacity-80"
+					>
+						<ChevronLeft className="size-4 text-muted-foreground" />
+						<img
+							src="/menuvo-logo-horizontal.svg"
+							alt="Menuvo"
+							className="hidden h-8 sm:block"
+						/>
+					</Link>
+				)}
 
 				{/* Center: Store info - flexible space */}
 				<div className="flex min-w-0 flex-1 justify-center">

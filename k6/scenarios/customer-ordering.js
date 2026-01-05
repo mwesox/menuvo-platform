@@ -40,7 +40,7 @@ export default function customerOrdering() {
 		// Load the menu page
 		const startTime = Date.now();
 
-		const menuResponse = http.get(`${baseUrl}/shop/${TEST_STORE_SLUG}`, {
+		const menuResponse = http.get(`${baseUrl}/${TEST_STORE_SLUG}`, {
 			headers: {
 				Accept: "text/html,application/xhtml+xml,application/xml",
 			},
@@ -59,7 +59,7 @@ export default function customerOrdering() {
 
 	group("checkout_page", function () {
 		// Load the checkout page
-		const checkoutResponse = http.get(`${baseUrl}/shop/${TEST_STORE_SLUG}/checkout`, {
+		const checkoutResponse = http.get(`${baseUrl}/${TEST_STORE_SLUG}/checkout`, {
 			headers: {
 				Accept: "text/html,application/xhtml+xml,application/xml",
 			},

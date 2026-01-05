@@ -36,7 +36,7 @@ export function setup() {
 	};
 
 	// Try to load the test store to verify it exists
-	const storeUrl = `${getBaseUrl()}/shop/${testData.storeSlug}`;
+	const storeUrl = `${getBaseUrl()}/${testData.storeSlug}`;
 	const response = http.get(storeUrl, {
 		tags: { name: "setup_verify_store" },
 	});

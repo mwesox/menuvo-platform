@@ -17,7 +17,7 @@ import { EmptyMenuState } from "./empty-menu-state";
 import { ItemDrawer } from "./item-drawer";
 import { StorePageSkeleton } from "./menu-item-skeleton";
 
-const routeApi = getRouteApi("/shop/$slug/");
+const routeApi = getRouteApi("/$slug/");
 
 /**
  * Main store menu page component.
@@ -99,6 +99,7 @@ export function StoreMenuPage() {
 				onOpenChange={setIsItemDrawerOpen}
 				storeId={store.id}
 				storeSlug={store.slug}
+				isOpen={store.isOpen ?? true}
 			/>
 
 			<FloatingCart />

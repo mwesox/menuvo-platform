@@ -1,4 +1,7 @@
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
+import { merchants } from "@/db/schema";
+import { getMerchantIdFromCookie } from "./fake-auth.functions";
 
 export type AuthContext = {
 	merchantId: number;
@@ -12,16 +15,30 @@ export type AuthContext = {
 /**
  * Get the authenticated merchant context.
  *
- * Placeholder: Returns first merchant in database.
- * TODO: When auth implemented, read from session/cookie.
+ * Reads merchantId from cookie. Falls back to first merchant if no cookie.
  *
  * @throws Error if no merchant found (unauthorized)
  */
 export async function getAuthContext(): Promise<AuthContext> {
-	const merchant = await db.query.merchants.findFirst();
+	const merchantIdFromCookie = getMerchantIdFromCookie();
+
+	let merchant: typeof merchants.$inferSelect | undefined;
+
+	if (merchantIdFromCookie) {
+		merchant = await db.query.merchants.findFirst({
+			where: eq(merchants.id, merchantIdFromCookie),
+		});
+	}
+
+	// Fallback: get first merchant if cookie is invalid or no cookie
+	if (!merchant) {
+		merchant = await db.query.merchants.findFirst();
+	}
+
 	if (!merchant) {
 		throw new Error("Unauthorized: No merchant found");
 	}
+
 	return {
 		merchantId: merchant.id,
 		merchant: {

@@ -28,7 +28,7 @@ export const options = {
 
 export default function () {
 	const baseUrl = getBaseUrl();
-	const url = `${baseUrl}/shop/${TEST_STORE_SLUG}`;
+	const url = `${baseUrl}/${TEST_STORE_SLUG}`;
 
 	const response = http.get(url, {
 		tags: { name: "menu_load" },

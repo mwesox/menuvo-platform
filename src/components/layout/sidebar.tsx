@@ -1,6 +1,13 @@
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Menu, Settings, Store, UtensilsCrossed } from "lucide-react";
+import {
+	Home,
+	Menu,
+	Receipt,
+	Settings,
+	Store,
+	UtensilsCrossed,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
@@ -18,6 +25,7 @@ const navItems = [
 	{ href: "/console", labelKey: "dashboard", icon: Home },
 	{ href: "/console/stores", labelKey: "stores", icon: Store },
 	{ href: "/console/menu", labelKey: "menu", icon: UtensilsCrossed },
+	{ href: "/console/orders", labelKey: "orders", icon: Receipt },
 	{ href: "/console/settings", labelKey: "settings", icon: Settings },
 ];
 

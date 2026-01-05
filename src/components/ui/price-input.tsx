@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input.tsx";
 import { cn } from "@/lib/utils.ts";
 
@@ -31,6 +32,15 @@ export function PriceInput({
 	id,
 	name,
 }: PriceInputProps) {
+	const [localValue, setLocalValue] = useState(String(value));
+
+	// Sync when external value changes (e.g., form reset)
+	useEffect(() => {
+		setLocalValue(String(value));
+	}, [value]);
+
+	const displayCents = Number.parseInt(localValue, 10) || 0;
+
 	return (
 		<div className={cn("flex items-center gap-2", className)}>
 			<div className="relative flex-1">
@@ -38,7 +48,8 @@ export function PriceInput({
 					id={id}
 					name={name}
 					placeholder={placeholder}
-					defaultValue={value}
+					value={localValue}
+					onChange={(e) => setLocalValue(e.target.value)}
 					onBlur={(e) => {
 						const parsed = Number.parseInt(e.target.value, 10);
 						onChange(Number.isNaN(parsed) ? 0 : parsed);
@@ -52,7 +63,7 @@ export function PriceInput({
 				</span>
 			</div>
 			<span className="text-sm text-muted-foreground tabular-nums min-w-[70px] text-right">
-				{formatPrice(value, currency)}
+				{formatPrice(displayCents, currency)}
 			</span>
 		</div>
 	);

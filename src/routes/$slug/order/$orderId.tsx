@@ -5,7 +5,7 @@ import {
 } from "@/features/shop/checkout";
 import { StoreError } from "@/features/shop/shared";
 
-export const Route = createFileRoute("/shop/$slug/order/$orderId")({
+export const Route = createFileRoute("/$slug/order/$orderId")({
 	loader: async ({ params }) => {
 		const orderId = Number.parseInt(params.orderId, 10);
 		if (Number.isNaN(orderId) || orderId <= 0) {

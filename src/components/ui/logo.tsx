@@ -15,19 +15,17 @@ export function Logo({ className, height = 32 }: LogoProps) {
 		setMounted(true);
 	}, []);
 
-	if (!mounted) {
-		return <div style={{ height }} className={cn("w-auto", className)} />;
-	}
-
 	const logoSrc =
-		resolvedTheme === "dark" ? "/menuvo-logo-white.svg" : "/menuvo-logo.svg";
+		mounted && resolvedTheme === "dark"
+			? "/menuvo-logo-white.svg"
+			: "/menuvo-logo.svg";
 
 	return (
 		<img
 			src={logoSrc}
 			alt="Menuvo"
-			height={height}
-			className={cn("h-8 w-auto", className)}
+			style={{ height }}
+			className={cn("w-auto", className)}
 		/>
 	);
 }

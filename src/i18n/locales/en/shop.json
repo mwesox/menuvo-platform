@@ -45,6 +45,7 @@
 	"header": {
 		"cartWithItems": "Shopping cart with {{count}} items",
 		"backToShop": "Back to shop",
+		"backToMenu": "Menu",
 		"itemCount_one": "{{count}} item",
 		"itemCount_other": "{{count}} items",
 		"searchPlaceholder": "Search menu..."
@@ -88,8 +89,6 @@
 		"cartEmpty": "Your cart is empty",
 		"paymentMethod": "Payment Method",
 		"paymentMethods": {
-			"counter": "Pay at Counter",
-			"counterDescription": "Pay when you pick up your order",
 			"online": "Pay Online",
 			"onlineDescription": "Pay securely with card, Apple Pay, or Google Pay"
 		},
@@ -106,6 +105,15 @@
 			"sessionExpired": "Your payment session has expired. Please try again.",
 			"tryAgain": "Something went wrong. Please try again.",
 			"processing": "Processing..."
+		},
+		"payment": {
+			"title": "Complete Payment",
+			"description": "You'll be redirected to our secure payment page to complete your order.",
+			"error": "Failed to create payment. Please try again.",
+			"redirecting": "Redirecting to payment...",
+			"pleaseWait": "You'll be redirected to the secure payment page shortly.",
+			"payNow": "Pay Now",
+			"securePayment": "Secure payment processing"
 		}
 	},
 	"confirmation": {
