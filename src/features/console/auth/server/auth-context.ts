@@ -16,11 +16,12 @@ export type AuthContext = {
  * Get the authenticated merchant context.
  *
  * Reads merchantId from cookie. Falls back to first merchant if no cookie.
+ * MUST be called from within a server function context.
  *
  * @throws Error if no merchant found (unauthorized)
  */
 export async function getAuthContext(): Promise<AuthContext> {
-	const merchantIdFromCookie = getMerchantIdFromCookie();
+	const merchantIdFromCookie = await getMerchantIdFromCookie();
 
 	let merchant: typeof merchants.$inferSelect | undefined;
 

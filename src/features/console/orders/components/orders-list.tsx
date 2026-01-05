@@ -78,12 +78,12 @@ export function OrdersList({
 	}, [deferredSearch, onSearchChange]);
 
 	// Sync from URL if it changes externally (back button, shared link)
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally exclude localSearch to prevent infinite loop
 	useEffect(() => {
 		const urlValue = searchFilter ?? "";
 		if (urlValue !== localSearch) {
 			setLocalSearch(urlValue);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally exclude localSearch
 	}, [searchFilter]);
 
 	const { data: orders, isLoading } = useQuery(

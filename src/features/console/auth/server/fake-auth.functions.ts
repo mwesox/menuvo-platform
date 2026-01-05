@@ -15,9 +15,14 @@ const loginAsMerchantSchema = z.object({ merchantId: z.number() });
 
 /**
  * Parse merchantId from cookie header.
- * Internal helper - not exported from feature.
+ * MUST be called within server function context.
+ *
+ * Note: This is an internal helper wrapped in createServerFn to ensure
+ * server-only imports (getRequestHeader) don't leak into client bundles.
  */
-export function getMerchantIdFromCookie(): number | null {
+export const getMerchantIdFromCookie = createServerFn({
+	method: "GET",
+}).handler(async (): Promise<number | null> => {
 	try {
 		const cookieHeader = getRequestHeader("cookie");
 		if (!cookieHeader) return null;
@@ -37,7 +42,7 @@ export function getMerchantIdFromCookie(): number | null {
 	} catch {
 		return null;
 	}
-}
+});
 
 /**
  * Get all merchants for the login picker.

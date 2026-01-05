@@ -70,7 +70,6 @@
 	},
 	"checkout": {
 		"title": "Kasse",
-		"payment": "Bezahlung",
 		"orderType": "Bestellart",
 		"orderTypes": {
 			"dineIn": "Vor Ort essen",

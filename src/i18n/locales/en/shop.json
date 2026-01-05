@@ -70,7 +70,6 @@
 	},
 	"checkout": {
 		"title": "Checkout",
-		"payment": "Payment",
 		"orderType": "Order Type",
 		"orderTypes": {
 			"dineIn": "Dine In",

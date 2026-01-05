@@ -27,11 +27,10 @@ import {
 	createOrderPayment,
 	getMerchantMollieClient,
 	getPayment,
-	getServerUrl,
 	getWebhookUrl,
 	isTestMode,
-	mapMolliePaymentStatus,
 	MOLLIE_CONFIG,
+	mapMolliePaymentStatus,
 } from "@/lib/mollie";
 
 import {

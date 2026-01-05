@@ -8,9 +8,10 @@ import { getMerchantIdFromCookie } from "./fake-auth.functions";
 /**
  * Get merchant by cookie, with fallback to first merchant.
  * Internal helper for consistent auth behavior.
+ * MUST be called from within a server function context.
  */
 async function getMerchantFromAuth() {
-	const merchantIdFromCookie = getMerchantIdFromCookie();
+	const merchantIdFromCookie = await getMerchantIdFromCookie();
 
 	if (merchantIdFromCookie) {
 		const merchant = await db.query.merchants.findFirst({

@@ -1,11 +1,11 @@
 import createMollieClient from "@mollie/api-client";
 import { eq } from "drizzle-orm";
+import { config } from "@/config";
 import { db } from "@/db";
 import { merchants } from "@/db/schema";
 import { env } from "@/env";
 import { decryptToken, encryptToken } from "@/lib/crypto";
 import { mollieLogger } from "@/lib/logger";
-import { MOLLIE_CONFIG } from "./config";
 
 // Mollie OAuth endpoints
 const MOLLIE_TOKEN_ENDPOINT = "https://api.mollie.com/oauth2/tokens";
@@ -81,7 +81,7 @@ export async function createClientLink(
 					email: input.email,
 					givenName: input.name.split(" ")[0] || input.name,
 					familyName: input.name.split(" ").slice(1).join(" ") || input.name,
-					locale: MOLLIE_CONFIG.DEFAULT_LOCALE,
+					locale: config.defaultLocale,
 				},
 				name: input.name,
 				address: {
