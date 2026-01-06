@@ -42,17 +42,17 @@ export function MollieCheckout({ orderId, storeSlug }: MollieCheckoutProps) {
 
 	return (
 		<div className="min-h-screen bg-background">
-			<div className="max-w-lg mx-auto px-4 py-6">
+			<div className="mx-auto max-w-lg px-4 py-6">
 				<ShopHeading as="h1" size="xl" className="mb-6">
 					{t("checkout.payment")}
 				</ShopHeading>
 
 				<ShopCard padding="lg" className="space-y-6">
-					<div className="text-center space-y-3">
+					<div className="space-y-3 text-center">
 						<ShopHeading as="h2" size="md">
 							{t("checkout.payment.title")}
 						</ShopHeading>
-						<p className="text-sm text-muted-foreground">
+						<p className="text-muted-foreground text-sm">
 							{t("checkout.payment.description")}
 						</p>
 					</div>
@@ -66,7 +66,7 @@ export function MollieCheckout({ orderId, storeSlug }: MollieCheckoutProps) {
 					</div>
 
 					{createPayment.isError && (
-						<div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm text-center">
+						<div className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
 							{t("checkout.payment.error")}
 						</div>
 					)}
@@ -88,7 +88,7 @@ export function MollieCheckout({ orderId, storeSlug }: MollieCheckoutProps) {
 						)}
 					</ShopButton>
 
-					<p className="text-xs text-muted-foreground text-center">
+					<p className="text-center text-muted-foreground text-xs">
 						{t("checkout.payment.securePayment")}
 					</p>
 				</ShopCard>
@@ -104,8 +104,8 @@ export function MollieCheckout({ orderId, storeSlug }: MollieCheckoutProps) {
 function PaymentMethodIcon({ name }: { name: string }) {
 	return (
 		<div className="flex flex-col items-center gap-1">
-			<div className="w-12 h-8 rounded border bg-muted flex items-center justify-center">
-				<span className="text-[10px] font-medium text-muted-foreground">
+			<div className="flex h-8 w-12 items-center justify-center rounded border bg-muted">
+				<span className="font-medium text-[10px] text-muted-foreground">
 					{name}
 				</span>
 			</div>

@@ -54,7 +54,7 @@ export function ConsoleLayout() {
 			<Sidebar />
 			<div className="flex flex-1 flex-col">
 				{/* Mobile header with hamburger */}
-				<header className="flex h-14 items-center gap-4 border-b border-border bg-card px-4 lg:hidden">
+				<header className="flex h-14 items-center gap-4 border-border border-b bg-card px-4 lg:hidden">
 					<MobileSidebar />
 					<div className="flex-1" />
 				</header>
@@ -63,7 +63,7 @@ export function ConsoleLayout() {
 				<Suspense
 					fallback={
 						<div className="flex-1 p-4 lg:p-6 lg:pt-4">
-							<div className="animate-pulse h-12 bg-muted rounded" />
+							<div className="h-12 animate-pulse rounded bg-muted" />
 						</div>
 					}
 				>

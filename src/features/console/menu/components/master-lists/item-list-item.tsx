@@ -28,7 +28,7 @@ export function ItemListItem({
 			type="button"
 			onClick={() => onSelect(item.id)}
 			className={cn(
-				"w-full text-start px-3 py-2.5 rounded-lg transition-colors",
+				"w-full rounded-lg px-3 py-2.5 text-start transition-colors",
 				"hover:bg-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 				isSelected && "bg-accent",
 			)}
@@ -43,25 +43,25 @@ export function ItemListItem({
 							className="size-10 rounded-md object-cover"
 						/>
 					) : (
-						<div className="size-10 rounded-md bg-muted flex items-center justify-center">
+						<div className="flex size-10 items-center justify-center rounded-md bg-muted">
 							<ImageOff className="size-4 text-muted-foreground" />
 						</div>
 					)}
 				</div>
 
 				{/* Content */}
-				<div className="flex-1 min-w-0">
+				<div className="min-w-0 flex-1">
 					<div className="flex items-center gap-2">
 						<span
 							className={cn(
-								"font-medium truncate",
+								"truncate font-medium",
 								!item.isAvailable && "text-muted-foreground line-through",
 							)}
 						>
 							{displayName}
 						</span>
 					</div>
-					<div className="text-xs text-muted-foreground">
+					<div className="text-muted-foreground text-xs">
 						{formatPrice(item.price)}
 						{!item.isAvailable && (
 							<span className="ms-2 text-amber-600">Nicht verfügbar</span>
@@ -72,7 +72,7 @@ export function ItemListItem({
 				{/* Availability indicator */}
 				<div
 					className={cn(
-						"flex-shrink-0 size-2 rounded-full",
+						"size-2 flex-shrink-0 rounded-full",
 						item.isAvailable ? "bg-green-500" : "bg-amber-500",
 					)}
 				/>

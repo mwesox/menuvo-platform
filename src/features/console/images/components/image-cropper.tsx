@@ -123,11 +123,11 @@ export function ImageCropper({
 							type="button"
 							onClick={() => handlePresetSelect(preset)}
 							className={cn(
-								"px-3 py-2 rounded-lg text-sm font-medium transition-colors border",
+								"rounded-lg border px-3 py-2 font-medium text-sm transition-colors",
 								"flex flex-col items-start gap-0.5",
 								selectedPreset.id === preset.id
-									? "bg-primary text-primary-foreground border-primary"
-									: "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground",
+									? "border-primary bg-primary text-primary-foreground"
+									: "border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
 							)}
 						>
 							<span>{t(`images.presets.${preset.labelKey}`)}</span>
@@ -161,7 +161,7 @@ export function ImageCropper({
 
 				{/* Zoom slider */}
 				<div className="flex items-center gap-3 px-1">
-					<MinusIcon className="size-4 text-muted-foreground shrink-0" />
+					<MinusIcon className="size-4 shrink-0 text-muted-foreground" />
 					<Slider
 						value={[zoom]}
 						onValueChange={handleZoomChange}
@@ -170,12 +170,12 @@ export function ImageCropper({
 						step={1}
 						className="flex-1"
 					/>
-					<PlusIcon className="size-4 text-muted-foreground shrink-0" />
+					<PlusIcon className="size-4 shrink-0 text-muted-foreground" />
 				</div>
 
 				{/* Dimension hint */}
 				{selectedPreset.minWidth > 0 && (
-					<p className="text-xs text-muted-foreground text-center">
+					<p className="text-center text-muted-foreground text-xs">
 						{t("images.recommendedMinimum", {
 							width: selectedPreset.minWidth,
 							height: selectedPreset.minHeight,

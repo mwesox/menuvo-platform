@@ -14,8 +14,8 @@ export function BusinessFooter() {
 	}
 
 	return (
-		<footer className="border-t border-gray-200 bg-gray-50 pb-12">
-			<div className="container px-4 md:px-6 py-16 max-w-7xl mx-auto">
+		<footer className="border-gray-200 border-t bg-gray-50 pb-12">
+			<div className="container mx-auto max-w-7xl px-4 py-16 md:px-6">
 				<div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
 					<div className="space-y-4">
 						<div className="flex items-center gap-2">
@@ -24,13 +24,13 @@ export function BusinessFooter() {
 								alt="Menuvo Logo"
 								className="size-8"
 							/>
-							<span className="text-lg font-bold text-gray-900">Menuvo</span>
+							<span className="font-bold text-gray-900 text-lg">Menuvo</span>
 						</div>
-						<p className="text-sm text-gray-600">{t("footer.tagline")}</p>
+						<p className="text-gray-600 text-sm">{t("footer.tagline")}</p>
 					</div>
 
 					<div className="space-y-4">
-						<h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+						<h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">
 							{t("footer.product")}
 						</h4>
 						<ul className="space-y-2 text-sm">
@@ -38,7 +38,7 @@ export function BusinessFooter() {
 								<button
 									type="button"
 									onClick={() => scrollToSection("features")}
-									className="text-gray-600 hover:text-brand-red transition-colors cursor-pointer"
+									className="cursor-pointer text-gray-600 transition-colors hover:text-brand-red"
 								>
 									{t("header.features")}
 								</button>
@@ -47,7 +47,7 @@ export function BusinessFooter() {
 								<button
 									type="button"
 									onClick={() => scrollToSection("pricing")}
-									className="text-gray-600 hover:text-brand-red transition-colors cursor-pointer"
+									className="cursor-pointer text-gray-600 transition-colors hover:text-brand-red"
 								>
 									{t("header.pricing")}
 								</button>
@@ -56,7 +56,7 @@ export function BusinessFooter() {
 								<button
 									type="button"
 									onClick={() => scrollToSection("faq")}
-									className="text-gray-600 hover:text-brand-red transition-colors cursor-pointer"
+									className="cursor-pointer text-gray-600 transition-colors hover:text-brand-red"
 								>
 									{t("header.faq")}
 								</button>
@@ -65,14 +65,14 @@ export function BusinessFooter() {
 					</div>
 
 					<div className="space-y-4">
-						<h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+						<h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">
 							{t("footer.company")}
 						</h4>
 						<ul className="space-y-2 text-sm">
 							<li>
 								<Link
 									to="/business"
-									className="text-gray-600 hover:text-brand-red transition-colors"
+									className="text-gray-600 transition-colors hover:text-brand-red"
 								>
 									{t("footer.contact")}
 								</Link>
@@ -81,14 +81,14 @@ export function BusinessFooter() {
 					</div>
 
 					<div className="space-y-4">
-						<h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+						<h4 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">
 							{t("footer.legal")}
 						</h4>
 						<ul className="space-y-2 text-sm">
 							<li>
 								<a
 									href="/legal/privacy"
-									className="text-gray-600 hover:text-brand-red transition-colors"
+									className="text-gray-600 transition-colors hover:text-brand-red"
 								>
 									{t("footer.privacy")}
 								</a>
@@ -96,7 +96,7 @@ export function BusinessFooter() {
 							<li>
 								<a
 									href="/legal/terms"
-									className="text-gray-600 hover:text-brand-red transition-colors"
+									className="text-gray-600 transition-colors hover:text-brand-red"
 								>
 									{t("footer.terms")}
 								</a>
@@ -104,7 +104,7 @@ export function BusinessFooter() {
 							<li>
 								<a
 									href="/legal/impressum"
-									className="text-gray-600 hover:text-brand-red transition-colors"
+									className="text-gray-600 transition-colors hover:text-brand-red"
 								>
 									{t("footer.impressum")}
 								</a>
@@ -113,29 +113,29 @@ export function BusinessFooter() {
 					</div>
 				</div>
 
-				<div className="mt-12 pt-8 border-t border-gray-200">
-					<div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-						<p className="text-sm text-gray-500">
+				<div className="mt-12 border-gray-200 border-t pt-8">
+					<div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+						<p className="text-gray-500 text-sm">
 							{t("footer.copyright", { year: currentYear })}
 						</p>
 						<div className="flex gap-4">
 							<button
 								type="button"
-								className="text-gray-500 hover:text-brand-red transition-colors"
+								className="text-gray-500 transition-colors hover:text-brand-red"
 								aria-label="Twitter"
 							>
 								<Twitter className="size-5" />
 							</button>
 							<button
 								type="button"
-								className="text-gray-500 hover:text-brand-red transition-colors"
+								className="text-gray-500 transition-colors hover:text-brand-red"
 								aria-label="Instagram"
 							>
 								<Instagram className="size-5" />
 							</button>
 							<button
 								type="button"
-								className="text-gray-500 hover:text-brand-red transition-colors"
+								className="text-gray-500 transition-colors hover:text-brand-red"
 								aria-label="Facebook"
 							>
 								<Facebook className="size-5" />

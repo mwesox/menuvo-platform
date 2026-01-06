@@ -85,7 +85,7 @@ export function ItemOptionsSelector({
 	if (activeOptionGroups.length === 0) {
 		return (
 			<div className="rounded-lg border border-dashed p-6 text-center">
-				<p className="text-sm text-muted-foreground">
+				<p className="text-muted-foreground text-sm">
 					{t("optionGroups.noOptionGroupsYet")}
 				</p>
 			</div>
@@ -105,7 +105,7 @@ export function ItemOptionsSelector({
 								key={group.id}
 								className={cn(
 									"cursor-pointer p-4 transition-colors",
-									isSelected && "bg-accent border-primary",
+									isSelected && "border-primary bg-accent",
 								)}
 								onClick={() => handleToggle(group.id, !isSelected)}
 							>
@@ -119,7 +119,7 @@ export function ItemOptionsSelector({
 										className="mt-0.5"
 									/>
 									<div className="flex-1 space-y-1">
-										<div className="flex items-center gap-2 flex-wrap">
+										<div className="flex flex-wrap items-center gap-2">
 											<span className="font-medium">
 												{getDisplayName(group.translations, language)}
 											</span>
@@ -129,7 +129,7 @@ export function ItemOptionsSelector({
 												</Badge>
 											)}
 										</div>
-										<div className="flex items-center gap-2 text-sm text-muted-foreground">
+										<div className="flex items-center gap-2 text-muted-foreground text-sm">
 											<span>
 												{choiceCount}{" "}
 												{choiceCount === 1
@@ -146,7 +146,7 @@ export function ItemOptionsSelector({
 											</span>
 										</div>
 										{getDisplayDescription(group.translations, language) && (
-											<p className="text-sm text-muted-foreground">
+											<p className="text-muted-foreground text-sm">
 												{truncateDescription(
 													getDisplayDescription(group.translations, language) ??
 														"",
@@ -161,7 +161,7 @@ export function ItemOptionsSelector({
 				)}
 			</div>
 
-			<p className="text-sm text-muted-foreground">
+			<p className="text-muted-foreground text-sm">
 				{selectedOptionGroupIds.length === 1
 					? t("optionGroups.optionGroupsSelected", {
 							count: selectedOptionGroupIds.length,

@@ -12,9 +12,9 @@ export function CartSummary({ subtotal }: CartSummaryProps) {
 	const { t } = useTranslation("shop");
 
 	return (
-		<div className="pt-4 border-t border-border">
+		<div className="border-border border-t pt-4">
 			{/* Total row - prices include VAT (European style) */}
-			<div className="flex justify-between py-2 text-lg font-medium text-foreground">
+			<div className="flex justify-between py-2 font-medium text-foreground text-lg">
 				<span>{t("cart.total")}</span>
 				<ShopHeading as="span" size="lg">
 					<ShopPrice cents={subtotal} size="lg" />

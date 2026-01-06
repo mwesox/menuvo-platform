@@ -132,12 +132,12 @@ function SingleSelectGroup({
 						key={choice.id}
 						htmlFor={`choice-${group.id}-${choice.id}`}
 						className={cn(
-							"flex items-center justify-between p-3 rounded-xl cursor-pointer",
+							"flex cursor-pointer items-center justify-between rounded-xl p-3",
 							"border-2 transition-all duration-150",
 							isSelected
 								? "border-primary bg-primary/5"
-								: "border-border/60 hover:border-border bg-card",
-							isUnavailable && "opacity-50 cursor-not-allowed",
+								: "border-border/60 bg-card hover:border-border",
+							isUnavailable && "cursor-not-allowed opacity-50",
 						)}
 					>
 						<div className="flex items-center gap-3">
@@ -152,7 +152,7 @@ function SingleSelectGroup({
 							/>
 							<div
 								className={cn(
-									"size-5 rounded-full border-2 shrink-0",
+									"size-5 shrink-0 rounded-full border-2",
 									"flex items-center justify-center transition-all duration-150",
 									"peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
 									isSelected ? "border-primary bg-primary" : "border-border",
@@ -164,7 +164,7 @@ function SingleSelectGroup({
 								className={cn(
 									"text-sm transition-colors",
 									isSelected
-										? "text-foreground font-medium"
+										? "font-medium text-foreground"
 										: "text-foreground",
 									isUnavailable && "line-through",
 								)}
@@ -172,7 +172,7 @@ function SingleSelectGroup({
 								{choice.name}
 							</span>
 							{isUnavailable && (
-								<span className="text-xs text-muted-foreground">
+								<span className="text-muted-foreground text-xs">
 									{t("menu.soldOut")}
 								</span>
 							)}
@@ -228,13 +228,13 @@ function MultiSelectGroup({
 						key={choice.id}
 						htmlFor={`choice-${group.id}-${choice.id}`}
 						className={cn(
-							"flex items-center justify-between p-3 rounded-xl cursor-pointer",
+							"flex cursor-pointer items-center justify-between rounded-xl p-3",
 							"border-2 transition-all duration-150",
 							isSelected
 								? "border-primary bg-primary/5"
-								: "border-border/60 hover:border-border bg-card",
+								: "border-border/60 bg-card hover:border-border",
 							(isAtMax || isUnavailable) &&
-								"opacity-50 cursor-not-allowed hover:border-border/60",
+								"cursor-not-allowed opacity-50 hover:border-border/60",
 						)}
 					>
 						<div className="flex items-center gap-3">
@@ -248,7 +248,7 @@ function MultiSelectGroup({
 							/>
 							<div
 								className={cn(
-									"size-5 rounded-md border-2 shrink-0",
+									"size-5 shrink-0 rounded-md border-2",
 									"flex items-center justify-center transition-all duration-150",
 									"peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
 									isSelected ? "border-primary bg-primary" : "border-border",
@@ -256,14 +256,14 @@ function MultiSelectGroup({
 								)}
 							>
 								{isSelected && (
-									<Check className="size-3 text-white stroke-[3]" />
+									<Check className="size-3 stroke-[3] text-white" />
 								)}
 							</div>
 							<span
 								className={cn(
 									"text-sm transition-colors",
 									isSelected
-										? "text-foreground font-medium"
+										? "font-medium text-foreground"
 										: "text-foreground",
 									isUnavailable && "line-through",
 								)}
@@ -271,7 +271,7 @@ function MultiSelectGroup({
 								{choice.name}
 							</span>
 							{isUnavailable && (
-								<span className="text-xs text-muted-foreground">
+								<span className="text-muted-foreground text-xs">
 									{t("menu.soldOut")}
 								</span>
 							)}
@@ -334,7 +334,7 @@ function QuantitySelectGroup({
 					<div
 						key={choice.id}
 						className={cn(
-							"flex items-center justify-between p-3 rounded-xl",
+							"flex items-center justify-between rounded-xl p-3",
 							"border-2 transition-all duration-150",
 							quantity > 0
 								? "border-primary bg-primary/5"
@@ -342,12 +342,12 @@ function QuantitySelectGroup({
 							isUnavailable && "opacity-50",
 						)}
 					>
-						<div className="flex items-center gap-3 flex-1 min-w-0">
+						<div className="flex min-w-0 flex-1 items-center gap-3">
 							<span
 								className={cn(
 									"text-sm transition-colors",
 									quantity > 0
-										? "text-foreground font-medium"
+										? "font-medium text-foreground"
 										: "text-foreground",
 									isUnavailable && "line-through",
 								)}
@@ -355,7 +355,7 @@ function QuantitySelectGroup({
 								{choice.name}
 							</span>
 							{isUnavailable && (
-								<span className="text-xs text-muted-foreground">
+								<span className="text-muted-foreground text-xs">
 									{t("menu.soldOut")}
 								</span>
 							)}
@@ -383,7 +383,7 @@ function QuantitySelectGroup({
 										name: choice.name,
 									})}
 									className={cn(
-										"flex items-center justify-center rounded-full transition-colors size-8",
+										"flex size-8 items-center justify-center rounded-full transition-colors",
 										"hover:bg-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
 										"active:scale-95",
 										!canDecrement &&
@@ -395,7 +395,7 @@ function QuantitySelectGroup({
 
 								<span
 									className={cn(
-										"min-w-[2rem] text-center font-medium tabular-nums text-foreground text-sm",
+										"min-w-[2rem] text-center font-medium text-foreground text-sm tabular-nums",
 									)}
 									aria-live="polite"
 									aria-atomic="true"
@@ -411,7 +411,7 @@ function QuantitySelectGroup({
 										name: choice.name,
 									})}
 									className={cn(
-										"flex items-center justify-center rounded-full transition-colors size-8",
+										"flex size-8 items-center justify-center rounded-full transition-colors",
 										"hover:bg-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
 										"active:scale-95",
 										!canIncrement &&
@@ -430,7 +430,7 @@ function QuantitySelectGroup({
 			{(group.aggregateMinQuantity !== null ||
 				group.aggregateMaxQuantity !== null) && (
 				<div className="flex justify-end px-1 pt-1">
-					<span className="text-xs text-muted-foreground tabular-nums">
+					<span className="text-muted-foreground text-xs tabular-nums">
 						{t("menu.options.selected", { count: totalQuantity })}
 						{group.aggregateMaxQuantity !== null && (
 							<>
@@ -496,9 +496,9 @@ export function OptionGroup({
 	return (
 		<div className="py-4 first:pt-0">
 			{/* Group Header */}
-			<div className="flex items-baseline justify-between mb-3">
+			<div className="mb-3 flex items-baseline justify-between">
 				<h3
-					className="text-base font-medium text-foreground"
+					className="font-medium text-base text-foreground"
 					style={{ fontFamily: "var(--font-heading)" }}
 				>
 					{group.name}
@@ -507,7 +507,7 @@ export function OptionGroup({
 					className={cn(
 						"text-xs uppercase tracking-wide",
 						group.isRequired
-							? "text-primary font-medium"
+							? "font-medium text-primary"
 							: "text-muted-foreground",
 					)}
 				>

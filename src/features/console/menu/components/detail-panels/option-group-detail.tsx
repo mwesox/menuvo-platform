@@ -146,21 +146,21 @@ export function OptionGroupDetail({
 		<div className="space-y-6">
 			{/* Header */}
 			<div className="flex items-start justify-between gap-4">
-				<div className="flex-1 min-w-0">
-					<div className="flex items-center gap-2 flex-wrap">
-						<h2 className="text-xl font-semibold truncate">{displayName}</h2>
+				<div className="min-w-0 flex-1">
+					<div className="flex flex-wrap items-center gap-2">
+						<h2 className="truncate font-semibold text-xl">{displayName}</h2>
 						<Badge variant={getTypeBadgeVariant(optionGroup.type)}>
 							{getTypeLabel(t, optionGroup.type)}
 						</Badge>
 						{!optionGroup.isActive && (
-							<span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+							<span className="inline-flex items-center gap-1 text-muted-foreground text-xs">
 								<EyeOff className="h-3.5 w-3.5" />
 								{t("optionGroups.hidden")}
 							</span>
 						)}
 					</div>
 					{displayDescription && (
-						<p className="mt-1 text-sm text-muted-foreground">
+						<p className="mt-1 text-muted-foreground text-sm">
 							{displayDescription}
 						</p>
 					)}
@@ -200,7 +200,7 @@ export function OptionGroupDetail({
 			</div>
 
 			{/* Settings summary */}
-			<div className="rounded-lg border bg-muted/30 p-4 space-y-2 text-sm">
+			<div className="space-y-2 rounded-lg border bg-muted/30 p-4 text-sm">
 				<div className="flex items-center justify-between">
 					<span className="text-muted-foreground">
 						{t("optionGroups.requiredLabel")}
@@ -247,18 +247,18 @@ export function OptionGroupDetail({
 
 			{/* Choices list */}
 			<div>
-				<h3 className="text-sm font-medium mb-3">
+				<h3 className="mb-3 font-medium text-sm">
 					{t("optionGroups.choices")} ({optionGroup.choices.length})
 				</h3>
 
 				{optionGroup.choices.length === 0 ? (
 					<div className="rounded-lg border border-dashed p-6 text-center">
-						<p className="text-sm text-muted-foreground">
+						<p className="text-muted-foreground text-sm">
 							{t("optionGroups.noChoices")}
 						</p>
 					</div>
 				) : (
-					<div className="rounded-lg border divide-y">
+					<div className="divide-y rounded-lg border">
 						{optionGroup.choices.map((choice) => (
 							<div
 								key={choice.id}
@@ -279,20 +279,20 @@ export function OptionGroupDetail({
 									{choice.isDefault && (
 										<Badge
 											variant="secondary"
-											className="text-[10px] px-1.5 py-0"
+											className="px-1.5 py-0 text-[10px]"
 										>
 											{t("optionGroups.default")}
 										</Badge>
 									)}
 									{!choice.isAvailable && (
-										<span className="text-xs text-muted-foreground">
+										<span className="text-muted-foreground text-xs">
 											{t("optionGroups.soldOut")}
 										</span>
 									)}
 								</div>
 								<span
 									className={cn(
-										"text-sm font-medium tabular-nums",
+										"font-medium text-sm tabular-nums",
 										choice.priceModifier > 0 && "text-foreground",
 										choice.priceModifier < 0 && "text-green-600",
 										choice.priceModifier === 0 && "text-muted-foreground",
@@ -307,7 +307,7 @@ export function OptionGroupDetail({
 			</div>
 
 			{/* Edit button */}
-			<div className="pt-4 border-t">
+			<div className="border-t pt-4">
 				<Button onClick={() => onEdit(optionGroup)} className="w-full">
 					<Pencil className="me-2 size-4" />
 					{t("optionGroups.editOptionGroup")}

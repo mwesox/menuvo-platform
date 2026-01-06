@@ -34,7 +34,7 @@ export function ConsoleHeader({
 	const selectedStore = stores.find((s) => s.id === storeId) ?? stores[0];
 
 	return (
-		<header className="flex h-12 items-center justify-between border-b border-border bg-card/50 px-4">
+		<header className="flex h-12 items-center justify-between border-border border-b bg-card/50 px-4">
 			{/* Left: Store selector */}
 			<div className="flex items-center gap-2">
 				{hasMultipleStores && onStoreChange ? (

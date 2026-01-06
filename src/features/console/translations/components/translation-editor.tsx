@@ -140,16 +140,16 @@ export function TranslationEditor({
 		primaryLanguage;
 
 	return (
-		<div className="flex flex-col h-full">
+		<div className="flex h-full flex-col">
 			{/* Header */}
-			<div className="flex items-center justify-between p-4 border-b">
-				<div className="flex items-center gap-3 min-w-0">
-					<div className="flex-shrink-0 size-10 rounded-lg bg-muted flex items-center justify-center">
+			<div className="flex items-center justify-between border-b p-4">
+				<div className="flex min-w-0 items-center gap-3">
+					<div className="flex size-10 flex-shrink-0 items-center justify-center rounded-lg bg-muted">
 						<Icon className="size-5" />
 					</div>
 					<div className="min-w-0">
-						<h3 className="font-semibold truncate">{name}</h3>
-						<p className="text-sm text-muted-foreground">
+						<h3 className="truncate font-semibold">{name}</h3>
+						<p className="text-muted-foreground text-sm">
 							{entityLabels[entityType]}
 						</p>
 					</div>
@@ -167,21 +167,21 @@ export function TranslationEditor({
 						e.preventDefault();
 						form.handleSubmit();
 					}}
-					className="p-4 space-y-6"
+					className="space-y-6 p-4"
 				>
 					{/* Primary language (read-only) */}
-					<div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-						<div className="flex items-center gap-2 text-sm font-medium">
-							<span className="uppercase text-muted-foreground">
+					<div className="space-y-3 rounded-lg bg-muted/30 p-4">
+						<div className="flex items-center gap-2 font-medium text-sm">
+							<span className="text-muted-foreground uppercase">
 								{primaryLanguage}
 							</span>
 							<span className="text-muted-foreground">·</span>
 							<span>{primaryLangLabel}</span>
-							<span className="text-xs text-muted-foreground">(Primary)</span>
+							<span className="text-muted-foreground text-xs">(Primary)</span>
 						</div>
 
 						<Field>
-							<FieldLabel className="text-xs text-muted-foreground">
+							<FieldLabel className="text-muted-foreground text-xs">
 								{tForms("fields.name")}
 							</FieldLabel>
 							<div className="text-sm">{name}</div>
@@ -189,10 +189,10 @@ export function TranslationEditor({
 
 						{hasDescription && description && (
 							<Field>
-								<FieldLabel className="text-xs text-muted-foreground">
+								<FieldLabel className="text-muted-foreground text-xs">
 									{tForms("fields.description")}
 								</FieldLabel>
-								<div className="text-sm whitespace-pre-wrap">{description}</div>
+								<div className="whitespace-pre-wrap text-sm">{description}</div>
 							</Field>
 						)}
 					</div>
@@ -213,10 +213,10 @@ export function TranslationEditor({
 								: "complete";
 
 						return (
-							<div key={lang} className="space-y-3 p-4 border rounded-lg">
+							<div key={lang} className="space-y-3 rounded-lg border p-4">
 								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-2 text-sm font-medium">
-										<span className="uppercase text-muted-foreground">
+									<div className="flex items-center gap-2 font-medium text-sm">
+										<span className="text-muted-foreground uppercase">
 											{lang}
 										</span>
 										<span className="text-muted-foreground">·</span>

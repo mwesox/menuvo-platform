@@ -130,9 +130,9 @@ export function MollieStatusCard({
 
 				{/* PayPal included badge */}
 				{isComplete && (
-					<div className="flex items-center gap-2 py-3 px-4 rounded-lg bg-blue-50 border border-blue-200">
+					<div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
 						<CheckCircle className="size-4 text-green-600" />
-						<span className="text-sm font-medium text-blue-800">
+						<span className="font-medium text-blue-800 text-sm">
 							{t("payments.mollie.status.paypalEnabled")}
 						</span>
 					</div>
@@ -215,11 +215,11 @@ function StatusRow({
 				: inactiveText;
 
 	return (
-		<div className="flex items-center justify-between py-2 border-b last:border-0">
-			<span className="text-sm text-muted-foreground">{label}</span>
+		<div className="flex items-center justify-between border-b py-2 last:border-0">
+			<span className="text-muted-foreground text-sm">{label}</span>
 			<div className="flex items-center gap-2">
 				<Icon className={`size-4 ${iconColor}`} />
-				<span className="text-sm font-medium">{text}</span>
+				<span className="font-medium text-sm">{text}</span>
 			</div>
 		</div>
 	);

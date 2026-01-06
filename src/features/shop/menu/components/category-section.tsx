@@ -28,27 +28,27 @@ export function CategorySection({
 	return (
 		<section ref={refSetter} data-category-id={category.id} className="mb-10">
 			{/* Category header with item count */}
-			<div className="flex items-baseline gap-3 mb-4">
+			<div className="mb-4 flex items-baseline gap-3">
 				<h2
 					className="text-2xl text-foreground"
 					style={{ fontFamily: "var(--font-heading)" }}
 				>
 					{category.name}
 				</h2>
-				<span className="text-sm text-muted-foreground tabular-nums">
+				<span className="text-muted-foreground text-sm tabular-nums">
 					{t("menu.itemCount", { count: itemCount })}
 				</span>
 			</div>
 
 			{/* Category description */}
 			{category.description && (
-				<p className="mb-4 text-sm text-muted-foreground max-w-lg">
+				<p className="mb-4 max-w-lg text-muted-foreground text-sm">
 					{category.description}
 				</p>
 			)}
 
 			{/* Items grid - responsive 1-2-3 columns with container queries */}
-			<div className="@container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
+			<div className="@container grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-5">
 				{category.items.map((item) => (
 					<MenuItemCard
 						key={item.id}

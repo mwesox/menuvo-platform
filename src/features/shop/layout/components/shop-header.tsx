@@ -50,7 +50,7 @@ function CartButton({ onClick }: { onClick: () => void }) {
 				<ShoppingCart className="size-5" />
 				{itemCount > 0 && (
 					<span
-						className="absolute -end-1 -top-1 flex size-5 items-center justify-center rounded-full text-xs font-medium"
+						className="absolute -end-1 -top-1 flex size-5 items-center justify-center rounded-full font-medium text-xs"
 						style={{
 							backgroundColor: "var(--primary)",
 							color: "var(--primary-foreground)",
@@ -65,7 +65,7 @@ function CartButton({ onClick }: { onClick: () => void }) {
 			<Button
 				variant="ghost"
 				className={cn(
-					"hidden md:flex items-center gap-2 text-foreground hover:bg-accent hover:text-accent-foreground",
+					"hidden items-center gap-2 text-foreground hover:bg-accent hover:text-accent-foreground md:flex",
 					itemCount > 0 && "pe-3",
 				)}
 				onClick={onClick}
@@ -74,11 +74,11 @@ function CartButton({ onClick }: { onClick: () => void }) {
 				<ShoppingCart className="size-5" />
 				{itemCount > 0 && (
 					<>
-						<span className="text-sm font-medium">
+						<span className="font-medium text-sm">
 							{t("header.itemCount", { count: itemCount })}
 						</span>
 						<span className="opacity-60">·</span>
-						<span className="text-sm font-semibold tabular-nums">
+						<span className="font-semibold text-sm tabular-nums">
 							{formatPrice(subtotal)}
 						</span>
 					</>
@@ -127,7 +127,7 @@ function SearchInput() {
 				onFocus={() => setIsFocused(true)}
 				onBlur={() => setIsFocused(false)}
 				placeholder={t("header.searchPlaceholder")}
-				className="h-9 min-w-48 w-56 md:w-64 lg:w-80 xl:w-96 rounded-lg border border-transparent bg-muted/50 ps-9 pe-16 text-sm text-foreground placeholder:text-muted-foreground focus:border-border focus:bg-background focus:outline-none"
+				className="h-9 w-56 min-w-48 rounded-lg border border-transparent bg-muted/50 ps-9 pe-16 text-foreground text-sm placeholder:text-muted-foreground focus:border-border focus:bg-background focus:outline-none md:w-64 lg:w-80 xl:w-96"
 			/>
 			{/* Keyboard shortcut hint or clear button */}
 			<div className="absolute end-2 top-1/2 -translate-y-1/2">
@@ -195,13 +195,13 @@ function StoreInfo() {
 			className="group flex min-w-0 flex-col items-center md:flex-row md:gap-2"
 		>
 			{/* Store name - always visible, with editorial hover underline */}
-			<span className="truncate font-serif text-base font-medium text-foreground decoration-1 underline-offset-4 group-hover:underline">
+			<span className="truncate font-medium font-serif text-base text-foreground decoration-1 underline-offset-4 group-hover:underline">
 				{store.name}
 			</span>
 
 			{/* Mobile closed indicator - only when closed */}
 			{store.isOpen === false && (
-				<span className="flex items-center gap-1 text-xs text-destructive md:hidden">
+				<span className="flex items-center gap-1 text-destructive text-xs md:hidden">
 					<span className="size-1.5 rounded-full bg-destructive" />
 					{t("status.closed")}
 				</span>
@@ -212,7 +212,7 @@ function StoreInfo() {
 				{storeAddress && (
 					<>
 						<span className="text-muted-foreground">·</span>
-						<span className="truncate text-sm text-muted-foreground">
+						<span className="truncate text-muted-foreground text-sm">
 							{storeAddress}
 						</span>
 					</>
@@ -261,7 +261,7 @@ export function ShopHeader() {
 					<Link
 						to="/$slug"
 						params={{ slug }}
-						className="flex shrink-0 items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+						className="flex shrink-0 items-center gap-1 text-muted-foreground text-sm transition-colors hover:text-foreground"
 					>
 						<ChevronLeft className="size-4" />
 						<span>{t("header.backToMenu")}</span>

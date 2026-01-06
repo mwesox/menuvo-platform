@@ -93,7 +93,7 @@ export function ComparisonPanel({
 	return (
 		<div className="space-y-4">
 			{/* Toolbar */}
-			<div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+			<div className="flex items-center justify-between rounded-lg bg-muted p-3">
 				<div className="flex items-center gap-4">
 					<Checkbox
 						checked={selectedItems.size === totalSelectable}
@@ -109,7 +109,7 @@ export function ComparisonPanel({
 						})}
 					</span>
 				</div>
-				<div className="flex gap-2 text-xs text-muted-foreground">
+				<div className="flex gap-2 text-muted-foreground text-xs">
 					<span>{t("import.comparison.newCount", { count: totalNew })}</span>
 					<span>•</span>
 					<span>
@@ -135,14 +135,14 @@ export function ComparisonPanel({
 
 					{comparison.optionGroups.length > 0 && (
 						<div className="mt-6">
-							<h3 className="text-sm font-medium mb-3">
+							<h3 className="mb-3 font-medium text-sm">
 								{t("import.comparison.optionGroups")}
 							</h3>
 							<div className="space-y-2">
 								{comparison.optionGroups.map((og) => (
 									<div
 										key={og.extracted.name}
-										className="flex items-center gap-3 p-3 border rounded-lg"
+										className="flex items-center gap-3 rounded-lg border p-3"
 									>
 										<Checkbox
 											checked={selectedItems.has(
@@ -153,10 +153,10 @@ export function ComparisonPanel({
 											}
 										/>
 										<div className="flex-1">
-											<span className="text-sm font-medium">
+											<span className="font-medium text-sm">
 												{og.extracted.name}
 											</span>
-											<span className="text-xs text-muted-foreground ms-2">
+											<span className="ms-2 text-muted-foreground text-xs">
 												(
 												{t("import.comparison.choicesCount", {
 													count: og.extracted.choices.length,
@@ -236,7 +236,7 @@ function CategoryCard({
 	const isCategorySelected = selectedItems.has(categoryKey);
 
 	return (
-		<div className="border rounded-lg">
+		<div className="rounded-lg border">
 			<div className="flex items-center gap-3 p-3">
 				<Checkbox
 					checked={isCategorySelected}
@@ -257,19 +257,19 @@ function CategoryCard({
 				<div className="flex-1">
 					<span className="font-medium">{category.extracted.name}</span>
 					{category.extracted.description && (
-						<p className="text-xs text-muted-foreground line-clamp-1">
+						<p className="line-clamp-1 text-muted-foreground text-xs">
 							{category.extracted.description}
 						</p>
 					)}
 				</div>
-				<span className="text-xs text-muted-foreground">
+				<span className="text-muted-foreground text-xs">
 					{t("import.comparison.itemsCount", { count: category.items.length })}
 				</span>
 				<ActionBadge action={category.action} t={t} />
 			</div>
 
 			{isExpanded && category.items.length > 0 && (
-				<div className="border-t px-3 py-2 space-y-2 bg-muted/30">
+				<div className="space-y-2 border-t bg-muted/30 px-3 py-2">
 					{category.items.map((item) => (
 						<ItemRow
 							key={item.extracted.name}
@@ -296,10 +296,10 @@ function ItemRow({ item, isSelected, onToggle, t }: ItemRowProps) {
 	return (
 		<div className="flex items-center gap-3 py-1 ps-8">
 			<Checkbox checked={isSelected} onCheckedChange={onToggle} />
-			<div className="flex-1 min-w-0">
+			<div className="min-w-0 flex-1">
 				<span className="text-sm">{item.extracted.name}</span>
 				{item.changes && item.changes.length > 0 && (
-					<span className="text-xs text-muted-foreground ms-2">
+					<span className="ms-2 text-muted-foreground text-xs">
 						(
 						{t("import.changes.fieldChanged", {
 							fields: item.changes.map((c) => c.field).join(", "),
@@ -308,7 +308,7 @@ function ItemRow({ item, isSelected, onToggle, t }: ItemRowProps) {
 					</span>
 				)}
 			</div>
-			<span className="text-sm font-medium">
+			<span className="font-medium text-sm">
 				{formatPrice(item.extracted.price)}
 			</span>
 			<ActionBadge action={item.action} t={t} />

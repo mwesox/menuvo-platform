@@ -90,8 +90,8 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
 				<div>
-					<h2 className="text-lg font-semibold">{t("titles.servicePoints")}</h2>
-					<p className="text-sm text-muted-foreground">
+					<h2 className="font-semibold text-lg">{t("titles.servicePoints")}</h2>
+					<p className="text-muted-foreground text-sm">
 						{t("descriptions.manageServicePoints")}
 					</p>
 				</div>
@@ -149,10 +149,10 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 						<div className="flex size-16 items-center justify-center rounded-full bg-muted">
 							<QrCode className="size-8 text-muted-foreground" />
 						</div>
-						<h3 className="mt-4 text-lg font-semibold">
+						<h3 className="mt-4 font-semibold text-lg">
 							{t("emptyStates.noServicePoints")}
 						</h3>
-						<p className="mt-2 text-center text-sm text-muted-foreground">
+						<p className="mt-2 text-center text-muted-foreground text-sm">
 							{t("emptyStates.noServicePointsDescription")}
 						</p>
 						<Button className="mt-6" onClick={() => setCreateDialogOpen(true)}>

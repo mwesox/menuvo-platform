@@ -137,7 +137,7 @@ export function OrdersList({
 		<div className="flex flex-col gap-3">
 			{/* Search */}
 			<div className="relative">
-				<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+				<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
 				<Input
 					type="search"
 					placeholder={t("searchPlaceholder")}
@@ -191,10 +191,10 @@ export function OrdersList({
 			{/* Orders List */}
 			{isEmpty ? (
 				<div className="flex flex-col items-center justify-center py-12 text-center">
-					<p className="text-lg font-medium">
+					<p className="font-medium text-lg">
 						{isFiltered ? t("emptyFiltered.title") : t("empty.title")}
 					</p>
-					<p className="text-sm text-muted-foreground">
+					<p className="text-muted-foreground text-sm">
 						{isFiltered
 							? t("emptyFiltered.description")
 							: t("empty.description")}

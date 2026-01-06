@@ -295,10 +295,10 @@ describe("Menu Import Pipeline", () => {
 					i.extracted.name === "Spring Rolls",
 			);
 			expect(springRollsComp).toBeDefined();
-			expect(springRollsComp!.action).toBe("update");
-			expect(springRollsComp!.changes).toBeDefined();
+			expect(springRollsComp?.action).toBe("update");
+			expect(springRollsComp?.changes).toBeDefined();
 			expect(
-				springRollsComp!.changes!.some(
+				springRollsComp?.changes?.some(
 					(c: { field: string }) => c.field === "price",
 				),
 			).toBe(true);
@@ -308,7 +308,7 @@ describe("Menu Import Pipeline", () => {
 				(i: { extracted: { name: string } }) => i.extracted.name === "New Item",
 			);
 			expect(newItemComp).toBeDefined();
-			expect(newItemComp!.action).toBe("create");
+			expect(newItemComp?.action).toBe("create");
 
 			// 6. Apply all changes
 			const selections = [

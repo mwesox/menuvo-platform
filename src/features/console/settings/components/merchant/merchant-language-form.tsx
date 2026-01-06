@@ -95,7 +95,7 @@ export function MerchantLanguageForm({
 									</FieldLabel>
 
 									{/* List of languages */}
-									<div className="space-y-2 mt-2">
+									<div className="mt-2 space-y-2">
 										<div className="flex flex-wrap gap-2">
 											{field.state.value.map((langCode, index) => {
 												const lang = LANGUAGE_OPTIONS.find(

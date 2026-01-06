@@ -61,7 +61,7 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 				</CardHeader>
 				<CardContent className="space-y-4">
 					{closures.length === 0 && !isAdding && (
-						<p className="text-muted-foreground text-sm py-4 text-center">
+						<p className="py-4 text-center text-muted-foreground text-sm">
 							{t("emptyStates.noClosures")}
 						</p>
 					)}
@@ -125,11 +125,11 @@ function ClosureListItem({ closure, storeId, onEdit }: ClosureListItemProps) {
 		: `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
 
 	return (
-		<div className="flex items-center justify-between py-3 px-4 border rounded-lg">
+		<div className="flex items-center justify-between rounded-lg border px-4 py-3">
 			<div>
 				<p className="font-medium">{dateDisplay}</p>
 				{closure.reason && (
-					<p className="text-sm text-muted-foreground">{closure.reason}</p>
+					<p className="text-muted-foreground text-sm">{closure.reason}</p>
 				)}
 			</div>
 			<div className="flex items-center gap-2">
@@ -217,7 +217,7 @@ function ClosureForm({
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="p-4 border rounded-lg space-y-4"
+			className="space-y-4 rounded-lg border p-4"
 		>
 			<div className="grid gap-4 sm:grid-cols-2">
 				<form.Field name="startDate">

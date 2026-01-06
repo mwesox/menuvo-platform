@@ -35,19 +35,19 @@ export function PaymentSetupCard({ merchantId }: PaymentSetupCardProps) {
 					<CreditCard className="size-6 text-primary" />
 				</div>
 				<CardTitle>{t("payments.setup.title")}</CardTitle>
-				<CardDescription className="max-w-md mx-auto">
+				<CardDescription className="mx-auto max-w-md">
 					{t("payments.setup.description")}
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-6">
 				<div className="space-y-3">
-					<p className="text-sm font-medium text-center">
+					<p className="text-center font-medium text-sm">
 						{t("payments.setup.benefitsTitle")}
 					</p>
 					<ul className="space-y-2">
 						{benefits.map((key) => (
 							<li key={key} className="flex items-center gap-2 text-sm">
-								<Check className="size-4 text-green-600 shrink-0" />
+								<Check className="size-4 shrink-0 text-green-600" />
 								<span>{t(key)}</span>
 							</li>
 						))}

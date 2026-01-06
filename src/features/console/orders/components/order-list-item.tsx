@@ -52,18 +52,18 @@ export function OrderListItem({
 			onClick={onSelect}
 			className={cn(
 				"flex w-full flex-col gap-2 rounded-lg border p-3 text-start transition-colors hover:bg-accent",
-				isSelected && "bg-accent border-primary",
+				isSelected && "border-primary bg-accent",
 			)}
 		>
 			{/* Top row: Order number, customer name, time */}
 			<div className="flex items-center justify-between gap-2">
-				<div className="flex items-center gap-2 min-w-0">
+				<div className="flex min-w-0 items-center gap-2">
 					<span className="font-medium text-sm">#{order.id}</span>
-					<span className="text-sm text-muted-foreground truncate">
+					<span className="truncate text-muted-foreground text-sm">
 						{order.customerName || "Guest"}
 					</span>
 				</div>
-				<span className="text-xs text-muted-foreground whitespace-nowrap">
+				<span className="whitespace-nowrap text-muted-foreground text-xs">
 					{timeAgo}
 				</span>
 			</div>

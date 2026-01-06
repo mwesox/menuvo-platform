@@ -69,22 +69,22 @@ export function ProcessingProgress({
 			{/* Main spinner */}
 			<div className="flex justify-center">
 				{isComplete ? (
-					<div className="size-16 rounded-full bg-primary/10 flex items-center justify-center">
+					<div className="flex size-16 items-center justify-center rounded-full bg-primary/10">
 						<Check className="size-8 text-primary" />
 					</div>
 				) : (
-					<Loader2 className="size-16 text-primary animate-spin" />
+					<Loader2 className="size-16 animate-spin text-primary" />
 				)}
 			</div>
 
 			{/* Current status text */}
 			<div className="text-center">
-				<p className="text-lg font-medium">
+				<p className="font-medium text-lg">
 					{isComplete
 						? t("import.progress.complete")
 						: t(`import.progress.${STAGES[currentStage]?.key ?? "analyzing"}`)}
 				</p>
-				<p className="text-sm text-muted-foreground mt-1">
+				<p className="mt-1 text-muted-foreground text-sm">
 					{isComplete
 						? t("import.progress.reviewReady")
 						: t("import.status.pleaseWait")}
@@ -101,7 +101,7 @@ export function ProcessingProgress({
 					return (
 						<div key={stage.key} className="flex flex-col items-center gap-2">
 							<div
-								className={`size-10 rounded-full flex items-center justify-center transition-colors ${
+								className={`flex size-10 items-center justify-center rounded-full transition-colors ${
 									isDone
 										? "bg-primary text-primary-foreground"
 										: isActive
@@ -133,8 +133,8 @@ export function ProcessingProgress({
 
 			{/* Progress bar for current stage */}
 			{!isComplete && !isFailed && (
-				<div className="max-w-xs mx-auto">
-					<div className="h-1 bg-muted rounded-full overflow-hidden">
+				<div className="mx-auto max-w-xs">
+					<div className="h-1 overflow-hidden rounded-full bg-muted">
 						<div
 							className="h-full bg-primary transition-all duration-100 ease-linear"
 							style={{ width: `${stageProgress}%` }}

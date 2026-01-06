@@ -152,7 +152,7 @@ export function OrderCardKitchen({
 							</span>
 						</div>
 						{item.options.length > 0 && (
-							<div className="mt-0.5 ms-7 text-muted-foreground text-sm">
+							<div className="ms-7 mt-0.5 text-muted-foreground text-sm">
 								{item.options.map((opt) => (
 									<div key={opt.id} className="flex items-center gap-1">
 										<span className="text-muted-foreground/60">•</span>

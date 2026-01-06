@@ -52,25 +52,25 @@ export function ItemDetail({
 							className="h-32 w-32 rounded-lg object-cover"
 						/>
 					) : (
-						<div className="h-32 w-32 rounded-lg bg-muted flex items-center justify-center">
+						<div className="flex h-32 w-32 items-center justify-center rounded-lg bg-muted">
 							<ImageOff className="size-8 text-muted-foreground" />
 						</div>
 					)}
 				</div>
 
 				{/* Info */}
-				<div className="flex-1 min-w-0">
+				<div className="min-w-0 flex-1">
 					<div className="flex items-start justify-between gap-2">
 						<div>
 							<h2
 								className={cn(
-									"text-xl font-semibold",
+									"font-semibold text-xl",
 									!item.isAvailable && "text-muted-foreground",
 								)}
 							>
 								{displayName}
 							</h2>
-							<p className="text-2xl font-bold mt-1">
+							<p className="mt-1 font-bold text-2xl">
 								{formatPrice(item.price)}
 							</p>
 						</div>
@@ -104,7 +104,7 @@ export function ItemDetail({
 					</div>
 
 					{/* Availability */}
-					<div className="flex items-center gap-3 mt-4">
+					<div className="mt-4 flex items-center gap-3">
 						<Switch
 							checked={item.isAvailable}
 							onCheckedChange={(checked) => onToggleAvailable(item.id, checked)}
@@ -121,17 +121,17 @@ export function ItemDetail({
 			{/* Description */}
 			{displayDescription && (
 				<div>
-					<h3 className="text-sm font-medium mb-2">
+					<h3 className="mb-2 font-medium text-sm">
 						{t("labels.description")}
 					</h3>
-					<p className="text-sm text-muted-foreground">{displayDescription}</p>
+					<p className="text-muted-foreground text-sm">{displayDescription}</p>
 				</div>
 			)}
 
 			{/* Allergens */}
 			{item.allergens && item.allergens.length > 0 && (
 				<div>
-					<h3 className="text-sm font-medium mb-2">{t("labels.allergens")}</h3>
+					<h3 className="mb-2 font-medium text-sm">{t("labels.allergens")}</h3>
 					<div className="flex flex-wrap gap-1.5">
 						{item.allergens.map((allergen) => (
 							<Badge key={allergen} variant="secondary">
@@ -143,7 +143,7 @@ export function ItemDetail({
 			)}
 
 			{/* Edit button */}
-			<div className="pt-4 border-t">
+			<div className="border-t pt-4">
 				<Button asChild className="w-full">
 					<Link
 						to="/console/menu/items/$itemId"

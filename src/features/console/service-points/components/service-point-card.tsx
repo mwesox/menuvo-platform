@@ -59,7 +59,7 @@ export function ServicePointCard({
 										: t("labels.inactive")}
 								</Badge>
 							</div>
-							<p className="font-mono text-sm text-muted-foreground">
+							<p className="font-mono text-muted-foreground text-sm">
 								/{servicePoint.code}
 							</p>
 						</div>
@@ -94,7 +94,7 @@ export function ServicePointCard({
 			</CardHeader>
 
 			<CardContent className="space-y-3 pt-0">
-				<div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+				<div className="flex flex-wrap gap-2 text-muted-foreground text-sm">
 					{servicePoint.zone && (
 						<div className="flex items-center gap-1">
 							<Tag className="h-3.5 w-3.5" />
@@ -110,7 +110,7 @@ export function ServicePointCard({
 				</div>
 
 				{servicePoint.description && (
-					<p className="line-clamp-2 text-sm text-muted-foreground">
+					<p className="line-clamp-2 text-muted-foreground text-sm">
 						{servicePoint.description}
 					</p>
 				)}

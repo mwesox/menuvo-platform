@@ -340,20 +340,20 @@ export function ItemDrawer({
 	return (
 		<Drawer open={open} onOpenChange={onOpenChange}>
 			<DrawerContent
-				className="max-h-[85dvh] overflow-hidden md:max-w-lg md:mx-auto md:rounded-t-(--radius)"
+				className="max-h-[85dvh] overflow-hidden md:mx-auto md:max-w-lg md:rounded-t-(--radius)"
 				hideHandle
 			>
 				{/* Handle */}
 				<div className="mx-auto mt-4 mb-4 h-1 w-10 shrink-0 rounded-full bg-border" />
 				{/* Scrollable content */}
-				<div className="flex-1 overflow-y-auto min-h-0 overscroll-contain">
+				<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
 					{/* Hero image - full width, edge to edge */}
 					{item.imageUrl && (
-						<div className="relative h-48 md:h-56 overflow-hidden">
+						<div className="relative h-48 overflow-hidden md:h-56">
 							<img
 								src={item.imageUrl}
 								alt={item.name}
-								className="w-full h-full object-cover"
+								className="h-full w-full object-cover"
 							/>
 							<div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
 						</div>
@@ -362,7 +362,7 @@ export function ItemDrawer({
 					{/* Content area */}
 					<div
 						className={cn(
-							"relative px-6 pb-4 animate-in fade-in-0 slide-in-from-bottom-2 duration-300",
+							"fade-in-0 slide-in-from-bottom-2 relative animate-in px-6 pb-4 duration-300",
 							item.imageUrl ? "-mt-8" : "pt-2",
 						)}
 					>
@@ -371,7 +371,7 @@ export function ItemDrawer({
 							<ShopHeading
 								as="h2"
 								size="2xl"
-								className="leading-tight tracking-tight mb-3"
+								className="mb-3 leading-tight tracking-tight"
 							>
 								{item.name}
 							</ShopHeading>
@@ -379,16 +379,16 @@ export function ItemDrawer({
 
 						{/* Description */}
 						{item.description && (
-							<DrawerDescription className="text-muted-foreground text-[17px] leading-relaxed mb-5">
+							<DrawerDescription className="mb-5 text-[17px] text-muted-foreground leading-relaxed">
 								{item.description}
 							</DrawerDescription>
 						)}
 
 						{/* Allergens - subtle inline style */}
 						{hasAllergens && (
-							<div className="flex items-center gap-2 py-3 border-y border-border/40 mb-5">
-								<AlertTriangle className="size-4 text-amber-600 shrink-0" />
-								<span className="text-sm text-muted-foreground">
+							<div className="mb-5 flex items-center gap-2 border-border/40 border-y py-3">
+								<AlertTriangle className="size-4 shrink-0 text-amber-600" />
+								<span className="text-muted-foreground text-sm">
 									{t("menu.contains")}:{" "}
 									<span className="text-foreground">
 										{item.allergens
@@ -431,7 +431,7 @@ export function ItemDrawer({
 				</div>
 
 				{/* Sticky footer with shadow */}
-				<div className="relative border-t border-border bg-card px-6 py-5 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
+				<div className="relative border-border border-t bg-card px-6 py-5 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
 					<div className="flex items-center gap-4">
 						<QuantityStepper value={quantity} onChange={setQuantity} />
 						<ShopButton
@@ -439,7 +439,7 @@ export function ItemDrawer({
 							size="lg"
 							onClick={handleAddToCart}
 							disabled={!isValid || !isStoreOpen}
-							className="flex-1 h-14 text-base font-medium shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
+							className="h-14 flex-1 font-medium text-base shadow-lg shadow-primary/20 transition-transform active:scale-[0.98]"
 						>
 							{/* Mobile: icon + price only */}
 							<span className="flex items-center gap-2 md:hidden">

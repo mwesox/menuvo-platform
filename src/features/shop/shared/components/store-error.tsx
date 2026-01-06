@@ -25,7 +25,7 @@ export function StoreError({ reset }: ErrorComponentProps) {
 			<button
 				type="button"
 				onClick={reset}
-				className="mt-4 text-sm text-primary underline-offset-4 hover:underline"
+				className="mt-4 text-primary text-sm underline-offset-4 hover:underline"
 			>
 				{t("errors.tryAgain")}
 			</button>

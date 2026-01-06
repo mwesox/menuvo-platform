@@ -47,16 +47,16 @@ export function TranslationListItem({
 			type="button"
 			onClick={() => onSelect(entityType, id)}
 			className={cn(
-				"w-full text-start px-3 py-2 rounded-lg transition-colors border-l-2",
+				"w-full rounded-lg border-l-2 px-3 py-2 text-start transition-colors",
 				"hover:bg-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-				isSelected ? "bg-accent border-l-primary" : statusColors[status],
+				isSelected ? "border-l-primary bg-accent" : statusColors[status],
 			)}
 		>
 			<div className="flex items-center gap-2.5">
 				{/* Entity type icon - smaller */}
 				<div
 					className={cn(
-						"flex-shrink-0 size-7 rounded flex items-center justify-center",
+						"flex size-7 flex-shrink-0 items-center justify-center rounded",
 						isSelected ? "bg-primary text-primary-foreground" : "bg-muted",
 					)}
 				>
@@ -64,15 +64,15 @@ export function TranslationListItem({
 				</div>
 
 				{/* Entity info - allow truncation */}
-				<div className="flex-1 min-w-0 overflow-hidden">
-					<span className="font-medium text-sm truncate block">{name}</span>
+				<div className="min-w-0 flex-1 overflow-hidden">
+					<span className="block truncate font-medium text-sm">{name}</span>
 					<span className="text-[11px] text-muted-foreground">
 						{t(`entityTypes.${entityType}`)}
 					</span>
 				</div>
 
 				{/* Translation status badges - NEVER truncate */}
-				<div className="flex items-center gap-0.5 flex-shrink-0">
+				<div className="flex flex-shrink-0 items-center gap-0.5">
 					{targetLanguages.map((lang) => (
 						<TranslationStatusBadge
 							key={lang}

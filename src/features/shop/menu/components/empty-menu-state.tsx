@@ -13,7 +13,7 @@ export function EmptyMenuState() {
 				<UtensilsCrossed className="size-8 text-muted-foreground" />
 			</div>
 			<h2
-				className="text-xl text-foreground"
+				className="text-foreground text-xl"
 				style={{ fontFamily: "var(--font-heading)" }}
 			>
 				{t("menu.emptyTitle")}

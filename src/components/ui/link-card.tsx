@@ -37,8 +37,8 @@ export function LinkCard({
 		<Card
 			className={cn(
 				"h-full overflow-hidden transition-all",
-				!disabled && "hover:shadow-md hover:bg-muted/30 cursor-pointer group",
-				disabled && "opacity-70 cursor-not-allowed",
+				!disabled && "group cursor-pointer hover:bg-muted/30 hover:shadow-md",
+				disabled && "cursor-not-allowed opacity-70",
 			)}
 		>
 			<CardHeader className="flex-row items-start gap-4 pb-4">
@@ -56,7 +56,7 @@ export function LinkCard({
 					/>
 				</div>
 				<div className="min-w-0 flex-1 space-y-1">
-					<CardTitle className="flex items-center gap-2 text-xl font-semibold tracking-tight">
+					<CardTitle className="flex items-center gap-2 font-semibold text-xl tracking-tight">
 						{title}
 						{badge}
 					</CardTitle>

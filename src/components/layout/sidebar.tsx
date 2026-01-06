@@ -73,7 +73,7 @@ function NavLink({
 			preload={false}
 			onClick={onClick}
 			className={cn(
-				"flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+				"flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm transition-colors",
 				isActive
 					? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
 					: "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-50",
@@ -100,7 +100,7 @@ function NavContent({ onNavClick }: { onNavClick?: () => void }) {
 			<div className="flex flex-1 flex-col gap-6">
 				{navGroups.map((group) => (
 					<div key={group.labelKey} className="flex flex-col gap-1">
-						<span className="px-3 py-1 text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+						<span className="px-3 py-1 font-medium text-xs text-zinc-500 uppercase tracking-wider dark:text-zinc-400">
 							{t(group.labelKey)}
 						</span>
 						{group.items.map((item) => (
@@ -133,8 +133,8 @@ function NavContent({ onNavClick }: { onNavClick?: () => void }) {
 
 export function Sidebar() {
 	return (
-		<aside className="hidden h-screen w-64 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:flex">
-			<div className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 px-4">
+		<aside className="hidden h-screen w-64 flex-col border-zinc-200 border-r bg-white lg:flex dark:border-zinc-800 dark:bg-zinc-950">
+			<div className="flex h-14 shrink-0 items-center justify-between border-zinc-200 border-b px-4">
 				<Link to="/console" className="flex items-center gap-2">
 					<Logo height={28} />
 				</Link>
@@ -162,7 +162,7 @@ export function MobileSidebar() {
 				<VisuallyHidden.Root>
 					<SheetTitle>{t("navigation")}</SheetTitle>
 				</VisuallyHidden.Root>
-				<div className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 px-4">
+				<div className="flex h-14 shrink-0 items-center justify-between border-zinc-200 border-b px-4">
 					<Link to="/console" className="flex items-center gap-2">
 						<Logo height={28} />
 					</Link>

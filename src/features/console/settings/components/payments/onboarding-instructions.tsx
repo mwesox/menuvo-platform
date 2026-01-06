@@ -59,7 +59,7 @@ export function OnboardingInstructions({
 			<CardContent className="space-y-6">
 				{/* Why this is needed */}
 				<div className="space-y-4">
-					<p className="text-sm font-medium">
+					<p className="font-medium text-sm">
 						{t("payments.onboarding.whyNeeded")}
 					</p>
 					<div className="grid gap-4 sm:grid-cols-3">
@@ -70,8 +70,8 @@ export function OnboardingInstructions({
 							>
 								<req.icon className="size-5 text-primary" />
 								<div>
-									<p className="text-sm font-medium">{t(req.titleKey)}</p>
-									<p className="text-xs text-muted-foreground">
+									<p className="font-medium text-sm">{t(req.titleKey)}</p>
+									<p className="text-muted-foreground text-xs">
 										{t(req.descriptionKey)}
 									</p>
 								</div>
@@ -98,7 +98,7 @@ export function OnboardingInstructions({
 							</>
 						)}
 					</Button>
-					<p className="text-xs text-muted-foreground self-center">
+					<p className="self-center text-muted-foreground text-xs">
 						{t("payments.onboarding.skipNote")}
 					</p>
 				</div>

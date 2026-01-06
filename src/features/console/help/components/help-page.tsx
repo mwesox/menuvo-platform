@@ -14,7 +14,7 @@ export function HelpPage() {
 	return (
 		<div className="container max-w-4xl py-8">
 			<div className="mb-8">
-				<h1 className="text-2xl font-semibold tracking-tight">{t("title")}</h1>
+				<h1 className="font-semibold text-2xl tracking-tight">{t("title")}</h1>
 				<p className="text-muted-foreground">{t("description")}</p>
 			</div>
 

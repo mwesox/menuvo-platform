@@ -13,7 +13,7 @@ export function Footer() {
 	const currentYear = new Date().getFullYear();
 
 	return (
-		<footer className="mt-auto border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+		<footer className="mt-auto border-zinc-200 border-t bg-white dark:border-zinc-800 dark:bg-zinc-950">
 			<div className="px-4 py-6 lg:px-6">
 				<nav
 					aria-label={t("footer.dataProtection")}

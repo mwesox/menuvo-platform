@@ -24,27 +24,27 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 		.join(", ");
 
 	return (
-		<div className="flex gap-3 py-4 border-b border-border/50">
+		<div className="flex gap-3 border-border/50 border-b py-4">
 			{/* Item image - responsive sizing */}
-			<div className="size-12 sm:size-14 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 flex-shrink-0 overflow-hidden">
+			<div className="size-12 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 sm:size-14">
 				{item.imageUrl && (
 					<img
 						src={item.imageUrl}
 						alt={item.name}
-						className="w-full h-full object-cover"
+						className="h-full w-full object-cover"
 					/>
 				)}
 			</div>
 
 			{/* Item details */}
-			<div className="flex-1 min-w-0">
+			<div className="min-w-0 flex-1">
 				<div className="flex items-start justify-between gap-2">
 					<div className="min-w-0">
-						<ShopHeading as="h3" size="sm" className="font-normal truncate">
+						<ShopHeading as="h3" size="sm" className="truncate font-normal">
 							{item.name}
 						</ShopHeading>
 						{optionsText && (
-							<ShopMutedText className="text-sm truncate">
+							<ShopMutedText className="truncate text-sm">
 								{optionsText}
 							</ShopMutedText>
 						)}
@@ -52,7 +52,7 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 					<button
 						type="button"
 						onClick={onRemove}
-						className="p-1.5 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
+						className="flex-shrink-0 p-1.5 text-muted-foreground transition-colors hover:text-foreground"
 						aria-label={t("cart.removeItem", { name: item.name })}
 					>
 						<X className="size-4" />
@@ -60,7 +60,7 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 				</div>
 
 				{/* Quantity and price row */}
-				<div className="flex items-center justify-between mt-2">
+				<div className="mt-2 flex items-center justify-between">
 					<QuantityStepper
 						value={item.quantity}
 						onChange={onQuantityChange}

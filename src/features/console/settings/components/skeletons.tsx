@@ -14,7 +14,7 @@ function SettingsNavCardSkeleton() {
 			<CardContent className="p-6">
 				<div className="flex items-start gap-4">
 					<Skeleton className="size-10 rounded-lg" />
-					<div className="space-y-2 flex-1">
+					<div className="flex-1 space-y-2">
 						<Skeleton className="h-5 w-32" />
 						<Skeleton className="size-48" />
 					</div>
@@ -50,7 +50,7 @@ export function MerchantSettingsPageSkeleton() {
 		<div className="space-y-6">
 			<PageActionBarSkeleton withTabs />
 
-			<div className="space-y-6 mt-6">
+			<div className="mt-6 space-y-6">
 				<CardFormSkeleton rows={4} />
 				<CardFormSkeleton rows={3} />
 			</div>
@@ -126,17 +126,17 @@ export function SubscriptionSettingsPageSkeleton() {
 				<Card>
 					<CardHeader>
 						<Skeleton className="h-6 w-36" />
-						<Skeleton className="h-4 w-56 mt-1" />
+						<Skeleton className="mt-1 h-4 w-56" />
 					</CardHeader>
 					<CardContent>
 						<div className="grid gap-4 md:grid-cols-2">
-							<div className="rounded-lg border p-4 space-y-3">
+							<div className="space-y-3 rounded-lg border p-4">
 								<Skeleton className="h-5 w-20" />
 								<Skeleton className="h-8 w-24" />
 								<Skeleton className="h-4 w-full" />
 								<Skeleton className="h-4 w-3/4" />
 							</div>
-							<div className="rounded-lg border p-4 space-y-3">
+							<div className="space-y-3 rounded-lg border p-4">
 								<Skeleton className="h-5 w-24" />
 								<Skeleton className="h-8 w-28" />
 								<Skeleton className="h-4 w-full" />

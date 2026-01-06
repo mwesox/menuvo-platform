@@ -77,7 +77,7 @@ export function StoreStep() {
 										value={slug}
 										placeholder={t("onboarding:placeholders.storeSlug")}
 										readOnly
-										className="bg-muted text-muted-foreground cursor-not-allowed"
+										className="cursor-not-allowed bg-muted text-muted-foreground"
 									/>
 								</Field>
 							);
@@ -177,7 +177,7 @@ export function StoreStep() {
 								id="store-country"
 								value="Deutschland"
 								readOnly
-								className="bg-muted text-muted-foreground cursor-not-allowed"
+								className="cursor-not-allowed bg-muted text-muted-foreground"
 							/>
 						</Field>
 					</div>

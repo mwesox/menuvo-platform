@@ -32,7 +32,7 @@ export function SettingsNavCard({
 			showChevron
 			badge={
 				badge === "coming-soon" ? (
-					<Badge variant="secondary" className="text-xs font-normal">
+					<Badge variant="secondary" className="font-normal text-xs">
 						{t("hub.comingSoon")}
 					</Badge>
 				) : undefined

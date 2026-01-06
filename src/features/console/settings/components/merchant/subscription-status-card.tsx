@@ -49,7 +49,7 @@ export function SubscriptionStatusCard({
 				{/* Plan name and price */}
 				{subscription.currentPlan && (
 					<div className="flex items-baseline gap-2">
-						<span className="text-2xl font-bold">
+						<span className="font-bold text-2xl">
 							{tBusiness(`pricing.${subscription.currentPlan}.name`)}
 						</span>
 						<span className="text-muted-foreground">

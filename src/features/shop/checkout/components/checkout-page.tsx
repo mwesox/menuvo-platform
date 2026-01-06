@@ -173,9 +173,9 @@ export function CheckoutPage({
 	if (isPaymentRedirecting) {
 		return (
 			<div className="min-h-screen bg-background">
-				<div className="max-w-xl mx-auto px-4 py-12">
-					<ShopCard padding="lg" className="text-center space-y-4">
-						<Loader2 className="size-12 mx-auto animate-spin text-primary" />
+				<div className="mx-auto max-w-xl px-4 py-12">
+					<ShopCard padding="lg" className="space-y-4 text-center">
+						<Loader2 className="mx-auto size-12 animate-spin text-primary" />
 						<ShopHeading as="h1" size="lg">
 							{t("checkout.payment.redirecting")}
 						</ShopHeading>
@@ -193,7 +193,7 @@ export function CheckoutPage({
 
 	return (
 		<div className="min-h-screen bg-background">
-			<div className="max-w-xl mx-auto px-4 py-6">
+			<div className="mx-auto max-w-xl px-4 py-6">
 				{/* Header */}
 				<ShopHeading as="h1" size="xl" className="mb-6">
 					{t("checkout.title")}
@@ -241,7 +241,7 @@ export function CheckoutPage({
 						</ShopHeading>
 
 						<div>
-							<Label htmlFor="customerName" className="text-sm font-medium">
+							<Label htmlFor="customerName" className="font-medium text-sm">
 								{t("checkout.yourName")}
 							</Label>
 							<Input
@@ -256,9 +256,9 @@ export function CheckoutPage({
 						</div>
 
 						<div>
-							<Label htmlFor="customerNotes" className="text-sm font-medium">
+							<Label htmlFor="customerNotes" className="font-medium text-sm">
 								{t("checkout.specialRequests")}
-								<span className="text-muted-foreground font-normal ms-1">
+								<span className="ms-1 font-normal text-muted-foreground">
 									({t("checkout.optional")})
 								</span>
 							</Label>
@@ -267,7 +267,7 @@ export function CheckoutPage({
 								value={customerNotes}
 								onChange={(e) => setCustomerNotes(e.target.value)}
 								placeholder={t("checkout.specialRequestsPlaceholder")}
-								className="mt-1 w-full min-h-[80px] resize-none"
+								className="mt-1 min-h-[80px] w-full resize-none"
 								maxLength={500}
 							/>
 						</div>
@@ -301,7 +301,7 @@ export function CheckoutPage({
 						</div>
 
 						{/* Totals */}
-						<div className="pt-3 border-t border-border space-y-2">
+						<div className="space-y-2 border-border border-t pt-3">
 							<ShopPriceRow
 								label={t("checkout.subtotal")}
 								cents={subtotal}

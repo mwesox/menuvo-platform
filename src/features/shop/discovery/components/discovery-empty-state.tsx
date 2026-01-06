@@ -18,7 +18,7 @@ export function DiscoveryEmptyState({
 				<Store className="size-8 text-muted-foreground" />
 			</div>
 			<h2
-				className="text-xl text-foreground"
+				className="text-foreground text-xl"
 				style={{ fontFamily: "var(--font-heading)" }}
 			>
 				{hasFilters
@@ -34,7 +34,7 @@ export function DiscoveryEmptyState({
 				<button
 					type="button"
 					onClick={onClearFilters}
-					className="mt-4 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-colors hover:bg-foreground/90"
+					className="mt-4 rounded-full bg-foreground px-5 py-2.5 font-medium text-background text-sm transition-colors hover:bg-foreground/90"
 				>
 					{t("emptyState.noResults.clearFilters")}
 				</button>

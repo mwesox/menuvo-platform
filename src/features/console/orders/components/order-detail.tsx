@@ -75,7 +75,7 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 		<div className="space-y-4">
 			{/* Header */}
 			<div className="flex items-center justify-between">
-				<h2 className="text-lg font-semibold">
+				<h2 className="font-semibold text-lg">
 					{t("orderNumber", { id: order.id })}
 				</h2>
 				<div className="flex items-center gap-2">
@@ -92,7 +92,7 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 			</div>
 
 			{/* Customer Section */}
-			<div className="space-y-1 text-sm border-t pt-4">
+			<div className="space-y-1 border-t pt-4 text-sm">
 				{order.customerName && (
 					<div className="flex justify-between">
 						<span className="text-muted-foreground">{t("fields.name")}</span>
@@ -102,7 +102,7 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 				{order.customerEmail && (
 					<div className="flex justify-between">
 						<span className="text-muted-foreground">{t("fields.email")}</span>
-						<span className="truncate ms-4">{order.customerEmail}</span>
+						<span className="ms-4 truncate">{order.customerEmail}</span>
 					</div>
 				)}
 				{order.customerPhone && (
@@ -124,7 +124,7 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 						<span className="text-muted-foreground text-xs">
 							{t("fields.notes")}:
 						</span>
-						<p className="text-sm mt-0.5">{order.customerNotes}</p>
+						<p className="mt-0.5 text-sm">{order.customerNotes}</p>
 					</div>
 				)}
 			</div>
@@ -142,11 +142,11 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 							</span>
 						</div>
 						{item.options.length > 0 && (
-							<div className="ps-4 space-y-0.5">
+							<div className="space-y-0.5 ps-4">
 								{item.options.map((option) => (
 									<div
 										key={option.id}
-										className="flex justify-between text-xs text-muted-foreground"
+										className="flex justify-between text-muted-foreground text-xs"
 									>
 										<span>
 											{option.quantity > 1 ? `${option.quantity}x ` : ""}
@@ -166,8 +166,8 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 			</div>
 
 			{/* Payment Summary */}
-			<div className="border-t pt-4 space-y-3">
-				<div className="rounded-lg bg-muted/50 p-3 space-y-1">
+			<div className="space-y-3 border-t pt-4">
+				<div className="space-y-1 rounded-lg bg-muted/50 p-3">
 					<div className="flex justify-between text-sm">
 						<span className="text-muted-foreground">
 							{t("fields.subtotal")}
@@ -186,12 +186,12 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 							<span>{formatPrice(order.tipAmount)}</span>
 						</div>
 					)}
-					<div className="flex justify-between font-medium pt-1 border-t border-border/50">
+					<div className="flex justify-between border-border/50 border-t pt-1 font-medium">
 						<span>{t("fields.total")}</span>
 						<span>{formatPrice(order.totalAmount)}</span>
 					</div>
 				</div>
-				<div className="text-xs text-muted-foreground">
+				<div className="text-muted-foreground text-xs">
 					{t(`paymentStatus.${order.paymentStatus}`)}
 					{order.paymentMethod && (
 						<span className="capitalize"> via {order.paymentMethod}</span>
@@ -200,7 +200,7 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 			</div>
 
 			{/* Timeline Footer */}
-			<div className="text-xs text-muted-foreground border-t pt-3">
+			<div className="border-t pt-3 text-muted-foreground text-xs">
 				{t("fields.created")} {timeAgo(order.createdAt)}
 				{order.confirmedAt && (
 					<span>

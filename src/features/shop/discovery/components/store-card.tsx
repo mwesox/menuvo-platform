@@ -31,7 +31,7 @@ export function StoreCard({ store, style }: StoreCardProps) {
 				"group block overflow-hidden rounded-2xl bg-card",
 				"ring-1 ring-border/50",
 				"transition-all duration-300 ease-out",
-				"hover:ring-border hover:shadow-lg hover:shadow-black/[0.04]",
+				"hover:shadow-black/[0.04] hover:shadow-lg hover:ring-border",
 				"hover:-translate-y-0.5",
 				"animate-card-enter",
 				focusRing,
@@ -50,7 +50,7 @@ export function StoreCard({ store, style }: StoreCardProps) {
 					/* Placeholder gradient for missing images */
 					<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10">
 						<span
-							className="text-4xl font-medium text-muted-foreground/30"
+							className="font-medium text-4xl text-muted-foreground/30"
 							style={{ fontFamily: "var(--font-heading)" }}
 						>
 							{store.name.charAt(0)}
@@ -63,7 +63,7 @@ export function StoreCard({ store, style }: StoreCardProps) {
 					<span
 						className={cn(
 							"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1",
-							"text-xs font-medium backdrop-blur-md",
+							"font-medium text-xs backdrop-blur-md",
 							store.isOpen
 								? "bg-emerald-500/90 text-white"
 								: "bg-black/60 text-white/90",
@@ -72,7 +72,7 @@ export function StoreCard({ store, style }: StoreCardProps) {
 						<span
 							className={cn(
 								"h-1.5 w-1.5 rounded-full",
-								store.isOpen ? "bg-white animate-pulse" : "bg-white/60",
+								store.isOpen ? "animate-pulse bg-white" : "bg-white/60",
 							)}
 						/>
 						{store.isOpen ? t("storeCard.openNow") : t("storeCard.closed")}
@@ -83,14 +83,14 @@ export function StoreCard({ store, style }: StoreCardProps) {
 			{/* Content - more breathing room */}
 			<div className="p-4 sm:p-5">
 				<h3
-					className="text-lg font-medium text-foreground sm:text-xl"
+					className="font-medium text-foreground text-lg sm:text-xl"
 					style={{ fontFamily: "var(--font-heading)" }}
 				>
 					{store.name}
 				</h3>
 
 				{formattedAddress && (
-					<p className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+					<p className="mt-1.5 flex items-center gap-1.5 text-muted-foreground text-sm">
 						<MapPin className="h-3.5 w-3.5 shrink-0 opacity-60" />
 						<span className="truncate">{formattedAddress}</span>
 					</p>

@@ -15,12 +15,12 @@ export function StoreCardSkeleton() {
 				<div className="flex items-start gap-4">
 					{/* Icon */}
 					<Skeleton className="size-12 shrink-0 rounded-lg" />
-					<div className="space-y-2 flex-1">
+					<div className="flex-1 space-y-2">
 						{/* Store name */}
 						<Skeleton className="h-6 w-3/4" />
 						{/* Address */}
 						<div className="flex items-start gap-1.5">
-							<Skeleton className="size-4 mt-0.5 shrink-0 rounded-full" />
+							<Skeleton className="mt-0.5 size-4 shrink-0 rounded-full" />
 							<div className="space-y-1">
 								<Skeleton className="size-40" />
 								<Skeleton className="h-4 w-32" />
@@ -89,7 +89,7 @@ export function StoreDetailSkeleton() {
 				<Card>
 					<CardHeader>
 						<Skeleton className="h-6 w-32" />
-						<Skeleton className="h-4 w-56 mt-1" />
+						<Skeleton className="mt-1 h-4 w-56" />
 					</CardHeader>
 					<CardContent>
 						<Skeleton className="h-32 w-32 rounded-lg" />

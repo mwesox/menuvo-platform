@@ -69,7 +69,7 @@ export function QuantityStepper({
 
 			<span
 				className={cn(
-					"min-w-[2rem] text-center font-medium tabular-nums text-foreground",
+					"min-w-[2rem] text-center font-medium text-foreground tabular-nums",
 					"transition-transform duration-150",
 					animating && "scale-110",
 					isSm ? "text-sm" : "text-base",

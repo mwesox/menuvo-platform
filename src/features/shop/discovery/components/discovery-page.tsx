@@ -49,7 +49,7 @@ export function DiscoveryPage() {
 				<div className="relative z-10 px-4 pt-12 sm:px-6 sm:pt-14 lg:px-8">
 					<div className="mx-auto max-w-3xl text-center">
 						{/* Brand logo - compact */}
-						<div className="mb-4 flex justify-center animate-in fade-in zoom-in-95 fill-mode-both duration-500 sm:mb-5">
+						<div className="fade-in zoom-in-95 mb-4 flex animate-in justify-center fill-mode-both duration-500 sm:mb-5">
 							<img
 								src="/menuvo-logo-horizontal.svg"
 								alt="Menuvo"
@@ -59,7 +59,7 @@ export function DiscoveryPage() {
 
 						{/* Main headline - compact */}
 						<h1
-							className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both text-2xl leading-[1.15] tracking-tight text-foreground delay-100 duration-500 sm:text-3xl"
+							className="fade-in slide-in-from-bottom-2 animate-in fill-mode-both text-2xl text-foreground leading-[1.15] tracking-tight delay-100 duration-500 sm:text-3xl"
 							style={{
 								fontFamily: "var(--font-heading)",
 								textWrap: "balance",
@@ -69,7 +69,7 @@ export function DiscoveryPage() {
 						</h1>
 
 						{/* Search - primary action */}
-						<div className="mt-4 animate-in fade-in slide-in-from-bottom-2 fill-mode-both delay-200 duration-500 sm:mt-5">
+						<div className="fade-in slide-in-from-bottom-2 mt-4 animate-in fill-mode-both delay-200 duration-500 sm:mt-5">
 							<StoreSearch
 								cities={cities}
 								selectedCity={selectedCity}
@@ -83,7 +83,7 @@ export function DiscoveryPage() {
 			</div>
 
 			{/* Store grid - close to hero */}
-			<div className="px-4 pb-16 pt-5 sm:px-6 sm:pt-6 lg:px-8">
+			<div className="px-4 pt-5 pb-16 sm:px-6 sm:pt-6 lg:px-8">
 				<div className="mx-auto max-w-6xl">
 					{filteredStores.length === 0 ? (
 						<DiscoveryEmptyState
@@ -130,7 +130,7 @@ export function DiscoveryPageSkeleton() {
 						</div>
 
 						<h1
-							className="text-2xl leading-[1.15] tracking-tight text-foreground sm:text-3xl"
+							className="text-2xl text-foreground leading-[1.15] tracking-tight sm:text-3xl"
 							style={{
 								fontFamily: "var(--font-heading)",
 								textWrap: "balance",
@@ -141,7 +141,7 @@ export function DiscoveryPageSkeleton() {
 
 						{/* Search placeholder */}
 						<div className="mt-4 space-y-4 sm:mt-5">
-							<div className="flex h-14 items-center gap-3 rounded-2xl bg-card px-5 shadow-lg shadow-foreground/[0.03] ring-1 ring-border/50">
+							<div className="flex h-14 items-center gap-3 rounded-2xl bg-card px-5 shadow-foreground/[0.03] shadow-lg ring-1 ring-border/50">
 								<Search className="size-5 text-muted-foreground/60" />
 								<span className="text-muted-foreground/50">
 									{t("loading.searchPlaceholder")}
@@ -153,7 +153,7 @@ export function DiscoveryPageSkeleton() {
 			</div>
 
 			{/* Store grid skeleton - close to hero */}
-			<div className="px-4 pb-16 pt-5 sm:px-6 sm:pt-6 lg:px-8">
+			<div className="px-4 pt-5 pb-16 sm:px-6 sm:pt-6 lg:px-8">
 				<div className="mx-auto max-w-6xl">
 					<StoreCardSkeletonGrid />
 				</div>
@@ -171,7 +171,7 @@ export function DiscoveryPageError({ reset }: ErrorComponentProps) {
 				<Store className="size-8 text-muted-foreground" />
 			</div>
 			<h2
-				className="text-xl text-foreground"
+				className="text-foreground text-xl"
 				style={{ fontFamily: "var(--font-heading)" }}
 			>
 				{t("error.title")}
@@ -182,7 +182,7 @@ export function DiscoveryPageError({ reset }: ErrorComponentProps) {
 			<button
 				type="button"
 				onClick={reset}
-				className="mt-4 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-colors hover:bg-foreground/90"
+				className="mt-4 rounded-full bg-foreground px-5 py-2.5 font-medium text-background text-sm transition-colors hover:bg-foreground/90"
 			>
 				{t("error.tryAgain")}
 			</button>

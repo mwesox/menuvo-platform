@@ -38,22 +38,22 @@ export function CategoryDetail({
 		<div className="space-y-6">
 			{/* Header */}
 			<div className="flex items-start justify-between gap-4">
-				<div className="flex-1 min-w-0">
+				<div className="min-w-0 flex-1">
 					<div className="flex items-center gap-2">
-						<h2 className="text-xl font-semibold truncate">{displayName}</h2>
+						<h2 className="truncate font-semibold text-xl">{displayName}</h2>
 						{!category.isActive && (
-							<span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+							<span className="inline-flex items-center gap-1 text-muted-foreground text-xs">
 								<EyeOff className="h-3.5 w-3.5" />
 								{t("labels.hidden")}
 							</span>
 						)}
 					</div>
 					{displayDescription && (
-						<p className="mt-1 text-sm text-muted-foreground">
+						<p className="mt-1 text-muted-foreground text-sm">
 							{displayDescription}
 						</p>
 					)}
-					<p className="mt-2 text-sm text-muted-foreground">
+					<p className="mt-2 text-muted-foreground text-sm">
 						{category.items.length}{" "}
 						{category.items.length === 1
 							? tCommon("labels.item")
@@ -100,7 +100,7 @@ export function CategoryDetail({
 			{/* Future: Category configuration section (timing, visibility settings, etc.) */}
 
 			{/* Edit button */}
-			<div className="pt-4 border-t">
+			<div className="border-t pt-4">
 				<Button onClick={() => onEdit(category)} className="w-full">
 					<Pencil className="me-2 size-4" />
 					{t("titles.editCategory")}

@@ -37,7 +37,7 @@ export function TranslationFilters({
 	const { t } = useTranslation("menu");
 
 	return (
-		<div className="flex flex-wrap items-center gap-2 p-3 border-b">
+		<div className="flex flex-wrap items-center gap-2 border-b p-3">
 			{/* Filter dropdowns - stay together */}
 			<div className="flex flex-wrap items-center gap-2">
 				{/* Entity type filter */}
@@ -112,8 +112,8 @@ export function TranslationFilters({
 			</div>
 
 			{/* Search - takes remaining space */}
-			<div className="relative flex-1 min-w-[140px]">
-				<Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+			<div className="relative min-w-[140px] flex-1">
+				<Search className="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
 				<Input
 					type="search"
 					placeholder={t("placeholders.searchTranslations", "Search...")}

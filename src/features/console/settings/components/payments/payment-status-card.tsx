@@ -183,11 +183,11 @@ function StatusRow({
 				: inactiveText;
 
 	return (
-		<div className="flex items-center justify-between py-2 border-b last:border-0">
-			<span className="text-sm text-muted-foreground">{label}</span>
+		<div className="flex items-center justify-between border-b py-2 last:border-0">
+			<span className="text-muted-foreground text-sm">{label}</span>
 			<div className="flex items-center gap-2">
 				<Icon className={`size-4 ${iconColor}`} />
-				<span className="text-sm font-medium">{text}</span>
+				<span className="font-medium text-sm">{text}</span>
 			</div>
 		</div>
 	);

@@ -79,9 +79,9 @@ export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 	if (isLoading) {
 		return (
 			<div className="min-h-screen bg-background">
-				<div className="max-w-lg mx-auto px-4 py-12">
-					<ShopCard padding="lg" className="text-center space-y-4">
-						<Loader2 className="size-12 mx-auto animate-spin text-primary" />
+				<div className="mx-auto max-w-lg px-4 py-12">
+					<ShopCard padding="lg" className="space-y-4 text-center">
+						<Loader2 className="mx-auto size-12 animate-spin text-primary" />
 						<ShopHeading as="h1" size="lg">
 							{t("checkout.return.verifying")}
 						</ShopHeading>
@@ -103,10 +103,10 @@ export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 
 	return (
 		<div className="min-h-screen bg-background">
-			<div className="max-w-lg mx-auto px-4 py-12">
-				<ShopCard padding="lg" className="text-center space-y-4">
-					<div className="size-12 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
-						<span className="text-destructive text-2xl">!</span>
+			<div className="mx-auto max-w-lg px-4 py-12">
+				<ShopCard padding="lg" className="space-y-4 text-center">
+					<div className="mx-auto flex size-12 items-center justify-center rounded-full bg-destructive/10">
+						<span className="text-2xl text-destructive">!</span>
 					</div>
 					<ShopHeading as="h1" size="lg">
 						{t("checkout.return.paymentFailed")}

@@ -88,7 +88,7 @@ export function MenuPage({ search, loaderData }: MenuPageProps) {
 	// No stores - show empty state
 	if (stores.length === 0) {
 		return (
-			<div className="flex flex-col h-full">
+			<div className="flex h-full flex-col">
 				<Empty>
 					<EmptyHeader>
 						<EmptyMedia variant="icon">
@@ -115,7 +115,7 @@ export function MenuPage({ search, loaderData }: MenuPageProps) {
 	// Multiple stores with none selected - show selection prompt
 	if (!selectedStoreId) {
 		return (
-			<div className="flex flex-col h-full">
+			<div className="flex h-full flex-col">
 				<StoreSelectionPrompt stores={stores} />
 			</div>
 		);
@@ -271,7 +271,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 							/>
 						))}
 						{categories.length === 0 && (
-							<div className="p-4 text-center text-sm text-muted-foreground">
+							<div className="p-4 text-center text-muted-foreground text-sm">
 								{t("emptyStates.noCategories")}
 							</div>
 						)}
@@ -316,7 +316,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 								/>
 							))}
 							{filteredItems.length === 0 && (
-								<div className="p-4 text-center text-sm text-muted-foreground">
+								<div className="p-4 text-center text-muted-foreground text-sm">
 									{categoryFilter === "all"
 										? t("emptyStates.noItems")
 										: t("emptyStates.noItemsInCategory")}
@@ -337,7 +337,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 							/>
 						))}
 						{optionGroups.length === 0 && (
-							<div className="p-4 text-center text-sm text-muted-foreground">
+							<div className="p-4 text-center text-muted-foreground text-sm">
 								{t("emptyStates.noOptionGroups")}
 							</div>
 						)}
@@ -455,7 +455,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 	};
 
 	return (
-		<div className="flex flex-col h-full">
+		<div className="flex h-full flex-col">
 			{/* Action bar */}
 			<PageActionBar
 				title={t("pageTitle", "Speisekarte")}
@@ -496,11 +496,11 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 
 			{/* Translations tab has its own layout */}
 			{tab === "translations" ? (
-				<div className="flex-1 mt-4 min-h-0">
+				<div className="mt-4 min-h-0 flex-1">
 					<TranslationsTab storeId={storeId} />
 				</div>
 			) : tab === "import" ? (
-				<div className="flex-1 mt-4 min-h-0">
+				<div className="mt-4 min-h-0 flex-1">
 					<ImportWizard
 						storeId={storeId}
 						onClose={() => handleTabChange("items")}
@@ -509,7 +509,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 			) : (
 				<>
 					{/* Master-detail layout */}
-					<div className="flex-1 mt-4 min-h-0">
+					<div className="mt-4 min-h-0 flex-1">
 						<MasterDetailLayout
 							master={renderMasterList()}
 							detail={renderDetailPanel()}

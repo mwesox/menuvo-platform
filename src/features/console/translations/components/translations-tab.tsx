@@ -247,9 +247,9 @@ export function TranslationsTab({ storeId }: TranslationsTabProps) {
 
 	// Render master list
 	const renderMasterList = () => (
-		<div className="flex flex-col h-full">
+		<div className="flex h-full flex-col">
 			{/* Progress Summary */}
-			<div className="flex items-center justify-between px-3 py-2.5 bg-muted/40 border-b">
+			<div className="flex items-center justify-between border-b bg-muted/40 px-3 py-2.5">
 				<div className="flex items-center gap-3 text-xs">
 					<div className="flex items-center gap-1.5">
 						<CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
@@ -262,8 +262,8 @@ export function TranslationsTab({ storeId }: TranslationsTabProps) {
 					</span>
 				</div>
 				<div className="flex items-center gap-2">
-					<Progress value={progressStats.percentage} className="w-20 h-1.5" />
-					<span className="text-xs font-semibold tabular-nums w-8 text-end">
+					<Progress value={progressStats.percentage} className="h-1.5 w-20" />
+					<span className="w-8 text-end font-semibold text-xs tabular-nums">
 						{progressStats.percentage}%
 					</span>
 				</div>
@@ -282,9 +282,9 @@ export function TranslationsTab({ storeId }: TranslationsTabProps) {
 			/>
 
 			<ScrollArea className="flex-1">
-				<div className="p-2 space-y-1">
+				<div className="space-y-1 p-2">
 					{filteredEntities.length === 0 ? (
-						<div className="p-8 text-center text-sm text-muted-foreground">
+						<div className="p-8 text-center text-muted-foreground text-sm">
 							{deferredSearch || statusFilter !== "all"
 								? t("translations.noMatchingItems", "No matching items")
 								: t("translations.noItems", "No items to translate")}

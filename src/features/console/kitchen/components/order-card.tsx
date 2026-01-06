@@ -84,7 +84,7 @@ export function OrderCard({
 				}}
 			>
 				{/* Actions menu - hidden until hover */}
-				<div className="absolute top-2 end-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
+				<div className="absolute end-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button

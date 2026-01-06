@@ -98,7 +98,7 @@ export function AttributesEditor({ value, onChange }: AttributesEditorProps) {
 										className="w-1/3"
 									/>
 								)}
-								<span className="w-20 text-xs text-muted-foreground">
+								<span className="w-20 text-muted-foreground text-xs">
 									{type}
 								</span>
 								<Button
@@ -170,7 +170,7 @@ export function AttributesEditor({ value, onChange }: AttributesEditorProps) {
 			</div>
 
 			{entries.length === 0 && (
-				<p className="text-sm text-muted-foreground">
+				<p className="text-muted-foreground text-sm">
 					{t("emptyStates.noAttributes")}
 				</p>
 			)}

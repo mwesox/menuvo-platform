@@ -76,13 +76,13 @@ export function ShopMutedText({ className, ...props }: ComponentProps<"p">) {
 // PRICE
 // =============================================================================
 
-const priceVariants = cva("tabular-nums text-foreground", {
+const priceVariants = cva("text-foreground tabular-nums", {
 	variants: {
 		size: {
 			sm: "text-sm",
 			md: "text-base",
-			lg: "text-lg font-semibold",
-			xl: "text-xl font-semibold",
+			lg: "font-semibold text-lg",
+			xl: "font-semibold text-xl",
 		},
 		variant: {
 			default: "",
@@ -147,14 +147,14 @@ export function ShopPriceRow({
 		<div
 			className={cn(
 				"flex items-center justify-between",
-				variant === "total" && "pt-2 border-t border-border",
+				variant === "total" && "border-border border-t pt-2",
 				className,
 			)}
 		>
 			<span
 				className={cn(
 					variant === "total"
-						? "text-foreground font-medium"
+						? "font-medium text-foreground"
 						: "text-muted-foreground",
 				)}
 			>
@@ -174,19 +174,19 @@ export function ShopPriceRow({
 // =============================================================================
 
 const badgeVariants = cva(
-	"inline-flex items-center rounded-full text-xs font-medium",
+	"inline-flex items-center rounded-full font-medium text-xs",
 	{
 		variants: {
 			variant: {
-				default: "bg-muted text-muted-foreground px-2 py-0.5",
-				accent: "bg-primary/10 text-primary px-2 py-0.5",
-				success: "bg-success/10 text-success px-2 py-0.5",
-				allergen: "bg-muted text-muted-foreground px-2 py-1",
+				default: "bg-muted px-2 py-0.5 text-muted-foreground",
+				accent: "bg-primary/10 px-2 py-0.5 text-primary",
+				success: "bg-success/10 px-2 py-0.5 text-success",
+				allergen: "bg-muted px-2 py-1 text-muted-foreground",
 			},
 			size: {
-				sm: "text-[10px] px-1.5 py-0.5",
-				md: "text-xs px-2 py-0.5",
-				lg: "text-xs px-2 py-1",
+				sm: "px-1.5 py-0.5 text-[10px]",
+				md: "px-2 py-0.5 text-xs",
+				lg: "px-2 py-1 text-xs",
 			},
 		},
 		defaultVariants: {
@@ -263,21 +263,21 @@ export function ShopStatusIndicator({
 // =============================================================================
 
 const buttonVariants = cva(
-	"inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed",
+	"inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
 	{
 		variants: {
 			variant: {
 				primary: "bg-primary text-primary-foreground hover:bg-primary/90",
 				secondary:
-					"bg-card text-foreground border border-border hover:bg-card/80",
+					"border border-border bg-card text-foreground hover:bg-card/80",
 				ghost: "text-foreground hover:bg-muted",
 				outline:
-					"border border-border text-muted-foreground hover:text-foreground hover:border-border",
+					"border border-border text-muted-foreground hover:border-border hover:text-foreground",
 			},
 			size: {
-				sm: "h-8 px-3 text-sm rounded-lg",
-				md: "h-10 px-4 text-sm rounded-lg",
-				lg: "h-12 px-6 text-base rounded-xl",
+				sm: "h-8 rounded-lg px-3 text-sm",
+				md: "h-10 rounded-lg px-4 text-sm",
+				lg: "h-12 rounded-xl px-6 text-base",
 				icon: "size-10 rounded-lg",
 				"icon-sm": "size-8 rounded-lg",
 			},
@@ -316,7 +316,7 @@ const pillButtonVariants = cva(
 		variants: {
 			variant: {
 				active: "bg-primary text-primary-foreground",
-				inactive: "text-muted-foreground hover:text-foreground hover:bg-muted",
+				inactive: "text-muted-foreground hover:bg-muted hover:text-foreground",
 				outline:
 					"border border-border bg-card text-muted-foreground hover:text-foreground",
 			},
@@ -364,7 +364,7 @@ export function ShopPillButton({
 // CARD
 // =============================================================================
 
-const cardVariants = cva("bg-card rounded-xl transition-colors", {
+const cardVariants = cva("rounded-xl bg-card transition-colors", {
 	variants: {
 		variant: {
 			default: "",

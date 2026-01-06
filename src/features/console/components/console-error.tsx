@@ -22,7 +22,7 @@ export function ConsoleError({ reset, title, description }: ConsoleErrorProps) {
 			<div className="mb-4 flex size-14 items-center justify-center rounded-full bg-destructive/10">
 				<AlertCircle className="size-7 text-destructive" />
 			</div>
-			<h2 className="text-xl font-semibold text-foreground">
+			<h2 className="font-semibold text-foreground text-xl">
 				{title ?? t("error.title", "Something went wrong")}
 			</h2>
 			<p className="mt-2 max-w-md text-muted-foreground">

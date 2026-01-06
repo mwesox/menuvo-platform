@@ -23,11 +23,11 @@ export function OrderConfirmationPage({
 
 	return (
 		<div className="min-h-screen bg-background">
-			<div className="max-w-lg mx-auto px-4 py-16">
-				<ShopCard padding="lg" className="text-center space-y-6">
+			<div className="mx-auto max-w-lg px-4 py-16">
+				<ShopCard padding="lg" className="space-y-6 text-center">
 					{/* Success Icon */}
 					<div className="flex justify-center">
-						<div className="size-16 rounded-full bg-success/10 flex items-center justify-center">
+						<div className="flex size-16 items-center justify-center rounded-full bg-success/10">
 							<CheckCircle className="size-8 text-success" />
 						</div>
 					</div>
@@ -41,7 +41,7 @@ export function OrderConfirmationPage({
 					</div>
 
 					{/* Order Number */}
-					<div className="py-4 bg-muted rounded-lg">
+					<div className="rounded-lg bg-muted py-4">
 						<ShopMutedText className="text-sm">
 							{t("confirmation.orderNumber")}
 						</ShopMutedText>

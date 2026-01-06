@@ -38,8 +38,8 @@ function StoresPage() {
 
 			{stores.length === 0 ? (
 				<div className="rounded-lg border border-dashed p-12 text-center">
-					<h3 className="text-lg font-semibold">{t("emptyStates.noStores")}</h3>
-					<p className="mt-1 text-sm text-muted-foreground">
+					<h3 className="font-semibold text-lg">{t("emptyStates.noStores")}</h3>
+					<p className="mt-1 text-muted-foreground text-sm">
 						{t("emptyStates.noStoresDescription")}
 					</p>
 				</div>
