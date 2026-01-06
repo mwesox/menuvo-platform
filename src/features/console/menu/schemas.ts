@@ -63,6 +63,7 @@ export const createItemSchema = z.object({
 	price: z.number().int().min(0, "Price must be positive"), // Price in cents
 	imageUrl: z.string().url().optional().or(z.literal("")),
 	allergens: z.array(z.string()).default([]),
+	kitchenName: z.string().max(50).optional().or(z.literal("")),
 	displayOrder: z.number().int().min(0).default(0),
 });
 
@@ -71,6 +72,7 @@ export const updateItemSchema = z.object({
 	price: z.number().int().min(0, "Price must be positive").optional(),
 	imageUrl: z.string().url().optional().or(z.literal("")),
 	allergens: z.array(z.string()).optional(),
+	kitchenName: z.string().max(50).optional().or(z.literal("")),
 	displayOrder: z.number().int().min(0).optional(),
 	isAvailable: z.boolean().optional(),
 	categoryId: z.number().int().positive().optional(),
@@ -87,6 +89,7 @@ export const itemFormSchema = z.object({
 	price: z.string().min(1, "validation:itemPrice.required"),
 	imageUrl: z.string(),
 	allergens: z.array(z.string()),
+	kitchenName: z.string().max(50),
 });
 export type ItemFormInput = z.infer<typeof itemFormSchema>;
 

@@ -31,23 +31,23 @@ export function PaymentSetupCard({ merchantId }: PaymentSetupCardProps) {
 	return (
 		<Card className="border-dashed">
 			<CardHeader className="text-center">
-				<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-					<CreditCard className="h-6 w-6 text-primary" />
+				<div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-primary/10">
+					<CreditCard className="size-6 text-primary" />
 				</div>
 				<CardTitle>{t("payments.setup.title")}</CardTitle>
-				<CardDescription className="max-w-md mx-auto">
+				<CardDescription className="mx-auto max-w-md">
 					{t("payments.setup.description")}
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-6">
 				<div className="space-y-3">
-					<p className="text-sm font-medium text-center">
+					<p className="text-center font-medium text-sm">
 						{t("payments.setup.benefitsTitle")}
 					</p>
 					<ul className="space-y-2">
 						{benefits.map((key) => (
 							<li key={key} className="flex items-center gap-2 text-sm">
-								<Check className="h-4 w-4 text-green-600 shrink-0" />
+								<Check className="size-4 shrink-0 text-green-600" />
 								<span>{t(key)}</span>
 							</li>
 						))}
@@ -62,7 +62,7 @@ export function PaymentSetupCard({ merchantId }: PaymentSetupCardProps) {
 				>
 					{setupPayment.isPending ? (
 						<>
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							<Loader2 className="me-2 size-4 animate-spin" />
 							{t("payments.setup.creating")}
 						</>
 					) : (

@@ -33,11 +33,11 @@ function getFileIcon(filename: string) {
 	switch (ext) {
 		case "xlsx":
 		case "csv":
-			return <FileSpreadsheet className="h-8 w-8 text-green-600" />;
+			return <FileSpreadsheet className="size-8 text-green-600" />;
 		case "json":
-			return <FileJson className="h-8 w-8 text-yellow-600" />;
+			return <FileJson className="size-8 text-yellow-600" />;
 		default:
-			return <FileText className="h-8 w-8 text-blue-600" />;
+			return <FileText className="size-8 text-blue-600" />;
 	}
 }
 
@@ -115,13 +115,13 @@ export function FileDropzone({
 
 	if (selectedFile) {
 		return (
-			<div className="border rounded-lg p-4">
+			<div className="rounded-lg border p-4">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						{getFileIcon(selectedFile.name)}
 						<div>
-							<p className="text-sm font-medium">{selectedFile.name}</p>
-							<p className="text-xs text-muted-foreground">
+							<p className="font-medium text-sm">{selectedFile.name}</p>
+							<p className="text-muted-foreground text-xs">
 								{formatFileSize(selectedFile.size)}
 							</p>
 						</div>
@@ -134,7 +134,7 @@ export function FileDropzone({
 							setValidationError(null);
 						}}
 					>
-						<X className="h-4 w-4" />
+						<X className="size-4" />
 					</Button>
 				</div>
 			</div>
@@ -154,7 +154,7 @@ export function FileDropzone({
 			role="button"
 			tabIndex={0}
 			className={cn(
-				"border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer",
+				"cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors",
 				isDragActive && "border-primary bg-primary/5",
 				displayError && "border-destructive",
 				!isDragActive &&
@@ -167,11 +167,11 @@ export function FileDropzone({
 			onClick={() => inputRef.current?.click()}
 			onKeyDown={handleKeyDown}
 		>
-			<Upload className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
-			<p className="text-sm text-muted-foreground mb-2">
+			<Upload className="mx-auto mb-4 size-10 text-muted-foreground" />
+			<p className="mb-2 text-muted-foreground text-sm">
 				{t("import.dropzone.dragAndDrop")}
 			</p>
-			<p className="text-xs text-muted-foreground mb-4">
+			<p className="mb-4 text-muted-foreground text-xs">
 				{t("import.dropzone.supportedFormats")}
 			</p>
 			<Button
@@ -192,7 +192,7 @@ export function FileDropzone({
 				className="hidden"
 			/>
 			{displayError && (
-				<p className="text-sm text-destructive mt-4">{displayError}</p>
+				<p className="mt-4 text-destructive text-sm">{displayError}</p>
 			)}
 		</div>
 	);

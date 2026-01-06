@@ -1,29 +1,25 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { MenuItem, MenuItemWithDefaults } from "../../schemas";
-import { enrichMenuItemWithDefaults } from "../../utils";
+import type { MenuItemLight } from "../../schemas";
 
 interface UseMenuItemSelectionReturn {
-	selectedItem: MenuItemWithDefaults | null;
+	selectedItem: MenuItemLight | null;
 	isItemDrawerOpen: boolean;
-	handleItemSelect: (item: MenuItem) => void;
+	handleItemSelect: (item: MenuItemLight) => void;
 	setIsItemDrawerOpen: (open: boolean) => void;
 }
 
 /**
  * Hook for managing menu item selection state and drawer visibility.
- * Automatically enriches selected items with default choice flags.
+ * Stores light item data - option groups are fetched on demand by ItemDrawer.
  */
 export function useMenuItemSelection(): UseMenuItemSelectionReturn {
-	const [selectedItem, setSelectedItem] = useState<MenuItemWithDefaults | null>(
-		null,
-	);
+	const [selectedItem, setSelectedItem] = useState<MenuItemLight | null>(null);
 	const [isItemDrawerOpen, setIsItemDrawerOpen] = useState(false);
 
-	const handleItemSelect = useCallback((item: MenuItem) => {
-		const itemWithDefaults = enrichMenuItemWithDefaults(item);
-		setSelectedItem(itemWithDefaults);
+	const handleItemSelect = useCallback((item: MenuItemLight) => {
+		setSelectedItem(item);
 		setIsItemDrawerOpen(true);
 	}, []);
 

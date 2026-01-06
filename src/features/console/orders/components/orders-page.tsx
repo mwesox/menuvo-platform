@@ -86,11 +86,11 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 	// No stores available
 	if (loaderData.stores.length === 0) {
 		return (
-			<div className="flex flex-col h-full">
+			<div className="flex h-full flex-col">
 				<PageActionBar title={t("title")} />
 				<div className="flex flex-1 items-center justify-center">
 					<div className="flex flex-col items-center gap-2 text-muted-foreground">
-						<Store className="h-12 w-12" />
+						<Store className="size-12" />
 						<p>No stores available</p>
 					</div>
 				</div>
@@ -99,7 +99,7 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 	}
 
 	return (
-		<div className="flex flex-col h-full">
+		<div className="flex h-full flex-col">
 			<PageActionBar
 				title={t("title")}
 				actions={
@@ -124,7 +124,7 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 			/>
 
 			{effectiveStoreId ? (
-				<div className="flex-1 mt-4 min-h-0">
+				<div className="mt-4 min-h-0 flex-1">
 					<MasterDetailLayout
 						masterWidth="wide"
 						hasSelection={!!search.selected}

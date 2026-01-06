@@ -89,7 +89,7 @@ export function MollieStatusCard({
 					disabled={refreshStatus.isPending}
 				>
 					<RefreshCw
-						className={`mr-2 h-4 w-4 ${refreshStatus.isPending ? "animate-spin" : ""}`}
+						className={`me-2 size-4 ${refreshStatus.isPending ? "animate-spin" : ""}`}
 					/>
 					{t("payments.actions.refresh")}
 				</Button>
@@ -130,9 +130,9 @@ export function MollieStatusCard({
 
 				{/* PayPal included badge */}
 				{isComplete && (
-					<div className="flex items-center gap-2 py-3 px-4 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-						<CheckCircle className="h-4 w-4 text-green-600" />
-						<span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+					<div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+						<CheckCircle className="size-4 text-green-600" />
+						<span className="font-medium text-blue-800 text-sm">
 							{t("payments.mollie.status.paypalEnabled")}
 						</span>
 					</div>
@@ -141,7 +141,7 @@ export function MollieStatusCard({
 				{/* In review notice */}
 				{isInReview && (
 					<Alert>
-						<Clock className="h-4 w-4" />
+						<Clock className="size-4" />
 						<AlertTitle>
 							{t("payments.mollie.alerts.inReview.title")}
 						</AlertTitle>
@@ -154,12 +154,12 @@ export function MollieStatusCard({
 				{/* Needs data warning with action button */}
 				{needsData && (
 					<div className="space-y-3">
-						<Alert className="border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100">
-							<AlertTriangle className="h-4 w-4" />
+						<Alert className="border-amber-500 bg-amber-50 text-amber-900">
+							<AlertTriangle className="size-4" />
 							<AlertTitle>
 								{t("payments.mollie.alerts.needsData.title")}
 							</AlertTitle>
-							<AlertDescription className="text-amber-800 dark:text-amber-200">
+							<AlertDescription className="text-amber-800">
 								{t("payments.mollie.alerts.needsData.description")}
 							</AlertDescription>
 						</Alert>
@@ -169,9 +169,9 @@ export function MollieStatusCard({
 							className="w-full"
 						>
 							{getDashboardUrl.isPending ? (
-								<RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+								<RefreshCw className="me-2 size-4 animate-spin" />
 							) : (
-								<ExternalLink className="mr-2 h-4 w-4" />
+								<ExternalLink className="me-2 size-4" />
 							)}
 							{t("payments.mollie.actions.completeVerification")}
 						</Button>
@@ -215,11 +215,11 @@ function StatusRow({
 				: inactiveText;
 
 	return (
-		<div className="flex items-center justify-between py-2 border-b last:border-0">
-			<span className="text-sm text-muted-foreground">{label}</span>
+		<div className="flex items-center justify-between border-b py-2 last:border-0">
+			<span className="text-muted-foreground text-sm">{label}</span>
 			<div className="flex items-center gap-2">
-				<Icon className={`h-4 w-4 ${iconColor}`} />
-				<span className="text-sm font-medium">{text}</span>
+				<Icon className={`size-4 ${iconColor}`} />
+				<span className="font-medium text-sm">{text}</span>
 			</div>
 		</div>
 	);

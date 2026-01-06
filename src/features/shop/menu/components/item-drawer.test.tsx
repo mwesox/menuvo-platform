@@ -1,6 +1,7 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { MenuItemWithDefaults } from "../../schemas";
+import type { MenuItemLight } from "../../schemas";
 import { ItemDrawer } from "./item-drawer";
 
 // Mock the cart store
@@ -29,62 +30,44 @@ vi.mock("../../shared", () => ({
 	),
 }));
 
-// Create minimal mock item for testing
-const mockItem: MenuItemWithDefaults = {
+// Create a wrapper with QueryClient for tests
+const createWrapper = () => {
+	const queryClient = new QueryClient({
+		defaultOptions: {
+			queries: {
+				retry: false,
+			},
+		},
+	});
+	return ({ children }: { children: React.ReactNode }) => (
+		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+	);
+};
+
+// Create minimal mock item for testing (MenuItemLight - options fetched on-demand)
+const mockItem: MenuItemLight = {
 	id: 1,
 	name: "Margherita Pizza",
+	kitchenName: null,
 	description: "Fresh tomato sauce, mozzarella, and basil",
 	price: 1299,
 	imageUrl: "https://example.com/pizza.jpg",
 	allergens: ["Gluten", "Dairy"],
 	displayOrder: 1,
-	optionGroups: [
-		{
-			id: 1,
-			name: "Size",
-			description: null,
-			type: "single_select",
-			isRequired: true,
-			minSelections: 1,
-			maxSelections: 1,
-			numFreeOptions: 0,
-			aggregateMinQuantity: null,
-			aggregateMaxQuantity: null,
-			displayOrder: 1,
-			choices: [
-				{
-					id: 1,
-					name: "Small",
-					priceModifier: 0,
-					displayOrder: 1,
-					isDefault: true,
-					isAvailable: true,
-					minQuantity: 0,
-					maxQuantity: null,
-				},
-				{
-					id: 2,
-					name: "Medium",
-					priceModifier: 200,
-					displayOrder: 2,
-					isDefault: false,
-					isAvailable: true,
-					minQuantity: 0,
-					maxQuantity: null,
-				},
-				{
-					id: 3,
-					name: "Large",
-					priceModifier: 400,
-					displayOrder: 3,
-					isDefault: false,
-					isAvailable: true,
-					minQuantity: 0,
-					maxQuantity: null,
-				},
-			],
-		},
-	],
+	hasOptionGroups: true,
+};
+
+// Simple item without options
+const mockSimpleItem: MenuItemLight = {
+	id: 2,
+	name: "Garlic Bread",
+	kitchenName: null,
+	description: "Freshly baked with garlic butter",
+	price: 499,
+	imageUrl: null,
+	allergens: null,
+	displayOrder: 2,
+	hasOptionGroups: false,
 };
 
 describe("ItemDrawer", () => {
@@ -98,6 +81,7 @@ describe("ItemDrawer", () => {
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
+			{ wrapper: createWrapper() },
 		);
 
 		// Should render nothing
@@ -114,6 +98,7 @@ describe("ItemDrawer", () => {
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
+			{ wrapper: createWrapper() },
 		);
 
 		// Item name should be visible
@@ -130,6 +115,7 @@ describe("ItemDrawer", () => {
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
+			{ wrapper: createWrapper() },
 		);
 
 		expect(
@@ -147,6 +133,7 @@ describe("ItemDrawer", () => {
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
+			{ wrapper: createWrapper() },
 		);
 
 		// Allergens shown as "Contains: Gluten, Dairy"
@@ -154,53 +141,41 @@ describe("ItemDrawer", () => {
 		expect(screen.getByText("Contains:")).toBeInTheDocument();
 	});
 
-	it("renders option group", () => {
+	it("renders simple item without options", () => {
 		render(
 			<ItemDrawer
-				item={mockItem}
+				item={mockSimpleItem}
 				open={true}
 				onOpenChange={vi.fn()}
 				storeId={1}
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
+			{ wrapper: createWrapper() },
 		);
 
-		expect(screen.getByText("Size")).toBeInTheDocument();
-	});
-
-	it("renders option choices", () => {
-		render(
-			<ItemDrawer
-				item={mockItem}
-				open={true}
-				onOpenChange={vi.fn()}
-				storeId={1}
-				storeSlug="test-store"
-				isOpen={true}
-			/>,
-		);
-
-		expect(screen.getByText("Small")).toBeInTheDocument();
-		expect(screen.getByText("Medium")).toBeInTheDocument();
-		expect(screen.getByText("Large")).toBeInTheDocument();
+		expect(screen.getByText("Garlic Bread")).toBeInTheDocument();
+		expect(
+			screen.getByText("Freshly baked with garlic butter"),
+		).toBeInTheDocument();
 	});
 
 	it("renders Add button with price", () => {
 		render(
 			<ItemDrawer
-				item={mockItem}
+				item={mockSimpleItem}
 				open={true}
 				onOpenChange={vi.fn()}
 				storeId={1}
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
+			{ wrapper: createWrapper() },
 		);
 
-		// The Add button should show the total price (base + default option)
-		// €12.99 base price for 1 qty
-		const addButton = screen.getByRole("button", { name: /add/i });
+		// The Add button should show the total price
+		// €4.99 base price for 1 qty
+		const addButton = screen.getByRole("button", { name: /4,99/i });
 		expect(addButton).toBeInTheDocument();
 	});
 });
@@ -216,20 +191,16 @@ describe("ItemDrawer DOM verification", () => {
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
+			{ wrapper: createWrapper() },
 		);
 
 		// Drawer uses portal - content renders to document.body
 		const portalContent = document.body.innerHTML;
 
-		// Verify all key elements exist in the portal
+		// Verify key elements exist in the portal (options are fetched async)
 		expect(portalContent).toContain("Margherita Pizza");
 		expect(portalContent).toContain("Fresh tomato sauce");
 		expect(portalContent).toContain("Gluten");
 		expect(portalContent).toContain("Dairy");
-		expect(portalContent).toContain("Size");
-		expect(portalContent).toContain("Small");
-		expect(portalContent).toContain("Medium");
-		expect(portalContent).toContain("Large");
-		expect(portalContent).toContain("Add");
 	});
 });

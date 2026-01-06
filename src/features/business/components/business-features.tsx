@@ -55,16 +55,16 @@ export function BusinessFeatures() {
 		<section
 			ref={sectionRef}
 			id="features"
-			className="relative py-24 bg-gradient-to-b from-gray-100/50 via-white to-gray-50/50 dark:from-gray-800/50 dark:via-gray-900 dark:to-gray-800/50 overflow-hidden"
+			className="relative overflow-hidden bg-gradient-to-b from-gray-100/50 via-white to-gray-50/50 py-24"
 		>
 			<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(4,77%,55%,0.03),transparent_60%)]" />
 
-			<div className="container px-4 md:px-6 max-w-7xl mx-auto relative z-10">
-				<div className="flex flex-col items-center justify-center space-y-4 text-center mb-14">
-					<h2 className="text-3xl font-sans font-bold tracking-tighter sm:text-4xl md:text-5xl text-gray-900 dark:text-white">
+			<div className="container relative z-10 mx-auto max-w-7xl px-4 md:px-6">
+				<div className="mb-14 flex flex-col items-center justify-center space-y-4 text-center">
+					<h2 className="text-pretty font-bold text-3xl text-gray-900 tracking-tighter sm:text-4xl md:text-5xl">
 						{t("features.title")}
 					</h2>
-					<p className="mx-auto max-w-[700px] font-sans text-gray-600 dark:text-gray-400 md:text-xl">
+					<p className="mx-auto max-w-[700px] text-gray-600 md:text-xl">
 						{t("features.subtitle")}
 					</p>
 				</div>
@@ -75,7 +75,7 @@ export function BusinessFeatures() {
 						return (
 							<div
 								key={key}
-								className="group relative overflow-hidden rounded-xl border border-gray-200/50 bg-white/80 dark:border-gray-700/50 dark:bg-gray-800/80 backdrop-blur-sm p-8 shadow-sm hover:shadow-lg hover:border-gray-300/60 transition-all duration-500 h-full"
+								className="group relative h-full overflow-hidden rounded-xl border border-gray-200/50 bg-white/80 p-8 shadow-sm backdrop-blur-sm transition-all duration-500 hover:border-gray-300/60 hover:shadow-lg"
 								style={{
 									opacity: animated ? 1 : 0,
 									transform: animated ? "translateY(0)" : "translateY(20px)",
@@ -83,14 +83,14 @@ export function BusinessFeatures() {
 								}}
 							>
 								<div className="flex flex-col gap-5">
-									<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#e1393b]/10 text-[#e1393b] group-hover:bg-[#e1393b]/15 transition-colors duration-500">
-										<Icon className="h-6 w-6" />
+									<div className="flex size-12 items-center justify-center rounded-lg bg-brand-red/10 text-brand-red transition-colors duration-500 group-hover:bg-brand-red/15">
+										<Icon className="size-6" />
 									</div>
 									<div className="space-y-2">
-										<h3 className="font-sans font-semibold text-lg text-gray-900 dark:text-white">
+										<h3 className="font-semibold text-gray-900 text-lg">
 											{t(`features.${key}.title`)}
 										</h3>
-										<p className="font-sans text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+										<p className="text-gray-600 text-sm leading-relaxed">
 											{t(`features.${key}.description`)}
 										</p>
 									</div>

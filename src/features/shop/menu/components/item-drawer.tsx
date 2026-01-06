@@ -1,6 +1,7 @@
 "use client";
 
-import { AlertTriangle, Plus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { AlertTriangle, Loader2, Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -11,14 +12,15 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "../../cart";
-import type { MenuItemWithDefaults } from "../../schemas";
+import { shopQueries } from "../../queries";
+import type { MenuItemLight, MenuItemOptionGroup } from "../../schemas";
 import { QuantityStepper } from "../../shared";
 import { ShopButton, ShopHeading } from "../../shared/components/ui";
 import { formatPrice } from "../../utils";
 import { OptionGroup } from "./option-group";
 
 interface ItemDrawerProps {
-	item: MenuItemWithDefaults | null;
+	item: MenuItemLight | null;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	storeId: number;
@@ -31,7 +33,7 @@ interface ItemDrawerProps {
  * The cheapest N options are free (where N = numFreeOptions).
  */
 function calculateGroupPrice(
-	group: MenuItemWithDefaults["optionGroups"][0],
+	group: MenuItemOptionGroup,
 	selectedChoiceIds: number[],
 	quantitySelections: Map<number, number>,
 ): number {
@@ -76,11 +78,11 @@ function calculateGroupPrice(
  * Build the initial selections from defaults.
  */
 function buildInitialSelections(
-	item: MenuItemWithDefaults,
+	optionGroups: MenuItemOptionGroup[],
 ): Map<number, number[]> {
 	const defaults = new Map<number, number[]>();
 
-	for (const group of item.optionGroups) {
+	for (const group of optionGroups) {
 		if (group.type === "quantity_select") {
 			// For quantity_select, we don't set IDs here (quantities handled separately)
 			// But if required, we may need to set some defaults later
@@ -116,11 +118,11 @@ function buildInitialSelections(
  * Build initial quantity selections from defaults.
  */
 function buildInitialQuantities(
-	item: MenuItemWithDefaults,
+	optionGroups: MenuItemOptionGroup[],
 ): Map<number, Map<number, number>> {
 	const quantities = new Map<number, Map<number, number>>();
 
-	for (const group of item.optionGroups) {
+	for (const group of optionGroups) {
 		if (group.type === "quantity_select") {
 			const groupQuantities = new Map<number, number>();
 			for (const choice of group.choices) {
@@ -156,31 +158,59 @@ export function ItemDrawer({
 		Map<number, Map<number, number>>
 	>(new Map());
 
+	// Fetch option groups on demand (only when drawer is open AND item has options)
+	const shouldFetchOptions = open && item?.hasOptionGroups && item?.id;
+	const { data: optionsData, isLoading: isLoadingOptions } = useQuery({
+		...shopQueries.itemOptions(item?.id ?? 0, storeSlug),
+		enabled: !!shouldFetchOptions,
+	});
+
+	// Get option groups from fetched data (or empty array for items without options)
+	const optionGroups = useMemo(() => {
+		if (!item?.hasOptionGroups) return [];
+		return optionsData?.optionGroups ?? [];
+	}, [item?.hasOptionGroups, optionsData]);
+
+	// Reset selections when item changes or options are loaded
 	useEffect(() => {
+		if (item && optionGroups.length > 0) {
+			setSelectedOptions(buildInitialSelections(optionGroups));
+			setQuantitySelections(buildInitialQuantities(optionGroups));
+		}
 		if (item) {
-			setSelectedOptions(buildInitialSelections(item));
-			setQuantitySelections(buildInitialQuantities(item));
 			setQuantity(1);
 		}
-	}, [item]);
+	}, [item, optionGroups]);
+
+	// Clear selections when drawer closes
+	useEffect(() => {
+		if (!open) {
+			setSelectedOptions(new Map());
+			setQuantitySelections(new Map());
+		}
+	}, [open]);
 
 	const calculateTotal = useMemo(() => {
 		if (!item) return 0;
 		let total = item.price;
 
-		for (const group of item.optionGroups) {
+		for (const group of optionGroups) {
 			const choiceIds = selectedOptions.get(group.id) ?? [];
 			const quantities = quantitySelections.get(group.id) ?? new Map();
 			total += calculateGroupPrice(group, choiceIds, quantities);
 		}
 
 		return total * quantity;
-	}, [item, selectedOptions, quantitySelections, quantity]);
+	}, [item, optionGroups, selectedOptions, quantitySelections, quantity]);
 
 	const isValid = useMemo(() => {
 		if (!item) return false;
+		// If item has no options, it's always valid
+		if (!item.hasOptionGroups) return true;
+		// If still loading options, not valid yet
+		if (isLoadingOptions) return false;
 
-		return item.optionGroups.every((group) => {
+		return optionGroups.every((group) => {
 			if (group.type === "quantity_select") {
 				// Check aggregate quantity constraints
 				const quantities = quantitySelections.get(group.id) ?? new Map();
@@ -206,12 +236,18 @@ export function ItemDrawer({
 			const selected = selectedOptions.get(group.id) ?? [];
 			return selected.length >= group.minSelections;
 		});
-	}, [item, selectedOptions, quantitySelections]);
+	}, [
+		item,
+		optionGroups,
+		selectedOptions,
+		quantitySelections,
+		isLoadingOptions,
+	]);
 
 	const handleAddToCart = () => {
 		if (!item || !isValid) return;
 
-		const selectedOptionsArray = item.optionGroups.map((group) => {
+		const selectedOptionsArray = optionGroups.map((group) => {
 			if (group.type === "quantity_select") {
 				// For quantity select, convert quantities to choices with quantity
 				const quantities = quantitySelections.get(group.id) ?? new Map();
@@ -265,6 +301,7 @@ export function ItemDrawer({
 		addItem({
 			itemId: item.id,
 			name: item.name,
+			kitchenName: item.kitchenName,
 			basePrice: item.price,
 			imageUrl: item.imageUrl ?? undefined,
 			quantity,
@@ -297,25 +334,26 @@ export function ItemDrawer({
 	if (!item) return null;
 
 	const hasAllergens = item.allergens && item.allergens.length > 0;
-	const hasOptions = item.optionGroups.length > 0;
+	const hasOptions = item.hasOptionGroups;
+	const showOptionsLoading = hasOptions && isLoadingOptions;
 
 	return (
 		<Drawer open={open} onOpenChange={onOpenChange}>
 			<DrawerContent
-				className="max-h-[85dvh] overflow-hidden md:max-w-lg md:mx-auto md:rounded-t-(--radius)"
+				className="max-h-[85dvh] overflow-hidden md:mx-auto md:max-w-lg md:rounded-t-(--radius)"
 				hideHandle
 			>
 				{/* Handle */}
-				<div className="mx-auto mt-4 mb-2 h-1.5 w-12 shrink-0 rounded-full bg-muted-foreground/40" />
+				<div className="mx-auto mt-4 mb-4 h-1 w-10 shrink-0 rounded-full bg-border" />
 				{/* Scrollable content */}
-				<div className="flex-1 overflow-y-auto min-h-0 overscroll-contain">
+				<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
 					{/* Hero image - full width, edge to edge */}
 					{item.imageUrl && (
-						<div className="relative h-48 md:h-56 overflow-hidden">
+						<div className="relative h-48 overflow-hidden md:h-56">
 							<img
 								src={item.imageUrl}
 								alt={item.name}
-								className="w-full h-full object-cover"
+								className="h-full w-full object-cover"
 							/>
 							<div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
 						</div>
@@ -324,32 +362,38 @@ export function ItemDrawer({
 					{/* Content area */}
 					<div
 						className={cn(
-							"relative px-5 pb-4",
-							item.imageUrl ? "-mt-8" : "pt-4",
+							"fade-in-0 slide-in-from-bottom-2 relative animate-in px-6 pb-4 duration-300",
+							item.imageUrl ? "-mt-8" : "pt-2",
 						)}
 					>
 						{/* Title */}
 						<DrawerTitle asChild>
-							<ShopHeading as="h2" size="2xl" className="leading-tight mb-2">
+							<ShopHeading
+								as="h2"
+								size="2xl"
+								className="mb-3 leading-tight tracking-tight"
+							>
 								{item.name}
 							</ShopHeading>
 						</DrawerTitle>
 
 						{/* Description */}
 						{item.description && (
-							<DrawerDescription className="text-muted-foreground text-base leading-relaxed mb-4">
+							<DrawerDescription className="mb-5 text-[17px] text-muted-foreground leading-relaxed">
 								{item.description}
 							</DrawerDescription>
 						)}
 
 						{/* Allergens - subtle inline style */}
 						{hasAllergens && (
-							<div className="flex items-center gap-2 py-3 border-y border-border/40 mb-4">
-								<AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-								<span className="text-sm text-muted-foreground">
+							<div className="mb-5 flex items-center gap-2 border-border/40 border-y py-3">
+								<AlertTriangle className="size-4 shrink-0 text-amber-600" />
+								<span className="text-muted-foreground text-sm">
 									{t("menu.contains")}:{" "}
 									<span className="text-foreground">
-										{item.allergens?.join(", ")}
+										{item.allergens
+											?.map((a) => t(`menu:allergens.${a}`, a))
+											.join(", ")}
 									</span>
 								</span>
 							</div>
@@ -358,30 +402,36 @@ export function ItemDrawer({
 						{/* Option Groups */}
 						{hasOptions && (
 							<div className="space-y-1 pb-4">
-								{item.optionGroups.map((group) => (
-									<OptionGroup
-										key={group.id}
-										group={group}
-										choices={group.choices}
-										selectedChoiceIds={selectedOptions.get(group.id) ?? []}
-										quantitySelections={
-											quantitySelections.get(group.id) ?? new Map()
-										}
-										onSelectionChange={(ids) =>
-											handleOptionChange(group.id, ids)
-										}
-										onQuantityChange={(choiceId, qty) =>
-											handleQuantityChange(group.id, choiceId, qty)
-										}
-									/>
-								))}
+								{showOptionsLoading ? (
+									<div className="flex items-center justify-center py-8">
+										<Loader2 className="size-6 animate-spin text-muted-foreground" />
+									</div>
+								) : (
+									optionGroups.map((group) => (
+										<OptionGroup
+											key={group.id}
+											group={group}
+											choices={group.choices}
+											selectedChoiceIds={selectedOptions.get(group.id) ?? []}
+											quantitySelections={
+												quantitySelections.get(group.id) ?? new Map()
+											}
+											onSelectionChange={(ids) =>
+												handleOptionChange(group.id, ids)
+											}
+											onQuantityChange={(choiceId, qty) =>
+												handleQuantityChange(group.id, choiceId, qty)
+											}
+										/>
+									))
+								)}
 							</div>
 						)}
 					</div>
 				</div>
 
 				{/* Sticky footer with shadow */}
-				<div className="relative border-t border-border bg-card px-5 py-4 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
+				<div className="relative border-border border-t bg-card px-6 py-5 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
 					<div className="flex items-center gap-4">
 						<QuantityStepper value={quantity} onChange={setQuantity} />
 						<ShopButton
@@ -389,11 +439,11 @@ export function ItemDrawer({
 							size="lg"
 							onClick={handleAddToCart}
 							disabled={!isValid || !isStoreOpen}
-							className="flex-1 h-14 text-base font-medium shadow-lg shadow-primary/20"
+							className="h-14 flex-1 font-medium text-base shadow-lg shadow-primary/20 transition-transform active:scale-[0.98]"
 						>
 							{/* Mobile: icon + price only */}
 							<span className="flex items-center gap-2 md:hidden">
-								<Plus className="w-5 h-5" />
+								<Plus className="size-5" />
 								{formatPrice(calculateTotal)}
 							</span>
 							{/* Desktop: text + price */}

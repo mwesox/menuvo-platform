@@ -34,7 +34,7 @@ export function ConsoleHeader({
 	const selectedStore = stores.find((s) => s.id === storeId) ?? stores[0];
 
 	return (
-		<header className="flex h-12 items-center justify-between border-b border-border bg-card/50 px-4">
+		<header className="flex h-12 items-center justify-between border-border border-b bg-card/50 px-4">
 			{/* Left: Store selector */}
 			<div className="flex items-center gap-2">
 				{hasMultipleStores && onStoreChange ? (
@@ -67,14 +67,10 @@ export function ConsoleHeader({
 			{/* Right: Help + User menu */}
 			<div className="flex items-center gap-1">
 				<Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-					<a
-						href="https://help.menuvo.app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
+					<Link to="/console/help">
 						<HelpCircle className="h-4 w-4" />
 						<span className="sr-only">{t("help", "Hilfe")}</span>
-					</a>
+					</Link>
 				</Button>
 
 				<DropdownMenu>
@@ -89,13 +85,13 @@ export function ConsoleHeader({
 					<DropdownMenuContent align="end" className="w-48">
 						<DropdownMenuItem asChild>
 							<Link to="/console/settings/merchant">
-								<User className="mr-2 h-4 w-4" />
+								<User className="me-2 h-4 w-4" />
 								{t("profile", "Profil")}
 							</Link>
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem className="text-destructive focus:text-destructive">
-							<LogOut className="mr-2 h-4 w-4" />
+							<LogOut className="me-2 h-4 w-4" />
 							{t("logout", "Abmelden")}
 						</DropdownMenuItem>
 					</DropdownMenuContent>

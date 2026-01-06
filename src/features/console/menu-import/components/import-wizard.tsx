@@ -132,23 +132,23 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 	};
 
 	return (
-		<div className="w-full py-4 px-4">
+		<div className="w-full px-4 py-4">
 			{/* Progress Steps */}
-			<div className="flex items-center justify-center gap-4 mb-8">
+			<div className="mb-8 flex items-center justify-center gap-4">
 				<StepIndicator
 					step={1}
 					label={t("import.steps.upload")}
 					isActive={step === "upload"}
 					isComplete={step !== "upload"}
 				/>
-				<div className="w-12 h-px bg-border" />
+				<div className="h-px w-12 bg-border" />
 				<StepIndicator
 					step={2}
 					label={t("import.steps.processing")}
 					isActive={step === "processing"}
 					isComplete={step === "review"}
 				/>
-				<div className="w-12 h-px bg-border" />
+				<div className="h-px w-12 bg-border" />
 				<StepIndicator
 					step={3}
 					label={t("import.steps.review")}
@@ -187,12 +187,12 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 								<Button onClick={handleUpload} disabled={!file || isUploading}>
 									{isUploading ? (
 										<>
-											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											<Loader2 className="me-2 size-4 animate-spin" />
 											{t("import.status.uploading")}
 										</>
 									) : (
 										<>
-											<Upload className="mr-2 h-4 w-4" />
+											<Upload className="me-2 size-4" />
 											{t("import.buttons.uploadProcess")}
 										</>
 									)}
@@ -205,11 +205,11 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 						<div className="py-8">
 							{jobStatus?.status === "FAILED" || jobError ? (
 								<div className="text-center">
-									<AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-									<p className="text-lg font-medium text-destructive mb-2">
+									<AlertCircle className="mx-auto mb-4 size-12 text-destructive" />
+									<p className="mb-2 font-medium text-destructive text-lg">
 										{t("import.errors.processingFailed")}
 									</p>
-									<p className="text-sm text-muted-foreground mb-4">
+									<p className="mb-4 text-muted-foreground text-sm">
 										{jobStatus?.errorMessage || t("import.errors.genericError")}
 									</p>
 									<Button variant="outline" onClick={onClose}>
@@ -244,12 +244,12 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 								>
 									{applyMutation.isPending ? (
 										<>
-											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+											<Loader2 className="me-2 size-4 animate-spin" />
 											{t("import.status.applying")}
 										</>
 									) : (
 										<>
-											<Check className="mr-2 h-4 w-4" />
+											<Check className="me-2 size-4" />
 											{t("import.buttons.applyChanges", {
 												count: selectedItems.size,
 											})}
@@ -281,7 +281,7 @@ function StepIndicator({
 	return (
 		<div className="flex items-center gap-2">
 			<div
-				className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+				className={`flex size-8 items-center justify-center rounded-full font-medium text-sm ${
 					isComplete
 						? "bg-primary text-primary-foreground"
 						: isActive
@@ -289,7 +289,7 @@ function StepIndicator({
 							: "bg-muted text-muted-foreground"
 				}`}
 			>
-				{isComplete ? <CheckCircle className="h-4 w-4" /> : step}
+				{isComplete ? <CheckCircle className="size-4" /> : step}
 			</div>
 			<span
 				className={`text-sm ${isActive || isComplete ? "font-medium" : "text-muted-foreground"}`}

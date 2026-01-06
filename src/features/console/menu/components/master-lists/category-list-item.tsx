@@ -29,38 +29,38 @@ export function CategoryListItem({
 			type="button"
 			onClick={() => onSelect(category.id)}
 			className={cn(
-				"flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-lg transition-colors",
+				"flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-start transition-colors",
 				"hover:bg-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 				isSelected && "bg-accent",
 			)}
 		>
 			<div
 				className={cn(
-					"flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center",
+					"flex size-8 flex-shrink-0 items-center justify-center rounded-md",
 					isSelected ? "bg-primary text-primary-foreground" : "bg-muted",
 				)}
 			>
-				<Layers className="h-4 w-4" />
+				<Layers className="size-4" />
 			</div>
 
-			<div className="flex-1 min-w-0">
+			<div className="min-w-0 flex-1">
 				<div className="flex items-center gap-2">
 					<span
 						className={cn(
-							"font-medium truncate",
+							"truncate font-medium",
 							!category.isActive && "text-muted-foreground",
 						)}
 					>
 						{displayName}
 					</span>
 					{!category.isActive && (
-						<EyeOff className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+						<EyeOff className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
 					)}
 				</div>
-				<div className="text-xs text-muted-foreground">
+				<div className="text-muted-foreground text-xs">
 					{itemCount} {itemCount === 1 ? t("labels.item") : t("labels.items")}
 					{availableCount < itemCount && (
-						<span className="ml-1">
+						<span className="ms-1">
 							({availableCount} {tMenu("labels.available")})
 						</span>
 					)}

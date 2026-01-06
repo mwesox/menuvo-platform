@@ -5,7 +5,7 @@ import type { OptionChoice, OptionGroup, OptionGroupType } from "@/db/schema";
 import { useEntityDisplayName } from "@/features/console/menu/hooks";
 import { cn } from "@/lib/utils";
 
-type OptionGroupWithChoices = OptionGroup & { optionChoices: OptionChoice[] };
+type OptionGroupWithChoices = OptionGroup & { choices: OptionChoice[] };
 
 interface OptionGroupListItemProps {
 	optionGroup: OptionGroupWithChoices;
@@ -51,14 +51,14 @@ export function OptionGroupListItem({
 }: OptionGroupListItemProps) {
 	const { t } = useTranslation("menu");
 	const displayName = useEntityDisplayName(optionGroup.translations);
-	const choiceCount = optionGroup.optionChoices.length;
+	const choiceCount = optionGroup.choices.length;
 
 	return (
 		<button
 			type="button"
 			onClick={() => onSelect(optionGroup.id)}
 			className={cn(
-				"w-full text-left px-3 py-2.5 rounded-lg transition-colors",
+				"w-full rounded-lg px-3 py-2.5 text-start transition-colors",
 				"hover:bg-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 				isSelected && "bg-accent",
 			)}
@@ -66,36 +66,36 @@ export function OptionGroupListItem({
 			<div className="flex items-center gap-3">
 				<div
 					className={cn(
-						"flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center",
+						"flex size-8 flex-shrink-0 items-center justify-center rounded-md",
 						isSelected ? "bg-primary text-primary-foreground" : "bg-muted",
 					)}
 				>
-					<ListChecks className="h-4 w-4" />
+					<ListChecks className="size-4" />
 				</div>
 
-				<div className="flex-1 min-w-0">
+				<div className="min-w-0 flex-1">
 					<div className="flex items-center gap-2">
 						<span
 							className={cn(
-								"font-medium truncate",
+								"truncate font-medium",
 								!optionGroup.isActive && "text-muted-foreground",
 							)}
 						>
 							{displayName}
 						</span>
 						{!optionGroup.isActive && (
-							<EyeOff className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+							<EyeOff className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />
 						)}
 					</div>
-					<div className="flex items-center gap-2 mt-0.5">
+					<div className="mt-0.5 flex items-center gap-2">
 						<Badge
 							variant={getTypeBadgeVariant(optionGroup.type)}
-							className="text-[10px] px-1.5 py-0"
+							className="px-1.5 py-0 text-[10px]"
 						>
 							{getTypeLabel(t, optionGroup.type)}
 						</Badge>
 						{optionGroup.isRequired && (
-							<span className="text-[10px] text-foreground font-medium">
+							<span className="font-medium text-[10px] text-foreground">
 								{t("optionGroups.required")}
 							</span>
 						)}

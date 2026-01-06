@@ -4,6 +4,8 @@ import { initReactI18next } from "react-i18next";
 // German translations
 import businessDe from "./locales/de/business.json";
 import commonDe from "./locales/de/common.json";
+import consoleHelpDe from "./locales/de/console-help.json";
+import consoleKitchenDe from "./locales/de/console-kitchen.json";
 import consoleOrdersDe from "./locales/de/console-orders.json";
 import discoveryDe from "./locales/de/discovery.json";
 import formsDe from "./locales/de/forms.json";
@@ -20,6 +22,8 @@ import validationDe from "./locales/de/validation.json";
 // English translations
 import businessEn from "./locales/en/business.json";
 import commonEn from "./locales/en/common.json";
+import consoleHelpEn from "./locales/en/console-help.json";
+import consoleKitchenEn from "./locales/en/console-kitchen.json";
 import consoleOrdersEn from "./locales/en/console-orders.json";
 import discoveryEn from "./locales/en/discovery.json";
 import formsEn from "./locales/en/forms.json";
@@ -42,6 +46,8 @@ const resources = {
 	en: {
 		business: businessEn,
 		common: commonEn,
+		"console-help": consoleHelpEn,
+		"console-kitchen": consoleKitchenEn,
 		"console-orders": consoleOrdersEn,
 		navigation: navigationEn,
 		forms: formsEn,
@@ -59,6 +65,8 @@ const resources = {
 	de: {
 		business: businessDe,
 		common: commonDe,
+		"console-help": consoleHelpDe,
+		"console-kitchen": consoleKitchenDe,
 		"console-orders": consoleOrdersDe,
 		navigation: navigationDe,
 		forms: formsDe,
@@ -104,6 +112,8 @@ export function initI18n(detectedLanguage?: string) {
 			ns: [
 				"business",
 				"common",
+				"console-help",
+				"console-kitchen",
 				"console-orders",
 				"navigation",
 				"forms",

@@ -65,13 +65,13 @@ export function MasterDetailLayout({
 
 	if (isMobile) {
 		return (
-			<div className={cn("flex flex-1 flex-col min-h-0", className)}>
+			<div className={cn("flex min-h-0 flex-1 flex-col", className)}>
 				<ScrollArea className="flex-1">{master}</ScrollArea>
 				<Sheet
 					open={hasSelection}
 					onOpenChange={(open) => !open && onDetailClose?.()}
 				>
-					<SheetContent side="bottom" className="h-[85vh] flex flex-col">
+					<SheetContent side="bottom" className="flex h-[85vh] flex-col">
 						{sheetTitle ? (
 							<SheetHeader>
 								<SheetTitle>{sheetTitle}</SheetTitle>
@@ -81,7 +81,7 @@ export function MasterDetailLayout({
 								<SheetTitle>Details</SheetTitle>
 							</VisuallyHidden.Root>
 						)}
-						<ScrollArea className="flex-1 -mx-4 px-4">{detail}</ScrollArea>
+						<ScrollArea className="-mx-4 flex-1 px-4">{detail}</ScrollArea>
 					</SheetContent>
 				</Sheet>
 			</div>
@@ -89,11 +89,11 @@ export function MasterDetailLayout({
 	}
 
 	return (
-		<div className={cn("flex flex-1 gap-6 min-h-0", className)}>
+		<div className={cn("flex min-h-0 flex-1 gap-6", className)}>
 			{/* Master panel */}
 			<div
 				className={cn(
-					"flex-shrink-0 border-r border-border pr-6",
+					"flex-shrink-0 border-border border-r pe-6",
 					masterWidthClasses[masterWidth],
 				)}
 			>
@@ -101,7 +101,7 @@ export function MasterDetailLayout({
 			</div>
 
 			{/* Detail panel */}
-			<div className="flex-1 min-w-0">
+			<div className="min-w-0 flex-1">
 				<ScrollArea className="h-full">{detail}</ScrollArea>
 			</div>
 		</div>

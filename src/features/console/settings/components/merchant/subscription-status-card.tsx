@@ -49,7 +49,7 @@ export function SubscriptionStatusCard({
 				{/* Plan name and price */}
 				{subscription.currentPlan && (
 					<div className="flex items-baseline gap-2">
-						<span className="text-2xl font-bold">
+						<span className="font-bold text-2xl">
 							{tBusiness(`pricing.${subscription.currentPlan}.name`)}
 						</span>
 						<span className="text-muted-foreground">
@@ -70,7 +70,7 @@ export function SubscriptionStatusCard({
 				{subscription.subscriptionStatus === "trialing" &&
 					subscription.subscriptionTrialEndsAt && (
 						<Alert>
-							<Clock className="h-4 w-4" />
+							<Clock className="size-4" />
 							<AlertTitle>{t("subscription.trialEnding.title")}</AlertTitle>
 							<AlertDescription>
 								{t("subscription.trialEnding.description", {
@@ -83,7 +83,7 @@ export function SubscriptionStatusCard({
 				{/* Past due alert */}
 				{subscription.subscriptionStatus === "past_due" && (
 					<Alert variant="destructive">
-						<AlertTriangle className="h-4 w-4" />
+						<AlertTriangle className="size-4" />
 						<AlertTitle>{t("subscription.pastDue.title")}</AlertTitle>
 						<AlertDescription>
 							{t("subscription.pastDue.description")}
@@ -93,10 +93,10 @@ export function SubscriptionStatusCard({
 
 				{/* Paused alert */}
 				{subscription.subscriptionStatus === "paused" && (
-					<Alert className="border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100">
-						<PauseCircle className="h-4 w-4" />
+					<Alert className="border-amber-500 bg-amber-50 text-amber-900">
+						<PauseCircle className="size-4" />
 						<AlertTitle>{t("subscription.paused.title")}</AlertTitle>
-						<AlertDescription className="text-amber-800 dark:text-amber-200">
+						<AlertDescription className="text-amber-800">
 							{t("subscription.paused.description")}
 						</AlertDescription>
 					</Alert>
@@ -104,10 +104,10 @@ export function SubscriptionStatusCard({
 
 				{/* Cancellation scheduled alert */}
 				{subscription.cancelAtPeriodEnd && (
-					<Alert className="border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100">
-						<XCircle className="h-4 w-4" />
+					<Alert className="border-amber-500 bg-amber-50 text-amber-900">
+						<XCircle className="size-4" />
 						<AlertTitle>{t("subscription.canceling.title")}</AlertTitle>
-						<AlertDescription className="text-amber-800 dark:text-amber-200">
+						<AlertDescription className="text-amber-800">
 							{t("subscription.canceling.description", {
 								date: formatDate(subscription.subscriptionCurrentPeriodEnd),
 							})}
@@ -151,7 +151,7 @@ function getStatusConfig(status: SubscriptionStatus): {
 		none: { variant: "secondary" },
 		trialing: {
 			variant: "outline",
-			className: "border-blue-500 text-blue-700 dark:text-blue-300",
+			className: "border-blue-500 text-blue-700",
 		},
 		active: {
 			variant: "default",
@@ -159,7 +159,7 @@ function getStatusConfig(status: SubscriptionStatus): {
 		},
 		paused: {
 			variant: "outline",
-			className: "border-amber-500 text-amber-700 dark:text-amber-300",
+			className: "border-amber-500 text-amber-700",
 		},
 		past_due: { variant: "destructive" },
 		canceled: { variant: "secondary" },

@@ -39,7 +39,7 @@ export function PageActionBar({
 	const hasTabs = tabs && tabs.items.length > 0;
 
 	return (
-		<div className={cn("border-b border-border", className)}>
+		<div className={cn("border-border border-b", className)}>
 			{/* Row 1: Context + Actions (always) */}
 			<div className="flex h-12 items-center justify-between px-0">
 				{/* Zone 1: Context (left) */}
@@ -48,13 +48,13 @@ export function PageActionBar({
 						<Link
 							to={backHref}
 							preload={false}
-							className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+							className="flex items-center gap-2 font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
 						>
 							<ArrowLeft className="h-4 w-4" />
 							{backLabel && <span>{backLabel}</span>}
 						</Link>
 					) : title ? (
-						<h1 className="text-lg font-semibold">{title}</h1>
+						<h1 className="font-semibold text-lg">{title}</h1>
 					) : null}
 				</div>
 
@@ -71,7 +71,7 @@ export function PageActionBar({
 							type="button"
 							onClick={() => tabs.onChange(tab.value)}
 							className={cn(
-								"relative flex items-center gap-1.5 whitespace-nowrap pb-3 text-sm font-medium transition-colors",
+								"relative flex items-center gap-1.5 whitespace-nowrap pb-3 font-medium text-sm transition-colors",
 								"hover:text-foreground",
 								tabs.value === tab.value
 									? "text-foreground"
@@ -96,7 +96,7 @@ export function PageActionBar({
 							)}
 							{/* Active indicator */}
 							{tabs.value === tab.value && (
-								<span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+								<span className="absolute right-0 bottom-0 left-0 h-0.5 bg-primary" />
 							)}
 						</button>
 					))}

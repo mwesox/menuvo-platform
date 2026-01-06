@@ -199,7 +199,7 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 	);
 
 	return (
-		<div className="flex items-start gap-4 py-3 border-b last:border-b-0">
+		<div className="flex items-start gap-4 border-b py-3 last:border-b-0">
 			<Field orientation="horizontal" className="w-28 pt-1.5">
 				<Switch
 					id={`${day}-toggle`}
@@ -245,7 +245,7 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 										size="icon"
 										onClick={() => handleRemoveSlot(slotIndex)}
 									>
-										<Trash2 className="h-4 w-4" />
+										<Trash2 className="size-4" />
 									</Button>
 								)}
 							</div>
@@ -257,12 +257,12 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 							onClick={handleAddSlot}
 							className="mt-2"
 						>
-							<Plus className="h-4 w-4 mr-1" />
+							<Plus className="me-1 size-4" />
 							{tCommon("buttons.add")} slot
 						</Button>
 					</div>
 				) : (
-					<span className="text-muted-foreground text-sm pt-1.5 block">
+					<span className="block pt-1.5 text-muted-foreground text-sm">
 						{tCommon("labels.closed")}
 					</span>
 				)}

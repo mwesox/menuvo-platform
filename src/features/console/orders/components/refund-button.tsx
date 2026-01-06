@@ -100,11 +100,11 @@ export function RefundButton({
 			<AlertDialogTrigger asChild>
 				{compact ? (
 					<Button variant="outline" size="icon" title={t("actions.refund")}>
-						<RotateCcw className="h-4 w-4" />
+						<RotateCcw className="size-4" />
 					</Button>
 				) : (
 					<Button variant="outline" size="sm">
-						<RotateCcw className="mr-2 h-4 w-4" />
+						<RotateCcw className="me-2 size-4" />
 						{t("actions.refund")}
 					</Button>
 				)}
@@ -119,8 +119,8 @@ export function RefundButton({
 
 				<div className="space-y-4 py-4">
 					{/* Order amount display */}
-					<div className="flex items-center justify-between py-2 px-3 bg-muted rounded-md">
-						<span className="text-sm text-muted-foreground">
+					<div className="flex items-center justify-between rounded-md bg-muted px-3 py-2">
+						<span className="text-muted-foreground text-sm">
 							{t("refund.orderTotal")}
 						</span>
 						<span className="font-medium">{formatAmount(totalAmount)}</span>
@@ -133,7 +133,7 @@ export function RefundButton({
 							id="partial-refund"
 							checked={isPartialRefund}
 							onChange={(e) => setIsPartialRefund(e.target.checked)}
-							className="h-4 w-4"
+							className="size-4"
 						/>
 						<Label htmlFor="partial-refund" className="cursor-pointer text-sm">
 							{t("refund.partialRefund")}
@@ -156,7 +156,7 @@ export function RefundButton({
 								onChange={(e) => setPartialAmount(e.target.value)}
 								placeholder={(totalAmount / 100).toFixed(2)}
 							/>
-							<p className="text-xs text-muted-foreground">
+							<p className="text-muted-foreground text-xs">
 								{t("refund.maxAmount")}: {formatAmount(totalAmount)}
 							</p>
 						</div>
@@ -177,7 +177,7 @@ export function RefundButton({
 					>
 						{refundMutation.isPending ? (
 							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								<Loader2 className="me-2 size-4 animate-spin" />
 								{t("refund.processing")}
 							</>
 						) : isPartialRefund && partialAmount ? (

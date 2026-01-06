@@ -47,11 +47,11 @@ function QRCodeError() {
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background p-4">
 			<div className="max-w-md text-center">
-				<h1 className="text-2xl font-semibold text-foreground">
+				<h1 className="font-semibold text-2xl text-foreground">
 					{message.title}
 				</h1>
 				<p className="mt-2 text-muted-foreground">{message.description}</p>
-				<p className="mt-6 text-sm text-muted-foreground">
+				<p className="mt-6 text-muted-foreground text-sm">
 					Need help?{" "}
 					<a
 						href="mailto:support@menuvo.app"

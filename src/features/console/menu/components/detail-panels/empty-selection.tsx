@@ -45,11 +45,11 @@ export function EmptySelection({ tab }: EmptySelectionProps) {
 
 	return (
 		<div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
-			<div className="rounded-full bg-muted p-4 mb-4">
-				<Icon className="h-8 w-8 text-muted-foreground" />
+			<div className="mb-4 rounded-full bg-muted p-4">
+				<Icon className="size-8 text-muted-foreground" />
 			</div>
-			<h3 className="font-medium text-lg mb-2">{title}</h3>
-			<p className="text-sm text-muted-foreground max-w-sm">{description}</p>
+			<h3 className="mb-2 font-medium text-lg">{title}</h3>
+			<p className="max-w-sm text-muted-foreground text-sm">{description}</p>
 		</div>
 	);
 }

@@ -183,6 +183,8 @@ jobs:
           BACKUP_S3_SECRET_ACCESS_KEY=${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
           BACKUP_KEEP_DAYS=${{ secrets.BACKUP_KEEP_DAYS }}
           BACKUP_CRON="${{ secrets.BACKUP_CRON }}"
+          MOLLIE_API_KEY=${{ secrets.MOLLIE_API_KEY }}
+          MOLLIE_TEST_MODE=${{ secrets.MOLLIE_TEST_MODE }}
           VERSION=${{ github.sha }}
           EOF
 

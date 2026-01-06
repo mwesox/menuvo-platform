@@ -54,7 +54,7 @@ export function StoreImageFields({
 			<CardContent>
 				<Field>
 					<FieldLabel>{t("fields.storeLogo")}</FieldLabel>
-					<p className="text-sm text-muted-foreground mb-2">
+					<p className="mb-2 text-muted-foreground text-sm">
 						{t("hints.storeLogoHint")}
 					</p>
 					<ImageUploadField

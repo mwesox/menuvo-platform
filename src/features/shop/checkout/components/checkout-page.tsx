@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 import type { OrderType } from "@/features/orders/constants";
 import { useCreateOrder } from "@/features/orders/queries";
 import type { MerchantCapabilities } from "@/lib/capabilities";
@@ -20,7 +21,7 @@ import {
 	ShopPrice,
 	ShopPriceRow,
 } from "../../shared/components/ui";
-import { useCreateMolliePayment } from "../queries";
+import { useCreatePayment } from "../queries";
 
 interface CheckoutPageProps {
 	storeId: number;
@@ -55,6 +56,7 @@ function transformCartItemToSnapshot(cartItem: CartItem) {
 	return {
 		itemId: cartItem.itemId,
 		name: cartItem.name,
+		kitchenName: cartItem.kitchenName,
 		description: undefined,
 		quantity: cartItem.quantity,
 		unitPrice: cartItem.basePrice,
@@ -77,15 +79,15 @@ export function CheckoutPage({
 
 	// Form state
 	const [customerName, setCustomerName] = useState("");
-	const [customerEmail, setCustomerEmail] = useState("");
+	const [customerNotes, setCustomerNotes] = useState("");
 	const [orderType, setOrderType] = useState<OrderType>("dine_in");
 
-	// Mollie redirect state
-	const [isMollieRedirecting, setIsMollieRedirecting] = useState(false);
+	// Payment redirect state
+	const [isPaymentRedirecting, setIsPaymentRedirecting] = useState(false);
 
 	// Mutations
 	const createOrderMutation = useCreateOrder(storeId);
-	const createMolliePaymentMutation = useCreateMolliePayment();
+	const createPaymentMutation = useCreatePayment();
 
 	// Check if merchant can accept online payments (computed on server)
 	if (!capabilities.canAcceptOnlinePayment) {
@@ -98,17 +100,6 @@ export function CheckoutPage({
 	const validateForm = (): boolean => {
 		if (!customerName.trim()) {
 			toast.error(t("checkout.nameRequired"));
-			return false;
-		}
-
-		if (!customerEmail.trim()) {
-			toast.error(t("checkout.emailRequired"));
-			return false;
-		}
-
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(customerEmail)) {
-			toast.error(t("checkout.invalidEmail"));
 			return false;
 		}
 
@@ -143,7 +134,7 @@ export function CheckoutPage({
 			items: orderItems,
 			orderType,
 			customerName: customerName.trim(),
-			customerEmail: customerEmail.trim(),
+			customerNotes: customerNotes.trim() || undefined,
 			paymentMethod: "mollie",
 			subtotal,
 			taxAmount: 0,
@@ -158,10 +149,10 @@ export function CheckoutPage({
 
 			const returnUrl = `${window.location.origin}/${storeSlug}/checkout/return`;
 
-			// Create Mollie payment and redirect to hosted checkout
-			setIsMollieRedirecting(true);
+			// Create payment and redirect to hosted checkout
+			setIsPaymentRedirecting(true);
 
-			const payment = await createMolliePaymentMutation.mutateAsync({
+			const payment = await createPaymentMutation.mutateAsync({
 				orderId: order.id,
 				returnUrl,
 			});
@@ -169,22 +160,22 @@ export function CheckoutPage({
 			if (payment.checkoutUrl) {
 				// Clear cart before redirect
 				clearCart();
-				// Redirect to Mollie hosted checkout
+				// Redirect to hosted checkout
 				window.location.href = payment.checkoutUrl;
 			}
 		} catch {
-			setIsMollieRedirecting(false);
+			setIsPaymentRedirecting(false);
 			// Error toast handled by mutation
 		}
 	};
 
-	// Show Mollie redirect loading state
-	if (isMollieRedirecting) {
+	// Show payment redirect loading state
+	if (isPaymentRedirecting) {
 		return (
 			<div className="min-h-screen bg-background">
-				<div className="max-w-lg mx-auto px-4 py-12">
-					<ShopCard padding="lg" className="text-center space-y-4">
-						<Loader2 className="w-12 h-12 mx-auto animate-spin text-primary" />
+				<div className="mx-auto max-w-xl px-4 py-12">
+					<ShopCard padding="lg" className="space-y-4 text-center">
+						<Loader2 className="mx-auto size-12 animate-spin text-primary" />
 						<ShopHeading as="h1" size="lg">
 							{t("checkout.payment.redirecting")}
 						</ShopHeading>
@@ -196,14 +187,13 @@ export function CheckoutPage({
 	}
 
 	const isSubmitting =
-		createOrderMutation.isPending || createMolliePaymentMutation.isPending;
+		createOrderMutation.isPending || createPaymentMutation.isPending;
 
-	const isFormValid =
-		customerName.trim() && customerEmail.trim() && items.length > 0;
+	const isFormValid = customerName.trim() && items.length > 0;
 
 	return (
 		<div className="min-h-screen bg-background">
-			<div className="max-w-lg mx-auto px-4 py-6">
+			<div className="mx-auto max-w-xl px-4 py-6">
 				{/* Header */}
 				<ShopHeading as="h1" size="xl" className="mb-6">
 					{t("checkout.title")}
@@ -250,41 +240,36 @@ export function CheckoutPage({
 							{t("checkout.yourInfo")}
 						</ShopHeading>
 
-						<div className="space-y-3">
-							<div>
-								<Label htmlFor="customerName" className="text-sm font-medium">
-									{t("checkout.yourName")}
-								</Label>
-								<Input
-									id="customerName"
-									type="text"
-									value={customerName}
-									onChange={(e) => setCustomerName(e.target.value)}
-									placeholder={t("checkout.namePlaceholder")}
-									className="mt-1 w-full"
-									autoComplete="name"
-								/>
-							</div>
+						<div>
+							<Label htmlFor="customerName" className="font-medium text-sm">
+								{t("checkout.yourName")}
+							</Label>
+							<Input
+								id="customerName"
+								type="text"
+								value={customerName}
+								onChange={(e) => setCustomerName(e.target.value)}
+								placeholder={t("checkout.namePlaceholder")}
+								className="mt-1 w-full"
+								autoComplete="name"
+							/>
+						</div>
 
-							{/* Email field - required for payment */}
-							<div>
-								<Label htmlFor="customerEmail" className="text-sm font-medium">
-									{t("checkout.yourEmail")}
-									<span className="text-destructive ml-1">*</span>
-								</Label>
-								<Input
-									id="customerEmail"
-									type="email"
-									value={customerEmail}
-									onChange={(e) => setCustomerEmail(e.target.value)}
-									placeholder={t("checkout.emailPlaceholder")}
-									className="mt-1 w-full"
-									autoComplete="email"
-								/>
-								<ShopMutedText className="text-xs mt-1">
-									{t("checkout.emailRequiredForOnline")}
-								</ShopMutedText>
-							</div>
+						<div>
+							<Label htmlFor="customerNotes" className="font-medium text-sm">
+								{t("checkout.specialRequests")}
+								<span className="ms-1 font-normal text-muted-foreground">
+									({t("checkout.optional")})
+								</span>
+							</Label>
+							<Textarea
+								id="customerNotes"
+								value={customerNotes}
+								onChange={(e) => setCustomerNotes(e.target.value)}
+								placeholder={t("checkout.specialRequestsPlaceholder")}
+								className="mt-1 min-h-[80px] w-full resize-none"
+								maxLength={500}
+							/>
 						</div>
 					</ShopCard>
 
@@ -316,7 +301,7 @@ export function CheckoutPage({
 						</div>
 
 						{/* Totals */}
-						<div className="pt-3 border-t border-border space-y-2">
+						<div className="space-y-2 border-border border-t pt-3">
 							<ShopPriceRow
 								label={t("checkout.subtotal")}
 								cents={subtotal}

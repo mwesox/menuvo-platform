@@ -90,10 +90,7 @@ export const createOrder = createServerFn({ method: "POST" })
 			"Creating order",
 		);
 
-		const { orderStatus, paymentStatus } = getInitialOrderStatus(
-			data.orderType,
-			data.paymentMethod,
-		);
+		const { orderStatus, paymentStatus } = getInitialOrderStatus();
 
 		try {
 			const order = await db.transaction(async (tx) => {
@@ -126,6 +123,7 @@ export const createOrder = createServerFn({ method: "POST" })
 							orderId: newOrder.id,
 							itemId: item.itemId,
 							name: item.name,
+							kitchenName: item.kitchenName,
 							description: item.description,
 							quantity: item.quantity,
 							unitPrice: item.unitPrice,
@@ -229,7 +227,7 @@ export const getOrdersByStore = createServerFn({ method: "GET" })
 	});
 
 /**
- * Get orders for kitchen monitor (only paid/pay-at-counter orders in active states)
+ * Get orders for kitchen monitor (only paid orders in active states)
  */
 export const getKitchenOrders = createServerFn({ method: "GET" })
 	.inputValidator(getKitchenOrdersSchema)
@@ -238,9 +236,43 @@ export const getKitchenOrders = createServerFn({ method: "GET" })
 			where: and(
 				eq(orders.storeId, data.storeId),
 				inArray(orders.status, ["confirmed", "preparing", "ready"]),
-				inArray(orders.paymentStatus, ["paid", "pay_at_counter"]),
+				eq(orders.paymentStatus, "paid"),
 			),
 			orderBy: [desc(orders.createdAt)],
+			with: {
+				items: {
+					orderBy: (items, { asc }) => [asc(items.displayOrder)],
+					with: {
+						options: true,
+					},
+				},
+				servicePoint: {
+					columns: {
+						id: true,
+						name: true,
+						code: true,
+					},
+				},
+			},
+		});
+	});
+
+/**
+ * Get completed orders for kitchen Done archive (last 2 hours)
+ */
+export const getKitchenDoneOrders = createServerFn({ method: "GET" })
+	.inputValidator(getKitchenOrdersSchema)
+	.handler(async ({ data }) => {
+		const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+
+		return db.query.orders.findMany({
+			where: and(
+				eq(orders.storeId, data.storeId),
+				eq(orders.status, "completed"),
+				eq(orders.paymentStatus, "paid"),
+				gte(orders.completedAt, twoHoursAgo),
+			),
+			orderBy: [desc(orders.completedAt)],
 			with: {
 				items: {
 					orderBy: (items, { asc }) => [asc(items.displayOrder)],

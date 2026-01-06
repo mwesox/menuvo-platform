@@ -11,7 +11,7 @@ export function PageActionBarSkeleton({
 	withTabs?: boolean;
 }) {
 	return (
-		<div className="border-b border-border">
+		<div className="border-border border-b">
 			{/* Row 1: Title + Actions */}
 			<div className="flex h-12 items-center justify-between px-0">
 				<Skeleton className="h-6 w-32" />
@@ -39,7 +39,7 @@ export function CardFormSkeleton({ rows = 4 }: { rows?: number }) {
 		<Card>
 			<CardHeader>
 				<Skeleton className="h-6 w-40" />
-				<Skeleton className="h-4 w-64 mt-1" />
+				<Skeleton className="mt-1 h-4 w-64" />
 			</CardHeader>
 			<CardContent className="space-y-4">
 				{Array.from({ length: rows }).map((_, i) => (
@@ -59,7 +59,7 @@ export function CardFormSkeleton({ rows = 4 }: { rows?: number }) {
  */
 export function TabsSkeleton({ count = 3 }: { count?: number }) {
 	return (
-		<div className="flex gap-6 border-b border-border pb-3">
+		<div className="flex gap-6 border-border border-b pb-3">
 			{Array.from({ length: count }).map((_, i) => (
 				// biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton elements
 				<Skeleton key={i} className="h-5 w-20" />
@@ -73,7 +73,7 @@ export function TabsSkeleton({ count = 3 }: { count?: number }) {
  */
 export function ListItemSkeleton() {
 	return (
-		<div className="flex items-center gap-3 px-3 py-2.5 rounded-md">
+		<div className="flex items-center gap-3 rounded-md px-3 py-2.5">
 			<Skeleton className="h-8 w-8 rounded" />
 			<div className="flex-1 space-y-1">
 				<Skeleton className="h-4 w-32" />

@@ -37,7 +37,7 @@ export function TranslationFilters({
 	const { t } = useTranslation("menu");
 
 	return (
-		<div className="flex flex-wrap items-center gap-2 p-3 border-b">
+		<div className="flex flex-wrap items-center gap-2 border-b p-3">
 			{/* Filter dropdowns - stay together */}
 			<div className="flex flex-wrap items-center gap-2">
 				{/* Entity type filter */}
@@ -91,19 +91,19 @@ export function TranslationFilters({
 						<SelectItem value="all">All Status</SelectItem>
 						<SelectItem value="complete">
 							<span className="flex items-center gap-1.5">
-								<span className="w-2 h-2 rounded-full bg-green-500" />
+								<span className="size-2 rounded-full bg-green-500" />
 								Complete
 							</span>
 						</SelectItem>
 						<SelectItem value="partial">
 							<span className="flex items-center gap-1.5">
-								<span className="w-2 h-2 rounded-full bg-yellow-500" />
+								<span className="size-2 rounded-full bg-yellow-500" />
 								Partial
 							</span>
 						</SelectItem>
 						<SelectItem value="missing">
 							<span className="flex items-center gap-1.5">
-								<span className="w-2 h-2 rounded-full bg-red-500" />
+								<span className="size-2 rounded-full bg-red-500" />
 								Missing
 							</span>
 						</SelectItem>
@@ -112,14 +112,14 @@ export function TranslationFilters({
 			</div>
 
 			{/* Search - takes remaining space */}
-			<div className="relative flex-1 min-w-[140px]">
-				<Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+			<div className="relative min-w-[140px] flex-1">
+				<Search className="absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
 				<Input
 					type="search"
 					placeholder={t("placeholders.searchTranslations", "Search...")}
 					value={search}
 					onChange={(e) => onSearchChange(e.target.value)}
-					className="h-8 pl-8 text-xs"
+					className="h-8 ps-8 text-xs"
 				/>
 			</div>
 		</div>

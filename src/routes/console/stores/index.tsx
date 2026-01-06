@@ -29,7 +29,7 @@ function StoresPage() {
 				actions={
 					<Button asChild>
 						<Link to="/console/stores/new">
-							<Plus className="mr-2 h-4 w-4" />
+							<Plus className="me-2 h-4 w-4" />
 							{t("labels.addStore")}
 						</Link>
 					</Button>
@@ -38,8 +38,8 @@ function StoresPage() {
 
 			{stores.length === 0 ? (
 				<div className="rounded-lg border border-dashed p-12 text-center">
-					<h3 className="text-lg font-semibold">{t("emptyStates.noStores")}</h3>
-					<p className="mt-1 text-sm text-muted-foreground">
+					<h3 className="font-semibold text-lg">{t("emptyStates.noStores")}</h3>
+					<p className="mt-1 text-muted-foreground text-sm">
 						{t("emptyStates.noStoresDescription")}
 					</p>
 				</div>

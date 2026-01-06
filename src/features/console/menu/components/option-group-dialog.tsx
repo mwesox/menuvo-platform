@@ -52,7 +52,7 @@ import { optionGroupFormSchema } from "../options.schemas.ts";
 interface OptionGroupDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	optionGroup?: (OptionGroup & { optionChoices: OptionChoice[] }) | null;
+	optionGroup?: (OptionGroup & { choices: OptionChoice[] }) | null;
 	onSave: (data: {
 		name: string;
 		description?: string;
@@ -178,7 +178,7 @@ export function OptionGroupDialog({
 				);
 				form.setFieldValue(
 					"choices",
-					optionGroup.optionChoices.map((choice) => ({
+					optionGroup.choices.map((choice) => ({
 						id: choice.id,
 						name: getDisplayName(choice.translations, language),
 						priceModifier: String(choice.priceModifier),
@@ -209,7 +209,7 @@ export function OptionGroupDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+			<DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
@@ -339,7 +339,7 @@ export function OptionGroupDialog({
 													</SelectItem>
 												</SelectContent>
 											</Select>
-											<p className="text-xs text-muted-foreground mt-1">
+											<p className="mt-1 text-muted-foreground text-xs">
 												{getTypeDescription(field.state.value)}
 											</p>
 										</Field>
@@ -437,7 +437,7 @@ export function OptionGroupDialog({
 																						/>
 																						<label
 																							htmlFor={`${id}-unlimited`}
-																							className="text-sm font-normal text-muted-foreground"
+																							className="font-normal text-muted-foreground text-sm"
 																						>
 																							{t("labels.unlimited")}
 																						</label>
@@ -482,7 +482,7 @@ export function OptionGroupDialog({
 																		"placeholders.aggregateMinQuantity",
 																	)}
 																/>
-																<p className="text-xs text-muted-foreground">
+																<p className="text-muted-foreground text-xs">
 																	{t("hints.aggregateMinQuantity")}
 																</p>
 															</Field>
@@ -510,7 +510,7 @@ export function OptionGroupDialog({
 																		"placeholders.aggregateMaxQuantity",
 																	)}
 																/>
-																<p className="text-xs text-muted-foreground">
+																<p className="text-muted-foreground text-xs">
 																	{t("hints.aggregateMaxQuantity")}
 																</p>
 															</Field>
@@ -537,7 +537,7 @@ export function OptionGroupDialog({
 												onBlur={field.handleBlur}
 												onChange={(e) => field.handleChange(e.target.value)}
 											/>
-											<p className="text-xs text-muted-foreground">
+											<p className="text-muted-foreground text-xs">
 												{t("hints.numFreeOptions")}
 											</p>
 										</Field>
@@ -553,14 +553,14 @@ export function OptionGroupDialog({
 										{(field) => (
 											<div className="space-y-3">
 												{field.state.value.length === 0 ? (
-													<p className="text-sm text-muted-foreground text-center py-4">
+													<p className="py-4 text-center text-muted-foreground text-sm">
 														{t("emptyStates.noChoices")}
 													</p>
 												) : (
 													field.state.value.map((choice, index) => (
 														<div
 															key={choice.id ?? `new-${index}`}
-															className="space-y-2 p-3 border rounded-lg bg-muted/30"
+															className="space-y-2 rounded-lg border bg-muted/30 p-3"
 														>
 															<div className="flex items-center gap-2">
 																<form.Field name={`choices[${index}].name`}>
@@ -604,12 +604,12 @@ export function OptionGroupDialog({
 																	onClick={() => field.removeValue(index)}
 																	className="shrink-0 text-muted-foreground hover:text-destructive"
 																>
-																	<X className="h-4 w-4" />
+																	<X className="size-4" />
 																</Button>
 															</div>
 
 															{/* Choice options row */}
-															<div className="flex items-center gap-4 pl-2">
+															<div className="flex items-center gap-4 ps-2">
 																{/* Default checkbox */}
 																<form.Field
 																	name={`choices[${index}].isDefault`}
@@ -632,7 +632,7 @@ export function OptionGroupDialog({
 																			</label>
 																			<Tooltip>
 																				<TooltipTrigger asChild>
-																					<Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+																					<Info className="h-3.5 w-3.5 cursor-help text-muted-foreground" />
 																				</TooltipTrigger>
 																				<TooltipContent>
 																					{t("hints.defaultSelected")}
@@ -650,13 +650,13 @@ export function OptionGroupDialog({
 																		>
 																			{(minQtyField) => (
 																				<div className="flex items-center gap-1">
-																					<span className="text-xs text-muted-foreground">
+																					<span className="text-muted-foreground text-xs">
 																						{t("labels.minQty")}:
 																					</span>
 																					<Input
 																						type="number"
 																						min={0}
-																						className="w-16 h-8"
+																						className="h-8 w-16"
 																						value={minQtyField.state.value}
 																						onChange={(e) =>
 																							minQtyField.handleChange(
@@ -672,13 +672,13 @@ export function OptionGroupDialog({
 																		>
 																			{(maxQtyField) => (
 																				<div className="flex items-center gap-1">
-																					<span className="text-xs text-muted-foreground">
+																					<span className="text-muted-foreground text-xs">
 																						{t("labels.maxQty")}:
 																					</span>
 																					<Input
 																						type="number"
 																						min={1}
-																						className="w-16 h-8"
+																						className="h-8 w-16"
 																						value={maxQtyField.state.value}
 																						onChange={(e) =>
 																							maxQtyField.handleChange(

@@ -122,7 +122,7 @@ function BatchCreateForm({
 									onChange={(e) => field.handleChange(e.target.value)}
 									aria-invalid={isInvalid}
 								/>
-								<p className="text-xs text-muted-foreground">
+								<p className="text-muted-foreground text-xs">
 									{t("batch.hints.prefix")}
 								</p>
 								{isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -209,7 +209,7 @@ function BatchCreateForm({
 										))}
 									</datalist>
 								)}
-								<p className="text-xs text-muted-foreground">
+								<p className="text-muted-foreground text-xs">
 									{t("batch.hints.zone")}
 								</p>
 								{isInvalid && <FieldError errors={field.state.meta.errors} />}
@@ -235,11 +235,11 @@ function BatchCreateForm({
 						<>
 							{preview.length > 0 && (
 								<div className="space-y-2">
-									<p className="text-sm font-medium">
+									<p className="font-medium text-sm">
 										{t("batch.labels.preview")}
 									</p>
 									<ScrollArea className="h-40 rounded-md border">
-										<div className="p-3 space-y-1">
+										<div className="space-y-1 p-3">
 											{preview.slice(0, 5).map((item) => (
 												<div
 													key={item.code}
@@ -252,7 +252,7 @@ function BatchCreateForm({
 												</div>
 											))}
 											{preview.length > 5 && (
-												<p className="text-xs text-muted-foreground pt-2">
+												<p className="pt-2 text-muted-foreground text-xs">
 													{t("batch.preview.more", {
 														count: preview.length - 5,
 													})}

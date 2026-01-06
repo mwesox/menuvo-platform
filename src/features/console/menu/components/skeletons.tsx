@@ -12,12 +12,12 @@ import { Skeleton } from "@/components/ui/skeleton";
  */
 export function MenuPageSkeleton() {
 	return (
-		<div className="flex flex-col h-full">
+		<div className="flex h-full flex-col">
 			<PageActionBarSkeleton withTabs />
 
 			{/* Master-detail layout skeleton */}
-			<div className="flex-1 mt-4 min-h-0">
-				<div className="flex gap-6 h-full">
+			<div className="mt-4 min-h-0 flex-1">
+				<div className="flex h-full gap-6">
 					{/* Master list */}
 					<div className="w-80 shrink-0 overflow-auto rounded-lg border">
 						<div className="p-2">
@@ -26,7 +26,7 @@ export function MenuPageSkeleton() {
 					</div>
 
 					{/* Detail panel - hidden on mobile */}
-					<div className="hidden md:block flex-1 overflow-auto">
+					<div className="hidden flex-1 overflow-auto md:block">
 						<DetailPanelSkeleton />
 					</div>
 				</div>
@@ -45,7 +45,7 @@ export function ItemFormSkeleton() {
 
 			<div className="grid gap-6 lg:grid-cols-3">
 				{/* Main form - 2 columns */}
-				<div className="lg:col-span-2 space-y-6">
+				<div className="space-y-6 lg:col-span-2">
 					{/* Basic info card */}
 					<CardFormSkeleton rows={3} />
 
@@ -63,15 +63,15 @@ export function ItemFormSkeleton() {
 					<Card>
 						<CardHeader>
 							<Skeleton className="h-6 w-40" />
-							<Skeleton className="h-4 w-64 mt-1" />
+							<Skeleton className="mt-1 h-4 w-64" />
 						</CardHeader>
 						<CardContent className="space-y-2">
 							<div className="flex items-center gap-3">
-								<Skeleton className="h-5 w-5 rounded" />
+								<Skeleton className="size-5 rounded" />
 								<Skeleton className="h-5 w-32" />
 							</div>
 							<div className="flex items-center gap-3">
-								<Skeleton className="h-5 w-5 rounded" />
+								<Skeleton className="size-5 rounded" />
 								<Skeleton className="h-5 w-28" />
 							</div>
 						</CardContent>
@@ -123,7 +123,7 @@ export function CategoryItemsPageSkeleton() {
 					<Card key={i} className="overflow-hidden">
 						{/* Item image */}
 						<Skeleton className="aspect-video w-full" />
-						<CardContent className="p-4 space-y-2">
+						<CardContent className="space-y-2 p-4">
 							<Skeleton className="h-5 w-3/4" />
 							<Skeleton className="h-4 w-full" />
 							<div className="flex items-center justify-between pt-2">

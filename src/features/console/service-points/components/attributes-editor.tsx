@@ -98,7 +98,7 @@ export function AttributesEditor({ value, onChange }: AttributesEditorProps) {
 										className="w-1/3"
 									/>
 								)}
-								<span className="w-20 text-xs text-muted-foreground">
+								<span className="w-20 text-muted-foreground text-xs">
 									{type}
 								</span>
 								<Button
@@ -108,7 +108,7 @@ export function AttributesEditor({ value, onChange }: AttributesEditorProps) {
 									className="shrink-0 text-destructive hover:bg-destructive/10"
 									onClick={() => handleRemoveAttribute(key)}
 								>
-									<Trash2 className="h-4 w-4" />
+									<Trash2 className="size-4" />
 								</Button>
 							</div>
 						);
@@ -165,12 +165,12 @@ export function AttributesEditor({ value, onChange }: AttributesEditorProps) {
 					onClick={handleAddAttribute}
 					disabled={!newKey.trim()}
 				>
-					<Plus className="h-4 w-4" />
+					<Plus className="size-4" />
 				</Button>
 			</div>
 
 			{entries.length === 0 && (
-				<p className="text-sm text-muted-foreground">
+				<p className="text-muted-foreground text-sm">
 					{t("emptyStates.noAttributes")}
 				</p>
 			)}

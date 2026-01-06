@@ -58,11 +58,11 @@ export function PriceInput({
 					disabled={disabled}
 					className="pr-8"
 				/>
-				<span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+				<span className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground text-sm">
 					ct
 				</span>
 			</div>
-			<span className="text-sm text-muted-foreground tabular-nums min-w-[70px] text-right">
+			<span className="min-w-[70px] text-right text-muted-foreground text-sm tabular-nums">
 				{formatPrice(displayCents, currency)}
 			</span>
 		</div>

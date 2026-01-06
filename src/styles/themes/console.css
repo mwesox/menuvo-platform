@@ -50,12 +50,13 @@
 	--warning: oklch(0.78 0.16 80);
 	--warning-foreground: oklch(0.25 0.04 80);
 
-	/* Charts - Teal, Amber, Green, Purple, Blue */
-	--chart-1: oklch(0.55 0.14 195);
-	--chart-2: oklch(0.75 0.14 85);
-	--chart-3: oklch(0.62 0.17 145);
-	--chart-4: oklch(0.55 0.15 285);
-	--chart-5: oklch(0.6 0.15 250);
+	/* Brand colors fallback (defined in business theme, referenced in core @theme) */
+	--brand-red: oklch(0.55 0.22 27);
+	--brand-red-dark: oklch(0.48 0.2 27);
+	--brand-red-light: oklch(0.68 0.18 20);
+	--brand-red-lighter: oklch(0.72 0.16 18);
+	--brand-orange: oklch(0.77 0.17 65);
+	--brand-dark: oklch(0.15 0.01 280);
 
 	/* Sidebar - Subtle teal tint with amber accent */
 	--sidebar: oklch(0.97 0.015 195);
@@ -112,13 +113,6 @@
 	--warning: oklch(0.75 0.14 80);
 	--warning-foreground: oklch(0.2 0.04 80);
 
-	/* Charts - Teal, Amber, Green, Purple, Blue (brighter for dark) */
-	--chart-1: oklch(0.7 0.14 195);
-	--chart-2: oklch(0.78 0.14 85);
-	--chart-3: oklch(0.7 0.16 145);
-	--chart-4: oklch(0.65 0.18 285);
-	--chart-5: oklch(0.7 0.15 250);
-
 	/* Sidebar - Dark with subtle amber accent */
 	--sidebar: oklch(0.15 0.02 240);
 	--sidebar-foreground: oklch(0.9 0.01 90);
@@ -129,3 +123,66 @@
 	--sidebar-border: oklch(0.25 0.02 240);
 	--sidebar-ring: oklch(0.7 0.14 195);
 }
+
+/* Kitchen urgency animations */
+@keyframes pulse-subtle {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.85;
+	}
+}
+
+.animate-pulse-subtle {
+	animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* Full screen flash alert for new orders - aggressive for visibility across room */
+@keyframes screen-flash-alert {
+	0%,
+	100% {
+		background-color: transparent;
+		box-shadow: inset 0 0 0 6px rgba(34, 197, 94, 0.8);
+	}
+	50% {
+		background-color: rgba(34, 197, 94, 0.3);
+		box-shadow: inset 0 0 0 12px rgba(34, 197, 94, 1);
+	}
+}
+
+.kitchen-alert-active {
+	animation: screen-flash-alert 0.5s ease-in-out infinite;
+}
+
+/* Highlight glow for last moved order card - warm amber pulse that fades */
+@keyframes highlight-glow {
+	0% {
+		box-shadow: inset 0 0 0 200px rgba(245, 158, 11, 0);
+	}
+	15% {
+		box-shadow: inset 0 0 0 200px rgba(245, 158, 11, 0.25);
+	}
+	30% {
+		box-shadow: inset 0 0 0 200px rgba(245, 158, 11, 0.05);
+	}
+	45% {
+		box-shadow: inset 0 0 0 200px rgba(245, 158, 11, 0.2);
+	}
+	60% {
+		box-shadow: inset 0 0 0 200px rgba(245, 158, 11, 0.05);
+	}
+	75% {
+		box-shadow: inset 0 0 0 200px rgba(245, 158, 11, 0.15);
+	}
+	100% {
+		box-shadow: inset 0 0 0 200px rgba(245, 158, 11, 0);
+	}
+}
+
+.animate-highlight-glow {
+	animation: highlight-glow 4s ease-in-out;
+}
+
+/* Drag and drop - using native browser drag, no special optimizations needed */

@@ -15,7 +15,7 @@ import { useEntityDisplay } from "@/features/console/menu/hooks";
 import { getDisplayName } from "@/features/console/menu/logic/display";
 import { cn } from "@/lib/utils";
 
-type OptionGroupWithChoices = OptionGroup & { optionChoices: OptionChoice[] };
+type OptionGroupWithChoices = OptionGroup & { choices: OptionChoice[] };
 
 interface OptionGroupDetailProps {
 	optionGroup: OptionGroupWithChoices;
@@ -138,7 +138,7 @@ export function OptionGroupDetail({
 	);
 	const language = useDisplayLanguage();
 
-	const availableChoices = optionGroup.optionChoices.filter(
+	const availableChoices = optionGroup.choices.filter(
 		(c) => c.isAvailable,
 	).length;
 
@@ -146,21 +146,21 @@ export function OptionGroupDetail({
 		<div className="space-y-6">
 			{/* Header */}
 			<div className="flex items-start justify-between gap-4">
-				<div className="flex-1 min-w-0">
-					<div className="flex items-center gap-2 flex-wrap">
-						<h2 className="text-xl font-semibold truncate">{displayName}</h2>
+				<div className="min-w-0 flex-1">
+					<div className="flex flex-wrap items-center gap-2">
+						<h2 className="truncate font-semibold text-xl">{displayName}</h2>
 						<Badge variant={getTypeBadgeVariant(optionGroup.type)}>
 							{getTypeLabel(t, optionGroup.type)}
 						</Badge>
 						{!optionGroup.isActive && (
-							<span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+							<span className="inline-flex items-center gap-1 text-muted-foreground text-xs">
 								<EyeOff className="h-3.5 w-3.5" />
 								{t("optionGroups.hidden")}
 							</span>
 						)}
 					</div>
 					{displayDescription && (
-						<p className="mt-1 text-sm text-muted-foreground">
+						<p className="mt-1 text-muted-foreground text-sm">
 							{displayDescription}
 						</p>
 					)}
@@ -169,12 +169,12 @@ export function OptionGroupDetail({
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="outline" size="icon">
-							<MoreHorizontal className="h-4 w-4" />
+							<MoreHorizontal className="size-4" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						<DropdownMenuItem onClick={() => onEdit(optionGroup)}>
-							<Pencil className="mr-2 h-4 w-4" />
+							<Pencil className="me-2 size-4" />
 							{tCommon("buttons.edit")}
 						</DropdownMenuItem>
 						<DropdownMenuItem
@@ -182,7 +182,7 @@ export function OptionGroupDetail({
 								onToggleActive(optionGroup.id, !optionGroup.isActive)
 							}
 						>
-							<Power className="mr-2 h-4 w-4" />
+							<Power className="me-2 size-4" />
 							{optionGroup.isActive
 								? tCommon("buttons.hide")
 								: tCommon("buttons.show")}
@@ -192,7 +192,7 @@ export function OptionGroupDetail({
 							className="text-destructive"
 							onClick={() => onDelete(optionGroup.id)}
 						>
-							<Trash2 className="mr-2 h-4 w-4" />
+							<Trash2 className="me-2 size-4" />
 							{tCommon("buttons.delete")}
 						</DropdownMenuItem>
 					</DropdownMenuContent>
@@ -200,7 +200,7 @@ export function OptionGroupDetail({
 			</div>
 
 			{/* Settings summary */}
-			<div className="rounded-lg border bg-muted/30 p-4 space-y-2 text-sm">
+			<div className="space-y-2 rounded-lg border bg-muted/30 p-4 text-sm">
 				<div className="flex items-center justify-between">
 					<span className="text-muted-foreground">
 						{t("optionGroups.requiredLabel")}
@@ -239,7 +239,7 @@ export function OptionGroupDetail({
 						{t("optionGroups.choicesCount")}
 					</span>
 					<span className="font-medium">
-						{optionGroup.optionChoices.length} ({availableChoices}{" "}
+						{optionGroup.choices.length} ({availableChoices}{" "}
 						{t("labels.available")})
 					</span>
 				</div>
@@ -247,19 +247,19 @@ export function OptionGroupDetail({
 
 			{/* Choices list */}
 			<div>
-				<h3 className="text-sm font-medium mb-3">
-					{t("optionGroups.choices")} ({optionGroup.optionChoices.length})
+				<h3 className="mb-3 font-medium text-sm">
+					{t("optionGroups.choices")} ({optionGroup.choices.length})
 				</h3>
 
-				{optionGroup.optionChoices.length === 0 ? (
+				{optionGroup.choices.length === 0 ? (
 					<div className="rounded-lg border border-dashed p-6 text-center">
-						<p className="text-sm text-muted-foreground">
+						<p className="text-muted-foreground text-sm">
 							{t("optionGroups.noChoices")}
 						</p>
 					</div>
 				) : (
-					<div className="rounded-lg border divide-y">
-						{optionGroup.optionChoices.map((choice) => (
+					<div className="divide-y rounded-lg border">
+						{optionGroup.choices.map((choice) => (
 							<div
 								key={choice.id}
 								className={cn(
@@ -279,20 +279,20 @@ export function OptionGroupDetail({
 									{choice.isDefault && (
 										<Badge
 											variant="secondary"
-											className="text-[10px] px-1.5 py-0"
+											className="px-1.5 py-0 text-[10px]"
 										>
 											{t("optionGroups.default")}
 										</Badge>
 									)}
 									{!choice.isAvailable && (
-										<span className="text-xs text-muted-foreground">
+										<span className="text-muted-foreground text-xs">
 											{t("optionGroups.soldOut")}
 										</span>
 									)}
 								</div>
 								<span
 									className={cn(
-										"text-sm font-medium tabular-nums",
+										"font-medium text-sm tabular-nums",
 										choice.priceModifier > 0 && "text-foreground",
 										choice.priceModifier < 0 && "text-green-600",
 										choice.priceModifier === 0 && "text-muted-foreground",
@@ -307,9 +307,9 @@ export function OptionGroupDetail({
 			</div>
 
 			{/* Edit button */}
-			<div className="pt-4 border-t">
+			<div className="border-t pt-4">
 				<Button onClick={() => onEdit(optionGroup)} className="w-full">
-					<Pencil className="mr-2 h-4 w-4" />
+					<Pencil className="me-2 size-4" />
 					{t("optionGroups.editOptionGroup")}
 				</Button>
 			</div>

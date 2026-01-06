@@ -95,7 +95,7 @@ export function MerchantLanguageForm({
 									</FieldLabel>
 
 									{/* List of languages */}
-									<div className="space-y-2 mt-2">
+									<div className="mt-2 space-y-2">
 										<div className="flex flex-wrap gap-2">
 											{field.state.value.map((langCode, index) => {
 												const lang = LANGUAGE_OPTIONS.find(
@@ -108,16 +108,16 @@ export function MerchantLanguageForm({
 													<Badge
 														key={langCode}
 														variant={isFirst ? "default" : "secondary"}
-														className="gap-1 pr-2"
+														className="gap-1 pe-2"
 													>
-														<GripVertical className="h-3 w-3 text-muted-foreground" />
+														<GripVertical className="size-3 text-muted-foreground" />
 														{lang?.label ?? langCode}
 														{canRemove && (
 															<Button
 																type="button"
 																variant="ghost"
 																size="icon"
-																className="h-4 w-4 p-0 hover:bg-destructive/20"
+																className="size-4 p-0 hover:bg-destructive/20"
 																onClick={() => {
 																	field.handleChange(
 																		field.state.value.filter(
@@ -126,7 +126,7 @@ export function MerchantLanguageForm({
 																	);
 																}}
 															>
-																<X className="h-3 w-3" />
+																<X className="size-3" />
 																<span className="sr-only">
 																	{tCommon("buttons.remove")}
 																</span>

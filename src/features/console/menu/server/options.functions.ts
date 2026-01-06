@@ -24,7 +24,7 @@ export const getOptionGroups = createServerFn({ method: "GET" })
 			where: eq(optionGroups.storeId, data.storeId),
 			orderBy: [asc(optionGroups.displayOrder)],
 			with: {
-				optionChoices: {
+				choices: {
 					orderBy: (choices, { asc }) => [asc(choices.displayOrder)],
 				},
 			},
@@ -38,10 +38,10 @@ export const getOptionGroup = createServerFn({ method: "GET" })
 		const optionGroup = await db.query.optionGroups.findFirst({
 			where: eq(optionGroups.id, data.optionGroupId),
 			with: {
-				optionChoices: {
+				choices: {
 					orderBy: (choices, { asc }) => [asc(choices.displayOrder)],
 				},
-				itemOptionGroups: true,
+				optGroups: true,
 			},
 		});
 
@@ -52,7 +52,7 @@ export const getOptionGroup = createServerFn({ method: "GET" })
 		// Return with item count
 		return {
 			...optionGroup,
-			itemCount: optionGroup.itemOptionGroups.length,
+			itemCount: optionGroup.optGroups.length,
 		};
 	});
 
@@ -269,7 +269,7 @@ export const saveOptionGroupWithChoices = createServerFn({ method: "POST" })
 			const result = await tx.query.optionGroups.findFirst({
 				where: eq(optionGroups.id, savedGroup.id),
 				with: {
-					optionChoices: {
+					choices: {
 						orderBy: (c, { asc }) => [asc(c.displayOrder)],
 					},
 				},
@@ -365,9 +365,9 @@ export const getItemOptions = createServerFn({ method: "GET" })
 			where: eq(itemOptionGroups.itemId, data.itemId),
 			orderBy: [asc(itemOptionGroups.displayOrder)],
 			with: {
-				optionGroup: {
+				optGroup: {
 					with: {
-						optionChoices: {
+						choices: {
 							orderBy: (choices, { asc }) => [asc(choices.displayOrder)],
 						},
 					},
@@ -376,7 +376,7 @@ export const getItemOptions = createServerFn({ method: "GET" })
 		});
 
 		// Return the option groups with their choices
-		return itemOptions.map((io) => io.optionGroup);
+		return itemOptions.map((io) => io.optGroup);
 	});
 
 export const updateItemOptions = createServerFn({ method: "POST" })
@@ -405,9 +405,9 @@ export const updateItemOptions = createServerFn({ method: "POST" })
 			where: eq(itemOptionGroups.itemId, itemId),
 			orderBy: [asc(itemOptionGroups.displayOrder)],
 			with: {
-				optionGroup: {
+				optGroup: {
 					with: {
-						optionChoices: {
+						choices: {
 							orderBy: (choices, { asc }) => [asc(choices.displayOrder)],
 						},
 					},
@@ -415,5 +415,5 @@ export const updateItemOptions = createServerFn({ method: "POST" })
 			},
 		});
 
-		return updatedOptions.map((io) => io.optionGroup);
+		return updatedOptions.map((io) => io.optGroup);
 	});

@@ -452,6 +452,8 @@ export const items = pgTable("items", {
 	allergens: text().array(), // PostgreSQL text array for allergens
 	displayOrder: integer("display_order").notNull().default(0),
 	isAvailable: boolean("is_available").notNull().default(true),
+	// Optional short name for kitchen display (e.g., "SALMN" instead of "Grilled Atlantic Salmon")
+	kitchenName: varchar("kitchen_name", { length: 50 }),
 	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
 	translations: jsonb("translations")
 		.$type<EntityTranslations>()
@@ -474,7 +476,7 @@ export const itemsRelations = relations(items, ({ one, many }) => ({
 		fields: [items.storeId],
 		references: [stores.id],
 	}),
-	itemOptionGroups: many(itemOptionGroups),
+	optGroups: many(itemOptionGroups),
 }));
 
 // ============================================================================
@@ -537,8 +539,8 @@ export const optionGroupsRelations = relations(
 			fields: [optionGroups.storeId],
 			references: [stores.id],
 		}),
-		optionChoices: many(optionChoices),
-		itemOptionGroups: many(itemOptionGroups),
+		choices: many(optionChoices),
+		optGroups: many(itemOptionGroups),
 	}),
 );
 
@@ -573,7 +575,7 @@ export const optionChoices = pgTable("option_choices", {
 });
 
 export const optionChoicesRelations = relations(optionChoices, ({ one }) => ({
-	optionGroup: one(optionGroups, {
+	optGroup: one(optionGroups, {
 		fields: [optionChoices.optionGroupId],
 		references: [optionGroups.id],
 	}),
@@ -603,7 +605,7 @@ export const itemOptionGroupsRelations = relations(
 			fields: [itemOptionGroups.itemId],
 			references: [items.id],
 		}),
-		optionGroup: one(optionGroups, {
+		optGroup: one(optionGroups, {
 			fields: [itemOptionGroups.optionGroupId],
 			references: [optionGroups.id],
 		}),
@@ -1000,6 +1002,7 @@ export const orderItems = pgTable(
 
 		// Snapshot data (preserved even if original item changes)
 		name: varchar({ length: 200 }).notNull(),
+		kitchenName: varchar("kitchen_name", { length: 50 }), // Short name for kitchen display
 		description: text(),
 		quantity: integer().notNull(),
 		unitPrice: integer("unit_price").notNull(), // Base price per unit (cents)

@@ -19,32 +19,32 @@ export function BusinessFAQ() {
 	return (
 		<section
 			id="faq"
-			className="py-20 bg-gradient-to-b from-gray-100/50 via-white to-gray-100/50 dark:from-gray-800/50 dark:via-gray-900 dark:to-gray-800/50"
+			className="bg-gradient-to-b from-gray-100/50 via-white to-gray-100/50 py-20"
 		>
-			<div className="container px-4 md:px-6 max-w-7xl mx-auto">
-				<div className="flex flex-col items-center justify-center space-y-3 text-center mb-12">
-					<h2 className="text-3xl font-sans font-bold tracking-tighter sm:text-4xl text-gray-900 dark:text-white">
+			<div className="container mx-auto max-w-7xl px-4 md:px-6">
+				<div className="mb-12 flex flex-col items-center justify-center space-y-3 text-center">
+					<h2 className="font-bold text-3xl text-gray-900 tracking-tighter sm:text-4xl">
 						{t("faq.title")}
 					</h2>
-					<p className="mx-auto max-w-[600px] font-sans text-gray-600 dark:text-gray-400">
+					<p className="mx-auto max-w-[600px] text-gray-600">
 						{t("faq.subtitle")}
 					</p>
 				</div>
 
 				<div className="mx-auto max-w-3xl">
-					<div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg overflow-hidden">
+					<div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
 						<Accordion type="single" collapsible className="w-full">
 							{faqs.map((faq) => (
 								<AccordionItem
 									key={faq.question}
 									value={faq.question}
-									className="border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+									className="border-gray-200 border-b last:border-b-0"
 								>
-									<AccordionTrigger className="px-4 py-4 text-left font-sans text-sm md:text-base font-medium text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors [&[data-state=open]>svg]:rotate-180">
+									<AccordionTrigger className="px-4 py-4 text-start font-medium text-gray-900 text-sm transition-colors hover:bg-gray-50 md:text-base [&[data-state=open]>svg]:rotate-180">
 										{faq.question}
 									</AccordionTrigger>
 									<AccordionContent className="px-4 pb-4">
-										<p className="font-sans text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+										<p className="text-gray-600 text-sm leading-relaxed">
 											{faq.answer}
 										</p>
 									</AccordionContent>

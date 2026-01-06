@@ -52,7 +52,7 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 			<Link
 				to="/console/menu/items/$itemId"
 				params={{ itemId: String(item.id) }}
-				className="block p-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-t-lg"
+				className="block rounded-t-lg p-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 			>
 				<div className="flex gap-3">
 					{/* Image */}
@@ -61,23 +61,23 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 							<img
 								src={item.imageUrl}
 								alt={displayName}
-								className="h-16 w-16 rounded-md object-cover"
+								className="size-16 rounded-md object-cover"
 							/>
 						) : (
-							<div className="h-16 w-16 rounded-md bg-muted flex items-center justify-center">
-								<ImageOff className="h-5 w-5 text-muted-foreground" />
+							<div className="flex size-16 items-center justify-center rounded-md bg-muted">
+								<ImageOff className="size-5 text-muted-foreground" />
 							</div>
 						)}
 					</div>
 
 					{/* Content */}
-					<div className="flex-1 min-w-0">
+					<div className="min-w-0 flex-1">
 						<div className="flex items-start justify-between gap-2">
 							<div className="min-w-0">
-								<h3 className="font-medium text-foreground truncate">
+								<h3 className="truncate font-medium text-foreground">
 									{displayName}
 								</h3>
-								<p className="text-sm font-medium text-muted-foreground">
+								<p className="font-medium text-muted-foreground text-sm">
 									{formatPrice(item.price)}
 								</p>
 							</div>
@@ -87,9 +87,9 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 									<Button
 										variant="ghost"
 										size="icon"
-										className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+										className="size-8 opacity-0 transition-opacity group-hover:opacity-100"
 									>
-										<MoreHorizontal className="h-4 w-4" />
+										<MoreHorizontal className="size-4" />
 										<span className="sr-only">Open menu</span>
 									</Button>
 								</DropdownMenuTrigger>
@@ -99,7 +99,7 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 											to="/console/menu/items/$itemId"
 											params={{ itemId: String(item.id) }}
 										>
-											<Pencil className="mr-2 h-4 w-4" />
+											<Pencil className="me-2 size-4" />
 											{t("itemCard.edit")}
 										</Link>
 									</DropdownMenuItem>
@@ -108,7 +108,7 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 										className="text-destructive"
 										onClick={() => onDelete(item.id)}
 									>
-										<Trash2 className="mr-2 h-4 w-4" />
+										<Trash2 className="me-2 size-4" />
 										{t("itemCard.delete")}
 									</DropdownMenuItem>
 								</DropdownMenuContent>
@@ -116,7 +116,7 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 						</div>
 
 						{displayDescription && (
-							<p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+							<p className="mt-1 line-clamp-2 text-muted-foreground text-sm">
 								{displayDescription}
 							</p>
 						)}
@@ -126,13 +126,13 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 								{displayedAllergens.map((allergen) => (
 									<span
 										key={allergen}
-										className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded"
+										className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground text-xs"
 									>
 										{t(`allergens.${allergen}`, allergen)}
 									</span>
 								))}
 								{remainingAllergens > 0 && (
-									<span className="text-xs text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+									<span className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground text-xs">
 										+{remainingAllergens}
 									</span>
 								)}
@@ -143,8 +143,8 @@ export function ItemCard({ item, onToggleAvailable, onDelete }: ItemCardProps) {
 			</Link>
 
 			{/* Availability toggle */}
-			<div className="px-4 pb-3 flex items-center justify-between">
-				<span className="text-xs text-muted-foreground">
+			<div className="flex items-center justify-between px-4 pb-3">
+				<span className="text-muted-foreground text-xs">
 					{item.isAvailable
 						? t("itemCard.available")
 						: t("itemCard.unavailable")}

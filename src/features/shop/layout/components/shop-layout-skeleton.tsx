@@ -39,7 +39,7 @@ export function ShopLayoutSkeleton() {
 			<main className="flex-1">
 				<div className="min-h-screen pb-24">
 					{/* Category nav skeleton */}
-					<div className="sticky top-14 z-30 border-b border-border bg-background">
+					<div className="sticky top-14 z-30 border-border border-b bg-background">
 						<div className="flex gap-2 px-4 py-3">
 							<Skeleton className="h-8 w-24 rounded-full bg-muted" />
 							<Skeleton className="h-8 w-20 rounded-full bg-muted" />

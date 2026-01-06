@@ -30,15 +30,15 @@ export function FloatingCart() {
 			type="button"
 			onClick={openCartDrawer}
 			className={cn(
-				"fixed bottom-6 left-4 right-4 md:hidden",
+				"fixed right-4 bottom-6 left-4 md:hidden",
 				"bg-primary text-primary-foreground",
-				"px-5 py-4 rounded-2xl shadow-xl",
+				"rounded-2xl px-5 py-4 shadow-xl",
 				"flex items-center justify-between",
-				"font-medium z-40",
+				"z-40 font-medium",
 				"transition-all duration-300",
-				"hover:shadow-2xl hover:-translate-y-0.5",
+				"hover:-translate-y-0.5 hover:shadow-2xl",
 				"active:scale-[0.98]",
-				"animate-in slide-in-from-bottom-4 duration-300",
+				"slide-in-from-bottom-4 animate-in duration-300",
 			)}
 			aria-label={t("cart.openCart", {
 				count: itemCount,
@@ -48,9 +48,9 @@ export function FloatingCart() {
 			{/* Left side - icon with badge + label */}
 			<div className="flex items-center gap-3">
 				<div className="relative">
-					<ShoppingCart className="w-5 h-5" />
+					<ShoppingCart className="size-5" />
 					{/* Item count badge */}
-					<span className="absolute -top-2 -right-2 bg-background text-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+					<span className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-background font-bold text-foreground text-xs shadow-sm">
 						{itemCount}
 					</span>
 				</div>
@@ -58,7 +58,7 @@ export function FloatingCart() {
 			</div>
 
 			{/* Right side - total */}
-			<span className="text-lg font-semibold tabular-nums">
+			<span className="font-semibold text-lg tabular-nums">
 				{formatPrice(subtotal)}
 			</span>
 		</button>

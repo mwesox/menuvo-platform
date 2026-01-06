@@ -1,19 +1,24 @@
 import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { and, eq, ilike, or } from "drizzle-orm";
+import { and, eq, ilike, inArray, or } from "drizzle-orm";
 import { db } from "@/db";
 import {
 	type ChoiceTranslations,
 	categories,
 	type DayOfWeek,
 	type EntityTranslations,
+	itemOptionGroups,
 	items,
 	optionChoices,
 	type StoreHour,
 	stores,
 } from "@/db/schema";
 import { computeMerchantCapabilities } from "@/lib/capabilities";
-import { publicStoresFilterSchema, storeBySlugSchema } from "../schemas";
+import {
+	itemOptionsInputSchema,
+	publicStoresFilterSchema,
+	storeBySlugSchema,
+} from "../schemas";
 
 // ============================================================================
 // HELPERS
@@ -280,12 +285,12 @@ export const getStoreBySlug = createServerFn({ method: "GET" })
 							where: eq(items.isAvailable, true),
 							orderBy: (i, { asc }) => [asc(i.displayOrder)],
 							with: {
-								itemOptionGroups: {
+								optGroups: {
 									orderBy: (iog, { asc }) => [asc(iog.displayOrder)],
 									with: {
-										optionGroup: {
+										optGroup: {
 											with: {
-												optionChoices: {
+												choices: {
 													where: eq(optionChoices.isAvailable, true),
 													orderBy: (oc, { asc }) => [asc(oc.displayOrder)],
 												},
@@ -354,13 +359,14 @@ export const getStoreBySlug = createServerFn({ method: "GET" })
 					return {
 						id: item.id,
 						name: itemContent.name,
+						kitchenName: item.kitchenName,
 						description: itemContent.description,
 						price: item.price,
 						imageUrl: item.imageUrl,
 						allergens: item.allergens,
 						displayOrder: item.displayOrder,
-						optionGroups: item.itemOptionGroups
-							.map((iog) => iog.optionGroup)
+						optionGroups: item.optGroups
+							.map((iog) => iog.optGroup)
 							.filter((og) => og.isActive)
 							.map((og) => {
 								const ogContent = getLocalizedContent(
@@ -381,7 +387,7 @@ export const getStoreBySlug = createServerFn({ method: "GET" })
 									aggregateMinQuantity: og.aggregateMinQuantity,
 									aggregateMaxQuantity: og.aggregateMaxQuantity,
 									displayOrder: og.displayOrder,
-									choices: og.optionChoices.map((choice) => ({
+									choices: og.choices.map((choice) => ({
 										id: choice.id,
 										name: getLocalizedChoiceName(
 											choice.translations,
@@ -449,4 +455,242 @@ export const getStorePaymentCapability = createServerFn({ method: "GET" })
 				!!store.merchant?.paymentAccountId &&
 				!!store.merchant?.paymentOnboardingComplete,
 		};
+	});
+
+// ============================================================================
+// OPTIMIZED QUERIES (Light Load + Detail Fetch)
+// ============================================================================
+
+/**
+ * Get a store's menu data for browsing (light query).
+ * Returns store info, categories, and items WITHOUT option groups.
+ * Items include a `hasOptionGroups` flag to indicate if options should be fetched.
+ */
+export const getShopMenu = createServerFn({ method: "GET" })
+	.inputValidator(storeBySlugSchema)
+	.handler(async ({ data }) => {
+		// Fetch store with categories and items (no option groups)
+		const store = await db.query.stores.findFirst({
+			where: and(eq(stores.slug, data.slug), eq(stores.isActive, true)),
+			with: {
+				merchant: {
+					columns: {
+						supportedLanguages: true,
+						mollieCanReceivePayments: true,
+					},
+				},
+				hours: {
+					columns: {
+						id: true,
+						dayOfWeek: true,
+						openTime: true,
+						closeTime: true,
+						displayOrder: true,
+					},
+					orderBy: (h, { asc }) => [asc(h.displayOrder)],
+				},
+				closures: {
+					columns: {
+						startDate: true,
+						endDate: true,
+						reason: true,
+					},
+				},
+				categories: {
+					where: eq(categories.isActive, true),
+					orderBy: (c, { asc }) => [asc(c.displayOrder)],
+					with: {
+						items: {
+							where: eq(items.isAvailable, true),
+							orderBy: (i, { asc }) => [asc(i.displayOrder)],
+							// No optGroups relation - light query
+						},
+					},
+				},
+			},
+		});
+
+		if (!store) {
+			throw notFound();
+		}
+
+		const {
+			hours,
+			closures,
+			categories: storeCategories,
+			merchant,
+			...storeData
+		} = store;
+
+		// Get the default language for translations
+		const supportedLanguages = merchant?.supportedLanguages ?? ["de"];
+		const defaultLang = supportedLanguages[0] ?? "de";
+
+		// Collect all item IDs to check which have option groups
+		const allItemIds = storeCategories.flatMap((cat) =>
+			cat.items.map((item) => item.id),
+		);
+
+		// Query which items have option groups (single efficient query)
+		const itemsWithOptions =
+			allItemIds.length > 0
+				? await db
+						.selectDistinct({ itemId: itemOptionGroups.itemId })
+						.from(itemOptionGroups)
+						.where(inArray(itemOptionGroups.itemId, allItemIds))
+				: [];
+
+		const itemsWithOptionsSet = new Set(itemsWithOptions.map((i) => i.itemId));
+
+		// Calculate open status
+		const hasClosure = isStoreClosed(closures, store.timezone);
+		const isOpen = !hasClosure && isStoreOpen(hours, store.timezone);
+
+		// Find current/upcoming closure if any
+		const now = new Date();
+		const storeDate = new Date(
+			now.toLocaleString("en-US", { timeZone: store.timezone }),
+		);
+		const currentDate = storeDate.toISOString().split("T")[0];
+
+		const currentClosure = closures.find(
+			(c) => currentDate >= c.startDate && currentDate <= c.endDate,
+		);
+
+		// Transform categories and items with localized content
+		const categoriesWithItems = storeCategories.map((category) => {
+			const categoryContent = getLocalizedContent(
+				category.translations,
+				defaultLang,
+				defaultLang,
+			);
+
+			return {
+				id: category.id,
+				name: categoryContent.name,
+				description: categoryContent.description,
+				displayOrder: category.displayOrder,
+				items: category.items.map((item) => {
+					const itemContent = getLocalizedContent(
+						item.translations,
+						defaultLang,
+						defaultLang,
+					);
+
+					return {
+						id: item.id,
+						name: itemContent.name,
+						kitchenName: item.kitchenName,
+						description: itemContent.description,
+						price: item.price,
+						imageUrl: item.imageUrl,
+						allergens: item.allergens,
+						displayOrder: item.displayOrder,
+						hasOptionGroups: itemsWithOptionsSet.has(item.id),
+					};
+				}),
+			};
+		});
+
+		return {
+			...storeData,
+			isOpen,
+			currentClosure: currentClosure
+				? {
+						startDate: currentClosure.startDate,
+						endDate: currentClosure.endDate,
+						reason: currentClosure.reason,
+					}
+				: null,
+			hours,
+			categories: categoriesWithItems,
+			capabilities: computeMerchantCapabilities({
+				mollieCanReceivePayments: merchant?.mollieCanReceivePayments ?? null,
+			}),
+		};
+	});
+
+/**
+ * Get option groups for a specific item (detail query).
+ * Called when opening the item drawer for items that have options.
+ */
+export const getItemOptions = createServerFn({ method: "GET" })
+	.inputValidator(itemOptionsInputSchema)
+	.handler(async ({ data }) => {
+		// Get the store to determine the default language
+		const store = await db.query.stores.findFirst({
+			where: and(eq(stores.slug, data.storeSlug), eq(stores.isActive, true)),
+			with: {
+				merchant: {
+					columns: {
+						supportedLanguages: true,
+					},
+				},
+			},
+		});
+
+		if (!store) {
+			return { optionGroups: [] };
+		}
+
+		const supportedLanguages = store.merchant?.supportedLanguages ?? ["de"];
+		const defaultLang = supportedLanguages[0] ?? "de";
+
+		// Fetch item's option groups with choices
+		const itemOpts = await db.query.itemOptionGroups.findMany({
+			where: eq(itemOptionGroups.itemId, data.itemId),
+			orderBy: (iog, { asc }) => [asc(iog.displayOrder)],
+			with: {
+				optGroup: {
+					with: {
+						choices: {
+							where: eq(optionChoices.isAvailable, true),
+							orderBy: (oc, { asc }) => [asc(oc.displayOrder)],
+						},
+					},
+				},
+			},
+		});
+
+		// Transform to match existing API format
+		const transformedGroups = itemOpts
+			.map((iog) => iog.optGroup)
+			.filter((og) => og.isActive)
+			.map((og) => {
+				const ogContent = getLocalizedContent(
+					og.translations,
+					defaultLang,
+					defaultLang,
+				);
+
+				return {
+					id: og.id,
+					name: ogContent.name,
+					description: ogContent.description,
+					type: og.type,
+					isRequired: og.isRequired,
+					minSelections: og.minSelections,
+					maxSelections: og.maxSelections,
+					numFreeOptions: og.numFreeOptions,
+					aggregateMinQuantity: og.aggregateMinQuantity,
+					aggregateMaxQuantity: og.aggregateMaxQuantity,
+					displayOrder: og.displayOrder,
+					choices: og.choices.map((choice) => ({
+						id: choice.id,
+						name: getLocalizedChoiceName(
+							choice.translations,
+							defaultLang,
+							defaultLang,
+						),
+						priceModifier: choice.priceModifier,
+						displayOrder: choice.displayOrder,
+						isDefault: choice.isDefault,
+						isAvailable: choice.isAvailable,
+						minQuantity: choice.minQuantity,
+						maxQuantity: choice.maxQuantity,
+					})),
+				};
+			});
+
+		return { optionGroups: transformedGroups };
 	});

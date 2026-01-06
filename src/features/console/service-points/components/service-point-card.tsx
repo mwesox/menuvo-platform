@@ -41,9 +41,9 @@ export function ServicePointCard({
 						<button
 							type="button"
 							onClick={() => onViewQR(servicePoint)}
-							className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 transition-colors hover:bg-primary/20"
+							className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 transition-colors hover:bg-primary/20"
 						>
-							<QrCode className="h-6 w-6 text-primary" />
+							<QrCode className="size-6 text-primary" />
 						</button>
 						<div className="space-y-1">
 							<div className="flex items-center gap-2">
@@ -59,7 +59,7 @@ export function ServicePointCard({
 										: t("labels.inactive")}
 								</Badge>
 							</div>
-							<p className="font-mono text-sm text-muted-foreground">
+							<p className="font-mono text-muted-foreground text-sm">
 								/{servicePoint.code}
 							</p>
 						</div>
@@ -68,16 +68,16 @@ export function ServicePointCard({
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button variant="ghost" size="icon" className="shrink-0">
-								<MoreVertical className="h-4 w-4" />
+								<MoreVertical className="size-4" />
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">
 							<DropdownMenuItem onClick={() => onViewQR(servicePoint)}>
-								<QrCode className="mr-2 h-4 w-4" />
+								<QrCode className="me-2 size-4" />
 								{t("labels.viewQrCode")}
 							</DropdownMenuItem>
 							<DropdownMenuItem onClick={() => onEdit(servicePoint)}>
-								<Edit className="mr-2 h-4 w-4" />
+								<Edit className="me-2 size-4" />
 								{t("buttons.edit")}
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
@@ -85,7 +85,7 @@ export function ServicePointCard({
 								onClick={() => onDelete(servicePoint.id)}
 								className="text-destructive focus:text-destructive"
 							>
-								<Trash2 className="mr-2 h-4 w-4" />
+								<Trash2 className="me-2 size-4" />
 								{t("buttons.delete")}
 							</DropdownMenuItem>
 						</DropdownMenuContent>
@@ -94,7 +94,7 @@ export function ServicePointCard({
 			</CardHeader>
 
 			<CardContent className="space-y-3 pt-0">
-				<div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
+				<div className="flex flex-wrap gap-2 text-muted-foreground text-sm">
 					{servicePoint.zone && (
 						<div className="flex items-center gap-1">
 							<Tag className="h-3.5 w-3.5" />
@@ -110,7 +110,7 @@ export function ServicePointCard({
 				</div>
 
 				{servicePoint.description && (
-					<p className="line-clamp-2 text-sm text-muted-foreground">
+					<p className="line-clamp-2 text-muted-foreground text-sm">
 						{servicePoint.description}
 					</p>
 				)}
@@ -134,7 +134,7 @@ export function ServicePointCard({
 						size="sm"
 						onClick={() => onViewQR(servicePoint)}
 					>
-						<QrCode className="mr-2 h-4 w-4" />
+						<QrCode className="me-2 size-4" />
 						{t("labels.qrCode")}
 					</Button>
 				</div>

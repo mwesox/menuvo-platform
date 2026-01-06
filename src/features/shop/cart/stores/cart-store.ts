@@ -13,6 +13,8 @@ export interface CartItem {
 	itemId: number;
 	/** Item name */
 	name: string;
+	/** Short name for kitchen display (optional) */
+	kitchenName?: string | null;
 	/** Optional image URL */
 	imageUrl?: string;
 	/** Base price in cents */

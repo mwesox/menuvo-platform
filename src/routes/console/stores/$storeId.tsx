@@ -120,7 +120,7 @@ function EditStorePage() {
 						<div className="flex items-center justify-between rounded-lg border p-4">
 							<div className="space-y-0.5">
 								<Label htmlFor="store-active">{t("labels.storeStatus")}</Label>
-								<p className="text-sm text-muted-foreground">
+								<p className="text-muted-foreground text-sm">
 									{t("descriptions.storeStatus")}
 								</p>
 							</div>
@@ -150,7 +150,7 @@ function EditStorePage() {
 								<div className="flex items-center justify-between">
 									<div className="space-y-0.5">
 										<p className="font-medium">{t("labels.deleteStore")}</p>
-										<p className="text-sm text-muted-foreground">
+										<p className="text-muted-foreground text-sm">
 											{t("descriptions.deleteStore")}
 										</p>
 									</div>
@@ -158,7 +158,7 @@ function EditStorePage() {
 										variant="destructive"
 										onClick={() => setShowDeleteDialog(true)}
 									>
-										<Trash2 className="mr-2 h-4 w-4" />
+										<Trash2 className="me-2 h-4 w-4" />
 										{tCommon("buttons.delete")}
 									</Button>
 								</div>

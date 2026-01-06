@@ -119,6 +119,13 @@ Loaders run on BOTH server and client. Never put secrets in loaders.
 
 ---
 
+## Theming
+
+- Three themes: Discovery, Shop, Console (all light mode only)
+- Dark mode is deactivated across all themes
+
+---
+
 ## Anti-Patterns
 
 - **No repository pattern** - Server functions query DB directly

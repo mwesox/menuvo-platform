@@ -12,8 +12,8 @@ export {
 	checkoutQueries,
 	useCheckoutSessionStatus,
 	useCreateCheckoutSession,
-	useCreateMolliePayment,
-	useMolliePaymentStatus,
+	useCreatePayment,
+	usePaymentStatus,
 	useStorePaymentCapability,
 } from "./queries";
 export { type CheckoutFormValues, checkoutFormSchema } from "./schemas";

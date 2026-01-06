@@ -9,7 +9,7 @@ import { useDisplayLanguage } from "@/features/console/menu/contexts/display-lan
 import { useSaveOptionGroupWithChoices } from "@/features/console/menu/options.queries";
 import { formToTranslations } from "@/features/console/menu/schemas";
 
-type OptionGroupWithChoices = OptionGroup & { optionChoices: OptionChoice[] };
+type OptionGroupWithChoices = OptionGroup & { choices: OptionChoice[] };
 
 interface OptionGroupDialogWrapperProps {
 	storeId: number;
@@ -54,7 +54,7 @@ export function OptionGroupDialogWrapper({
 
 		// Convert choice names to translations format
 		const choicesWithTranslations = data.choices.map((choice, index) => {
-			const existingChoice = optionGroup?.optionChoices?.[index];
+			const existingChoice = optionGroup?.choices?.[index];
 			const choiceTranslations: ChoiceTranslations = {
 				...(existingChoice?.translations ?? {}),
 				[language]: { name: choice.name },

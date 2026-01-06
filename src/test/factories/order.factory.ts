@@ -68,8 +68,7 @@ export async function createTestOrder(options: OrderFactoryOptions) {
 				orderType,
 				status,
 				paymentStatus,
-				paymentMethod:
-					paymentStatus === "pay_at_counter" ? "pay_at_counter" : "card",
+				paymentMethod: "card",
 				subtotal,
 				taxAmount: 0,
 				tipAmount: 0,

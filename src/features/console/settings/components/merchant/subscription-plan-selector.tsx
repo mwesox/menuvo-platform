@@ -106,7 +106,7 @@ export function SubscriptionPlanSelector({
 								>
 									<CardHeader className="pb-2">
 										<div className="flex items-center justify-between">
-											<Icon className="h-5 w-5 text-primary" />
+											<Icon className="size-5 text-primary" />
 											{isCurrent && (
 												<Badge variant="secondary">
 													{t("subscription.currentPlanBadge")}
@@ -122,7 +122,7 @@ export function SubscriptionPlanSelector({
 									</CardHeader>
 									<CardContent>
 										<div className="mb-4">
-											<span className="text-3xl font-bold">
+											<span className="font-bold text-3xl">
 												{tBusiness(`pricing.${plan.id}.price`)}€
 											</span>
 											<span className="text-muted-foreground">
@@ -132,7 +132,7 @@ export function SubscriptionPlanSelector({
 										<ul className="space-y-2 text-sm">
 											{features.slice(0, 4).map((feature) => (
 												<li key={feature} className="flex items-center gap-2">
-													<Check className="h-4 w-4 text-green-500" />
+													<Check className="size-4 text-green-500" />
 													<span className="line-clamp-1">{feature}</span>
 												</li>
 											))}

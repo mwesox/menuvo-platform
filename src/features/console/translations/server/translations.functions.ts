@@ -113,7 +113,7 @@ export const getTranslationStatus = createServerFn({ method: "GET" })
 		const allOptionGroups = await db.query.optionGroups.findMany({
 			where: eq(optionGroups.storeId, storeId),
 			with: {
-				optionChoices: {
+				choices: {
 					orderBy: (c, { asc }) => [asc(c.displayOrder)],
 				},
 			},
@@ -162,7 +162,7 @@ export const getTranslationStatus = createServerFn({ method: "GET" })
 					...og,
 					translationStatus: statusInfo.status,
 					translationStatusByLanguage: statusInfo.byLanguage,
-					optionChoices: og.optionChoices.map((choice) => {
+					choices: og.choices.map((choice) => {
 						const choiceStatusInfo = calculateStatus(
 							choice.translations,
 							supportedLanguages,
@@ -231,7 +231,7 @@ export const getMissingTranslationsReport = createServerFn({ method: "GET" })
 		});
 		const allOptionGroups = await db.query.optionGroups.findMany({
 			where: eq(optionGroups.storeId, storeId),
-			with: { optionChoices: true },
+			with: { choices: true },
 		});
 
 		// Count missing translations
@@ -290,7 +290,7 @@ export const getMissingTranslationsReport = createServerFn({ method: "GET" })
 				});
 			}
 
-			for (const choice of og.optionChoices) {
+			for (const choice of og.choices) {
 				const choiceTrans = (choice.translations ?? {}) as ChoiceTranslations;
 				const choiceMissingLangs = targetLanguages.filter(
 					(l) => !choiceTrans[l]?.name,
@@ -308,7 +308,7 @@ export const getMissingTranslationsReport = createServerFn({ method: "GET" })
 
 		// Calculate totals
 		const totalChoices = allOptionGroups.reduce(
-			(sum, og) => sum + og.optionChoices.length,
+			(sum, og) => sum + og.choices.length,
 			0,
 		);
 		const totalItems =

@@ -90,8 +90,8 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
 				<div>
-					<h2 className="text-lg font-semibold">{t("titles.servicePoints")}</h2>
-					<p className="text-sm text-muted-foreground">
+					<h2 className="font-semibold text-lg">{t("titles.servicePoints")}</h2>
+					<p className="text-muted-foreground text-sm">
 						{t("descriptions.manageServicePoints")}
 					</p>
 				</div>
@@ -100,7 +100,7 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<Button variant="outline">
-									<Layers className="mr-2 h-4 w-4" />
+									<Layers className="me-2 size-4" />
 									{t("buttons.zones")}
 								</Button>
 							</DropdownMenuTrigger>
@@ -133,11 +133,11 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 						variant="outline"
 						onClick={() => setBatchCreateDialogOpen(true)}
 					>
-						<Plus className="mr-2 h-4 w-4" />
+						<Plus className="me-2 size-4" />
 						{t("buttons.batchCreate")}
 					</Button>
 					<Button onClick={() => setCreateDialogOpen(true)}>
-						<Plus className="mr-2 h-4 w-4" />
+						<Plus className="me-2 size-4" />
 						{t("buttons.addServicePoint")}
 					</Button>
 				</div>
@@ -146,17 +146,17 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 			{servicePoints.length === 0 ? (
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center py-12">
-						<div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-							<QrCode className="h-8 w-8 text-muted-foreground" />
+						<div className="flex size-16 items-center justify-center rounded-full bg-muted">
+							<QrCode className="size-8 text-muted-foreground" />
 						</div>
-						<h3 className="mt-4 text-lg font-semibold">
+						<h3 className="mt-4 font-semibold text-lg">
 							{t("emptyStates.noServicePoints")}
 						</h3>
-						<p className="mt-2 text-center text-sm text-muted-foreground">
+						<p className="mt-2 text-center text-muted-foreground text-sm">
 							{t("emptyStates.noServicePointsDescription")}
 						</p>
 						<Button className="mt-6" onClick={() => setCreateDialogOpen(true)}>
-							<Plus className="mr-2 h-4 w-4" />
+							<Plus className="me-2 size-4" />
 							{t("buttons.createFirstServicePoint")}
 						</Button>
 					</CardContent>

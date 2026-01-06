@@ -14,7 +14,7 @@ export function StoreCardSkeleton() {
 				{/* Address skeleton */}
 				<div className="mt-2 flex items-center gap-1.5">
 					<Skeleton className="h-3.5 w-3.5 rounded-full bg-muted" />
-					<Skeleton className="h-4 w-40 bg-muted" />
+					<Skeleton className="size-40 bg-muted" />
 				</div>
 			</div>
 		</div>

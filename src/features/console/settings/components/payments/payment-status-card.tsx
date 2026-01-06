@@ -74,7 +74,7 @@ export function PaymentStatusCard({
 					disabled={refreshStatus.isPending}
 				>
 					<RefreshCw
-						className={`mr-2 h-4 w-4 ${refreshStatus.isPending ? "animate-spin" : ""}`}
+						className={`me-2 size-4 ${refreshStatus.isPending ? "animate-spin" : ""}`}
 					/>
 					{t("payments.actions.refresh")}
 				</Button>
@@ -113,7 +113,7 @@ export function PaymentStatusCard({
 				{/* Trial info */}
 				{isTrialing && trialDaysRemaining > 0 && (
 					<Alert>
-						<Clock className="h-4 w-4" />
+						<Clock className="size-4" />
 						<AlertTitle>{t("payments.trial.title")}</AlertTitle>
 						<AlertDescription>
 							{t("payments.trial.daysRemaining", { days: trialDaysRemaining })}
@@ -124,7 +124,7 @@ export function PaymentStatusCard({
 				{/* Requirements warning */}
 				{paymentStatus.paymentRequirementsStatus === "past_due" && (
 					<Alert variant="destructive">
-						<AlertTriangle className="h-4 w-4" />
+						<AlertTriangle className="size-4" />
 						<AlertTitle>
 							{t("payments.alerts.requirementsPastDue.title")}
 						</AlertTitle>
@@ -135,12 +135,12 @@ export function PaymentStatusCard({
 				)}
 
 				{paymentStatus.paymentRequirementsStatus === "currently_due" && (
-					<Alert className="border-amber-500 bg-amber-50 text-amber-900 dark:bg-amber-950 dark:text-amber-100">
-						<AlertTriangle className="h-4 w-4" />
+					<Alert className="border-amber-500 bg-amber-50 text-amber-900">
+						<AlertTriangle className="size-4" />
 						<AlertTitle>
 							{t("payments.alerts.requirementsDue.title")}
 						</AlertTitle>
-						<AlertDescription className="text-amber-800 dark:text-amber-200">
+						<AlertDescription className="text-amber-800">
 							{t("payments.alerts.requirementsDue.description")}
 						</AlertDescription>
 					</Alert>
@@ -183,11 +183,11 @@ function StatusRow({
 				: inactiveText;
 
 	return (
-		<div className="flex items-center justify-between py-2 border-b last:border-0">
-			<span className="text-sm text-muted-foreground">{label}</span>
+		<div className="flex items-center justify-between border-b py-2 last:border-0">
+			<span className="text-muted-foreground text-sm">{label}</span>
 			<div className="flex items-center gap-2">
-				<Icon className={`h-4 w-4 ${iconColor}`} />
-				<span className="text-sm font-medium">{text}</span>
+				<Icon className={`size-4 ${iconColor}`} />
+				<span className="font-medium text-sm">{text}</span>
 			</div>
 		</div>
 	);

@@ -26,6 +26,7 @@ import {
 	addMerchantNotes,
 	cancelOrder,
 	createOrder,
+	getKitchenDoneOrders,
 	getKitchenOrders,
 	getOrder,
 	getOrdersByStore,
@@ -56,6 +57,8 @@ export const orderKeys = {
 
 	// Kitchen queries
 	kitchen: (storeId: number) => [...orderKeys.all, "kitchen", storeId] as const,
+	kitchenDone: (storeId: number) =>
+		[...orderKeys.all, "kitchen-done", storeId] as const,
 
 	// Single order
 	detail: (orderId: number) => [...orderKeys.all, "detail", orderId] as const,
@@ -110,6 +113,19 @@ export const orderQueries = {
 			// Refetch frequently for real-time feel
 			refetchInterval: POLLING_INTERVALS.KITCHEN,
 			staleTime: 2000,
+		}),
+
+	/**
+	 * Get completed orders for kitchen Done archive (last 2 hours)
+	 */
+	kitchenDone: (storeId: number) =>
+		queryOptions({
+			queryKey: orderKeys.kitchenDone(storeId),
+			queryFn: () => getKitchenDoneOrders({ data: { storeId } }),
+			enabled: !!storeId,
+			// Less frequent polling - done orders are less critical
+			refetchInterval: 60_000, // 1 minute
+			staleTime: 30_000,
 		}),
 
 	/**
@@ -247,6 +263,9 @@ export function useCancelOrder(storeId: number, orderId: number) {
 			});
 			queryClient.invalidateQueries({
 				queryKey: orderKeys.kitchen(storeId),
+			});
+			queryClient.invalidateQueries({
+				queryKey: orderKeys.kitchenDone(storeId),
 			});
 			queryClient.invalidateQueries({
 				queryKey: orderKeys.detail(orderId),

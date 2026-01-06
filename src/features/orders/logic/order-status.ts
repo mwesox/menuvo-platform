@@ -12,14 +12,15 @@ import {
 } from "../constants";
 
 /**
- * Valid status transitions for orders
+ * Valid status transitions for orders.
+ * Allows backward transitions for kitchen staff to fix mistakes.
  */
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 	awaiting_payment: ["confirmed", "cancelled"],
 	confirmed: ["preparing", "cancelled"],
-	preparing: ["ready", "cancelled"],
-	ready: ["completed", "cancelled"],
-	completed: [],
+	preparing: ["confirmed", "ready", "cancelled"], // Can go back to confirmed
+	ready: ["preparing", "completed", "cancelled"], // Can go back to preparing
+	completed: ["ready", "preparing", "confirmed"], // Can revert if mistake
 	cancelled: [],
 };
 
@@ -73,7 +74,7 @@ export function canCancelOrder(status: OrderStatus): boolean {
  * Check if a payment status allows the order to proceed
  */
 export function isPaymentComplete(paymentStatus: PaymentStatus): boolean {
-	return paymentStatus === "paid" || paymentStatus === "pay_at_counter";
+	return paymentStatus === "paid";
 }
 
 /**
@@ -101,33 +102,13 @@ export function getStatusAfterPayment(currentStatus: OrderStatus): OrderStatus {
 }
 
 /**
- * Determine initial order status based on order type and payment method.
- *
- * - dine_in orders are always confirmed immediately (pay at counter after eating)
- * - pay_at_counter payment method skips online payment
- * - Other orders (takeaway with card) await online payment
+ * Determine initial order status.
+ * All orders require online payment before being confirmed.
  */
-export function getInitialOrderStatus(
-	orderType: string,
-	paymentMethod: string,
-): { orderStatus: OrderStatus; paymentStatus: PaymentStatus } {
-	// Dine-in orders are confirmed immediately - customer pays at counter after eating
-	if (orderType === "dine_in") {
-		return {
-			orderStatus: "confirmed",
-			paymentStatus: "pay_at_counter",
-		};
-	}
-
-	// Pay at counter skips online payment
-	if (paymentMethod === "pay_at_counter") {
-		return {
-			orderStatus: "confirmed",
-			paymentStatus: "pay_at_counter",
-		};
-	}
-
-	// Default: require online payment
+export function getInitialOrderStatus(): {
+	orderStatus: OrderStatus;
+	paymentStatus: PaymentStatus;
+} {
 	return {
 		orderStatus: "awaiting_payment",
 		paymentStatus: "pending",

@@ -85,6 +85,9 @@
 		"emailRequired": "Email is required for online payment",
 		"invalidEmail": "Please enter a valid email address",
 		"emailRequiredForOnline": "Required for payment confirmation",
+		"specialRequests": "Special Requests",
+		"specialRequestsPlaceholder": "Allergies, dietary restrictions, special instructions...",
+		"optional": "optional",
 		"cartEmpty": "Your cart is empty",
 		"paymentMethod": "Payment Method",
 		"paymentMethods": {

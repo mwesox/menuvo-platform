@@ -5,8 +5,9 @@ import { StoreError } from "@/features/shop/shared";
 
 export const Route = createFileRoute("/$slug/checkout/")({
 	loader: async ({ context, params }) => {
+		// Use light query - reuses cache from menu page
 		const store = await context.queryClient.ensureQueryData(
-			shopQueries.storeBySlug(params.slug),
+			shopQueries.menu(params.slug),
 		);
 		if (!store) {
 			throw notFound();

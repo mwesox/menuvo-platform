@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import type { Category, OptionChoice, OptionGroup } from "@/db/schema";
 
-type OptionGroupWithChoices = OptionGroup & { optionChoices: OptionChoice[] };
+type OptionGroupWithChoices = OptionGroup & { choices: OptionChoice[] };
 type DeleteType = "category" | "item" | "optionGroup";
 
 export function useMenuPageState() {

@@ -61,7 +61,7 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 				</CardHeader>
 				<CardContent className="space-y-4">
 					{closures.length === 0 && !isAdding && (
-						<p className="text-muted-foreground text-sm py-4 text-center">
+						<p className="py-4 text-center text-muted-foreground text-sm">
 							{t("emptyStates.noClosures")}
 						</p>
 					)}
@@ -97,7 +97,7 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 
 			{!isAdding && editingId === null && (
 				<Button onClick={() => setIsAdding(true)}>
-					<Plus className="mr-2 h-4 w-4" />
+					<Plus className="me-2 size-4" />
 					{t("actions.addClosure")}
 				</Button>
 			)}
@@ -125,21 +125,21 @@ function ClosureListItem({ closure, storeId, onEdit }: ClosureListItemProps) {
 		: `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
 
 	return (
-		<div className="flex items-center justify-between py-3 px-4 border rounded-lg">
+		<div className="flex items-center justify-between rounded-lg border px-4 py-3">
 			<div>
 				<p className="font-medium">{dateDisplay}</p>
 				{closure.reason && (
-					<p className="text-sm text-muted-foreground">{closure.reason}</p>
+					<p className="text-muted-foreground text-sm">{closure.reason}</p>
 				)}
 			</div>
 			<div className="flex items-center gap-2">
 				<Button variant="ghost" size="icon" onClick={onEdit}>
-					<Pencil className="h-4 w-4" />
+					<Pencil className="size-4" />
 				</Button>
 				<AlertDialog>
 					<AlertDialogTrigger asChild>
 						<Button variant="ghost" size="icon">
-							<Trash2 className="h-4 w-4" />
+							<Trash2 className="size-4" />
 						</Button>
 					</AlertDialogTrigger>
 					<AlertDialogContent>
@@ -217,7 +217,7 @@ function ClosureForm({
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="p-4 border rounded-lg space-y-4"
+			className="space-y-4 rounded-lg border p-4"
 		>
 			<div className="grid gap-4 sm:grid-cols-2">
 				<form.Field name="startDate">
@@ -303,11 +303,11 @@ function DatePicker({ value, onChange }: DatePickerProps) {
 				<Button
 					variant="outline"
 					className={cn(
-						"w-full justify-start text-left font-normal",
+						"w-full justify-start text-start font-normal",
 						!date && "text-muted-foreground",
 					)}
 				>
-					<CalendarIcon className="mr-2 h-4 w-4" />
+					<CalendarIcon className="me-2 size-4" />
 					{date ? (
 						format(date, "PPP")
 					) : (

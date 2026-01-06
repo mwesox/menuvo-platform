@@ -2,10 +2,10 @@ import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
-	type CreateMolliePaymentInput,
-	createMolliePayment,
-	getMolliePaymentStatus,
-} from "@/features/orders/server/mollie-checkout.functions";
+	type CreatePaymentInput,
+	createPayment,
+	getPaymentStatus,
+} from "@/features/orders/server/payment.functions";
 import {
 	createCheckoutSession,
 	getCheckoutSessionStatus,
@@ -29,10 +29,10 @@ export const checkoutKeys = {
 		[...checkoutKeys.all, "session", sessionId] as const,
 
 	/**
-	 * Key for Mollie payment status queries.
+	 * Key for payment status queries.
 	 */
-	molliePayment: (paymentId: string) =>
-		[...checkoutKeys.all, "mollie", paymentId] as const,
+	payment: (paymentId: string) =>
+		[...checkoutKeys.all, "payment", paymentId] as const,
 
 	/**
 	 * Key for store payment capability queries.
@@ -68,24 +68,21 @@ export const checkoutQueries = {
 		}),
 
 	/**
-	 * Query options for fetching Mollie payment status.
-	 * Polls every 2 seconds while payment is pending.
+	 * Query options for fetching payment status.
+	 * Single fetch only - for synchronous payment methods (credit cards, PayPal),
+	 * the status is immediately final when user returns from Mollie.
 	 */
-	molliePaymentStatus: (paymentId: string | null) =>
+	paymentStatus: (paymentId: string | null) =>
 		queryOptions({
-			queryKey: paymentId ? checkoutKeys.molliePayment(paymentId) : ["empty"],
+			queryKey: paymentId ? checkoutKeys.payment(paymentId) : ["empty"],
 			queryFn: () => {
 				if (!paymentId) {
 					throw new Error("Payment ID is required");
 				}
-				return getMolliePaymentStatus({ data: { paymentId } });
+				return getPaymentStatus({ data: { paymentId } });
 			},
 			enabled: !!paymentId,
-			refetchInterval: (query) => {
-				const status = query.state.data?.paymentStatus;
-				// Keep polling while awaiting confirmation
-				return status === "awaiting_confirmation" ? 2000 : false;
-			},
+			staleTime: Number.POSITIVE_INFINITY, // Result is final, don't refetch
 		}),
 
 	/**
@@ -138,23 +135,22 @@ export function useCreateCheckoutSession() {
 }
 
 /**
- * Hook for polling Mollie payment status.
+ * Hook for polling payment status.
  * Automatically polls while payment is in progress.
  */
-export function useMolliePaymentStatus(paymentId: string | null) {
-	return useQuery(checkoutQueries.molliePaymentStatus(paymentId));
+export function usePaymentStatus(paymentId: string | null) {
+	return useQuery(checkoutQueries.paymentStatus(paymentId));
 }
 
 /**
- * Hook for creating a Mollie payment.
- * Returns checkoutUrl for redirecting to Mollie hosted page.
+ * Hook for creating a payment.
+ * Returns checkoutUrl for redirecting to hosted checkout page.
  */
-export function useCreateMolliePayment() {
+export function useCreatePayment() {
 	const router = useRouter();
 
 	return useMutation({
-		mutationFn: (input: CreateMolliePaymentInput) =>
-			createMolliePayment({ data: input }),
+		mutationFn: (input: CreatePaymentInput) => createPayment({ data: input }),
 		onError: (error) => {
 			toast.error(error.message || "Failed to create payment");
 		},

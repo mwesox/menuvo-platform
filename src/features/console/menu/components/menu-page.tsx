@@ -88,7 +88,7 @@ export function MenuPage({ search, loaderData }: MenuPageProps) {
 	// No stores - show empty state
 	if (stores.length === 0) {
 		return (
-			<div className="flex flex-col h-full">
+			<div className="flex h-full flex-col">
 				<Empty>
 					<EmptyHeader>
 						<EmptyMedia variant="icon">
@@ -102,7 +102,7 @@ export function MenuPage({ search, loaderData }: MenuPageProps) {
 					<EmptyContent>
 						<Button variant="outline" asChild>
 							<Link to="/console/stores/new">
-								<Plus className="mr-2 h-4 w-4" />
+								<Plus className="me-2 size-4" />
 								{t("actions.createStore")}
 							</Link>
 						</Button>
@@ -115,7 +115,7 @@ export function MenuPage({ search, loaderData }: MenuPageProps) {
 	// Multiple stores with none selected - show selection prompt
 	if (!selectedStoreId) {
 		return (
-			<div className="flex flex-col h-full">
+			<div className="flex h-full flex-col">
 				<StoreSelectionPrompt stores={stores} />
 			</div>
 		);
@@ -271,7 +271,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 							/>
 						))}
 						{categories.length === 0 && (
-							<div className="p-4 text-center text-sm text-muted-foreground">
+							<div className="p-4 text-center text-muted-foreground text-sm">
 								{t("emptyStates.noCategories")}
 							</div>
 						)}
@@ -288,7 +288,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 									onValueChange={setCategoryFilter}
 								>
 									<SelectTrigger className="w-full">
-										<Filter className="mr-2 h-4 w-4" />
+										<Filter className="me-2 size-4" />
 										<SelectValue placeholder={t("filters.allCategories")} />
 									</SelectTrigger>
 									<SelectContent>
@@ -316,7 +316,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 								/>
 							))}
 							{filteredItems.length === 0 && (
-								<div className="p-4 text-center text-sm text-muted-foreground">
+								<div className="p-4 text-center text-muted-foreground text-sm">
 									{categoryFilter === "all"
 										? t("emptyStates.noItems")
 										: t("emptyStates.noItemsInCategory")}
@@ -337,7 +337,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 							/>
 						))}
 						{optionGroups.length === 0 && (
-							<div className="p-4 text-center text-sm text-muted-foreground">
+							<div className="p-4 text-center text-muted-foreground text-sm">
 								{t("emptyStates.noOptionGroups")}
 							</div>
 						)}
@@ -455,7 +455,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 	};
 
 	return (
-		<div className="flex flex-col h-full">
+		<div className="flex h-full flex-col">
 			{/* Action bar */}
 			<PageActionBar
 				title={t("pageTitle", "Speisekarte")}
@@ -472,7 +472,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 							(addAction && "href" in addAction ? (
 								<Button variant="default" asChild>
 									<Link to={addAction.href}>
-										<Plus className="mr-2 h-4 w-4" />
+										<Plus className="me-2 size-4" />
 										{
 											addLabels[
 												tab as Exclude<TabValue, "translations" | "import">
@@ -482,7 +482,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 								</Button>
 							) : addAction?.onClick ? (
 								<Button variant="default" onClick={addAction.onClick}>
-									<Plus className="mr-2 h-4 w-4" />
+									<Plus className="me-2 size-4" />
 									{
 										addLabels[
 											tab as Exclude<TabValue, "translations" | "import">
@@ -496,11 +496,11 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 
 			{/* Translations tab has its own layout */}
 			{tab === "translations" ? (
-				<div className="flex-1 mt-4 min-h-0">
+				<div className="mt-4 min-h-0 flex-1">
 					<TranslationsTab storeId={storeId} />
 				</div>
 			) : tab === "import" ? (
-				<div className="flex-1 mt-4 min-h-0">
+				<div className="mt-4 min-h-0 flex-1">
 					<ImportWizard
 						storeId={storeId}
 						onClose={() => handleTabChange("items")}
@@ -509,7 +509,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 			) : (
 				<>
 					{/* Master-detail layout */}
-					<div className="flex-1 mt-4 min-h-0">
+					<div className="mt-4 min-h-0 flex-1">
 						<MasterDetailLayout
 							master={renderMasterList()}
 							detail={renderDetailPanel()}

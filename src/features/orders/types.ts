@@ -59,6 +59,7 @@ export type OrderItemOptionInput = {
 export type OrderItemInput = {
 	itemId: number;
 	name: string;
+	kitchenName?: string | null;
 	description?: string;
 	quantity: number;
 	unitPrice: number;

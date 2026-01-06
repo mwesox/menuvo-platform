@@ -10,7 +10,7 @@ function PoweredByMenuvo() {
 
 	return (
 		<div className="flex items-center justify-center gap-2">
-			<span className="text-sm text-muted-foreground">
+			<span className="text-muted-foreground text-sm">
 				{t("footer.poweredBy")}
 			</span>
 			<img src="/menuvo-logo.svg" alt="Menuvo" className="h-6" />
@@ -67,7 +67,7 @@ function FooterCopyright() {
 	const year = new Date().getFullYear();
 
 	return (
-		<p className="text-center text-xs text-muted-foreground">
+		<p className="text-center text-muted-foreground text-xs">
 			{t("footer.copyright", { year })}
 		</p>
 	);
