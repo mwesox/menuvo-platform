@@ -18,6 +18,10 @@ export {
 	type CategoryFactoryOptions,
 	createTestCategory,
 } from "./category.factory";
+export {
+	createTestImportJob,
+	type ImportJobFactoryOptions,
+} from "./import-job.factory";
 export { createTestItem, type ItemFactoryOptions } from "./item.factory";
 export {
 	createTestMerchant,

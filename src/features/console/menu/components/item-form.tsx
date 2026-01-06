@@ -95,6 +95,7 @@ export function ItemForm({
 			price: number;
 			imageUrl?: string;
 			allergens: string[];
+			kitchenName?: string;
 		}) =>
 			createItem({
 				data: {
@@ -104,6 +105,7 @@ export function ItemForm({
 					price: input.price,
 					imageUrl: input.imageUrl,
 					allergens: input.allergens,
+					kitchenName: input.kitchenName,
 				},
 			}),
 		onSuccess: () => {
@@ -124,6 +126,7 @@ export function ItemForm({
 			price?: number;
 			imageUrl?: string;
 			allergens?: string[];
+			kitchenName?: string;
 		}) =>
 			updateItem({
 				data: {
@@ -133,6 +136,7 @@ export function ItemForm({
 					price: input.price,
 					imageUrl: input.imageUrl,
 					allergens: input.allergens,
+					kitchenName: input.kitchenName,
 				},
 			}),
 		onSuccess: () => {
@@ -159,6 +163,7 @@ export function ItemForm({
 			price: item ? String(item.price) : "0",
 			imageUrl: item?.imageUrl ?? "",
 			allergens: item?.allergens ?? ([] as string[]),
+			kitchenName: item?.kitchenName ?? "",
 		},
 		validators: {
 			onSubmit: itemFormSchema,
@@ -183,6 +188,7 @@ export function ItemForm({
 						price: priceInCents,
 						imageUrl: value.imageUrl || undefined,
 						allergens: value.allergens,
+						kitchenName: value.kitchenName || undefined,
 					});
 					itemId = item.id;
 				} else {
@@ -192,6 +198,7 @@ export function ItemForm({
 						price: priceInCents,
 						imageUrl: value.imageUrl || undefined,
 						allergens: value.allergens,
+						kitchenName: value.kitchenName || undefined,
 					});
 					itemId = newItem.id;
 				}
@@ -237,8 +244,8 @@ export function ItemForm({
 						</CardHeader>
 						<CardContent>
 							<FieldGroup>
-								{/* Row 1: Name + Price (responsive grid) */}
-								<div className="grid gap-6 md:grid-cols-[1fr,200px]">
+								{/* Row 1: Name + Kitchen Name + Price (responsive grid) */}
+								<div className="grid gap-6 md:grid-cols-[1fr,160px,160px]">
 									<form.Field name="name">
 										{(field) => {
 											const isInvalid =
@@ -255,6 +262,33 @@ export function ItemForm({
 														value={field.state.value}
 														onBlur={field.handleBlur}
 														onChange={(e) => field.handleChange(e.target.value)}
+														aria-invalid={isInvalid}
+													/>
+													{isInvalid && (
+														<FieldError errors={field.state.meta.errors} />
+													)}
+												</Field>
+											);
+										}}
+									</form.Field>
+
+									<form.Field name="kitchenName">
+										{(field) => {
+											const isInvalid =
+												field.state.meta.isTouched && !field.state.meta.isValid;
+											return (
+												<Field data-invalid={isInvalid}>
+													<FieldLabel htmlFor={field.name}>
+														{t("labels.kitchenName")}
+													</FieldLabel>
+													<Input
+														id={field.name}
+														name={field.name}
+														placeholder={t("placeholders.kitchenName")}
+														value={field.state.value}
+														onBlur={field.handleBlur}
+														onChange={(e) => field.handleChange(e.target.value)}
+														maxLength={50}
 														aria-invalid={isInvalid}
 													/>
 													{isInvalid && (

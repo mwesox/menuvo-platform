@@ -98,13 +98,13 @@ export function CancelOrderDialog({
 								placeholder={t("cancelDialog.reasonPlaceholder")}
 								className="min-h-[100px]"
 							/>
-							<p className="text-xs text-muted-foreground">
+							<p className="text-muted-foreground text-xs">
 								{t("cancelDialog.reasonHint")}
 							</p>
 						</div>
 
 						{state.error && (
-							<p className="text-sm text-destructive">{state.error}</p>
+							<p className="text-destructive text-sm">{state.error}</p>
 						)}
 					</div>
 

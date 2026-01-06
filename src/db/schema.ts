@@ -452,6 +452,8 @@ export const items = pgTable("items", {
 	allergens: text().array(), // PostgreSQL text array for allergens
 	displayOrder: integer("display_order").notNull().default(0),
 	isAvailable: boolean("is_available").notNull().default(true),
+	// Optional short name for kitchen display (e.g., "SALMN" instead of "Grilled Atlantic Salmon")
+	kitchenName: varchar("kitchen_name", { length: 50 }),
 	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
 	translations: jsonb("translations")
 		.$type<EntityTranslations>()
@@ -1000,6 +1002,7 @@ export const orderItems = pgTable(
 
 		// Snapshot data (preserved even if original item changes)
 		name: varchar({ length: 200 }).notNull(),
+		kitchenName: varchar("kitchen_name", { length: 50 }), // Short name for kitchen display
 		description: text(),
 		quantity: integer().notNull(),
 		unitPrice: integer("unit_price").notNull(), // Base price per unit (cents)
@@ -1008,9 +1011,6 @@ export const orderItems = pgTable(
 
 		// Metadata
 		displayOrder: integer("display_order").notNull(),
-
-		// Customer special requests for this item (e.g., "no onions", "extra sauce")
-		instructions: text(),
 	},
 	(table) => [index("idx_order_items_order_id").on(table.orderId)],
 );

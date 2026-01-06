@@ -106,16 +106,16 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 					<span
 						aria-hidden="true"
 						className={cn(
-							"transition-colors",
+							"transition-all duration-150",
 							item.hasOptions
-								? "px-3 py-1.5 rounded-lg text-sm font-medium bg-muted text-foreground border border-border/60 hover:bg-muted/80"
-								: "flex items-center justify-center w-9 h-9 rounded-full border border-border/60 text-foreground hover:bg-foreground hover:text-background",
+								? "px-3 py-1.5 rounded-lg text-sm font-medium bg-muted text-foreground border border-border/60 group-hover:bg-muted/80"
+								: "flex items-center justify-center size-11 rounded-full bg-foreground text-background group-hover:scale-105 group-active:scale-95",
 						)}
 					>
 						{item.hasOptions ? (
 							t("menu.customize")
 						) : (
-							<Plus className="w-5 h-5" />
+							<Plus className="size-5" strokeWidth={2.5} />
 						)}
 					</span>
 				</div>

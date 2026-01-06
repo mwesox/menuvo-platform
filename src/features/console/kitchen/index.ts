@@ -13,9 +13,7 @@ export { KanbanColumn } from "./components/kanban-column";
 export { KitchenPage } from "./components/kitchen-page";
 export { OrderCard } from "./components/order-card";
 export { OrderCardKitchen } from "./components/order-card-kitchen";
-export { OrderCardManager } from "./components/order-card-manager";
 export { UrgencyIndicator } from "./components/urgency-indicator";
-export { ViewToggle } from "./components/view-toggle";
 // Constants
 export {
 	COLUMN_LABELS,
@@ -24,7 +22,6 @@ export {
 	KANBAN_COLUMNS,
 	type KanbanColumnConfig,
 	type KanbanColumnId,
-	type KitchenViewMode,
 	NOTIFICATION_BEEP_COUNT,
 	NOTIFICATION_BEEP_DURATION,
 	NOTIFICATION_BEEP_FREQUENCY,
@@ -33,7 +30,6 @@ export {
 	URGENCY_CRITICAL_MINUTES,
 	URGENCY_WARNING_MINUTES,
 	type UrgencyLevel,
-	VIEW_MODES,
 } from "./constants";
 // Hooks
 export { useConnectionStatus } from "./hooks/use-connection-status";

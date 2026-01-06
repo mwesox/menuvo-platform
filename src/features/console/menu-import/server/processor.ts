@@ -2,11 +2,15 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { menuImportJobs } from "@/db/schema";
 import { menuImportLogger } from "@/lib/logger";
-import { getFile } from "@/lib/storage/files-client";
-import { extractMenuFromText, type ModelConfig } from "../logic/ai-extractor";
+import { getFile as getFileFromStorage } from "@/lib/storage/files-client";
+import {
+	extractMenuFromText as extractMenuFromTextDefault,
+	type ModelConfig,
+} from "../logic/ai-extractor";
 import { compareMenus } from "../logic/comparer";
 import { extractTextFromFile } from "../logic/text-extractor";
 import type { AllowedFileType } from "../schemas";
+import type { ExtractedMenuData } from "../types";
 import { getExistingMenuData } from "./import.helpers";
 
 /**
@@ -19,10 +23,37 @@ const DEFAULT_EXTRACTION_MODEL: ModelConfig = {
 };
 
 /**
+ * Dependencies for the processor.
+ * Can be overridden for testing.
+ */
+export interface ProcessorDeps {
+	getFile: (key: string) => Promise<Buffer>;
+	extractMenuFromText: (
+		text: string,
+		options: {
+			model: ModelConfig;
+			existingCategories?: string[];
+			existingItems?: string[];
+		},
+	) => Promise<ExtractedMenuData>;
+}
+
+const defaultDeps: ProcessorDeps = {
+	getFile: getFileFromStorage,
+	extractMenuFromText: extractMenuFromTextDefault,
+};
+
+/**
  * Process a single menu import job.
  * Called by the worker after pulling from the queue.
+ *
+ * @param jobId - The ID of the import job to process
+ * @param deps - Optional dependencies for testing
  */
-export async function processMenuImportJob(jobId: number): Promise<void> {
+export async function processMenuImportJob(
+	jobId: number,
+	deps: ProcessorDeps = defaultDeps,
+): Promise<void> {
 	const job = await db.query.menuImportJobs.findFirst({
 		where: eq(menuImportJobs.id, jobId),
 	});
@@ -44,7 +75,7 @@ export async function processMenuImportJob(jobId: number): Promise<void> {
 
 		// Step 1: Download file from internal bucket
 		menuImportLogger.debug({ jobId, fileKey: job.fileKey }, "Downloading file");
-		const fileBuffer = await getFile(job.fileKey);
+		const fileBuffer = await deps.getFile(job.fileKey);
 
 		// Step 2: Extract text from file
 		menuImportLogger.debug(
@@ -74,7 +105,7 @@ export async function processMenuImportJob(jobId: number): Promise<void> {
 
 		// Step 4: AI extraction
 		menuImportLogger.debug({ jobId }, "Running AI extraction");
-		const extractedMenu = await extractMenuFromText(text, {
+		const extractedMenu = await deps.extractMenuFromText(text, {
 			model: DEFAULT_EXTRACTION_MODEL,
 			existingCategories: existingMenu.categories.map((c) => c.name),
 			existingItems: existingMenu.categories.flatMap((c) =>

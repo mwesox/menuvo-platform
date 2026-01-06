@@ -48,6 +48,7 @@ const createWrapper = () => {
 const mockItem: MenuItemLight = {
 	id: 1,
 	name: "Margherita Pizza",
+	kitchenName: null,
 	description: "Fresh tomato sauce, mozzarella, and basil",
 	price: 1299,
 	imageUrl: "https://example.com/pizza.jpg",
@@ -60,6 +61,7 @@ const mockItem: MenuItemLight = {
 const mockSimpleItem: MenuItemLight = {
 	id: 2,
 	name: "Garlic Bread",
+	kitchenName: null,
 	description: "Freshly baked with garlic butter",
 	price: 499,
 	imageUrl: null,

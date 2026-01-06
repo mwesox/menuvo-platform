@@ -1,38 +1,19 @@
 /**
  * Main kanban board component with drag-and-drop support.
  *
- * Uses @dnd-kit with proper multi-container support:
- * - onDragOver moves items between columns during drag
- * - DragOverlay provides smooth visual feedback
- * - Multiple SortableContext (one per column) is the correct pattern
- *
- * Note: DndContext is client-only to avoid hydration mismatch
- * (aria-describedby IDs differ between server/client)
+ * Uses pragmatic-drag-and-drop for smooth, native browser drag experience:
+ * - monitorForElements at board level to handle all drops
+ * - No state changes during drag (eliminates flickering)
+ * - State updates only on drop
  */
 
-import {
-	closestCenter,
-	DndContext,
-	type DragEndEvent,
-	type DragOverEvent,
-	DragOverlay,
-	type DragStartEvent,
-	KeyboardSensor,
-	PointerSensor,
-	TouchSensor,
-	useSensor,
-	useSensors,
-} from "@dnd-kit/core";
-import { restrictToWindowEdges } from "@dnd-kit/modifiers";
-import { useEffect, useState } from "react";
+import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { triggerPostMoveFlash } from "@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash";
+import { LayoutGroup } from "motion/react";
+import { useEffect } from "react";
 import type { OrderWithItems } from "@/features/orders/types";
-import {
-	KANBAN_COLUMNS,
-	type KanbanColumnId,
-	type KitchenViewMode,
-} from "../constants";
+import { KANBAN_COLUMNS, type KanbanColumnId } from "../constants";
 import { KanbanColumn } from "./kanban-column";
-import { OrderCard } from "./order-card";
 
 type OrderWithServicePoint = OrderWithItems & {
 	servicePoint?: { id: number; name: string; code: string } | null;
@@ -40,97 +21,65 @@ type OrderWithServicePoint = OrderWithItems & {
 
 interface KanbanBoardProps {
 	columns: Record<KanbanColumnId, OrderWithServicePoint[]>;
-	viewMode: KitchenViewMode;
 	storeId: number;
-	activeId: number | null;
-	activeOrder: OrderWithServicePoint | null;
-	validDropTargets: KanbanColumnId[];
-	onDragStart: (event: DragStartEvent) => void;
-	onDragOver: (event: DragOverEvent) => void;
-	onDragEnd: (event: DragEndEvent) => void;
-	onDragCancel: () => void;
+	/** Move order to specific column */
+	moveCard: (orderId: number, targetColumn: KanbanColumnId) => void;
+	/** Move order to next column */
+	moveToNext: (orderId: number) => void;
+	/** Check if drop is valid */
+	canDrop: (
+		sourceColumn: KanbanColumnId,
+		targetColumn: KanbanColumnId,
+	) => boolean;
 }
 
 export function KanbanBoard({
 	columns,
-	viewMode,
 	storeId,
-	activeId,
-	activeOrder,
-	validDropTargets,
-	onDragStart,
-	onDragOver,
-	onDragEnd,
-	onDragCancel,
+	moveCard,
+	moveToNext,
+	canDrop,
 }: KanbanBoardProps) {
-	// Client-only rendering to avoid hydration mismatch with dnd-kit's aria IDs
-	const [isClient, setIsClient] = useState(false);
+	// Monitor all drag operations at board level
 	useEffect(() => {
-		setIsClient(true);
-	}, []);
+		return monitorForElements({
+			onDrop({ source, location }) {
+				// Get the innermost drop target (the column)
+				const destination = location.current.dropTargets[0];
+				if (!destination) return;
 
-	// Configure sensors for mouse, touch, and keyboard
-	const sensors = useSensors(
-		useSensor(PointerSensor, {
-			activationConstraint: {
-				distance: 8, // Require 8px movement before starting drag
+				const orderId = source.data.orderId as number;
+				const targetColumn = destination.data.columnId as KanbanColumnId;
+
+				moveCard(orderId, targetColumn);
+
+				// Trigger post-move flash after React re-renders
+				requestAnimationFrame(() => {
+					const droppedCard = document.querySelector(
+						`[data-order-id="${orderId}"]`,
+					);
+					if (droppedCard instanceof HTMLElement) {
+						triggerPostMoveFlash(droppedCard);
+					}
+				});
 			},
-		}),
-		useSensor(TouchSensor, {
-			activationConstraint: {
-				delay: 250, // Long press for touch
-				tolerance: 5,
-			},
-		}),
-		useSensor(KeyboardSensor),
-	);
-
-	// Render static grid during SSR, DndContext only on client
-	const content = (
-		<div className="grid h-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-			{KANBAN_COLUMNS.map((column) => (
-				<KanbanColumn
-					key={column.id}
-					id={column.id}
-					orders={columns[column.id]}
-					viewMode={viewMode}
-					storeId={storeId}
-					isValidDropTarget={validDropTargets.includes(column.id)}
-					activeId={activeId}
-					isDndEnabled={isClient}
-				/>
-			))}
-		</div>
-	);
-
-	// During SSR, render without DndContext to avoid hydration mismatch
-	if (!isClient) {
-		return content;
-	}
+		});
+	}, [moveCard]);
 
 	return (
-		<DndContext
-			sensors={sensors}
-			collisionDetection={closestCenter}
-			modifiers={[restrictToWindowEdges]}
-			onDragStart={onDragStart}
-			onDragOver={onDragOver}
-			onDragEnd={onDragEnd}
-			onDragCancel={onDragCancel}
-		>
-			{content}
-
-			{/* DragOverlay renders outside of column flow for smooth dragging */}
-			<DragOverlay dropAnimation={null}>
-				{activeId && activeOrder ? (
-					<OrderCard
-						order={activeOrder}
-						viewMode={viewMode}
+		<LayoutGroup>
+			<div className="grid h-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+				{KANBAN_COLUMNS.map((column) => (
+					<KanbanColumn
+						key={column.id}
+						id={column.id}
+						orders={columns[column.id]}
 						storeId={storeId}
-						isOverlay
+						canDrop={canDrop}
+						onNext={moveToNext}
 					/>
-				) : null}
-			</DragOverlay>
-		</DndContext>
+				))}
+			</div>
+		</LayoutGroup>
 	);
 }

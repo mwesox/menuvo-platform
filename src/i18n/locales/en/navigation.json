@@ -6,5 +6,8 @@
 	"orders": "Orders",
 	"kitchen": "Kitchen",
 	"settings": "Settings",
-	"toggleMenu": "Toggle menu"
+	"toggleMenu": "Toggle menu",
+	"operations": "Operations",
+	"management": "Management",
+	"help": "Help"
 }

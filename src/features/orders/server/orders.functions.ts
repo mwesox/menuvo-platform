@@ -123,13 +123,13 @@ export const createOrder = createServerFn({ method: "POST" })
 							orderId: newOrder.id,
 							itemId: item.itemId,
 							name: item.name,
+							kitchenName: item.kitchenName,
 							description: item.description,
 							quantity: item.quantity,
 							unitPrice: item.unitPrice,
 							optionsPrice: item.optionsPrice,
 							totalPrice: item.totalPrice,
 							displayOrder: i,
-							instructions: item.instructions,
 						})
 						.returning();
 

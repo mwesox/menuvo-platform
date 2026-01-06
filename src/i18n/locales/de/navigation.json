@@ -6,5 +6,8 @@
 	"orders": "Bestellungen",
 	"kitchen": "Küche",
 	"settings": "Einstellungen",
-	"toggleMenu": "Menü umschalten"
+	"toggleMenu": "Menü umschalten",
+	"operations": "Betrieb",
+	"management": "Verwaltung",
+	"help": "Hilfe"
 }

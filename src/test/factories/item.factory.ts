@@ -10,6 +10,8 @@ export interface ItemFactoryOptions {
 	testRunId: string;
 	categoryId: number;
 	storeId: number;
+	/** Shortcut to set the German name directly */
+	name?: string;
 	translations?: EntityTranslations;
 	price?: number;
 	displayOrder?: number;
@@ -22,6 +24,7 @@ export async function createTestItem(options: ItemFactoryOptions) {
 		testRunId,
 		categoryId,
 		storeId,
+		name,
 		translations,
 		price = 999, // 9.99 EUR in cents
 		displayOrder = 0,
@@ -29,10 +32,12 @@ export async function createTestItem(options: ItemFactoryOptions) {
 		allergens,
 	} = options;
 
-	const defaultTranslations: EntityTranslations = {
-		de: { name: `Test Artikel ${uniqueId(testRunId)}`, description: "" },
-		en: { name: `Test Item ${uniqueId(testRunId)}`, description: "" },
-	};
+	const defaultTranslations: EntityTranslations = name
+		? { de: { name, description: "" }, en: { name, description: "" } }
+		: {
+				de: { name: `Test Artikel ${uniqueId(testRunId)}`, description: "" },
+				en: { name: `Test Item ${uniqueId(testRunId)}`, description: "" },
+			};
 
 	const [item] = await testDb
 		.insert(items)

@@ -67,14 +67,10 @@ export function ConsoleHeader({
 			{/* Right: Help + User menu */}
 			<div className="flex items-center gap-1">
 				<Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-					<a
-						href="https://help.menuvo.app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
+					<Link to="/console/help">
 						<HelpCircle className="h-4 w-4" />
 						<span className="sr-only">{t("help", "Hilfe")}</span>
-					</a>
+					</Link>
 				</Button>
 
 				<DropdownMenu>

@@ -2,6 +2,7 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
 	ChefHat,
+	HelpCircle,
 	Home,
 	Menu,
 	Receipt,
@@ -13,23 +14,45 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { Logo } from "@/components/ui/logo";
+import { Separator } from "@/components/ui/separator";
 import {
 	Sheet,
 	SheetContent,
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-	{ href: "/console", labelKey: "dashboard", icon: Home },
-	{ href: "/console/stores", labelKey: "stores", icon: Store },
-	{ href: "/console/menu", labelKey: "menu", icon: UtensilsCrossed },
-	{ href: "/console/orders", labelKey: "orders", icon: Receipt },
-	{ href: "/console/kitchen", labelKey: "kitchen", icon: ChefHat },
-	{ href: "/console/settings", labelKey: "settings", icon: Settings },
+type NavItem = {
+	href: string;
+	labelKey: string;
+	icon: React.ComponentType<{ className?: string }>;
+};
+
+const navGroups: { labelKey: string; items: NavItem[] }[] = [
+	{
+		labelKey: "operations",
+		items: [
+			{ href: "/console", labelKey: "dashboard", icon: Home },
+			{ href: "/console/orders", labelKey: "orders", icon: Receipt },
+			{ href: "/console/kitchen", labelKey: "kitchen", icon: ChefHat },
+		],
+	},
+	{
+		labelKey: "management",
+		items: [
+			{ href: "/console/menu", labelKey: "menu", icon: UtensilsCrossed },
+			{ href: "/console/stores", labelKey: "stores", icon: Store },
+			{ href: "/console/settings", labelKey: "settings", icon: Settings },
+		],
+	},
 ];
+
+const helpItem: NavItem = {
+	href: "/console/help",
+	labelKey: "help",
+	icon: HelpCircle,
+};
 
 function NavLink({
 	href,
@@ -67,42 +90,57 @@ function NavContent({ onNavClick }: { onNavClick?: () => void }) {
 	const routerState = useRouterState();
 	const currentPath = routerState.location.pathname;
 
-	return (
-		<div className="flex flex-col gap-1">
-			{navItems.map((item) => {
-				const isActive =
-					item.href === "/console"
-						? currentPath === "/console"
-						: currentPath.startsWith(item.href);
+	const isItemActive = (href: string) =>
+		href === "/console"
+			? currentPath === "/console"
+			: currentPath.startsWith(href);
 
-				return (
-					<NavLink
-						key={item.href}
-						href={item.href}
-						label={t(item.labelKey)}
-						icon={item.icon}
-						isActive={isActive}
-						onClick={onNavClick}
-					/>
-				);
-			})}
+	return (
+		<div className="flex h-full flex-col">
+			<div className="flex flex-1 flex-col gap-6">
+				{navGroups.map((group) => (
+					<div key={group.labelKey} className="flex flex-col gap-1">
+						<span className="px-3 py-1 text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+							{t(group.labelKey)}
+						</span>
+						{group.items.map((item) => (
+							<NavLink
+								key={item.href}
+								href={item.href}
+								label={t(item.labelKey)}
+								icon={item.icon}
+								isActive={isItemActive(item.href)}
+								onClick={onNavClick}
+							/>
+						))}
+					</div>
+				))}
+			</div>
+
+			<div className="mt-auto">
+				<Separator className="my-4" />
+				<NavLink
+					href={helpItem.href}
+					label={t(helpItem.labelKey)}
+					icon={helpItem.icon}
+					isActive={isItemActive(helpItem.href)}
+					onClick={onNavClick}
+				/>
+			</div>
 		</div>
 	);
 }
 
 export function Sidebar() {
 	return (
-		<aside className="hidden w-64 border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:block">
-			<div className="flex h-14 items-center justify-between border-b border-zinc-200 px-4 dark:border-zinc-800">
+		<aside className="hidden h-screen w-64 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:flex">
+			<div className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 px-4">
 				<Link to="/console" className="flex items-center gap-2">
 					<Logo height={28} />
 				</Link>
-				<div className="flex items-center gap-1">
-					<ThemeSwitcher />
-					<LanguageSwitcher />
-				</div>
+				<LanguageSwitcher />
 			</div>
-			<nav className="p-4">
+			<nav className="flex-1 overflow-y-auto p-4">
 				<NavContent />
 			</nav>
 		</aside>
@@ -120,20 +158,17 @@ export function MobileSidebar() {
 					<span className="sr-only">{t("toggleMenu")}</span>
 				</Button>
 			</SheetTrigger>
-			<SheetContent side="left" className="w-64 p-0">
+			<SheetContent side="left" className="flex h-full w-64 flex-col p-0">
 				<VisuallyHidden.Root>
 					<SheetTitle>{t("navigation")}</SheetTitle>
 				</VisuallyHidden.Root>
-				<div className="flex h-14 items-center justify-between border-b border-zinc-200 px-4 dark:border-zinc-800">
+				<div className="flex h-14 shrink-0 items-center justify-between border-b border-zinc-200 px-4">
 					<Link to="/console" className="flex items-center gap-2">
 						<Logo height={28} />
 					</Link>
-					<div className="flex items-center gap-1">
-						<ThemeSwitcher />
-						<LanguageSwitcher />
-					</div>
+					<LanguageSwitcher />
 				</div>
-				<nav className="p-4">
+				<nav className="flex-1 overflow-y-auto p-4">
 					<NavContent />
 				</nav>
 			</SheetContent>

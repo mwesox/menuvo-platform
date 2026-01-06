@@ -59,6 +59,7 @@ export const createItem = createServerFn({ method: "POST" })
 			.values({
 				...data,
 				imageUrl: data.imageUrl || null,
+				kitchenName: data.kitchenName || null,
 				displayOrder: data.displayOrder ?? maxOrder + 1,
 			})
 			.returning();
@@ -76,6 +77,7 @@ export const updateItem = createServerFn({ method: "POST" })
 			.set({
 				...updates,
 				imageUrl: updates.imageUrl || null,
+				kitchenName: updates.kitchenName || null,
 			})
 			.where(eq(items.id, itemId))
 			.returning();

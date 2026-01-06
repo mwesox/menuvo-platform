@@ -31,13 +31,13 @@ export const orderItemOptionInputSchema = z.object({
 export const orderItemInputSchema = z.object({
 	itemId: z.number().int().positive(),
 	name: z.string().min(1).max(200),
+	kitchenName: z.string().max(50).nullish(),
 	description: z.string().optional(),
 	quantity: z.number().int().min(1),
 	unitPrice: z.number().int().min(0),
 	optionsPrice: z.number().int().min(0),
 	totalPrice: z.number().int().min(0),
 	options: z.array(orderItemOptionInputSchema),
-	instructions: z.string().max(200).optional(),
 });
 
 /**

@@ -83,14 +83,6 @@ export const COLUMN_TO_STATUS: Record<KanbanColumnId, OrderStatus> = {
 };
 
 // ============================================================================
-// VIEW MODES
-// ============================================================================
-
-export type KitchenViewMode = "kitchen" | "manager";
-
-export const VIEW_MODES: KitchenViewMode[] = ["kitchen", "manager"];
-
-// ============================================================================
 // DONE ARCHIVE
 // ============================================================================
 
@@ -106,6 +98,8 @@ export const NOTIFICATION_BEEP_FREQUENCY = 800; // Hz
 export const NOTIFICATION_BEEP_DURATION = 0.15; // seconds
 export const NOTIFICATION_BEEP_COUNT = 2; // Number of beeps
 export const NOTIFICATION_BEEP_GAP = 0.1; // Gap between beeps in seconds
+/** How often to repeat the notification sound while alert is active (ms) */
+export const NOTIFICATION_REPEAT_INTERVAL = 10_000; // 10 seconds
 
 // ============================================================================
 // LABELS

@@ -359,6 +359,7 @@ export const getStoreBySlug = createServerFn({ method: "GET" })
 					return {
 						id: item.id,
 						name: itemContent.name,
+						kitchenName: item.kitchenName,
 						description: itemContent.description,
 						price: item.price,
 						imageUrl: item.imageUrl,
@@ -579,6 +580,7 @@ export const getShopMenu = createServerFn({ method: "GET" })
 					return {
 						id: item.id,
 						name: itemContent.name,
+						kitchenName: item.kitchenName,
 						description: itemContent.description,
 						price: item.price,
 						imageUrl: item.imageUrl,

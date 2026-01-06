@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Loader2, MessageSquare, Plus } from "lucide-react";
+import { AlertTriangle, Loader2, Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -10,7 +10,6 @@ import {
 	DrawerDescription,
 	DrawerTitle,
 } from "@/components/ui/drawer";
-import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "../../cart";
 import { shopQueries } from "../../queries";
@@ -158,7 +157,6 @@ export function ItemDrawer({
 	const [quantitySelections, setQuantitySelections] = useState<
 		Map<number, Map<number, number>>
 	>(new Map());
-	const [instructions, setInstructions] = useState("");
 
 	// Fetch option groups on demand (only when drawer is open AND item has options)
 	const shouldFetchOptions = open && item?.hasOptionGroups && item?.id;
@@ -189,7 +187,6 @@ export function ItemDrawer({
 		if (!open) {
 			setSelectedOptions(new Map());
 			setQuantitySelections(new Map());
-			setInstructions("");
 		}
 	}, [open]);
 
@@ -304,13 +301,13 @@ export function ItemDrawer({
 		addItem({
 			itemId: item.id,
 			name: item.name,
+			kitchenName: item.kitchenName,
 			basePrice: item.price,
 			imageUrl: item.imageUrl ?? undefined,
 			quantity,
 			selectedOptions: selectedOptionsArray,
 			storeId,
 			storeSlug,
-			instructions: instructions.trim() || undefined,
 		});
 
 		onOpenChange(false);
@@ -394,7 +391,9 @@ export function ItemDrawer({
 								<span className="text-sm text-muted-foreground">
 									{t("menu.contains")}:{" "}
 									<span className="text-foreground">
-										{item.allergens?.join(", ")}
+										{item.allergens
+											?.map((a) => t(`menu:allergens.${a}`, a))
+											.join(", ")}
 									</span>
 								</span>
 							</div>
@@ -428,26 +427,6 @@ export function ItemDrawer({
 								)}
 							</div>
 						)}
-
-						{/* Special Instructions */}
-						<div className="border-t border-border/40 pt-4 pb-2">
-							<div className="flex items-center gap-2 mb-2">
-								<MessageSquare className="w-4 h-4 text-muted-foreground" />
-								<span className="text-sm font-medium text-foreground">
-									{t("menu.specialInstructions")}
-								</span>
-								<span className="text-xs text-muted-foreground ml-auto">
-									{instructions.length}/200
-								</span>
-							</div>
-							<Textarea
-								value={instructions}
-								onChange={(e) => setInstructions(e.target.value.slice(0, 200))}
-								placeholder={t("menu.specialInstructionsPlaceholder")}
-								className="min-h-[80px] resize-none text-base bg-muted/30 border-border/50 focus:border-primary/50"
-								maxLength={200}
-							/>
-						</div>
 					</div>
 				</div>
 

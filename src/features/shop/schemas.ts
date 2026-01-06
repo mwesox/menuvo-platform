@@ -78,6 +78,7 @@ export type MenuItemOptionGroupWithDefaults = z.infer<
 export const menuItemSchema = z.object({
 	id: z.number(),
 	name: z.string(),
+	kitchenName: z.string().nullable(),
 	description: z.string().nullable(),
 	price: z.number(),
 	imageUrl: z.string().nullable(),
@@ -108,6 +109,7 @@ export type MenuItemWithDefaults = z.infer<typeof menuItemWithDefaultsSchema>;
 export const menuItemLightSchema = z.object({
 	id: z.number(),
 	name: z.string(),
+	kitchenName: z.string().nullable(),
 	description: z.string().nullable(),
 	price: z.number(),
 	imageUrl: z.string().nullable(),

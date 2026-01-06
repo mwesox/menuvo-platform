@@ -18,10 +18,6 @@
 		"readyEmpty": "Keine fertigen Bestellungen",
 		"doneEmpty": "Keine abgeschlossenen Bestellungen"
 	},
-	"views": {
-		"kitchen": "Küche",
-		"manager": "Manager"
-	},
 	"connection": {
 		"online": "Online",
 		"offline": "Offline",
@@ -44,7 +40,8 @@
 		"keep": "Bestellung behalten",
 		"cancel": "Abbrechen",
 		"cancelling": "Wird storniert...",
-		"confirmCancel": "Bestellung stornieren"
+		"confirmCancel": "Bestellung stornieren",
+		"next": "Weiter"
 	},
 	"labels": {
 		"total": "Gesamt",
@@ -52,7 +49,7 @@
 		"merchantNotes": "Mitarbeiter-Notizen"
 	},
 	"orderTypes": {
-		"takeaway": "Zum Mitnehmen",
+		"takeaway": "Mitnehmen",
 		"dineIn": "Vor Ort"
 	},
 	"info": {

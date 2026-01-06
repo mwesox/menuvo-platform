@@ -18,10 +18,6 @@
 		"readyEmpty": "No orders ready",
 		"doneEmpty": "No completed orders"
 	},
-	"views": {
-		"kitchen": "Kitchen",
-		"manager": "Manager"
-	},
 	"connection": {
 		"online": "Online",
 		"offline": "Offline",
@@ -44,7 +40,8 @@
 		"keep": "Keep Order",
 		"cancel": "Cancel",
 		"cancelling": "Cancelling...",
-		"confirmCancel": "Cancel Order"
+		"confirmCancel": "Cancel Order",
+		"next": "Next"
 	},
 	"labels": {
 		"total": "Total",

@@ -1,0 +1,13 @@
+{
+	"title": "Help & Support",
+	"description": "Get help with using Menuvo",
+	"comingSoon": "Coming soon",
+	"documentation": {
+		"title": "Documentation",
+		"description": "Browse guides and tutorials"
+	},
+	"contact": {
+		"title": "Contact Support",
+		"description": "Get in touch with our team"
+	}
+}

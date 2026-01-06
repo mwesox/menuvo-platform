@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 import type { OrderType } from "@/features/orders/constants";
 import { useCreateOrder } from "@/features/orders/queries";
 import type { MerchantCapabilities } from "@/lib/capabilities";
@@ -55,6 +56,7 @@ function transformCartItemToSnapshot(cartItem: CartItem) {
 	return {
 		itemId: cartItem.itemId,
 		name: cartItem.name,
+		kitchenName: cartItem.kitchenName,
 		description: undefined,
 		quantity: cartItem.quantity,
 		unitPrice: cartItem.basePrice,
@@ -77,6 +79,7 @@ export function CheckoutPage({
 
 	// Form state
 	const [customerName, setCustomerName] = useState("");
+	const [customerNotes, setCustomerNotes] = useState("");
 	const [orderType, setOrderType] = useState<OrderType>("dine_in");
 
 	// Payment redirect state
@@ -131,6 +134,7 @@ export function CheckoutPage({
 			items: orderItems,
 			orderType,
 			customerName: customerName.trim(),
+			customerNotes: customerNotes.trim() || undefined,
 			paymentMethod: "mollie",
 			subtotal,
 			taxAmount: 0,
@@ -248,6 +252,23 @@ export function CheckoutPage({
 								placeholder={t("checkout.namePlaceholder")}
 								className="mt-1 w-full"
 								autoComplete="name"
+							/>
+						</div>
+
+						<div>
+							<Label htmlFor="customerNotes" className="text-sm font-medium">
+								{t("checkout.specialRequests")}
+								<span className="text-muted-foreground font-normal ml-1">
+									({t("checkout.optional")})
+								</span>
+							</Label>
+							<Textarea
+								id="customerNotes"
+								value={customerNotes}
+								onChange={(e) => setCustomerNotes(e.target.value)}
+								placeholder={t("checkout.specialRequestsPlaceholder")}
+								className="mt-1 w-full min-h-[80px] resize-none"
+								maxLength={500}
 							/>
 						</div>
 					</ShopCard>

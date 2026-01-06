@@ -1,28 +1,20 @@
 /**
- * Hook for kitchen kanban board state and drag-and-drop handling.
+ * Hook for kitchen kanban board state management.
  *
- * Uses React 19's useOptimistic for instant UI updates with automatic rollback.
- * Implements proper multi-container drag-and-drop with onDragOver for cross-column moves.
+ * Simplified to work with pragmatic-drag-and-drop:
+ * - No state changes during drag (handled by native browser drag API)
+ * - State updates only on drop via moveCard function
  */
 
-import type {
-	DragEndEvent,
-	DragOverEvent,
-	DragStartEvent,
-} from "@dnd-kit/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { startTransition, useOptimistic, useState } from "react";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { OrderStatus } from "@/features/orders/constants";
 import { orderKeys } from "@/features/orders/queries";
 import { updateOrderStatus } from "@/features/orders/server/orders.functions";
 import type { OrderWithItems } from "@/features/orders/types";
-import {
-	COLUMN_TO_STATUS,
-	KANBAN_COLUMNS,
-	type KanbanColumnId,
-} from "../constants";
+import { COLUMN_TO_STATUS, type KanbanColumnId } from "../constants";
 import {
 	canDropInColumn,
 	getColumnForStatus,
@@ -45,25 +37,18 @@ type OrderWithServicePoint = OrderWithItems & {
 export interface KitchenBoardState {
 	/** Orders grouped by column */
 	columns: Record<KanbanColumnId, OrderWithServicePoint[]>;
-	/** Currently dragging order ID */
-	activeId: number | null;
-	/** Currently dragging order */
-	activeOrder: OrderWithServicePoint | null;
-	/** Valid drop targets for current drag */
-	validDropTargets: KanbanColumnId[];
 }
 
 export interface KitchenBoardActions {
-	/** Handle drag start event from DndContext */
-	onDragStart: (event: DragStartEvent) => void;
-	/** Handle drag over event - moves items between containers during drag */
-	onDragOver: (event: DragOverEvent) => void;
-	/** Handle drag end event - persists the change */
-	onDragEnd: (event: DragEndEvent) => void;
-	/** Handle drag cancel - reverts optimistic state */
-	onDragCancel: () => void;
-	/** Get order by ID */
-	getOrder: (orderId: number) => OrderWithServicePoint | undefined;
+	/** Move order to a specific column (called from drop handler) */
+	moveCard: (orderId: number, targetColumn: KanbanColumnId) => void;
+	/** Move order to next column (new->preparing->ready->done) */
+	moveToNext: (orderId: number) => void;
+	/** Check if drop from source to target is valid */
+	canDrop: (
+		sourceColumn: KanbanColumnId,
+		targetColumn: KanbanColumnId,
+	) => boolean;
 }
 
 export type KitchenBoardResult = KitchenBoardState & KitchenBoardActions;
@@ -107,23 +92,31 @@ function groupOrdersByColumn(
 }
 
 /**
+ * Get the next column in the workflow.
+ * new -> preparing -> ready -> done
+ */
+function getNextColumn(current: KanbanColumnId): KanbanColumnId | null {
+	switch (current) {
+		case "new":
+			return "preparing";
+		case "preparing":
+			return "ready";
+		case "ready":
+			return "done";
+		case "done":
+			return null; // No next column
+	}
+}
+
+/**
  * Find which column contains an order by ID.
  */
 function findContainer(
 	columns: Record<KanbanColumnId, OrderWithServicePoint[]>,
-	id: number | string,
+	orderId: number,
 ): KanbanColumnId | null {
-	// If it's a column ID string
-	if (typeof id === "string") {
-		if (id.startsWith("column-")) {
-			return id.replace("column-", "") as KanbanColumnId;
-		}
-		return null;
-	}
-
-	// Find by order ID
 	for (const columnId of Object.keys(columns) as KanbanColumnId[]) {
-		if (columns[columnId].some((o) => o.id === id)) {
+		if (columns[columnId].some((o) => o.id === orderId)) {
 			return columnId;
 		}
 	}
@@ -139,8 +132,8 @@ function findContainer(
  *
  * Handles:
  * - Grouping orders into columns
- * - Drag-and-drop with proper multi-container support
- * - Optimistic updates with React 19's useOptimistic
+ * - Moving cards between columns via moveCard
+ * - Moving cards to next column via moveToNext
  * - Offline mutation queueing
  */
 export function useKitchenBoard(
@@ -153,60 +146,8 @@ export function useKitchenBoard(
 	const { isOnline } = useConnectionStatus();
 	const mutationQueue = useMutationQueue();
 
-	// Active drag state
-	const [activeId, setActiveId] = useState<number | null>(null);
-	const [activeOrder, setActiveOrder] = useState<OrderWithServicePoint | null>(
-		null,
-	);
-
-	// Track source column for determining if drop is valid
-	const [sourceColumn, setSourceColumn] = useState<KanbanColumnId | null>(null);
-
 	// Group orders into columns
-	const baseColumns = groupOrdersByColumn(activeOrders, doneOrders);
-
-	// React 19 optimistic state for instant UI updates
-	const [optimisticColumns, addOptimistic] = useOptimistic(
-		baseColumns,
-		(
-			currentColumns: Record<KanbanColumnId, OrderWithServicePoint[]>,
-			action: {
-				orderId: number;
-				fromColumn: KanbanColumnId;
-				toColumn: KanbanColumnId;
-			},
-		) => {
-			const { orderId, fromColumn, toColumn } = action;
-
-			// Same column - no change needed
-			if (fromColumn === toColumn) return currentColumns;
-
-			// Find and remove order from source column
-			const order = currentColumns[fromColumn].find((o) => o.id === orderId);
-			if (!order) return currentColumns;
-
-			const newColumns = { ...currentColumns };
-
-			// Remove from source
-			newColumns[fromColumn] = currentColumns[fromColumn].filter(
-				(o) => o.id !== orderId,
-			);
-
-			// Add to target with updated status
-			const newStatus = COLUMN_TO_STATUS[toColumn];
-			const updatedOrder = { ...order, status: newStatus };
-			newColumns[toColumn] = [...currentColumns[toColumn], updatedOrder];
-
-			// Re-sort target column
-			if (toColumn === "done") {
-				newColumns[toColumn] = sortByCompletionTime(newColumns[toColumn]);
-			} else {
-				newColumns[toColumn] = sortByUrgencyAndTime(newColumns[toColumn]);
-			}
-
-			return newColumns;
-		},
-	);
+	const columns = groupOrdersByColumn(activeOrders, doneOrders);
 
 	// Status update mutation - direct call to server function
 	const statusMutation = useMutation({
@@ -239,7 +180,7 @@ export function useKitchenBoard(
 				toast.info(t("info.queuedForSync"));
 			} else {
 				toast.error(t("errors.updateFailed"));
-				// Invalidate to revert optimistic update
+				// Invalidate to revert to server state
 				queryClient.invalidateQueries({
 					queryKey: orderKeys.kitchen(storeId),
 				});
@@ -247,139 +188,60 @@ export function useKitchenBoard(
 		},
 	});
 
-	// Calculate valid drop targets based on source column
-	const validDropTargets: KanbanColumnId[] = (() => {
-		if (!sourceColumn) return [];
+	// Check if drop is valid
+	const canDrop = useCallback(
+		(sourceColumn: KanbanColumnId, targetColumn: KanbanColumnId): boolean => {
+			return canDropInColumn(sourceColumn, targetColumn);
+		},
+		[],
+	);
 
-		return KANBAN_COLUMNS.filter((c) =>
-			c.canDropFrom.includes(sourceColumn),
-		).map((c) => c.id);
-	})();
+	// Move card to a specific column (called from drop handler)
+	const moveCard = useCallback(
+		(orderId: number, targetColumn: KanbanColumnId) => {
+			const sourceColumn = findContainer(columns, orderId);
+			if (!sourceColumn) return;
 
-	// Handle drag start - track which item is being dragged
-	const handleDragStart = (event: DragStartEvent) => {
-		const { active } = event;
-		const orderId = active.id as number;
+			// Don't do anything if dropped in same column
+			if (sourceColumn === targetColumn) return;
 
-		setActiveId(orderId);
-
-		// Find the order and its source column
-		const container = findContainer(optimisticColumns, orderId);
-		if (container) {
-			setSourceColumn(container);
-			const order = optimisticColumns[container].find((o) => o.id === orderId);
-			if (order) {
-				setActiveOrder(order);
-			}
-		}
-	};
-
-	// Handle drag over - move items between containers DURING drag
-	// This is the key for cross-column functionality
-	const handleDragOver = (event: DragOverEvent) => {
-		const { active, over } = event;
-
-		if (!over) return;
-
-		const activeOrderId = active.id as number;
-		const overId = over.id;
-
-		// Find current container of the active item
-		const activeContainer = findContainer(optimisticColumns, activeOrderId);
-		// Find target container (either from column ID or from item's column)
-		const overContainer = findContainer(optimisticColumns, overId);
-
-		if (!activeContainer || !overContainer) return;
-
-		// If moving to a different container
-		if (activeContainer !== overContainer) {
 			// Validate the transition
-			if (!canDropInColumn(sourceColumn ?? activeContainer, overContainer)) {
-				return; // Invalid transition
-			}
-
-			// Apply optimistic update to move item to new container
-			// Wrap in startTransition per React 19 requirements
-			startTransition(() => {
-				addOptimistic({
-					orderId: activeOrderId,
-					fromColumn: activeContainer,
-					toColumn: overContainer,
-				});
-			});
-		}
-	};
-
-	// Handle drag end - persist the final position
-	const handleDragEnd = (event: DragEndEvent) => {
-		const { active, over } = event;
-
-		// Reset drag state
-		setActiveId(null);
-		setActiveOrder(null);
-		setSourceColumn(null);
-
-		if (!over || !sourceColumn) return;
-
-		const orderId = active.id as number;
-
-		// Find target container
-		const targetContainer = findContainer(optimisticColumns, over.id);
-
-		if (!targetContainer) return;
-
-		// Only persist if actually moved to a different column
-		if (sourceColumn !== targetContainer) {
-			// Validate the drop
-			if (!canDropInColumn(sourceColumn, targetContainer)) {
+			if (!canDropInColumn(sourceColumn, targetColumn)) {
 				toast.error(t("errors.invalidTransition"));
-				// Revert by invalidating queries
-				queryClient.invalidateQueries({
-					queryKey: orderKeys.kitchen(storeId),
-				});
 				return;
 			}
 
-			const newStatus = COLUMN_TO_STATUS[targetContainer];
+			const newStatus = COLUMN_TO_STATUS[targetColumn];
+			statusMutation.mutate({ orderId, status: newStatus });
+		},
+		[columns, statusMutation, t],
+	);
+
+	// Move order to next column (new->preparing->ready->done)
+	const moveToNext = useCallback(
+		(orderId: number) => {
+			// Find current column
+			const currentColumn = findContainer(columns, orderId);
+			if (!currentColumn) return;
+
+			// Get next column
+			const nextColumn = getNextColumn(currentColumn);
+			if (!nextColumn) return; // Already in done
 
 			// Persist to server
+			const newStatus = COLUMN_TO_STATUS[nextColumn];
 			statusMutation.mutate({ orderId, status: newStatus });
-		}
-	};
-
-	// Handle drag cancel - reset state
-	const handleDragCancel = () => {
-		setActiveId(null);
-		setActiveOrder(null);
-		setSourceColumn(null);
-
-		// Invalidate to revert any optimistic updates
-		queryClient.invalidateQueries({
-			queryKey: orderKeys.kitchen(storeId),
-		});
-	};
-
-	// Get order by ID from any column
-	const getOrder = (orderId: number): OrderWithServicePoint | undefined => {
-		for (const columnId of Object.keys(optimisticColumns) as KanbanColumnId[]) {
-			const order = optimisticColumns[columnId].find((o) => o.id === orderId);
-			if (order) return order;
-		}
-		return undefined;
-	};
+		},
+		[columns, statusMutation],
+	);
 
 	return {
 		// State
-		columns: optimisticColumns,
-		activeId,
-		activeOrder,
-		validDropTargets,
+		columns,
 
 		// Actions
-		onDragStart: handleDragStart,
-		onDragOver: handleDragOver,
-		onDragEnd: handleDragEnd,
-		onDragCancel: handleDragCancel,
-		getOrder,
+		moveCard,
+		moveToNext,
+		canDrop,
 	};
 }

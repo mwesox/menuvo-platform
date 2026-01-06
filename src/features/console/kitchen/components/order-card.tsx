@@ -1,13 +1,16 @@
 /**
- * Draggable order card wrapper using @dnd-kit.
- * Renders either Kitchen or Manager view variant.
+ * Draggable order card wrapper using pragmatic-drag-and-drop.
+ *
+ * Uses native browser drag API for smooth, flicker-free dragging.
+ * Motion's layoutId enables smooth position animations when cards move between columns.
  */
 
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { MoreVertical, XCircle } from "lucide-react";
-import { useState } from "react";
+import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import invariant from "tiny-invariant";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -17,90 +20,74 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { OrderWithItems } from "@/features/orders/types";
 import { cn } from "@/lib/utils";
-import type { KanbanColumnId, KitchenViewMode } from "../constants";
+import type { KanbanColumnId } from "../constants";
 import { CancelOrderDialog } from "./cancel-order-dialog";
 import { OrderCardKitchen } from "./order-card-kitchen";
-import { OrderCardManager } from "./order-card-manager";
 
 interface OrderCardProps {
 	order: OrderWithItems & {
 		servicePoint?: { id: number; name: string; code: string } | null;
 	};
-	viewMode: KitchenViewMode;
 	storeId: number;
-	/** Column this card is in (for done styling) */
-	columnId?: KanbanColumnId;
-	isDragging?: boolean;
-	isOverlay?: boolean;
-	/** Whether drag-and-drop is enabled (false during SSR) */
-	isDndEnabled?: boolean;
+	/** Column this card is in (passed to drag data for drop validation) */
+	columnId: KanbanColumnId;
+	/** Callback when "Next" button is clicked */
+	onNext?: (orderId: number) => void;
 	className?: string;
 }
 
 export function OrderCard({
 	order,
-	viewMode,
 	storeId,
 	columnId,
-	isDragging,
-	isOverlay,
-	isDndEnabled = false,
+	onNext,
 	className,
 }: OrderCardProps) {
 	const { t } = useTranslation("console-kitchen");
+	const cardRef = useRef<HTMLDivElement>(null);
+	const [isDragging, setIsDragging] = useState(false);
 	const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
-	const sortable = useSortable({
-		id: order.id,
-		data: {
-			type: "order",
-			order,
-		},
-		disabled: !isDndEnabled,
-	});
+	// Set up draggable
+	useEffect(() => {
+		const el = cardRef.current;
+		invariant(el, "Card element should exist");
 
-	const style = isDndEnabled
-		? {
-				transform: CSS.Transform.toString(sortable.transform),
-				transition: sortable.transition,
-			}
-		: undefined;
-
-	const showDragging = isDragging || sortable.isDragging;
-	const isDone = columnId === "done";
-
-	// Props for draggable element (only when dnd enabled)
-	const dragProps = isDndEnabled
-		? {
-				ref: sortable.setNodeRef,
-				style,
-				...sortable.attributes,
-				...sortable.listeners,
-			}
-		: {};
+		return draggable({
+			element: el,
+			getInitialData: () => ({
+				orderId: order.id,
+				sourceColumn: columnId,
+				type: "order",
+			}),
+			onDragStart: () => setIsDragging(true),
+			onDrop: () => setIsDragging(false),
+		});
+	}, [order.id, columnId]);
 
 	return (
 		<>
-			<div
-				{...dragProps}
+			<motion.div
+				ref={cardRef}
+				layoutId={`order-card-${order.id}`}
+				data-order-id={order.id}
 				className={cn(
-					"group relative",
-					isDndEnabled &&
-						"cursor-grab touch-none select-none active:cursor-grabbing",
-					showDragging && "opacity-50",
-					isOverlay && "rotate-3 shadow-xl",
+					"group relative cursor-grab active:cursor-grabbing",
+					isDragging && "opacity-50",
 					className,
 				)}
+				transition={{
+					layout: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] },
+				}}
 			>
 				{/* Actions menu - hidden until hover */}
-				<div className="absolute right-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
+				<div className="absolute top-2 right-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button
 								variant="ghost"
 								size="icon"
 								className="h-7 w-7 bg-background/80 backdrop-blur-sm"
-								onPointerDown={(e) => e.stopPropagation()}
 							>
 								<MoreVertical className="size-4" />
 							</Button>
@@ -118,14 +105,12 @@ export function OrderCard({
 				</div>
 
 				{/* Card content */}
-				<div>
-					{viewMode === "kitchen" ? (
-						<OrderCardKitchen order={order} isDone={isDone} />
-					) : (
-						<OrderCardManager order={order} />
-					)}
-				</div>
-			</div>
+				<OrderCardKitchen
+					order={order}
+					columnId={columnId}
+					onNext={onNext ? () => onNext(order.id) : undefined}
+				/>
+			</motion.div>
 
 			{/* Cancel dialog */}
 			<CancelOrderDialog

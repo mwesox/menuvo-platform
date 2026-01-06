@@ -25,8 +25,6 @@
 		"soldOut": "Sold out",
 		"emptyTitle": "Menu coming soon",
 		"emptyDescription": "This restaurant is still setting up their menu. Check back later!",
-		"specialInstructions": "Special Instructions",
-		"specialInstructionsPlaceholder": "E.g., no onions, extra sauce, allergy info...",
 		"options": {
 			"required": "Required",
 			"optional": "Optional",
@@ -87,6 +85,9 @@
 		"emailRequired": "Email is required for online payment",
 		"invalidEmail": "Please enter a valid email address",
 		"emailRequiredForOnline": "Required for payment confirmation",
+		"specialRequests": "Special Requests",
+		"specialRequestsPlaceholder": "Allergies, dietary restrictions, special instructions...",
+		"optional": "optional",
 		"cartEmpty": "Your cart is empty",
 		"paymentMethod": "Payment Method",
 		"paymentMethods": {

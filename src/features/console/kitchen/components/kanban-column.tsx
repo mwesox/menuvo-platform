@@ -1,19 +1,18 @@
 /**
  * Droppable kanban column for orders.
+ *
+ * Uses pragmatic-drag-and-drop dropTargetForElements for drop zone handling.
+ * Industrial/utilitarian design - recessive headers, prominent order cards.
  */
 
-import { useDroppable } from "@dnd-kit/core";
-import {
-	SortableContext,
-	verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { Bell, CheckCircle, ChefHat, Inbox } from "lucide-react";
+import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Badge } from "@/components/ui/badge";
+import invariant from "tiny-invariant";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { OrderWithItems } from "@/features/orders/types";
 import { cn } from "@/lib/utils";
-import type { KanbanColumnId, KitchenViewMode } from "../constants";
+import type { KanbanColumnId } from "../constants";
 import { OrderCard } from "./order-card";
 
 interface KanbanColumnProps {
@@ -21,146 +20,114 @@ interface KanbanColumnProps {
 	orders: (OrderWithItems & {
 		servicePoint?: { id: number; name: string; code: string } | null;
 	})[];
-	viewMode: KitchenViewMode;
 	storeId: number;
-	isValidDropTarget: boolean;
-	activeId: number | null;
-	/** Whether drag-and-drop is enabled (false during SSR) */
-	isDndEnabled?: boolean;
+	/** Check if drop from source to this column is valid */
+	canDrop: (
+		sourceColumn: KanbanColumnId,
+		targetColumn: KanbanColumnId,
+	) => boolean;
+	/** Callback when "Next" button is clicked on an order */
+	onNext?: (orderId: number) => void;
 	className?: string;
 }
 
-const columnConfig: Record<
-	KanbanColumnId,
-	{ border: string; headerBg: string; headerText: string }
-> = {
-	new: {
-		border: "border-t-blue-500",
-		headerBg: "bg-blue-500/10",
-		headerText: "text-blue-700 dark:text-blue-400",
-	},
-	preparing: {
-		border: "border-t-orange-500",
-		headerBg: "bg-orange-500/10",
-		headerText: "text-orange-700 dark:text-orange-400",
-	},
-	ready: {
-		border: "border-t-green-500",
-		headerBg: "bg-green-500/10",
-		headerText: "text-green-700 dark:text-green-400",
-	},
-	done: {
-		border: "border-t-gray-400",
-		headerBg: "bg-muted/50",
-		headerText: "text-muted-foreground",
-	},
-};
-
-const columnIcons: Record<KanbanColumnId, React.ReactNode> = {
-	new: <Inbox className="size-5" />,
-	preparing: <ChefHat className="size-5" />,
-	ready: <Bell className="size-5" />,
-	done: <CheckCircle className="size-5" />,
+/**
+ * Column styling - Clover-inspired: dark text on light bg for max readability.
+ * Colored top border for quick column identification.
+ */
+const columnConfig: Record<KanbanColumnId, { border: string }> = {
+	new: { border: "border-t-blue-500" },
+	preparing: { border: "border-t-amber-500" },
+	ready: { border: "border-t-green-500" },
+	done: { border: "border-t-gray-400" },
 };
 
 export function KanbanColumn({
 	id,
 	orders,
-	viewMode,
 	storeId,
-	isValidDropTarget,
-	activeId,
-	isDndEnabled = false,
+	canDrop,
+	onNext,
 	className,
 }: KanbanColumnProps) {
 	const { t } = useTranslation("console-kitchen");
+	const columnRef = useRef<HTMLDivElement>(null);
+	const [isDraggedOver, setIsDraggedOver] = useState(false);
+	const [isValidTarget, setIsValidTarget] = useState(false);
 
-	// Only use dnd-kit hooks when enabled (client-side)
-	const droppable = useDroppable({
-		id: `column-${id}`,
-		data: {
-			type: "column",
-			columnId: id,
-		},
-		disabled: !isDndEnabled,
-	});
-
-	const orderIds = orders.map((o) => o.id);
 	const config = columnConfig[id];
 
-	const orderCards = orders.map((order) => (
-		<OrderCard
-			key={order.id}
-			order={order}
-			viewMode={viewMode}
-			storeId={storeId}
-			columnId={id}
-			isDragging={order.id === activeId}
-			isDndEnabled={isDndEnabled}
-		/>
-	));
+	// Set up drop target
+	useEffect(() => {
+		const el = columnRef.current;
+		invariant(el, "Column element should exist");
+
+		return dropTargetForElements({
+			element: el,
+			getData: () => ({ columnId: id }),
+			canDrop: ({ source }) => {
+				// Validate drop is allowed based on source column
+				const sourceColumn = source.data.sourceColumn as KanbanColumnId;
+				return canDrop(sourceColumn, id);
+			},
+			onDragEnter: ({ source }) => {
+				setIsDraggedOver(true);
+				const sourceColumn = source.data.sourceColumn as KanbanColumnId;
+				setIsValidTarget(canDrop(sourceColumn, id));
+			},
+			onDragLeave: () => {
+				setIsDraggedOver(false);
+				setIsValidTarget(false);
+			},
+			onDrop: () => {
+				setIsDraggedOver(false);
+				setIsValidTarget(false);
+			},
+		});
+	}, [id, canDrop]);
 
 	return (
 		<div
-			ref={isDndEnabled ? droppable.setNodeRef : undefined}
+			ref={columnRef}
 			className={cn(
 				"flex h-full flex-col rounded-lg border-t-4 bg-muted/30",
 				config.border,
-				isDndEnabled &&
-					droppable.isOver &&
-					isValidDropTarget &&
-					"ring-2 ring-primary ring-offset-2",
-				isDndEnabled &&
-					isValidDropTarget &&
-					!droppable.isOver &&
-					"ring-1 ring-primary/30",
+				isDraggedOver && isValidTarget && "ring-2 ring-primary ring-offset-2",
+				isDraggedOver &&
+					!isValidTarget &&
+					"ring-2 ring-destructive/50 ring-offset-2",
 				className,
 			)}
 		>
-			{/* Column header */}
-			<div
-				className={cn(
-					"flex items-center gap-2 border-b px-4 py-3",
-					config.headerBg,
-				)}
-			>
-				<span className={config.headerText}>{columnIcons[id]}</span>
-				<h3 className={cn("flex-1 text-lg font-bold", config.headerText)}>
+			{/* Column header - dark text on light bg for max readability */}
+			<div className="flex items-center justify-between border-b bg-muted/50 px-3 py-2">
+				<h3 className="font-semibold text-foreground text-sm">
 					{t(`columns.${id}`)}
 				</h3>
-				<Badge variant="secondary" className="font-mono text-sm">
+				<span className="font-medium text-muted-foreground text-sm tabular-nums">
 					{orders.length}
-				</Badge>
+				</span>
 			</div>
 
 			{/* Column content */}
-			<ScrollArea className="flex-1 p-2">
-				{isDndEnabled ? (
-					<SortableContext
-						items={orderIds}
-						strategy={verticalListSortingStrategy}
-					>
-						<div className="space-y-3">
-							{orders.length === 0 ? (
-								<div className="py-8 text-center text-sm text-muted-foreground">
-									{t(`columns.${id}Empty`)}
-								</div>
-							) : (
-								orderCards
-							)}
+			<ScrollArea className="@container flex-1 p-2">
+				<div className="space-y-3">
+					{orders.length === 0 ? (
+						<div className="py-8 text-center text-muted-foreground text-sm">
+							{t(`columns.${id}Empty`)}
 						</div>
-					</SortableContext>
-				) : (
-					<div className="space-y-3">
-						{orders.length === 0 ? (
-							<div className="py-8 text-center text-sm text-muted-foreground">
-								{t(`columns.${id}Empty`)}
-							</div>
-						) : (
-							orderCards
-						)}
-					</div>
-				)}
+					) : (
+						orders.map((order) => (
+							<OrderCard
+								key={order.id}
+								order={order}
+								storeId={storeId}
+								columnId={id}
+								onNext={onNext}
+							/>
+						))
+					)}
+				</div>
 			</ScrollArea>
 		</div>
 	);

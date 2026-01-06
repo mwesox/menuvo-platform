@@ -144,3 +144,22 @@
 .animate-pulse-subtle {
 	animation: pulse-subtle 2s ease-in-out infinite;
 }
+
+/* Full screen flash alert for new orders - aggressive for visibility across room */
+@keyframes screen-flash-alert {
+	0%,
+	100% {
+		background-color: transparent;
+		box-shadow: inset 0 0 0 6px rgba(34, 197, 94, 0.8);
+	}
+	50% {
+		background-color: rgba(34, 197, 94, 0.3);
+		box-shadow: inset 0 0 0 12px rgba(34, 197, 94, 1);
+	}
+}
+
+.kitchen-alert-active {
+	animation: screen-flash-alert 0.5s ease-in-out infinite;
+}
+
+/* Drag and drop - using native browser drag, no special optimizations needed */

@@ -116,7 +116,7 @@ Three themes via CSS bundle swapping:
 |-------|-------|-------|
 | Discovery | `/` (root) | Fresh modern neutral, sans-serif, light only |
 | Shop | `/{storeSlug}/*` | Editorial neutral, serif headings, light only |
-| Console | `/console/*` | Zinc, dark mode support |
+| Console | `/console/*` | Zinc, light only (dark mode deactivated) |
 
 Auto-detected by route in `src/routes/__root.tsx`.
 

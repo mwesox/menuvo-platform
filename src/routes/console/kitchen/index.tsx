@@ -3,7 +3,6 @@
  *
  * URL params:
  * - storeId: Selected store (optional if single store)
- * - view: "kitchen" | "manager" (default: kitchen)
  */
 
 import { createFileRoute } from "@tanstack/react-router";
@@ -15,7 +14,6 @@ import { orderQueries } from "@/features/orders/queries";
 
 const searchSchema = z.object({
 	storeId: z.coerce.number().optional(),
-	view: z.enum(["kitchen", "manager"]).default("kitchen"),
 });
 
 export const Route = createFileRoute("/console/kitchen/")({

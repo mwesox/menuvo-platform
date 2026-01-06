@@ -24,6 +24,7 @@
 	"labels": {
 		"categoryName": "Kategoriename",
 		"itemName": "Artikelname",
+		"kitchenName": "Küchenname",
 		"optionGroupName": "Optionsgruppenname",
 		"optionGroupType": "Modifikatortyp",
 		"sortOrder": "Sortierreihenfolge",
@@ -85,6 +86,7 @@
 		"optionGroupName": "z. B. Größe, Toppings, Extras",
 		"optionGroupDescription": "Optionale Beschreibung für diese Optionsgruppe",
 		"itemName": "z. B. Pizza Margherita",
+		"kitchenName": "z. B. MARG",
 		"itemDescription": "Beschreiben Sie diesen Artikel...",
 		"aggregateMinQuantity": "Kein Minimum",
 		"aggregateMaxQuantity": "Kein Maximum"

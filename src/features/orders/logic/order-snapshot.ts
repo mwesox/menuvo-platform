@@ -21,6 +21,7 @@ import {
 export type CartItem = {
 	itemId: number;
 	name: string;
+	kitchenName?: string | null;
 	description?: string;
 	basePrice: number;
 	quantity: number;
@@ -77,6 +78,7 @@ export function snapshotCartItem(
 	return {
 		itemId: cartItem.itemId,
 		name: cartItem.name,
+		kitchenName: cartItem.kitchenName,
 		description: cartItem.description,
 		quantity: cartItem.quantity,
 		unitPrice: cartItem.basePrice,
