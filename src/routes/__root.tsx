@@ -15,6 +15,12 @@ import consoleCss from "@/styles/console-bundle.css?url";
 import discoveryCss from "@/styles/discovery-bundle.css?url";
 import shopCss from "@/styles/shop-bundle.css?url";
 
+// Nunito font for console theme (warm, friendly)
+import "@fontsource/nunito/400.css";
+import "@fontsource/nunito/500.css";
+import "@fontsource/nunito/600.css";
+import "@fontsource/nunito/700.css";
+
 const languageQuery = queryOptions({
 	queryKey: ["language"],
 	queryFn: () => detectLanguageFromRequest(),
@@ -34,9 +40,14 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	head: ({ matches }) => {
 		// Determine which CSS bundle to load based on matched routes
 		// Cast routeId to string for comparison (TypeScript is overly strict here)
-		const isConsoleRoute = matches.some((m) =>
-			(m.routeId as string).startsWith("/console"),
-		);
+		const isConsoleRoute = matches.some((m) => {
+			const routeId = m.routeId as string;
+			return (
+				routeId.startsWith("/console") ||
+				routeId.startsWith("/onboarding") ||
+				routeId.startsWith("/auth")
+			);
+		});
 		const isBusinessRoute = matches.some((m) =>
 			(m.routeId as string).startsWith("/business"),
 		);

@@ -68,6 +68,18 @@ process.env.S3_FILES_BUCKET =
 	process.env.S3_FILES_BUCKET || "menuvo-files-test";
 
 /**
+ * Mock Bun's S3Client for testing (not available in Node.js).
+ * The files-client module uses Bun's native S3Client which isn't available in Vitest.
+ */
+vi.mock("@/lib/storage/files-client", () => ({
+	filesStorage: {},
+	uploadFile: vi.fn().mockResolvedValue(undefined),
+	getFile: vi.fn().mockResolvedValue(Buffer.from("")),
+	deleteFile: vi.fn().mockResolvedValue(undefined),
+	fileExists: vi.fn().mockResolvedValue(false),
+}));
+
+/**
  * Mock TanStack Start's createServerFn for testing.
  *
  * In production, createServerFn creates RPC wrappers.

@@ -62,7 +62,8 @@
 	},
 	"ownerName": {
 		"min": "Full name must be at least 2 characters",
-		"max": "Full name must be less than 100 characters"
+		"max": "Full name must be less than 100 characters",
+		"fullName": "Please enter first and last name"
 	},
 	"email": {
 		"invalid": "Please enter a valid email address"
@@ -77,7 +78,8 @@
 	},
 	"street": {
 		"required": "Street address must be at least 3 characters",
-		"max": "Street address is too long"
+		"max": "Street address is too long",
+		"incomplete": "Please enter street and house number"
 	},
 	"city": {
 		"required": "City is required",
@@ -85,6 +87,7 @@
 		"invalid": "Please enter a valid city name"
 	},
 	"postalCode": {
+		"length": "Postal code must be exactly 5 digits",
 		"invalid": "Please enter a valid 5-digit postal code"
 	},
 	"country": {

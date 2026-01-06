@@ -62,7 +62,8 @@
 	},
 	"ownerName": {
 		"min": "Der Name muss mindestens 2 Zeichen lang sein",
-		"max": "Der Name darf maximal 100 Zeichen lang sein"
+		"max": "Der Name darf maximal 100 Zeichen lang sein",
+		"fullName": "Bitte Vor- und Nachname eingeben"
 	},
 	"email": {
 		"invalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein"
@@ -77,7 +78,8 @@
 	},
 	"street": {
 		"required": "Straße muss mindestens 3 Zeichen lang sein",
-		"max": "Die Straßenadresse ist zu lang"
+		"max": "Die Straßenadresse ist zu lang",
+		"incomplete": "Bitte Straße und Hausnummer eingeben"
 	},
 	"city": {
 		"required": "Stadt ist erforderlich",
@@ -85,6 +87,7 @@
 		"invalid": "Bitte geben Sie einen gültigen Stadtnamen ein"
 	},
 	"postalCode": {
+		"length": "PLZ muss genau 5 Ziffern haben",
 		"invalid": "Bitte geben Sie eine gültige 5-stellige Postleitzahl ein"
 	},
 	"country": {

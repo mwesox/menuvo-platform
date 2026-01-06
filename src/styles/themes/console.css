@@ -1,8 +1,8 @@
 /**
- * Console Theme - "Fresh Kitchen Studio"
+ * Console Theme - "Editorial Gray + Red Accent"
  *
- * A fresh, teal-forward palette with warm accents that evokes
- * the energy and cleanliness of a professional kitchen.
+ * A sophisticated, brand-aligned palette using the Menuvo logo colors:
+ * Dark gray (#2D2D2D) as primary, brand red (#D42027) as accent.
  *
  * Used by: /console routes (loaded via console-bundle.css)
  * Supports: Light mode and Dark mode (.dark class)
@@ -19,8 +19,8 @@
 	--popover: oklch(0.995 0.001 90);
 	--popover-foreground: oklch(0.205 0.02 240);
 
-	/* Primary - Fresh Teal */
-	--primary: oklch(0.55 0.14 195);
+	/* Primary - Logo Dark Gray (#2D2D2D) */
+	--primary: oklch(0.25 0.01 280);
 	--primary-foreground: oklch(0.99 0 0);
 
 	/* Secondary - Warm Sand */
@@ -31,18 +31,18 @@
 	--muted: oklch(0.94 0.01 90);
 	--muted-foreground: oklch(0.5 0.02 240);
 
-	/* Accent - Neutral for hover states and skeletons */
-	--accent: oklch(0.94 0.01 90);
-	--accent-foreground: oklch(0.25 0.02 240);
+	/* Accent - Brand Red (#D42027) for highlights and active states */
+	--accent: oklch(0.55 0.22 27);
+	--accent-foreground: oklch(0.99 0 0);
 
-	/* Destructive - Tomato Red */
-	--destructive: oklch(0.58 0.22 25);
+	/* Destructive - Tomato Red (distinct from brand red) */
+	--destructive: oklch(0.52 0.2 30);
 	--destructive-foreground: oklch(0.98 0 0);
 
 	/* UI Elements */
 	--border: oklch(0.88 0.01 90);
 	--input: oklch(0.88 0.01 90);
-	--ring: oklch(0.55 0.14 195);
+	--ring: oklch(0.25 0.01 280);
 
 	/* Extended semantic colors */
 	--success: oklch(0.62 0.17 145);
@@ -58,19 +58,19 @@
 	--brand-orange: oklch(0.77 0.17 65);
 	--brand-dark: oklch(0.15 0.01 280);
 
-	/* Sidebar - Subtle teal tint with amber accent */
-	--sidebar: oklch(0.97 0.015 195);
-	--sidebar-foreground: oklch(0.25 0.03 240);
-	--sidebar-primary: oklch(0.55 0.14 195);
+	/* Sidebar - Neutral with brand red accent */
+	--sidebar: oklch(0.97 0.005 90);
+	--sidebar-foreground: oklch(0.25 0.02 240);
+	--sidebar-primary: oklch(0.25 0.01 280);
 	--sidebar-primary-foreground: oklch(0.99 0 0);
-	--sidebar-accent: oklch(0.94 0.03 85);
-	--sidebar-accent-foreground: oklch(0.3 0.03 240);
-	--sidebar-border: oklch(0.9 0.02 195);
-	--sidebar-ring: oklch(0.55 0.14 195);
+	--sidebar-accent: oklch(0.55 0.22 27);
+	--sidebar-accent-foreground: oklch(0.99 0 0);
+	--sidebar-border: oklch(0.9 0.01 90);
+	--sidebar-ring: oklch(0.25 0.01 280);
 
-	/* Font families - use system defaults for console */
-	--font-heading: inherit;
-	--font-body: inherit;
+	/* Font families - Nunito for warm, friendly console */
+	--font-heading: "Nunito", system-ui, sans-serif;
+	--font-body: "Nunito", system-ui, sans-serif;
 }
 
 .dark {
@@ -82,8 +82,8 @@
 	--popover: oklch(0.22 0.02 240);
 	--popover-foreground: oklch(0.94 0.01 90);
 
-	/* Primary - Brighter Teal for dark mode */
-	--primary: oklch(0.7 0.14 195);
+	/* Primary - Light gray for dark mode */
+	--primary: oklch(0.85 0.01 280);
 	--primary-foreground: oklch(0.17 0.02 240);
 
 	/* Secondary */
@@ -94,18 +94,18 @@
 	--muted: oklch(0.28 0.02 240);
 	--muted-foreground: oklch(0.6 0.01 90);
 
-	/* Accent - Neutral for hover states and skeletons */
-	--accent: oklch(0.28 0.02 240);
-	--accent-foreground: oklch(0.94 0.01 90);
+	/* Accent - Brighter Brand Red for dark mode */
+	--accent: oklch(0.65 0.2 27);
+	--accent-foreground: oklch(0.99 0 0);
 
 	/* Destructive */
-	--destructive: oklch(0.55 0.2 25);
+	--destructive: oklch(0.55 0.2 30);
 	--destructive-foreground: oklch(0.98 0 0);
 
 	/* UI Elements */
 	--border: oklch(0.3 0.02 240);
 	--input: oklch(0.3 0.02 240);
-	--ring: oklch(0.7 0.14 195);
+	--ring: oklch(0.85 0.01 280);
 
 	/* Extended semantic colors - dark mode variants */
 	--success: oklch(0.68 0.16 145);
@@ -113,15 +113,15 @@
 	--warning: oklch(0.75 0.14 80);
 	--warning-foreground: oklch(0.2 0.04 80);
 
-	/* Sidebar - Dark with subtle amber accent */
+	/* Sidebar - Dark with brand red accent */
 	--sidebar: oklch(0.15 0.02 240);
 	--sidebar-foreground: oklch(0.9 0.01 90);
-	--sidebar-primary: oklch(0.7 0.14 195);
+	--sidebar-primary: oklch(0.85 0.01 280);
 	--sidebar-primary-foreground: oklch(0.15 0.02 240);
-	--sidebar-accent: oklch(0.25 0.03 85);
-	--sidebar-accent-foreground: oklch(0.9 0.01 90);
+	--sidebar-accent: oklch(0.65 0.2 27);
+	--sidebar-accent-foreground: oklch(0.99 0 0);
 	--sidebar-border: oklch(0.25 0.02 240);
-	--sidebar-ring: oklch(0.7 0.14 195);
+	--sidebar-ring: oklch(0.85 0.01 280);
 }
 
 /* Kitchen urgency animations */

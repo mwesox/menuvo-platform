@@ -174,8 +174,8 @@ describe("ItemDrawer", () => {
 		);
 
 		// The Add button should show the total price
-		// €4.99 base price for 1 qty
-		const addButton = screen.getByRole("button", { name: /4,99/i });
+		// €4.99 base price for 1 qty (matches both 4.99 and 4,99 locale formats)
+		const addButton = screen.getByRole("button", { name: /4[.,]99/i });
 		expect(addButton).toBeInTheDocument();
 	});
 });
