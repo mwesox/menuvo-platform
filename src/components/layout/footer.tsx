@@ -4,8 +4,6 @@ import { Separator } from "@/components/ui/separator";
 const footerLinks = [
 	{ href: "/legal/impressum", labelKey: "impressum" },
 	{ href: "/legal/privacy", labelKey: "privacyPolicy" },
-	{ href: "/legal/terms", labelKey: "termsOfService" },
-	{ href: "/legal/cookies", labelKey: "cookiePolicy" },
 ] as const;
 
 export function Footer() {
