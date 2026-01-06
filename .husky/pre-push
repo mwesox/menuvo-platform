@@ -12,4 +12,11 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+echo "🔍 Checking database migrations..."
+bunx drizzle-kit check
+if [ $? -ne 0 ]; then
+  echo "❌ Database schema out of sync. Run 'bun run db:generate' to create migration."
+  exit 1
+fi
+
 echo "✅ All checks passed."
