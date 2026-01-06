@@ -49,10 +49,10 @@ export function OnboardingWizard() {
 	};
 
 	return (
-		<div className="relative min-h-dvh bg-background">
-			{/* Fixed header with logo - show on all slides except welcome */}
+		<div className="flex min-h-dvh flex-col bg-background">
+			{/* Header with logo - in document flow, show on all slides except welcome */}
 			{!wizard.isWelcome && (
-				<header className="fixed top-0 right-0 left-0 z-10 flex items-center justify-center py-8 sm:py-10">
+				<header className="flex shrink-0 items-center justify-center py-8 sm:py-10">
 					<Logo height={56} />
 				</header>
 			)}
@@ -65,95 +65,98 @@ export function OnboardingWizard() {
 				/>
 			)}
 
-			<AnimatePresence mode="wait" custom={wizard.direction}>
-				{/* Slide 0: Welcome */}
-				{wizard.currentSlide === 0 && (
-					<WelcomeSlide key="welcome" onContinue={wizard.goToNext} />
-				)}
+			{/* Slides container - flex-1 when header is shown */}
+			<div className={wizard.isWelcome ? "" : "flex flex-1 flex-col"}>
+				<AnimatePresence mode="wait" custom={wizard.direction}>
+					{/* Slide 0: Welcome */}
+					{wizard.currentSlide === 0 && (
+						<WelcomeSlide key="welcome" onContinue={wizard.goToNext} />
+					)}
 
-				{/* Slide 1: Business Name */}
-				{wizard.currentSlide === 1 && (
-					<BusinessSlide
-						key="business"
-						questionNumber={1}
-						totalQuestions={wizard.totalQuestions}
-						direction={wizard.direction}
-						defaultValue={wizard.data.merchant.name}
-						onComplete={wizard.completeBusinessSlide}
-					/>
-				)}
+					{/* Slide 1: Business Name */}
+					{wizard.currentSlide === 1 && (
+						<BusinessSlide
+							key="business"
+							questionNumber={1}
+							totalQuestions={wizard.totalQuestions}
+							direction={wizard.direction}
+							defaultValue={wizard.data.merchant.name}
+							onComplete={wizard.completeBusinessSlide}
+						/>
+					)}
 
-				{/* Slide 2: Owner Name */}
-				{wizard.currentSlide === 2 && (
-					<OwnerSlide
-						key="owner"
-						questionNumber={2}
-						totalQuestions={wizard.totalQuestions}
-						direction={wizard.direction}
-						defaultValue={wizard.data.merchant.ownerName}
-						onComplete={wizard.completeOwnerSlide}
-						onBack={wizard.goToPrevious}
-					/>
-				)}
+					{/* Slide 2: Owner Name */}
+					{wizard.currentSlide === 2 && (
+						<OwnerSlide
+							key="owner"
+							questionNumber={2}
+							totalQuestions={wizard.totalQuestions}
+							direction={wizard.direction}
+							defaultValue={wizard.data.merchant.ownerName}
+							onComplete={wizard.completeOwnerSlide}
+							onBack={wizard.goToPrevious}
+						/>
+					)}
 
-				{/* Slide 3: Contact (Email + Phone) */}
-				{wizard.currentSlide === 3 && (
-					<ContactSlide
-						key="contact"
-						questionNumber={3}
-						totalQuestions={wizard.totalQuestions}
-						direction={wizard.direction}
-						defaultValues={{
-							email: wizard.data.merchant.email,
-							phone: wizard.data.merchant.phone,
-						}}
-						onComplete={wizard.completeContactSlide}
-						onBack={wizard.goToPrevious}
-					/>
-				)}
+					{/* Slide 3: Contact (Email + Phone) */}
+					{wizard.currentSlide === 3 && (
+						<ContactSlide
+							key="contact"
+							questionNumber={3}
+							totalQuestions={wizard.totalQuestions}
+							direction={wizard.direction}
+							defaultValues={{
+								email: wizard.data.merchant.email,
+								phone: wizard.data.merchant.phone,
+							}}
+							onComplete={wizard.completeContactSlide}
+							onBack={wizard.goToPrevious}
+						/>
+					)}
 
-				{/* Slide 4: Store Name */}
-				{wizard.currentSlide === 4 && (
-					<StoreNameSlide
-						key="store"
-						questionNumber={4}
-						totalQuestions={wizard.totalQuestions}
-						direction={wizard.direction}
-						defaultValue={wizard.data.store.name}
-						onComplete={wizard.completeStoreNameSlide}
-						onBack={wizard.goToPrevious}
-					/>
-				)}
+					{/* Slide 4: Store Name */}
+					{wizard.currentSlide === 4 && (
+						<StoreNameSlide
+							key="store"
+							questionNumber={4}
+							totalQuestions={wizard.totalQuestions}
+							direction={wizard.direction}
+							defaultValue={wizard.data.store.name}
+							onComplete={wizard.completeStoreNameSlide}
+							onBack={wizard.goToPrevious}
+						/>
+					)}
 
-				{/* Slide 5: Address */}
-				{wizard.currentSlide === 5 && (
-					<AddressSlide
-						key="address"
-						questionNumber={5}
-						totalQuestions={wizard.totalQuestions}
-						direction={wizard.direction}
-						defaultValues={{
-							street: wizard.data.store.street,
-							city: wizard.data.store.city,
-							postalCode: wizard.data.store.postalCode,
-						}}
-						onComplete={wizard.completeAddressSlide}
-						onBack={wizard.goToPrevious}
-					/>
-				)}
+					{/* Slide 5: Address */}
+					{wizard.currentSlide === 5 && (
+						<AddressSlide
+							key="address"
+							questionNumber={5}
+							totalQuestions={wizard.totalQuestions}
+							direction={wizard.direction}
+							defaultValues={{
+								street: wizard.data.store.street,
+								city: wizard.data.store.city,
+								postalCode: wizard.data.store.postalCode,
+							}}
+							onComplete={wizard.completeAddressSlide}
+							onBack={wizard.goToPrevious}
+						/>
+					)}
 
-				{/* Slide 6: Review */}
-				{wizard.currentSlide === 6 && (
-					<ReviewSlide
-						key="review"
-						direction={wizard.direction}
-						data={wizard.data}
-						onEdit={wizard.goToSlide}
-						onSubmit={handleSubmit}
-						isSubmitting={isSubmitting}
-					/>
-				)}
-			</AnimatePresence>
+					{/* Slide 6: Review */}
+					{wizard.currentSlide === 6 && (
+						<ReviewSlide
+							key="review"
+							direction={wizard.direction}
+							data={wizard.data}
+							onEdit={wizard.goToSlide}
+							onSubmit={handleSubmit}
+							isSubmitting={isSubmitting}
+						/>
+					)}
+				</AnimatePresence>
+			</div>
 		</div>
 	);
 }

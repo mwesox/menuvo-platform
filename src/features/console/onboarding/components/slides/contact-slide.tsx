@@ -87,7 +87,7 @@ export function ContactSlide({
 				y: { type: "spring", stiffness: 300, damping: 30 },
 				opacity: { duration: 0.25 },
 			}}
-			className="flex min-h-dvh flex-col justify-center px-4 py-12 sm:px-6"
+			className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6"
 		>
 			<form
 				className="mx-auto w-full max-w-xl"
