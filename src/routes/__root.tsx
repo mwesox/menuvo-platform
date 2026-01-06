@@ -12,6 +12,7 @@ import { initI18n, type SupportedLanguage } from "@/i18n";
 import { detectLanguageFromRequest } from "@/i18n/server";
 import businessCss from "@/styles/business-bundle.css?url";
 import consoleCss from "@/styles/console-bundle.css?url";
+import discoveryCss from "@/styles/discovery-bundle.css?url";
 import shopCss from "@/styles/shop-bundle.css?url";
 
 const languageQuery = queryOptions({
@@ -32,16 +33,24 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	},
 	head: ({ matches }) => {
 		// Determine which CSS bundle to load based on matched routes
+		// Cast routeId to string for comparison (TypeScript is overly strict here)
 		const isConsoleRoute = matches.some((m) =>
-			m.routeId.startsWith("/console"),
+			(m.routeId as string).startsWith("/console"),
 		);
 		const isBusinessRoute = matches.some((m) =>
-			m.routeId.startsWith("/business"),
+			(m.routeId as string).startsWith("/business"),
 		);
+		// Store routes: /$slug and its children
+		const isStoreRoute = matches.some((m) => {
+			const routeId = m.routeId as string;
+			return routeId === "/$slug" || routeId.startsWith("/$slug/");
+		});
 
 		// Select CSS bundle and title based on route
 		let cssHref: string;
 		let title: string;
+		const isDiscoveryRoute =
+			!isConsoleRoute && !isBusinessRoute && !isStoreRoute;
 
 		if (isConsoleRoute) {
 			cssHref = consoleCss;
@@ -49,10 +58,24 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		} else if (isBusinessRoute) {
 			cssHref = businessCss;
 			title = "Menuvo";
-		} else {
-			// Default to shop CSS (for /shop/*, / redirect, and any other routes)
+		} else if (isStoreRoute) {
+			// Store pages use shop CSS
 			cssHref = shopCss;
 			title = "Menuvo";
+		} else {
+			// Root/discovery page
+			cssHref = discoveryCss;
+			title = "Menuvo";
+		}
+
+		// Build links array - preload shop CSS on discovery for smoother transitions
+		const links: Array<{ rel: string; href: string; as?: string }> = [
+			{ rel: "stylesheet", href: cssHref },
+		];
+
+		// Preload shop CSS when on discovery page to prevent flicker on navigation
+		if (isDiscoveryRoute) {
+			links.push({ rel: "preload", href: shopCss, as: "style" });
 		}
 
 		return {
@@ -68,7 +91,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 					title,
 				},
 			],
-			links: [{ rel: "stylesheet", href: cssHref }],
+			links,
 		};
 	},
 

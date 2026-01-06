@@ -1,29 +1,29 @@
 {
 	"page": {
-		"title": "Discover",
-		"subtitle": "Find restaurants near you",
-		"metaTitle": "Discover Restaurants",
-		"metaDescription": "Find and explore restaurants near you"
+		"title": "Good food shouldn't wait.",
+		"subtitle": "Discover restaurants nearby. Order ahead, dine in, or grab and go — all from your phone.",
+		"metaTitle": "Menuvo – Restaurants Near Me | Order Ahead, Skip the Wait",
+		"metaDescription": "Find restaurants near you with Menuvo. Browse menus, order ahead from your phone, and skip the wait – whether dining in or grabbing takeaway."
 	},
 	"search": {
-		"placeholder": "Search restaurants...",
+		"placeholder": "Search restaurants near me...",
 		"clearSearch": "Clear search",
 		"allCities": "All",
 		"filterByCity": "Filter by city"
 	},
 	"storeCard": {
-		"openNow": "Open now",
+		"openNow": "Open",
 		"closed": "Closed"
 	},
 	"emptyState": {
 		"noStores": {
-			"title": "No restaurants yet",
-			"description": "Restaurants will appear here once they're added to the platform."
+			"title": "Coming soon to your area",
+			"description": "We're partnering with local restaurants to bring Menuvo to more places. Check back soon!"
 		},
 		"noResults": {
 			"title": "No restaurants found",
-			"description": "Try adjusting your filters or search term to find what you're looking for.",
-			"clearFilters": "Clear filters"
+			"description": "Try a different search or browse all restaurants nearby.",
+			"clearFilters": "Show all restaurants"
 		}
 	},
 	"error": {
@@ -32,6 +32,6 @@
 		"tryAgain": "Try again"
 	},
 	"loading": {
-		"searchPlaceholder": "Search restaurants..."
+		"searchPlaceholder": "Search restaurants near me..."
 	}
 }

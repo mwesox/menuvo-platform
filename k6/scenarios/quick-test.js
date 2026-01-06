@@ -23,14 +23,14 @@ export default function () {
 
 	// Load shop listing
 	const listingStart = Date.now();
-	const listing = http.get(`${baseUrl}/shop`, {
+	const listing = http.get(`${baseUrl}/`, {
 		tags: { name: "shop_listing" },
 	});
 	check(listing, { "listing ok": (r) => r.status === 200 });
 
 	// Load menu
 	const menuStart = Date.now();
-	const menu = http.get(`${baseUrl}/shop/${TEST_STORE_SLUG}`, {
+	const menu = http.get(`${baseUrl}/${TEST_STORE_SLUG}`, {
 		tags: { name: "shop_menu" },
 	});
 	const menuDuration = Date.now() - menuStart;

@@ -56,7 +56,7 @@ export function OrderConfirmationPage({
 					</ShopMutedText>
 
 					{/* Back to Menu */}
-					<Link to="/shop/$slug" params={{ slug: storeSlug }}>
+					<Link to="/$slug" params={{ slug: storeSlug }}>
 						<ShopButton variant="primary" size="lg" className="w-full">
 							{t("confirmation.backToMenu")}
 						</ShopButton>

@@ -6,4 +6,7 @@ import type { SupportedLanguage } from "@/i18n/config";
 export const config = {
 	/** Language for menu content translations (prototype: German only) */
 	displayLanguage: "de" as SupportedLanguage,
+
+	/** Default locale for external services (Mollie onboarding, etc.) */
+	defaultLocale: "de_DE",
 } as const;

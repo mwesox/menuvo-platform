@@ -9,7 +9,7 @@ export const Route = createFileRoute("/q/$shortCode")({
 
 		if (result.status === "active") {
 			throw redirect({
-				to: "/shop/$slug",
+				to: "/$slug",
 				params: { slug: result.storeSlug },
 				search: { sp: result.servicePointCode },
 				statusCode: 302,

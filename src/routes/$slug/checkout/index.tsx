@@ -3,7 +3,7 @@ import { CheckoutPage, CheckoutPageSkeleton } from "@/features/shop/checkout";
 import { shopQueries } from "@/features/shop/queries";
 import { StoreError } from "@/features/shop/shared";
 
-export const Route = createFileRoute("/shop/$slug/checkout/")({
+export const Route = createFileRoute("/$slug/checkout/")({
 	loader: async ({ context, params }) => {
 		const store = await context.queryClient.ensureQueryData(
 			shopQueries.storeBySlug(params.slug),

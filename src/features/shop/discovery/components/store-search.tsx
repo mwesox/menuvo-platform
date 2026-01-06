@@ -22,21 +22,31 @@ export function StoreSearch({
 
 	return (
 		<div className="space-y-4">
-			{/* Search input */}
+			{/* Search input - elevated, prominent */}
 			<div className="relative">
-				<Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+				<Search className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/60" />
 				<input
 					type="text"
 					value={searchQuery}
 					onChange={(e) => onSearchChange(e.target.value)}
 					placeholder={t("search.placeholder")}
-					className="h-12 w-full rounded-xl border border-border bg-card pl-12 pr-10 text-foreground transition-colors placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
+					className={cn(
+						"h-14 w-full rounded-2xl",
+						"bg-card pl-14 pr-12",
+						"text-foreground text-base",
+						"placeholder:text-muted-foreground/50",
+						"shadow-lg shadow-foreground/[0.03]",
+						"ring-1 ring-border/50",
+						"transition-all duration-300",
+						"hover:shadow-xl hover:shadow-foreground/[0.05] hover:ring-border/70",
+						"focus:outline-none focus:ring-2 focus:ring-primary/40 focus:shadow-xl focus:shadow-primary/10",
+					)}
 				/>
 				{searchQuery && (
 					<button
 						type="button"
 						onClick={() => onSearchChange("")}
-						className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+						className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 						aria-label={t("search.clearSearch")}
 					>
 						<X className="h-4 w-4" />
@@ -44,8 +54,8 @@ export function StoreSearch({
 				)}
 			</div>
 
-			{/* City filter pills */}
-			<div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1">
+			{/* City filter pills - centered, refined */}
+			<div className="scrollbar-hide flex justify-center gap-2 overflow-x-auto pb-1">
 				{cityOptions.map((city) => {
 					const isSelected = city === selectedCity;
 					const label = city === "all" ? t("search.allCities") : city;
@@ -56,10 +66,11 @@ export function StoreSearch({
 							type="button"
 							onClick={() => onCityChange(city)}
 							className={cn(
-								"flex-shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors",
+								"flex-shrink-0 whitespace-nowrap rounded-full px-5 py-2",
+								"text-sm font-medium transition-all duration-200",
 								isSelected
-									? "bg-primary text-primary-foreground"
-									: "border border-border bg-card text-muted-foreground hover:border-border hover:text-foreground",
+									? "bg-foreground text-background shadow-md"
+									: "bg-card/80 text-muted-foreground ring-1 ring-border/50 hover:bg-card hover:ring-border hover:text-foreground",
 							)}
 						>
 							{label}

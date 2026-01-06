@@ -16,7 +16,7 @@ export function useOnboardMerchant() {
 			toast.success(t("toast.successTitle"), {
 				description: t("toast.successDescription"),
 			});
-			navigate({ to: "/console" });
+			navigate({ to: "/auth/merchant/login" });
 		},
 		onError: (error) => {
 			toast.error(t("toast.errorTitle"), {

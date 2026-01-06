@@ -16,6 +16,7 @@ import {
 	createTestStore,
 	testDb,
 } from "@/test/factories";
+import { clearTestAuth, setTestAuth } from "@/test/setup";
 import {
 	createStore,
 	deleteStore,
@@ -33,10 +34,17 @@ describe("stores.functions", () => {
 		// Create test merchant for all tests in this file
 		const merchant = await createTestMerchant({ testRunId });
 		merchantId = merchant.id;
+
+		// Set test auth to authenticate as this merchant
+		setTestAuth({
+			merchantId,
+			merchant: { id: merchantId, name: merchant.name },
+		});
 	});
 
 	afterAll(async () => {
-		// Clean up test data
+		// Clean up test auth and data
+		clearTestAuth();
 		await cleanupTestData(testRunId);
 		await closeTestDb();
 	});

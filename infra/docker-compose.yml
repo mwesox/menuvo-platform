@@ -1,6 +1,6 @@
 # Menuvo Production Docker Compose
 # TanStack Start Platform with Console and Shop
-# Main app: www.menuvo.app (Console at /console, Shop at /shop)
+# Main app: www.menuvo.app (Discovery at /, Store at /{slug}, Console at /console)
 # Infrastructure: monitor.menuvo.app, status.menuvo.app
 # VPS: Hetzner 8GB RAM
 

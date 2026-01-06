@@ -101,14 +101,3 @@ export type OrderFilters = {
 	toDate?: Date;
 	search?: string;
 };
-
-/**
- * Order statistics for analytics
- */
-export type OrderStats = {
-	totalOrders: number;
-	totalRevenue: number;
-	averageOrderValue: number;
-	byStatus: Record<OrderStatus, number>;
-	byOrderType: Record<OrderType, number>;
-};

@@ -45,6 +45,7 @@
 	"header": {
 		"cartWithItems": "Warenkorb mit {{count}} Artikeln",
 		"backToShop": "Zurück zum Shop",
+		"backToMenu": "Menü",
 		"itemCount_one": "{{count}} Artikel",
 		"itemCount_other": "{{count}} Artikel",
 		"searchPlaceholder": "Menü durchsuchen..."
@@ -69,7 +70,6 @@
 	},
 	"checkout": {
 		"title": "Kasse",
-		"payment": "Bezahlung",
 		"orderType": "Bestellart",
 		"orderTypes": {
 			"dineIn": "Vor Ort essen",
@@ -106,6 +106,15 @@
 			"sessionExpired": "Ihre Zahlungssitzung ist abgelaufen. Bitte versuchen Sie es erneut.",
 			"tryAgain": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
 			"processing": "Wird verarbeitet..."
+		},
+		"payment": {
+			"title": "Zahlung abschließen",
+			"description": "Sie werden zu unserer sicheren Zahlungsseite weitergeleitet, um Ihre Bestellung abzuschließen.",
+			"error": "Zahlung konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+			"redirecting": "Weiterleitung zur Zahlung...",
+			"pleaseWait": "Sie werden in Kürze zur sicheren Zahlungsseite weitergeleitet.",
+			"payNow": "Jetzt bezahlen",
+			"securePayment": "Sichere Zahlungsabwicklung"
 		}
 	},
 	"confirmation": {

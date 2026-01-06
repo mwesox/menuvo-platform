@@ -8,6 +8,40 @@
 
 import { vi } from "vitest";
 
+/**
+ * Test auth context that can be set by individual tests.
+ * Set this in beforeAll/beforeEach to mock authenticated merchant.
+ */
+export const testAuth: {
+	merchantId: number | null;
+	merchant: { id: number; name: string; supportedLanguages: string[] } | null;
+} = {
+	merchantId: null,
+	merchant: null,
+};
+
+/**
+ * Helper to set test auth context.
+ */
+export function setTestAuth(auth: {
+	merchantId: number;
+	merchant: { id: number; name: string; supportedLanguages?: string[] };
+}) {
+	testAuth.merchantId = auth.merchantId;
+	testAuth.merchant = {
+		...auth.merchant,
+		supportedLanguages: auth.merchant.supportedLanguages ?? ["de"],
+	};
+}
+
+/**
+ * Helper to clear test auth context.
+ */
+export function clearTestAuth() {
+	testAuth.merchantId = null;
+	testAuth.merchant = null;
+}
+
 // Override DATABASE_URL for tests - MUST be before any other imports
 process.env.DATABASE_URL =
 	process.env.DATABASE_URL_TEST ||
@@ -38,13 +72,27 @@ process.env.S3_FILES_BUCKET =
  *
  * In production, createServerFn creates RPC wrappers.
  * In tests, we want to call handlers directly.
+ *
+ * When middleware is used (e.g., withAuth), we inject testAuth directly
+ * instead of calling the actual middleware (which would require cookies).
  */
 vi.mock("@tanstack/react-start", () => ({
-	createServerFn: ({ method: _method }: { method: string }) => {
+	createServerFn: (_options?: { method?: string }) => {
 		let validator: ((data: unknown) => unknown) | null = null;
-		let handlerFn: ((ctx: { data: unknown }) => Promise<unknown>) | null = null;
+		let handlerFn:
+			| ((ctx: { data: unknown; context?: unknown }) => Promise<unknown>)
+			| null = null;
+		let hasAuthMiddleware = false;
 
 		const builder = {
+			middleware: (
+				_mws: Array<(ctx: { next: (opts?: unknown) => unknown }) => unknown>,
+			) => {
+				// Instead of storing middleware, just flag that auth is needed
+				// The actual withAuth middleware can't work in tests (no cookies)
+				hasAuthMiddleware = true;
+				return builder;
+			},
 			inputValidator: (schema: { parse: (data: unknown) => unknown }) => {
 				validator = (data: unknown) => schema.parse(data);
 				return builder;
@@ -56,11 +104,33 @@ vi.mock("@tanstack/react-start", () => ({
 				return async (input?: { data?: unknown }) => {
 					const data = input?.data;
 					const validated = validator ? validator(data) : data;
-					return handlerFn?.({ data: validated });
+
+					// Build context - inject auth from testAuth if middleware was used
+					let context: Record<string, unknown> = {};
+					if (hasAuthMiddleware) {
+						// Import testAuth dynamically to get current value
+						const { testAuth } = await import("./setup");
+						if (!testAuth.merchantId || !testAuth.merchant) {
+							throw new Error("Unauthorized: No merchant session");
+						}
+						context = {
+							auth: {
+								merchantId: testAuth.merchantId,
+								merchant: testAuth.merchant,
+							},
+						};
+					}
+
+					return handlerFn?.({ data: validated, context });
 				};
 			},
 		};
 
 		return builder;
 	},
+	createMiddleware: () => ({
+		server: (
+			fn: (ctx: { next: (opts?: unknown) => unknown }) => Promise<unknown>,
+		) => fn,
+	}),
 }));

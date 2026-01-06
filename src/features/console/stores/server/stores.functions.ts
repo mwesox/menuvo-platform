@@ -1,42 +1,46 @@
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { stores } from "@/db/schema.ts";
+import { withAuth } from "@/features/console/auth/server/auth-middleware";
 import { generateSlug } from "@/lib/slug";
 import { createStoreSchema, updateStoreSchema } from "../schemas.ts";
 
-export const getStores = createServerFn({ method: "GET" }).handler(async () => {
-	try {
-		return await db.query.stores.findMany({
+export const getStores = createServerFn({ method: "GET" })
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { auth } = context;
+		return db.query.stores.findMany({
+			where: eq(stores.merchantId, auth.merchantId),
 			orderBy: (stores, { asc }) => [asc(stores.name)],
 		});
-	} catch {
-		// Return empty array if database is not available or tables don't exist
-		return [];
-	}
-});
+	});
 
-export const getStoreCities = createServerFn({ method: "GET" }).handler(
-	async () => {
-		try {
-			const allStores = await db.query.stores.findMany({
-				columns: { city: true },
-			});
-			const cities = [...new Set(allStores.map((s) => s.city).filter(Boolean))];
-			return cities.sort();
-		} catch {
-			// Return empty array if database is not available or tables don't exist
-			return [];
-		}
-	},
-);
+export const getStoreCities = createServerFn({ method: "GET" })
+	.middleware([withAuth])
+	.handler(async ({ context }) => {
+		const { auth } = context;
+		const merchantStores = await db.query.stores.findMany({
+			where: eq(stores.merchantId, auth.merchantId),
+			columns: { city: true },
+		});
+		const cities = [
+			...new Set(merchantStores.map((s) => s.city).filter(Boolean)),
+		];
+		return cities.sort();
+	});
 
 export const getStore = createServerFn({ method: "GET" })
+	.middleware([withAuth])
 	.inputValidator(z.object({ storeId: z.number() }))
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		const { auth } = context;
 		const store = await db.query.stores.findFirst({
-			where: eq(stores.id, data.storeId),
+			where: and(
+				eq(stores.id, data.storeId),
+				eq(stores.merchantId, auth.merchantId),
+			),
 		});
 		if (!store) {
 			throw new Error("Store not found");

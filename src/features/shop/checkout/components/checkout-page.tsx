@@ -89,7 +89,7 @@ export function CheckoutPage({
 
 	// Check if merchant can accept online payments (computed on server)
 	if (!capabilities.canAcceptOnlinePayment) {
-		return <StoreUnavailable backUrl={`/shop/${storeSlug}`} />;
+		return <StoreUnavailable backUrl={`/${storeSlug}`} />;
 	}
 
 	// Compute subtotal from items
@@ -156,7 +156,7 @@ export function CheckoutPage({
 				data: orderData,
 			});
 
-			const returnUrl = `${window.location.origin}/shop/${storeSlug}/checkout/return`;
+			const returnUrl = `${window.location.origin}/${storeSlug}/checkout/return`;
 
 			// Create Mollie payment and redirect to hosted checkout
 			setIsMollieRedirecting(true);
@@ -186,9 +186,9 @@ export function CheckoutPage({
 					<ShopCard padding="lg" className="text-center space-y-4">
 						<Loader2 className="w-12 h-12 mx-auto animate-spin text-primary" />
 						<ShopHeading as="h1" size="lg">
-							{t("checkout.mollie.redirecting")}
+							{t("checkout.payment.redirecting")}
 						</ShopHeading>
-						<ShopMutedText>{t("checkout.mollie.pleaseWait")}</ShopMutedText>
+						<ShopMutedText>{t("checkout.payment.pleaseWait")}</ShopMutedText>
 					</ShopCard>
 				</div>
 			</div>

@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Filter, Plus, Sparkles, Store } from "lucide-react";
+import { Filter, Plus, Store } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MasterDetailLayout } from "@/components/layout/master-detail-layout";
@@ -54,9 +54,16 @@ import {
 	useToggleCategoryActive,
 	useToggleItemAvailableByStore,
 } from "@/features/console/menu/queries";
+import { ImportWizard } from "@/features/console/menu-import/components/import-wizard";
 import { TranslationsTab } from "@/features/console/translations/components";
 
-const tabSchema = ["categories", "items", "options", "translations"] as const;
+const tabSchema = [
+	"categories",
+	"items",
+	"options",
+	"translations",
+	"import",
+] as const;
 type TabValue = (typeof tabSchema)[number];
 
 interface MenuPageProps {
@@ -182,7 +189,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 		});
 	};
 
-	// Get add action config (only for non-translations tabs)
+	// Get add action config (only for categories/items/options tabs)
 	const getAddAction = () => {
 		switch (tab) {
 			case "categories":
@@ -192,6 +199,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 			case "options":
 				return { onClick: optionGroupDialog.openCreate };
 			case "translations":
+			case "import":
 				return null;
 		}
 	};
@@ -338,11 +346,11 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 		}
 	};
 
-	// Render detail panel content (only called for non-translations tabs)
+	// Render detail panel content (only called for master-detail tabs)
 	const renderDetailPanel = () => {
-		// This function is only called when tab !== "translations"
-		// so we can safely cast to NonTranslationsTab
-		const safeTab = tab as Exclude<TabValue, "translations">;
+		// This function is only called when tab is not "translations" or "import"
+		// so we can safely cast to the master-detail tab types
+		const safeTab = tab as Exclude<TabValue, "translations" | "import">;
 
 		if (!selected) {
 			return <EmptySelection tab={safeTab} />;
@@ -405,6 +413,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 			getDisplayName(selectedOptionGroup?.translations, language) ||
 			t("titles.optionGroupDetails"),
 		translations: t("titles.translations", "Translations"),
+		import: t("titles.import", "KI Import"),
 	};
 
 	// Tab configuration for PageActionBar
@@ -429,14 +438,17 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 			label: t("titles.translations", "Translations"),
 			warning: false, // TODO: Add translation warning count
 		},
+		{
+			value: "import" as const,
+			label: t("titles.import", "KI Import"),
+		},
 	];
 
-	// Check if menu is empty (for import prominence)
-	const totalItems = categories.length + items.length;
-	const menuIsEmpty = totalItems < 5;
-
 	// Get contextual add button label
-	const addLabels: Record<Exclude<TabValue, "translations">, string> = {
+	const addLabels: Record<
+		Exclude<TabValue, "translations" | "import">,
+		string
+	> = {
 		categories: t("titles.addCategory"),
 		items: t("titles.addItem"),
 		options: t("titles.addOptionGroup"),
@@ -454,36 +466,28 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 				}}
 				actions={
 					<>
-						{/* Import button - always show with AI icon */}
-						<Button
-							variant={menuIsEmpty ? "default" : "outline"}
-							size={menuIsEmpty ? "default" : "sm"}
-							asChild
-						>
-							<Link to="/console/menu/import" search={{ storeId }}>
-								<Sparkles className="mr-2 h-4 w-4" />
-								{menuIsEmpty
-									? t("actions.importWithAI", "Import mit KI")
-									: t("actions.import", "Import")}
-							</Link>
-						</Button>
-
-						{/* Add button - hidden for translations tab */}
+						{/* Add button - hidden for translations and import tabs */}
 						{tab !== "translations" &&
+							tab !== "import" &&
 							(addAction && "href" in addAction ? (
-								<Button variant={menuIsEmpty ? "outline" : "default"} asChild>
+								<Button variant="default" asChild>
 									<Link to={addAction.href}>
 										<Plus className="mr-2 h-4 w-4" />
-										{addLabels[tab as Exclude<TabValue, "translations">]}
+										{
+											addLabels[
+												tab as Exclude<TabValue, "translations" | "import">
+											]
+										}
 									</Link>
 								</Button>
 							) : addAction?.onClick ? (
-								<Button
-									variant={menuIsEmpty ? "outline" : "default"}
-									onClick={addAction.onClick}
-								>
+								<Button variant="default" onClick={addAction.onClick}>
 									<Plus className="mr-2 h-4 w-4" />
-									{addLabels[tab as Exclude<TabValue, "translations">]}
+									{
+										addLabels[
+											tab as Exclude<TabValue, "translations" | "import">
+										]
+									}
 								</Button>
 							) : null)}
 					</>
@@ -494,6 +498,13 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 			{tab === "translations" ? (
 				<div className="flex-1 mt-4 min-h-0">
 					<TranslationsTab storeId={storeId} />
+				</div>
+			) : tab === "import" ? (
+				<div className="flex-1 mt-4 min-h-0">
+					<ImportWizard
+						storeId={storeId}
+						onClose={() => handleTabChange("items")}
+					/>
 				</div>
 			) : (
 				<>

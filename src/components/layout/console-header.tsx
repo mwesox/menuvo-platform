@@ -80,8 +80,8 @@ export function ConsoleHeader({
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="ghost" size="sm" className="h-8 gap-1 px-2">
-							<div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10">
-								<User className="h-3.5 w-3.5 text-primary" />
+							<div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted">
+								<User className="h-3.5 w-3.5 text-muted-foreground" />
 							</div>
 							<ChevronDown className="h-3 w-3 text-muted-foreground" />
 						</Button>

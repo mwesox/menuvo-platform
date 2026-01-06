@@ -39,7 +39,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 	const handleCheckout = () => {
 		if (!storeSlug) return;
 		onOpenChange(false);
-		navigate({ to: "/shop/$slug/checkout", params: { slug: storeSlug } });
+		navigate({ to: "/$slug/checkout", params: { slug: storeSlug } });
 	};
 
 	return (

@@ -101,6 +101,22 @@ Loaders run on BOTH server and client. Never put secrets in loaders.
 | Server Schema | Function input | Real types (number, boolean) |
 | Database Schema | Drizzle columns | Column types |
 
+### Server Functions
+
+| Layer | Artifact | Location |
+|-------|----------|----------|
+| Contract | Schema + exported type | `server/*.functions.ts` |
+| Implementation | Server function with `inputValidator` | `server/*.functions.ts` |
+| Client wrapper | Mutation/Query hook | `queries.ts` |
+| Consumer | Component | `components/` |
+
+**Flow:** Server defines contract → Queries wraps with hook → Components consume hook
+
+**Rules:**
+- Server function files own the schema and export input types
+- `queries.ts` imports types from server, never inlines them
+- Components call hooks, never server functions directly
+
 ---
 
 ## Anti-Patterns

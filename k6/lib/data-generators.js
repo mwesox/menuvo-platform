@@ -12,7 +12,7 @@ import { randomIntBetween, randomItem } from "https://jslib.k6.io/k6-utils/1.4.0
 // ============================================================================
 
 const ORDER_TYPES = ["dine_in", "takeaway"];
-const PAYMENT_METHODS = ["stripe", "pay_at_counter"];
+const PAYMENT_METHODS = ["stripe", "mollie"];
 
 const SAMPLE_ITEMS = [
 	{ name: "Margherita Pizza", price: 1290 },
