@@ -1,11 +1,11 @@
 import { useForm } from "@tanstack/react-form";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { type BusinessSlideInput, businessSlideSchema } from "../../schemas";
 import { SlideFooter } from "./slide-footer";
 import { StepIndicator } from "./step-indicator";
-import { getErrorMessage } from "./utils";
 
 interface BusinessSlideProps {
 	questionNumber: number;
@@ -104,8 +104,9 @@ export function BusinessSlide({
 								field.state.meta.isTouched &&
 								field.state.meta.errors.length > 0;
 							return (
-								<div>
+								<Field data-invalid={hasError}>
 									<Input
+										id="business-name"
 										className="h-12 text-lg"
 										type="text"
 										placeholder={t("placeholders.businessName")}
@@ -116,12 +117,8 @@ export function BusinessSlide({
 										autoComplete="organization"
 										aria-invalid={hasError}
 									/>
-									{hasError && (
-										<p className="mt-2 font-body text-destructive text-sm">
-											{t(getErrorMessage(field.state.meta.errors[0]))}
-										</p>
-									)}
-								</div>
+									<FieldError errors={field.state.meta.errors} />
+								</Field>
 							);
 						}}
 					</form.Field>

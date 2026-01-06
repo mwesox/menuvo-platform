@@ -1,11 +1,11 @@
 import { useForm } from "@tanstack/react-form";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { type AddressSlideInput, addressSlideSchema } from "../../schemas";
 import { SlideFooter } from "./slide-footer";
 import { StepIndicator } from "./step-indicator";
-import { getErrorMessage } from "./utils";
 
 interface AddressSlideProps {
 	questionNumber: number;
@@ -111,13 +111,13 @@ export function AddressSlide({
 								field.state.meta.isTouched &&
 								field.state.meta.errors.length > 0;
 							return (
-								<div className="block">
-									<label
+								<Field data-invalid={hasError}>
+									<FieldLabel
 										htmlFor="street"
-										className="mb-2 block font-body font-medium text-muted-foreground text-sm"
+										className="mb-2 font-body font-medium text-muted-foreground"
 									>
 										{t("fields.streetAddress")}
-									</label>
+									</FieldLabel>
 									<Input
 										id="street"
 										className="h-12 text-lg"
@@ -130,12 +130,8 @@ export function AddressSlide({
 										autoComplete="street-address"
 										aria-invalid={hasError}
 									/>
-									{hasError && (
-										<p className="mt-2 font-body text-destructive text-sm">
-											{t(getErrorMessage(field.state.meta.errors[0]))}
-										</p>
-									)}
-								</div>
+									<FieldError errors={field.state.meta.errors} />
+								</Field>
 							);
 						}}
 					</form.Field>
@@ -149,13 +145,13 @@ export function AddressSlide({
 									field.state.meta.isTouched &&
 									field.state.meta.errors.length > 0;
 								return (
-									<div className="block">
-										<label
+									<Field data-invalid={hasError}>
+										<FieldLabel
 											htmlFor="city"
-											className="mb-2 block font-body font-medium text-muted-foreground text-sm"
+											className="mb-2 font-body font-medium text-muted-foreground"
 										>
 											{t("fields.city")}
-										</label>
+										</FieldLabel>
 										<Input
 											id="city"
 											className="h-12 text-lg"
@@ -167,12 +163,8 @@ export function AddressSlide({
 											autoComplete="address-level2"
 											aria-invalid={hasError}
 										/>
-										{hasError && (
-											<p className="mt-2 font-body text-destructive text-sm">
-												{t(getErrorMessage(field.state.meta.errors[0]))}
-											</p>
-										)}
-									</div>
+										<FieldError errors={field.state.meta.errors} />
+									</Field>
 								);
 							}}
 						</form.Field>
@@ -184,13 +176,13 @@ export function AddressSlide({
 									field.state.meta.isTouched &&
 									field.state.meta.errors.length > 0;
 								return (
-									<div className="block">
-										<label
+									<Field data-invalid={hasError}>
+										<FieldLabel
 											htmlFor="postalCode"
-											className="mb-2 block font-body font-medium text-muted-foreground text-sm"
+											className="mb-2 font-body font-medium text-muted-foreground"
 										>
 											{t("fields.postalCode")}
-										</label>
+										</FieldLabel>
 										<Input
 											id="postalCode"
 											className="h-12 text-lg"
@@ -208,12 +200,8 @@ export function AddressSlide({
 											autoComplete="postal-code"
 											aria-invalid={hasError}
 										/>
-										{hasError && (
-											<p className="mt-2 font-body text-destructive text-sm">
-												{t(getErrorMessage(field.state.meta.errors[0]))}
-											</p>
-										)}
-									</div>
+										<FieldError errors={field.state.meta.errors} />
+									</Field>
 								);
 							}}
 						</form.Field>

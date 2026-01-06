@@ -1,6 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
 import {
@@ -11,7 +12,6 @@ import {
 } from "../../schemas";
 import { SlideFooter } from "./slide-footer";
 import { StepIndicator } from "./step-indicator";
-import { getErrorMessage } from "./utils";
 
 interface ContactSlideProps {
 	questionNumber: number;
@@ -137,13 +137,13 @@ export function ContactSlide({
 								field.state.meta.isTouched &&
 								field.state.meta.errors.length > 0;
 							return (
-								<div className="block">
-									<label
+								<Field data-invalid={hasError}>
+									<FieldLabel
 										htmlFor="email"
-										className="mb-2 block font-body font-medium text-muted-foreground text-sm"
+										className="mb-2 font-body font-medium text-muted-foreground"
 									>
 										{t("fields.contactEmail")}
-									</label>
+									</FieldLabel>
 									<Input
 										id="email"
 										className="h-12 text-lg"
@@ -156,12 +156,8 @@ export function ContactSlide({
 										autoComplete="email"
 										aria-invalid={hasError}
 									/>
-									{hasError && (
-										<p className="mt-2 font-body text-destructive text-sm">
-											{t(getErrorMessage(field.state.meta.errors[0]))}
-										</p>
-									)}
-								</div>
+									<FieldError errors={field.state.meta.errors} />
+								</Field>
 							);
 						}}
 					</form.Field>
@@ -179,13 +175,13 @@ export function ContactSlide({
 								field.state.meta.errors.length > 0;
 
 							return (
-								<div className="block">
-									<label
+								<Field data-invalid={hasError}>
+									<FieldLabel
 										htmlFor="phone"
-										className="mb-2 block font-body font-medium text-muted-foreground text-sm"
+										className="mb-2 font-body font-medium text-muted-foreground"
 									>
 										{t("fields.phone")}
-									</label>
+									</FieldLabel>
 									<PhoneInput
 										defaultCountry="DE"
 										placeholder={t("placeholders.phone")}
@@ -194,12 +190,8 @@ export function ContactSlide({
 										onBlur={field.handleBlur}
 										className={hasError ? "[&_input]:border-destructive" : ""}
 									/>
-									{hasError && (
-										<p className="mt-2 font-body text-destructive text-sm">
-											{t(getErrorMessage(field.state.meta.errors[0]))}
-										</p>
-									)}
-								</div>
+									<FieldError errors={field.state.meta.errors} />
+								</Field>
 							);
 						}}
 					</form.Field>

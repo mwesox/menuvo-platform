@@ -1,11 +1,11 @@
 import { useForm } from "@tanstack/react-form";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { type StoreNameSlideInput, storeNameSlideSchema } from "../../schemas";
 import { SlideFooter } from "./slide-footer";
 import { StepIndicator } from "./step-indicator";
-import { getErrorMessage } from "./utils";
 
 interface StoreNameSlideProps {
 	questionNumber: number;
@@ -106,8 +106,9 @@ export function StoreNameSlide({
 								field.state.meta.isTouched &&
 								field.state.meta.errors.length > 0;
 							return (
-								<div>
+								<Field data-invalid={hasError}>
 									<Input
+										id="store-name"
 										className="h-12 text-lg"
 										type="text"
 										placeholder={t("placeholders.storeName")}
@@ -117,12 +118,8 @@ export function StoreNameSlide({
 										autoFocus
 										aria-invalid={hasError}
 									/>
-									{hasError && (
-										<p className="mt-2 font-body text-destructive text-sm">
-											{t(getErrorMessage(field.state.meta.errors[0]))}
-										</p>
-									)}
-								</div>
+									<FieldError errors={field.state.meta.errors} />
+								</Field>
 							);
 						}}
 					</form.Field>
