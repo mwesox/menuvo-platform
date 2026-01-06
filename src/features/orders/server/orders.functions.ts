@@ -129,6 +129,7 @@ export const createOrder = createServerFn({ method: "POST" })
 							optionsPrice: item.optionsPrice,
 							totalPrice: item.totalPrice,
 							displayOrder: i,
+							instructions: item.instructions,
 						})
 						.returning();
 
@@ -238,6 +239,40 @@ export const getKitchenOrders = createServerFn({ method: "GET" })
 				eq(orders.paymentStatus, "paid"),
 			),
 			orderBy: [desc(orders.createdAt)],
+			with: {
+				items: {
+					orderBy: (items, { asc }) => [asc(items.displayOrder)],
+					with: {
+						options: true,
+					},
+				},
+				servicePoint: {
+					columns: {
+						id: true,
+						name: true,
+						code: true,
+					},
+				},
+			},
+		});
+	});
+
+/**
+ * Get completed orders for kitchen Done archive (last 2 hours)
+ */
+export const getKitchenDoneOrders = createServerFn({ method: "GET" })
+	.inputValidator(getKitchenOrdersSchema)
+	.handler(async ({ data }) => {
+		const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+
+		return db.query.orders.findMany({
+			where: and(
+				eq(orders.storeId, data.storeId),
+				eq(orders.status, "completed"),
+				eq(orders.paymentStatus, "paid"),
+				gte(orders.completedAt, twoHoursAgo),
+			),
+			orderBy: [desc(orders.completedAt)],
 			with: {
 				items: {
 					orderBy: (items, { asc }) => [asc(items.displayOrder)],

@@ -1,0 +1,69 @@
+{
+	"title": "Küche",
+	"noStores": "Keine Filialen verfügbar. Erstellen Sie zuerst eine Filiale.",
+	"selectStore": "Wählen Sie eine Filiale aus, um Bestellungen anzuzeigen",
+	"selectStorePlaceholder": "Filiale auswählen...",
+	"time": {
+		"minutes": "{{count}} Min",
+		"hours": "{{count}} Std+",
+		"days": "{{count}} Tag+"
+	},
+	"columns": {
+		"new": "Neu",
+		"preparing": "In Zubereitung",
+		"ready": "Fertig",
+		"done": "Abgeschlossen",
+		"newEmpty": "Keine neuen Bestellungen",
+		"preparingEmpty": "Nichts in Zubereitung",
+		"readyEmpty": "Keine fertigen Bestellungen",
+		"doneEmpty": "Keine abgeschlossenen Bestellungen"
+	},
+	"views": {
+		"kitchen": "Küche",
+		"manager": "Manager"
+	},
+	"connection": {
+		"online": "Online",
+		"offline": "Offline",
+		"onlineTooltip": "Verbunden - Bestellungen werden in Echtzeit synchronisiert",
+		"offlineTooltip": "Keine Verbindung - Änderungen werden bei Wiederverbindung synchronisiert"
+	},
+	"audio": {
+		"muted": "Ton aus",
+		"unmuted": "Ton an",
+		"clickToMute": "Klicken zum Stummschalten",
+		"clickToUnmute": "Klicken zum Aktivieren der Benachrichtigungen"
+	},
+	"cancelDialog": {
+		"title": "Bestellung stornieren",
+		"reasonLabel": "Grund für die Stornierung",
+		"reasonPlaceholder": "z.B. Kundenwunsch, Nicht vorrätig...",
+		"reasonHint": "Optional - geben Sie einen Grund für die Stornierung an"
+	},
+	"actions": {
+		"keep": "Bestellung behalten",
+		"cancel": "Abbrechen",
+		"cancelling": "Wird storniert...",
+		"confirmCancel": "Bestellung stornieren"
+	},
+	"labels": {
+		"total": "Gesamt",
+		"notes": "Notizen",
+		"merchantNotes": "Mitarbeiter-Notizen"
+	},
+	"orderTypes": {
+		"takeaway": "Zum Mitnehmen",
+		"dineIn": "Vor Ort"
+	},
+	"info": {
+		"queuedForSync": "Änderungen gespeichert - wird bei Verbindung synchronisiert"
+	},
+	"errors": {
+		"updateFailed": "Bestellstatus konnte nicht aktualisiert werden",
+		"cancelFailed": "Bestellung konnte nicht storniert werden",
+		"invalidTransition": "Bestellung kann nicht in diese Spalte verschoben werden"
+	},
+	"success": {
+		"orderCancelled": "Bestellung erfolgreich storniert"
+	}
+}

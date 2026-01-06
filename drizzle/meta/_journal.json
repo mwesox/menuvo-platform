@@ -15,6 +15,13 @@
       "when": 1767712287319,
       "tag": "0001_white_alice",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1767716444227,
+      "tag": "0002_noisy_baron_zemo",
+      "breakpoints": true
     }
   ]
 }

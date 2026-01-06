@@ -7,7 +7,7 @@ import { generateCartItemId } from "../../utils";
 // ============================================================================
 
 export interface CartItem {
-	/** Unique ID: itemId + options hash */
+	/** Unique ID: itemId + options hash + instructions */
 	id: string;
 	/** Menu item ID */
 	itemId: number;
@@ -31,6 +31,8 @@ export interface CartItem {
 	storeId: number;
 	/** Store slug this item belongs to */
 	storeSlug: string;
+	/** Special instructions for this item (e.g., "no onions", "extra sauce") */
+	instructions?: string;
 }
 
 interface CartState {
@@ -43,6 +45,8 @@ interface CartActions {
 	addItem: (item: Omit<CartItem, "id" | "totalPrice">) => void;
 	/** Update the quantity of an item */
 	updateQuantity: (cartItemId: string, quantity: number) => void;
+	/** Update the instructions for an item */
+	updateInstructions: (cartItemId: string, instructions: string) => void;
 	/** Remove an item from the cart */
 	removeItem: (cartItemId: string) => void;
 	/** Clear all items from the cart */
@@ -102,7 +106,12 @@ export const useCartStore = create<CartStore>()(
 
 			// Actions
 			addItem: (item) => {
-				const id = generateCartItemId(item.itemId, item.selectedOptions);
+				// Include instructions in ID so different instructions = different line items
+				const id = generateCartItemId(
+					item.itemId,
+					item.selectedOptions,
+					item.instructions,
+				);
 				const totalPrice = calculateTotalPrice(
 					item.basePrice,
 					item.quantity,
@@ -164,6 +173,19 @@ export const useCartStore = create<CartStore>()(
 										quantity,
 										item.selectedOptions,
 									),
+								}
+							: item,
+					),
+				}));
+			},
+
+			updateInstructions: (cartItemId, instructions) => {
+				set((state) => ({
+					items: state.items.map((item) =>
+						item.id === cartItemId
+							? {
+									...item,
+									instructions: instructions || undefined,
 								}
 							: item,
 					),

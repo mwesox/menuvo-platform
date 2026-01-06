@@ -148,12 +148,22 @@ function formatCategoryName(key: string): string {
 }
 
 /**
+ * Normalize text to title case (first letter of each word uppercase, rest lowercase).
+ * Trims whitespace.
+ */
+function normalizeTextCase(text: string): string {
+	const trimmed = text.trim();
+	if (!trimmed) return trimmed;
+	return trimmed.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/**
  * Normalize a category object.
  */
 function normalizeCategory(
 	cat: Record<string, unknown>,
 ): AIMenuExtraction["categories"][0] {
-	const name = String(cat.name || "Unknown Category");
+	const name = normalizeTextCase(String(cat.name || "Unknown Category"));
 	const items = Array.isArray(cat.items)
 		? cat.items.map((item: Record<string, unknown>) =>
 				normalizeItem(item, name),
@@ -175,7 +185,7 @@ function normalizeItem(
 	categoryName: string,
 ): AIMenuExtraction["categories"][0]["items"][0] {
 	return {
-		name: String(item.name || "Unknown Item"),
+		name: normalizeTextCase(String(item.name || "Unknown Item")),
 		description: item.description ? String(item.description) : undefined,
 		price: typeof item.price === "number" ? item.price : 0,
 		allergens: Array.isArray(item.allergens)

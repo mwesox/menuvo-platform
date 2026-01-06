@@ -129,3 +129,18 @@
 	--sidebar-border: oklch(0.25 0.02 240);
 	--sidebar-ring: oklch(0.7 0.14 195);
 }
+
+/* Kitchen urgency animations */
+@keyframes pulse-subtle {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.85;
+	}
+}
+
+.animate-pulse-subtle {
+	animation: pulse-subtle 2s ease-in-out infinite;
+}

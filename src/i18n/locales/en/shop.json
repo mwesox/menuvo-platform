@@ -25,6 +25,8 @@
 		"soldOut": "Sold out",
 		"emptyTitle": "Menu coming soon",
 		"emptyDescription": "This restaurant is still setting up their menu. Check back later!",
+		"specialInstructions": "Special Instructions",
+		"specialInstructionsPlaceholder": "E.g., no onions, extra sauce, allergy info...",
 		"options": {
 			"required": "Required",
 			"optional": "Optional",

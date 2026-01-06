@@ -12,14 +12,15 @@ import {
 } from "../constants";
 
 /**
- * Valid status transitions for orders
+ * Valid status transitions for orders.
+ * Allows backward transitions for kitchen staff to fix mistakes.
  */
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 	awaiting_payment: ["confirmed", "cancelled"],
 	confirmed: ["preparing", "cancelled"],
-	preparing: ["ready", "cancelled"],
-	ready: ["completed", "cancelled"],
-	completed: [],
+	preparing: ["confirmed", "ready", "cancelled"], // Can go back to confirmed
+	ready: ["preparing", "completed", "cancelled"], // Can go back to preparing
+	completed: ["ready", "preparing", "confirmed"], // Can revert if mistake
 	cancelled: [],
 };
 

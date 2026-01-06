@@ -37,6 +37,7 @@ export const orderItemInputSchema = z.object({
 	optionsPrice: z.number().int().min(0),
 	totalPrice: z.number().int().min(0),
 	options: z.array(orderItemOptionInputSchema),
+	instructions: z.string().max(200).optional(),
 });
 
 /**

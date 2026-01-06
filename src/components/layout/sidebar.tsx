@@ -1,6 +1,7 @@
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+	ChefHat,
 	Home,
 	Menu,
 	Receipt,
@@ -26,6 +27,7 @@ const navItems = [
 	{ href: "/console/stores", labelKey: "stores", icon: Store },
 	{ href: "/console/menu", labelKey: "menu", icon: UtensilsCrossed },
 	{ href: "/console/orders", labelKey: "orders", icon: Receipt },
+	{ href: "/console/kitchen", labelKey: "kitchen", icon: ChefHat },
 	{ href: "/console/settings", labelKey: "settings", icon: Settings },
 ];
 

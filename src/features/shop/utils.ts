@@ -73,14 +73,16 @@ interface SelectedOption {
 export function generateCartItemId(
 	itemId: number,
 	options: SelectedOption[],
+	instructions?: string,
 ): string {
 	// Extract all choice IDs, sort them, and join with the item ID
 	const choiceIds = options
 		.flatMap((opt) => opt.choices.map((c) => c.id))
 		.sort((a, b) => a - b);
 
-	// Create a simple hash from itemId and sorted choice IDs
-	const hashInput = `${itemId}:${choiceIds.join(",")}`;
+	// Create a simple hash from itemId, sorted choice IDs, and instructions
+	// Instructions included so different instructions = different line items
+	const hashInput = `${itemId}:${choiceIds.join(",")}:${instructions || ""}`;
 
 	// Simple hash function for generating a unique ID
 	let hash = 0;

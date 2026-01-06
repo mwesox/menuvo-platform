@@ -25,8 +25,8 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 
 	return (
 		<div className="flex gap-3 py-4 border-b border-border/50">
-			{/* Item image */}
-			<div className="w-14 h-14 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 flex-shrink-0 overflow-hidden">
+			{/* Item image - responsive sizing */}
+			<div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 flex-shrink-0 overflow-hidden">
 				{item.imageUrl && (
 					<img
 						src={item.imageUrl}

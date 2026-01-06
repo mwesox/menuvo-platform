@@ -1008,6 +1008,9 @@ export const orderItems = pgTable(
 
 		// Metadata
 		displayOrder: integer("display_order").notNull(),
+
+		// Customer special requests for this item (e.g., "no onions", "extra sauce")
+		instructions: text(),
 	},
 	(table) => [index("idx_order_items_order_id").on(table.orderId)],
 );

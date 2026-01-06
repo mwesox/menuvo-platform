@@ -47,8 +47,8 @@ export function CategorySection({
 				</p>
 			)}
 
-			{/* Items grid - responsive 1-2-3 columns */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+			{/* Items grid - responsive 1-2-3 columns with container queries */}
+			<div className="@container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
 				{category.items.map((item) => (
 					<MenuItemCard
 						key={item.id}

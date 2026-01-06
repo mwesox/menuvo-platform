@@ -127,7 +127,7 @@ function SearchInput() {
 				onFocus={() => setIsFocused(true)}
 				onBlur={() => setIsFocused(false)}
 				placeholder={t("header.searchPlaceholder")}
-				className="h-9 min-w-48 w-64 lg:w-80 xl:w-96 rounded-lg border border-transparent bg-muted/50 pl-9 pr-16 text-sm text-foreground placeholder:text-muted-foreground focus:border-border focus:bg-background focus:outline-none"
+				className="h-9 min-w-48 w-56 md:w-64 lg:w-80 xl:w-96 rounded-lg border border-transparent bg-muted/50 pl-9 pr-16 text-sm text-foreground placeholder:text-muted-foreground focus:border-border focus:bg-background focus:outline-none"
 			/>
 			{/* Keyboard shortcut hint or clear button */}
 			<div className="absolute right-2 top-1/2 -translate-y-1/2">

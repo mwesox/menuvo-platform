@@ -169,7 +169,7 @@ export function CheckoutPage({
 	if (isPaymentRedirecting) {
 		return (
 			<div className="min-h-screen bg-background">
-				<div className="max-w-lg mx-auto px-4 py-12">
+				<div className="max-w-xl mx-auto px-4 py-12">
 					<ShopCard padding="lg" className="text-center space-y-4">
 						<Loader2 className="w-12 h-12 mx-auto animate-spin text-primary" />
 						<ShopHeading as="h1" size="lg">
@@ -189,7 +189,7 @@ export function CheckoutPage({
 
 	return (
 		<div className="min-h-screen bg-background">
-			<div className="max-w-lg mx-auto px-4 py-6">
+			<div className="max-w-xl mx-auto px-4 py-6">
 				{/* Header */}
 				<ShopHeading as="h1" size="xl" className="mb-6">
 					{t("checkout.title")}

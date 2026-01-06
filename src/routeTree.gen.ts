@@ -24,6 +24,7 @@ import { Route as ConsoleStoresIndexRouteImport } from './routes/console/stores/
 import { Route as ConsoleSettingsIndexRouteImport } from './routes/console/settings/index'
 import { Route as ConsoleOrdersIndexRouteImport } from './routes/console/orders/index'
 import { Route as ConsoleMenuIndexRouteImport } from './routes/console/menu/index'
+import { Route as ConsoleKitchenIndexRouteImport } from './routes/console/kitchen/index'
 import { Route as SlugCheckoutIndexRouteImport } from './routes/$slug/checkout/index'
 import { Route as ConsoleStoresNewRouteImport } from './routes/console/stores/new'
 import { Route as ConsoleStoresStoreIdRouteImport } from './routes/console/stores/$storeId'
@@ -112,6 +113,11 @@ const ConsoleOrdersIndexRoute = ConsoleOrdersIndexRouteImport.update({
 const ConsoleMenuIndexRoute = ConsoleMenuIndexRouteImport.update({
   id: '/menu/',
   path: '/menu/',
+  getParentRoute: () => ConsoleRouteRoute,
+} as any)
+const ConsoleKitchenIndexRoute = ConsoleKitchenIndexRouteImport.update({
+  id: '/kitchen/',
+  path: '/kitchen/',
   getParentRoute: () => ConsoleRouteRoute,
 } as any)
 const SlugCheckoutIndexRoute = SlugCheckoutIndexRouteImport.update({
@@ -210,6 +216,7 @@ export interface FileRoutesByFullPath {
   '/console/stores/$storeId': typeof ConsoleStoresStoreIdRoute
   '/console/stores/new': typeof ConsoleStoresNewRoute
   '/$slug/checkout': typeof SlugCheckoutIndexRoute
+  '/console/kitchen': typeof ConsoleKitchenIndexRoute
   '/console/menu': typeof ConsoleMenuIndexRoute
   '/console/orders': typeof ConsoleOrdersIndexRoute
   '/console/settings': typeof ConsoleSettingsIndexRoute
@@ -238,6 +245,7 @@ export interface FileRoutesByTo {
   '/console/stores/$storeId': typeof ConsoleStoresStoreIdRoute
   '/console/stores/new': typeof ConsoleStoresNewRoute
   '/$slug/checkout': typeof SlugCheckoutIndexRoute
+  '/console/kitchen': typeof ConsoleKitchenIndexRoute
   '/console/menu': typeof ConsoleMenuIndexRoute
   '/console/orders': typeof ConsoleOrdersIndexRoute
   '/console/settings': typeof ConsoleSettingsIndexRoute
@@ -270,6 +278,7 @@ export interface FileRoutesById {
   '/console/stores/$storeId': typeof ConsoleStoresStoreIdRoute
   '/console/stores/new': typeof ConsoleStoresNewRoute
   '/$slug/checkout/': typeof SlugCheckoutIndexRoute
+  '/console/kitchen/': typeof ConsoleKitchenIndexRoute
   '/console/menu/': typeof ConsoleMenuIndexRoute
   '/console/orders/': typeof ConsoleOrdersIndexRoute
   '/console/settings/': typeof ConsoleSettingsIndexRoute
@@ -303,6 +312,7 @@ export interface FileRouteTypes {
     | '/console/stores/$storeId'
     | '/console/stores/new'
     | '/$slug/checkout'
+    | '/console/kitchen'
     | '/console/menu'
     | '/console/orders'
     | '/console/settings'
@@ -331,6 +341,7 @@ export interface FileRouteTypes {
     | '/console/stores/$storeId'
     | '/console/stores/new'
     | '/$slug/checkout'
+    | '/console/kitchen'
     | '/console/menu'
     | '/console/orders'
     | '/console/settings'
@@ -362,6 +373,7 @@ export interface FileRouteTypes {
     | '/console/stores/$storeId'
     | '/console/stores/new'
     | '/$slug/checkout/'
+    | '/console/kitchen/'
     | '/console/menu/'
     | '/console/orders/'
     | '/console/settings/'
@@ -489,6 +501,13 @@ declare module '@tanstack/react-router' {
       path: '/menu'
       fullPath: '/console/menu'
       preLoaderRoute: typeof ConsoleMenuIndexRouteImport
+      parentRoute: typeof ConsoleRouteRoute
+    }
+    '/console/kitchen/': {
+      id: '/console/kitchen/'
+      path: '/kitchen'
+      fullPath: '/console/kitchen'
+      preLoaderRoute: typeof ConsoleKitchenIndexRouteImport
       parentRoute: typeof ConsoleRouteRoute
     }
     '/$slug/checkout/': {
@@ -630,6 +649,7 @@ interface ConsoleRouteRouteChildren {
   ConsoleSettingsSubscriptionRoute: typeof ConsoleSettingsSubscriptionRoute
   ConsoleStoresStoreIdRoute: typeof ConsoleStoresStoreIdRoute
   ConsoleStoresNewRoute: typeof ConsoleStoresNewRoute
+  ConsoleKitchenIndexRoute: typeof ConsoleKitchenIndexRoute
   ConsoleMenuIndexRoute: typeof ConsoleMenuIndexRoute
   ConsoleOrdersIndexRoute: typeof ConsoleOrdersIndexRoute
   ConsoleSettingsIndexRoute: typeof ConsoleSettingsIndexRoute
@@ -646,6 +666,7 @@ const ConsoleRouteRouteChildren: ConsoleRouteRouteChildren = {
   ConsoleSettingsSubscriptionRoute: ConsoleSettingsSubscriptionRoute,
   ConsoleStoresStoreIdRoute: ConsoleStoresStoreIdRoute,
   ConsoleStoresNewRoute: ConsoleStoresNewRoute,
+  ConsoleKitchenIndexRoute: ConsoleKitchenIndexRoute,
   ConsoleMenuIndexRoute: ConsoleMenuIndexRoute,
   ConsoleOrdersIndexRoute: ConsoleOrdersIndexRoute,
   ConsoleSettingsIndexRoute: ConsoleSettingsIndexRoute,
