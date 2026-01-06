@@ -144,8 +144,8 @@ export function TranslationEditor({
 			{/* Header */}
 			<div className="flex items-center justify-between p-4 border-b">
 				<div className="flex items-center gap-3 min-w-0">
-					<div className="flex-shrink-0 w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-						<Icon className="h-5 w-5" />
+					<div className="flex-shrink-0 size-10 rounded-lg bg-muted flex items-center justify-center">
+						<Icon className="size-5" />
 					</div>
 					<div className="min-w-0">
 						<h3 className="font-semibold truncate">{name}</h3>
@@ -155,7 +155,7 @@ export function TranslationEditor({
 					</div>
 				</div>
 				<Button variant="ghost" size="icon" onClick={onClose}>
-					<X className="h-4 w-4" />
+					<X className="size-4" />
 					<span className="sr-only">{t("buttons.close")}</span>
 				</Button>
 			</div>

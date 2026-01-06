@@ -143,7 +143,7 @@ export function ImageUploadField({
 							onClick={() => inputRef.current?.click()}
 							disabled={disabled || isUploading}
 						>
-							<CropIcon className="h-4 w-4" />
+							<CropIcon className="size-4" />
 						</Button>
 						<Button
 							type="button"
@@ -152,7 +152,7 @@ export function ImageUploadField({
 							onClick={handleRemove}
 							disabled={disabled || isUploading}
 						>
-							<Trash2Icon className="h-4 w-4" />
+							<Trash2Icon className="size-4" />
 						</Button>
 					</div>
 				</div>
@@ -169,12 +169,12 @@ export function ImageUploadField({
 				>
 					{isUploading ? (
 						<>
-							<UploadIcon className="h-8 w-8 animate-pulse" />
+							<UploadIcon className="size-8 animate-pulse" />
 							<span className="text-sm">{t("images.uploading")}</span>
 						</>
 					) : (
 						<>
-							<ImageIcon className="h-8 w-8" />
+							<ImageIcon className="size-8" />
 							<span className="text-sm">{t("images.clickToUpload")}</span>
 						</>
 					)}

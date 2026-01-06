@@ -100,7 +100,7 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<Button variant="outline">
-									<Layers className="mr-2 h-4 w-4" />
+									<Layers className="me-2 size-4" />
 									{t("buttons.zones")}
 								</Button>
 							</DropdownMenuTrigger>
@@ -133,11 +133,11 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 						variant="outline"
 						onClick={() => setBatchCreateDialogOpen(true)}
 					>
-						<Plus className="mr-2 h-4 w-4" />
+						<Plus className="me-2 size-4" />
 						{t("buttons.batchCreate")}
 					</Button>
 					<Button onClick={() => setCreateDialogOpen(true)}>
-						<Plus className="mr-2 h-4 w-4" />
+						<Plus className="me-2 size-4" />
 						{t("buttons.addServicePoint")}
 					</Button>
 				</div>
@@ -146,8 +146,8 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 			{servicePoints.length === 0 ? (
 				<Card>
 					<CardContent className="flex flex-col items-center justify-center py-12">
-						<div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-							<QrCode className="h-8 w-8 text-muted-foreground" />
+						<div className="flex size-16 items-center justify-center rounded-full bg-muted">
+							<QrCode className="size-8 text-muted-foreground" />
 						</div>
 						<h3 className="mt-4 text-lg font-semibold">
 							{t("emptyStates.noServicePoints")}
@@ -156,7 +156,7 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 							{t("emptyStates.noServicePointsDescription")}
 						</p>
 						<Button className="mt-6" onClick={() => setCreateDialogOpen(true)}>
-							<Plus className="mr-2 h-4 w-4" />
+							<Plus className="me-2 size-4" />
 							{t("buttons.createFirstServicePoint")}
 						</Button>
 					</CardContent>

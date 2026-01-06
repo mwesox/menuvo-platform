@@ -50,14 +50,11 @@
 	--brand-red: oklch(0.55 0.22 27);
 	--brand-red-dark: oklch(0.48 0.2 27);
 	--brand-red-light: oklch(0.68 0.18 20);
+	--brand-red-lighter: oklch(0.72 0.16 18);
 	--brand-orange: oklch(0.77 0.17 65);
 
-	/* Charts */
-	--chart-1: oklch(0.55 0.22 27);
-	--chart-2: oklch(0.65 0.18 145);
-	--chart-3: oklch(0.75 0.15 70);
-	--chart-4: oklch(0.48 0.2 27);
-	--chart-5: oklch(0.5 0.01 280);
+	/* Dark background for header/mobile menu */
+	--brand-dark: oklch(0.15 0.01 280);
 
 	/* Typography */
 	--font-heading: system-ui, -apple-system, sans-serif;
@@ -97,11 +94,4 @@
 	--success-foreground: oklch(0.99 0 0);
 	--warning: oklch(0.65 0.12 70);
 	--warning-foreground: oklch(0.99 0 0);
-
-	/* Charts - dark mode */
-	--chart-1: oklch(0.55 0.22 27);
-	--chart-2: oklch(0.55 0.15 145);
-	--chart-3: oklch(0.65 0.12 70);
-	--chart-4: oklch(0.6 0.2 27);
-	--chart-5: oklch(0.65 0.01 280);
 }

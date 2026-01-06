@@ -34,10 +34,10 @@ export function StoreUnavailable({
 	return (
 		<div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
 			<div
-				className="mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+				className="mb-4 flex size-16 items-center justify-center rounded-full"
 				style={{ backgroundColor: "var(--muted)" }}
 			>
-				<Clock className="h-8 w-8 text-muted-foreground" />
+				<Clock className="size-8 text-muted-foreground" />
 			</div>
 			<h1
 				className="text-2xl text-foreground"

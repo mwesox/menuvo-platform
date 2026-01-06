@@ -36,19 +36,19 @@ function ActionBadge({ action, t }: ActionBadgeProps) {
 		case "create":
 			return (
 				<Badge variant="default" className="gap-1">
-					<Plus className="h-3 w-3" /> {t("import.badges.new")}
+					<Plus className="size-3" /> {t("import.badges.new")}
 				</Badge>
 			);
 		case "update":
 			return (
 				<Badge variant="secondary" className="gap-1">
-					<RefreshCw className="h-3 w-3" /> {t("import.badges.update")}
+					<RefreshCw className="size-3" /> {t("import.badges.update")}
 				</Badge>
 			);
 		case "skip":
 			return (
 				<Badge variant="outline" className="gap-1">
-					<Minus className="h-3 w-3" /> {t("import.badges.skip")}
+					<Minus className="size-3" /> {t("import.badges.skip")}
 				</Badge>
 			);
 	}
@@ -119,7 +119,7 @@ export function ComparisonPanel({
 			</div>
 
 			{/* Categories and Items */}
-			<ScrollArea className="h-[400px] pr-4">
+			<ScrollArea className="h-[400px] pe-4">
 				<div className="space-y-3">
 					{comparison.categories.map((category) => (
 						<CategoryCard
@@ -156,7 +156,7 @@ export function ComparisonPanel({
 											<span className="text-sm font-medium">
 												{og.extracted.name}
 											</span>
-											<span className="text-xs text-muted-foreground ml-2">
+											<span className="text-xs text-muted-foreground ms-2">
 												(
 												{t("import.comparison.choicesCount", {
 													count: og.extracted.choices.length,
@@ -245,13 +245,13 @@ function CategoryCard({
 				<Button
 					variant="ghost"
 					size="icon"
-					className="h-6 w-6"
+					className="size-6"
 					onClick={onToggleExpand}
 				>
 					{isExpanded ? (
-						<ChevronDown className="h-4 w-4" />
+						<ChevronDown className="size-4" />
 					) : (
-						<ChevronRight className="h-4 w-4" />
+						<ChevronRight className="size-4" />
 					)}
 				</Button>
 				<div className="flex-1">
@@ -294,12 +294,12 @@ interface ItemRowProps {
 
 function ItemRow({ item, isSelected, onToggle, t }: ItemRowProps) {
 	return (
-		<div className="flex items-center gap-3 py-1 pl-8">
+		<div className="flex items-center gap-3 py-1 ps-8">
 			<Checkbox checked={isSelected} onCheckedChange={onToggle} />
 			<div className="flex-1 min-w-0">
 				<span className="text-sm">{item.extracted.name}</span>
 				{item.changes && item.changes.length > 0 && (
-					<span className="text-xs text-muted-foreground ml-2">
+					<span className="text-xs text-muted-foreground ms-2">
 						(
 						{t("import.changes.fieldChanged", {
 							fields: item.changes.map((c) => c.field).join(", "),

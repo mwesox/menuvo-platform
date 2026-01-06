@@ -43,7 +43,7 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 			onClick={handleCardClick}
 			onPointerEnter={handlePointerEnter}
 			className={cn(
-				"group flex gap-3 @sm:gap-4 p-3 @sm:p-4 bg-card rounded-2xl text-left w-full",
+				"group flex gap-3 @sm:gap-4 p-3 @sm:p-4 bg-card rounded-2xl text-start w-full",
 				"border border-border/50 shadow-md shadow-stone-300/50",
 				"transition-all duration-300 ease-out",
 				"hover:-translate-y-1 hover:shadow-lg hover:shadow-amber-900/10 hover:border-border/60",
@@ -60,7 +60,7 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 					/>
 				) : (
 					<div className="absolute inset-0 flex items-center justify-center">
-						<UtensilsCrossed className="w-8 h-8 text-slate-300" />
+						<UtensilsCrossed className="size-8 text-slate-300" />
 					</div>
 				)}
 			</div>

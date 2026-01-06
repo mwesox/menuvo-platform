@@ -169,12 +169,12 @@ export function OptionGroupDetail({
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="outline" size="icon">
-							<MoreHorizontal className="h-4 w-4" />
+							<MoreHorizontal className="size-4" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						<DropdownMenuItem onClick={() => onEdit(optionGroup)}>
-							<Pencil className="mr-2 h-4 w-4" />
+							<Pencil className="me-2 size-4" />
 							{tCommon("buttons.edit")}
 						</DropdownMenuItem>
 						<DropdownMenuItem
@@ -182,7 +182,7 @@ export function OptionGroupDetail({
 								onToggleActive(optionGroup.id, !optionGroup.isActive)
 							}
 						>
-							<Power className="mr-2 h-4 w-4" />
+							<Power className="me-2 size-4" />
 							{optionGroup.isActive
 								? tCommon("buttons.hide")
 								: tCommon("buttons.show")}
@@ -192,7 +192,7 @@ export function OptionGroupDetail({
 							className="text-destructive"
 							onClick={() => onDelete(optionGroup.id)}
 						>
-							<Trash2 className="mr-2 h-4 w-4" />
+							<Trash2 className="me-2 size-4" />
 							{tCommon("buttons.delete")}
 						</DropdownMenuItem>
 					</DropdownMenuContent>
@@ -309,7 +309,7 @@ export function OptionGroupDetail({
 			{/* Edit button */}
 			<div className="pt-4 border-t">
 				<Button onClick={() => onEdit(optionGroup)} className="w-full">
-					<Pencil className="mr-2 h-4 w-4" />
+					<Pencil className="me-2 size-4" />
 					{t("optionGroups.editOptionGroup")}
 				</Button>
 			</div>

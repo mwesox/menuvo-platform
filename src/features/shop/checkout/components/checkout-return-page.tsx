@@ -81,7 +81,7 @@ export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 			<div className="min-h-screen bg-background">
 				<div className="max-w-lg mx-auto px-4 py-12">
 					<ShopCard padding="lg" className="text-center space-y-4">
-						<Loader2 className="w-12 h-12 mx-auto animate-spin text-primary" />
+						<Loader2 className="size-12 mx-auto animate-spin text-primary" />
 						<ShopHeading as="h1" size="lg">
 							{t("checkout.return.verifying")}
 						</ShopHeading>
@@ -105,7 +105,7 @@ export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 		<div className="min-h-screen bg-background">
 			<div className="max-w-lg mx-auto px-4 py-12">
 				<ShopCard padding="lg" className="text-center space-y-4">
-					<div className="w-12 h-12 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
+					<div className="size-12 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
 						<span className="text-destructive text-2xl">!</span>
 					</div>
 					<ShopHeading as="h1" size="lg">

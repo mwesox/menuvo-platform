@@ -39,12 +39,13 @@
 	--warning: oklch(0.75 0.12 85);
 	--warning-foreground: oklch(0.15 0.01 260);
 
-	/* Charts - neutral palette */
-	--chart-1: oklch(0.28 0.015 260);
-	--chart-2: oklch(0.6 0.15 145);
-	--chart-3: oklch(0.75 0.12 85);
-	--chart-4: oklch(0.45 0.08 220);
-	--chart-5: oklch(0.5 0.01 260);
+	/* Brand colors fallback (defined in business theme, referenced in core @theme) */
+	--brand-red: oklch(0.55 0.22 27);
+	--brand-red-dark: oklch(0.48 0.2 27);
+	--brand-red-light: oklch(0.68 0.18 20);
+	--brand-red-lighter: oklch(0.72 0.16 18);
+	--brand-orange: oklch(0.77 0.17 65);
+	--brand-dark: oklch(0.15 0.01 280);
 
 	/* Sidebar - match shop theme */
 	--sidebar: oklch(0.96 0.005 260);

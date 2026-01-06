@@ -3,10 +3,8 @@
  * Uses React 19's useActionState for form handling.
  */
 
-import { useQueryClient } from "@tanstack/react-query";
 import { useActionState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -18,8 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { orderKeys } from "@/features/orders/queries";
-import { cancelOrder } from "@/features/orders/server/orders.functions";
+import { useCancelOrder } from "@/features/orders/queries";
 
 interface CancelOrderDialogProps {
 	open: boolean;
@@ -40,38 +37,27 @@ export function CancelOrderDialog({
 	storeId,
 }: CancelOrderDialogProps) {
 	const { t } = useTranslation("console-kitchen");
-	const queryClient = useQueryClient();
+	const cancelMutation = useCancelOrder(storeId, orderId);
 
 	const [state, formAction, isPending] = useActionState<FormState, FormData>(
 		async (_prevState, formData) => {
 			const reason = formData.get("reason") as string | null;
 
 			try {
-				await cancelOrder({
+				await cancelMutation.mutateAsync({
 					data: {
 						orderId,
 						reason: reason || undefined,
 					},
 				});
 
-				// Invalidate queries
-				queryClient.invalidateQueries({
-					queryKey: orderKeys.kitchen(storeId),
-				});
-				queryClient.invalidateQueries({
-					queryKey: orderKeys.kitchenDone(storeId),
-				});
-				queryClient.invalidateQueries({
-					queryKey: orderKeys.detail(orderId),
-				});
-
-				toast.success(t("success.orderCancelled"));
+				// Hook handles cache invalidation and success toast
 				onOpenChange(false);
 				return { success: true };
 			} catch (error) {
+				// Hook handles error toast, but we still return error for form display
 				const message =
 					error instanceof Error ? error.message : t("errors.cancelFailed");
-				toast.error(message);
 				return { success: false, error: message };
 			}
 		},

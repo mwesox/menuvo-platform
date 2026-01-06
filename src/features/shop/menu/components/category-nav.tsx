@@ -27,7 +27,7 @@ export function CategoryNav({
 			{/* Scroll container with fade edges */}
 			<div className="relative">
 				{/* Left fade indicator */}
-				<div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+				<div className="absolute start-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
 
 				{/* Category tabs */}
 				<div className="flex gap-2 overflow-x-auto scrollbar-hide px-4 py-3 scroll-smooth">
@@ -53,7 +53,7 @@ export function CategoryNav({
 								{category.itemCount !== undefined && category.itemCount > 0 && (
 									<span
 										className={cn(
-											"ml-1.5 text-xs tabular-nums",
+											"ms-1.5 text-xs tabular-nums",
 											isActive
 												? "text-primary-foreground/70"
 												: "text-muted-foreground/60",
@@ -68,7 +68,7 @@ export function CategoryNav({
 				</div>
 
 				{/* Right fade indicator */}
-				<div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+				<div className="absolute end-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 			</div>
 		</nav>
 	);

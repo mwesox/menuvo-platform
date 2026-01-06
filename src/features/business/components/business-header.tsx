@@ -15,7 +15,7 @@ export function BusinessHeader() {
 	}
 
 	return (
-		<header className="fixed top-0 left-0 right-0 z-50 bg-[#1a1a1a] text-white transition-all duration-300">
+		<header className="fixed top-0 inset-x-0 z-50 bg-brand-dark text-white transition-all duration-300">
 			<div className="mx-auto max-w-7xl px-4 md:px-6">
 				<nav className="flex items-center justify-between py-4 md:py-5">
 					<Link
@@ -30,7 +30,7 @@ export function BusinessHeader() {
 						/>
 					</Link>
 
-					<div className="hidden md:flex items-center gap-8 font-sans">
+					<div className="hidden md:flex items-center gap-8">
 						<button
 							type="button"
 							onClick={() => scrollToSection("features")}
@@ -57,14 +57,14 @@ export function BusinessHeader() {
 					<div className="flex items-center gap-3">
 						<a
 							href="/console/onboarding"
-							className="hidden md:inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-sans font-medium transition-all duration-200 bg-[#e1393b] text-white hover:bg-[#c32d2f] hover:scale-[1.02] active:scale-[0.98] h-10 px-6 shadow-md hover:shadow-lg uppercase tracking-wide"
+							className="hidden md:inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 bg-brand-red text-white hover:bg-brand-red-dark hover:scale-[1.02] active:scale-[0.98] h-10 px-6 shadow-md hover:shadow-lg uppercase tracking-wide"
 						>
 							{t("header.cta")}
 						</a>
 
 						<button
 							type="button"
-							className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+							className="md:hidden inline-flex items-center justify-center size-10 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-colors"
 							aria-label="Toggle menu"
 							onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
 						>
@@ -108,26 +108,26 @@ export function BusinessHeader() {
 			</div>
 
 			{mobileMenuOpen && (
-				<div className="md:hidden fixed inset-0 top-[65px] bg-[#1a1a1a]/98 backdrop-blur-sm z-40">
+				<div className="md:hidden fixed inset-0 top-[65px] bg-brand-dark/98 backdrop-blur-sm z-40">
 					<nav className="flex flex-col p-6 space-y-2">
 						<button
 							type="button"
 							onClick={() => scrollToSection("features")}
-							className="text-xl font-sans font-medium text-white/80 hover:text-white py-4 px-4 rounded-lg hover:bg-white/5 transition-all uppercase tracking-wider text-left cursor-pointer"
+							className="text-xl font-medium text-white/80 hover:text-white py-4 px-4 rounded-lg hover:bg-white/5 transition-all uppercase tracking-wider text-start cursor-pointer"
 						>
 							{t("header.features")}
 						</button>
 						<button
 							type="button"
 							onClick={() => scrollToSection("faq")}
-							className="text-xl font-sans font-medium text-white/80 hover:text-white py-4 px-4 rounded-lg hover:bg-white/5 transition-all uppercase tracking-wider text-left cursor-pointer"
+							className="text-xl font-medium text-white/80 hover:text-white py-4 px-4 rounded-lg hover:bg-white/5 transition-all uppercase tracking-wider text-start cursor-pointer"
 						>
 							{t("header.faq")}
 						</button>
 						<button
 							type="button"
 							onClick={() => scrollToSection("pricing")}
-							className="text-xl font-sans font-medium text-white/80 hover:text-white py-4 px-4 rounded-lg hover:bg-white/5 transition-all uppercase tracking-wider text-left cursor-pointer"
+							className="text-xl font-medium text-white/80 hover:text-white py-4 px-4 rounded-lg hover:bg-white/5 transition-all uppercase tracking-wider text-start cursor-pointer"
 						>
 							{t("header.pricing")}
 						</button>
@@ -135,7 +135,7 @@ export function BusinessHeader() {
 						<div className="pt-4 border-t border-white/10">
 							<a
 								href="/console/onboarding"
-								className="inline-flex w-full items-center justify-center gap-2 rounded-lg text-base font-sans font-medium transition-all duration-200 bg-[#e1393b] text-white hover:bg-[#c32d2f] py-4 px-6 shadow-md uppercase tracking-wide"
+								className="inline-flex w-full items-center justify-center gap-2 rounded-lg text-base font-medium transition-all duration-200 bg-brand-red text-white hover:bg-brand-red-dark py-4 px-6 shadow-md uppercase tracking-wide"
 							>
 								{t("header.cta")}
 							</a>

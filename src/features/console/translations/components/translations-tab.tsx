@@ -236,7 +236,7 @@ export function TranslationsTab({ storeId }: TranslationsTabProps) {
 				<EmptyContent>
 					<Button variant="outline" asChild>
 						<Link to="/console/settings/merchant">
-							<Settings className="mr-2 h-4 w-4" />
+							<Settings className="me-2 size-4" />
 							{t("translations.configureLanguages", "Configure Languages")}
 						</Link>
 					</Button>
@@ -263,7 +263,7 @@ export function TranslationsTab({ storeId }: TranslationsTabProps) {
 				</div>
 				<div className="flex items-center gap-2">
 					<Progress value={progressStats.percentage} className="w-20 h-1.5" />
-					<span className="text-xs font-semibold tabular-nums w-8 text-right">
+					<span className="text-xs font-semibold tabular-nums w-8 text-end">
 						{progressStats.percentage}%
 					</span>
 				</div>

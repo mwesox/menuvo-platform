@@ -17,7 +17,7 @@ export function StoreCard({ store }: StoreCardProps) {
 	const addressDescription =
 		addressLine1 || addressLine2 ? (
 			<div className="flex items-start gap-1.5">
-				<MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+				<MapPin className="mt-0.5 size-4 shrink-0" />
 				<div>
 					{addressLine1 && <div>{addressLine1}</div>}
 					{addressLine2 && <div>{addressLine2}</div>}
@@ -38,13 +38,13 @@ export function StoreCard({ store }: StoreCardProps) {
 				<div className="grid grid-cols-2 gap-4 text-sm">
 					{store.phone && (
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<Phone className="h-4 w-4 shrink-0" />
+							<Phone className="size-4 shrink-0" />
 							<span className="truncate">{store.phone}</span>
 						</div>
 					)}
 					{store.email && (
 						<div className="flex items-center gap-2 text-muted-foreground">
-							<Mail className="h-4 w-4 shrink-0" />
+							<Mail className="size-4 shrink-0" />
 							<span className="truncate">{store.email}</span>
 						</div>
 					)}

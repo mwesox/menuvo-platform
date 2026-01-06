@@ -245,12 +245,12 @@ export function ShopStatusIndicator({
 		<div className={cn("flex items-center gap-1.5 text-sm", className)}>
 			{isOpen ? (
 				<>
-					<span className="h-2 w-2 rounded-full bg-success" />
+					<span className="size-2 rounded-full bg-success" />
 					<span className="text-success">{t("status.openNow")}</span>
 				</>
 			) : (
 				<>
-					<span className="h-2 w-2 rounded-full border border-muted-foreground bg-transparent" />
+					<span className="size-2 rounded-full border border-muted-foreground bg-transparent" />
 					<span className="text-muted-foreground">{t("status.closed")}</span>
 				</>
 			)}
@@ -278,8 +278,8 @@ const buttonVariants = cva(
 				sm: "h-8 px-3 text-sm rounded-lg",
 				md: "h-10 px-4 text-sm rounded-lg",
 				lg: "h-12 px-6 text-base rounded-xl",
-				icon: "h-10 w-10 rounded-lg",
-				"icon-sm": "h-8 w-8 rounded-lg",
+				icon: "size-10 rounded-lg",
+				"icon-sm": "size-8 rounded-lg",
 			},
 		},
 		defaultVariants: {

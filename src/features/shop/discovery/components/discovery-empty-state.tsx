@@ -14,8 +14,8 @@ export function DiscoveryEmptyState({
 
 	return (
 		<div className="flex flex-col items-center justify-center py-20 text-center">
-			<div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-				<Store className="h-8 w-8 text-muted-foreground" />
+			<div className="mb-4 flex size-16 items-center justify-center rounded-full bg-muted">
+				<Store className="size-8 text-muted-foreground" />
 			</div>
 			<h2
 				className="text-xl text-foreground"

@@ -47,7 +47,7 @@ export function TranslationListItem({
 			type="button"
 			onClick={() => onSelect(entityType, id)}
 			className={cn(
-				"w-full text-left px-3 py-2 rounded-lg transition-colors border-l-2",
+				"w-full text-start px-3 py-2 rounded-lg transition-colors border-l-2",
 				"hover:bg-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 				isSelected ? "bg-accent border-l-primary" : statusColors[status],
 			)}
@@ -56,7 +56,7 @@ export function TranslationListItem({
 				{/* Entity type icon - smaller */}
 				<div
 					className={cn(
-						"flex-shrink-0 w-7 h-7 rounded flex items-center justify-center",
+						"flex-shrink-0 size-7 rounded flex items-center justify-center",
 						isSelected ? "bg-primary text-primary-foreground" : "bg-muted",
 					)}
 				>

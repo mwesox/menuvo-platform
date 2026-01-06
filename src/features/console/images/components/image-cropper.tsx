@@ -161,7 +161,7 @@ export function ImageCropper({
 
 				{/* Zoom slider */}
 				<div className="flex items-center gap-3 px-1">
-					<MinusIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+					<MinusIcon className="size-4 text-muted-foreground shrink-0" />
 					<Slider
 						value={[zoom]}
 						onValueChange={handleZoomChange}
@@ -170,7 +170,7 @@ export function ImageCropper({
 						step={1}
 						className="flex-1"
 					/>
-					<PlusIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+					<PlusIcon className="size-4 text-muted-foreground shrink-0" />
 				</div>
 
 				{/* Dimension hint */}

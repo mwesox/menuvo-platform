@@ -93,7 +93,7 @@ export function MasterDetailLayout({
 			{/* Master panel */}
 			<div
 				className={cn(
-					"flex-shrink-0 border-r border-border pr-6",
+					"flex-shrink-0 border-r border-border pe-6",
 					masterWidthClasses[masterWidth],
 				)}
 			>

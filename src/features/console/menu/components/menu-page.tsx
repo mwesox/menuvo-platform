@@ -102,7 +102,7 @@ export function MenuPage({ search, loaderData }: MenuPageProps) {
 					<EmptyContent>
 						<Button variant="outline" asChild>
 							<Link to="/console/stores/new">
-								<Plus className="mr-2 h-4 w-4" />
+								<Plus className="me-2 size-4" />
 								{t("actions.createStore")}
 							</Link>
 						</Button>
@@ -288,7 +288,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 									onValueChange={setCategoryFilter}
 								>
 									<SelectTrigger className="w-full">
-										<Filter className="mr-2 h-4 w-4" />
+										<Filter className="me-2 size-4" />
 										<SelectValue placeholder={t("filters.allCategories")} />
 									</SelectTrigger>
 									<SelectContent>
@@ -472,7 +472,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 							(addAction && "href" in addAction ? (
 								<Button variant="default" asChild>
 									<Link to={addAction.href}>
-										<Plus className="mr-2 h-4 w-4" />
+										<Plus className="me-2 size-4" />
 										{
 											addLabels[
 												tab as Exclude<TabValue, "translations" | "import">
@@ -482,7 +482,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 								</Button>
 							) : addAction?.onClick ? (
 								<Button variant="default" onClick={addAction.onClick}>
-									<Plus className="mr-2 h-4 w-4" />
+									<Plus className="me-2 size-4" />
 									{
 										addLabels[
 											tab as Exclude<TabValue, "translations" | "import">

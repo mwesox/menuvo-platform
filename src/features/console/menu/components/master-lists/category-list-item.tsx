@@ -29,18 +29,18 @@ export function CategoryListItem({
 			type="button"
 			onClick={() => onSelect(category.id)}
 			className={cn(
-				"flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-lg transition-colors",
+				"flex items-center gap-3 w-full text-start px-3 py-2.5 rounded-lg transition-colors",
 				"hover:bg-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 				isSelected && "bg-accent",
 			)}
 		>
 			<div
 				className={cn(
-					"flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center",
+					"flex-shrink-0 size-8 rounded-md flex items-center justify-center",
 					isSelected ? "bg-primary text-primary-foreground" : "bg-muted",
 				)}
 			>
-				<Layers className="h-4 w-4" />
+				<Layers className="size-4" />
 			</div>
 
 			<div className="flex-1 min-w-0">
@@ -60,7 +60,7 @@ export function CategoryListItem({
 				<div className="text-xs text-muted-foreground">
 					{itemCount} {itemCount === 1 ? t("labels.item") : t("labels.items")}
 					{availableCount < itemCount && (
-						<span className="ml-1">
+						<span className="ms-1">
 							({availableCount} {tMenu("labels.available")})
 						</span>
 					)}

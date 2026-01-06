@@ -97,7 +97,7 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 
 			{!isAdding && editingId === null && (
 				<Button onClick={() => setIsAdding(true)}>
-					<Plus className="mr-2 h-4 w-4" />
+					<Plus className="me-2 size-4" />
 					{t("actions.addClosure")}
 				</Button>
 			)}
@@ -134,12 +134,12 @@ function ClosureListItem({ closure, storeId, onEdit }: ClosureListItemProps) {
 			</div>
 			<div className="flex items-center gap-2">
 				<Button variant="ghost" size="icon" onClick={onEdit}>
-					<Pencil className="h-4 w-4" />
+					<Pencil className="size-4" />
 				</Button>
 				<AlertDialog>
 					<AlertDialogTrigger asChild>
 						<Button variant="ghost" size="icon">
-							<Trash2 className="h-4 w-4" />
+							<Trash2 className="size-4" />
 						</Button>
 					</AlertDialogTrigger>
 					<AlertDialogContent>
@@ -303,11 +303,11 @@ function DatePicker({ value, onChange }: DatePickerProps) {
 				<Button
 					variant="outline"
 					className={cn(
-						"w-full justify-start text-left font-normal",
+						"w-full justify-start text-start font-normal",
 						!date && "text-muted-foreground",
 					)}
 				>
-					<CalendarIcon className="mr-2 h-4 w-4" />
+					<CalendarIcon className="me-2 size-4" />
 					{date ? (
 						format(date, "PPP")
 					) : (

@@ -28,7 +28,7 @@ export function ItemListItem({
 			type="button"
 			onClick={() => onSelect(item.id)}
 			className={cn(
-				"w-full text-left px-3 py-2.5 rounded-lg transition-colors",
+				"w-full text-start px-3 py-2.5 rounded-lg transition-colors",
 				"hover:bg-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 				isSelected && "bg-accent",
 			)}
@@ -40,11 +40,11 @@ export function ItemListItem({
 						<img
 							src={item.imageUrl}
 							alt={displayName}
-							className="h-10 w-10 rounded-md object-cover"
+							className="size-10 rounded-md object-cover"
 						/>
 					) : (
-						<div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center">
-							<ImageOff className="h-4 w-4 text-muted-foreground" />
+						<div className="size-10 rounded-md bg-muted flex items-center justify-center">
+							<ImageOff className="size-4 text-muted-foreground" />
 						</div>
 					)}
 				</div>
@@ -64,7 +64,7 @@ export function ItemListItem({
 					<div className="text-xs text-muted-foreground">
 						{formatPrice(item.price)}
 						{!item.isAvailable && (
-							<span className="ml-2 text-amber-600">Nicht verfügbar</span>
+							<span className="ms-2 text-amber-600">Nicht verfügbar</span>
 						)}
 					</div>
 				</div>
@@ -72,7 +72,7 @@ export function ItemListItem({
 				{/* Availability indicator */}
 				<div
 					className={cn(
-						"flex-shrink-0 w-2 h-2 rounded-full",
+						"flex-shrink-0 size-2 rounded-full",
 						item.isAvailable ? "bg-green-500" : "bg-amber-500",
 					)}
 				/>

@@ -100,11 +100,11 @@ export function RefundButton({
 			<AlertDialogTrigger asChild>
 				{compact ? (
 					<Button variant="outline" size="icon" title={t("actions.refund")}>
-						<RotateCcw className="h-4 w-4" />
+						<RotateCcw className="size-4" />
 					</Button>
 				) : (
 					<Button variant="outline" size="sm">
-						<RotateCcw className="mr-2 h-4 w-4" />
+						<RotateCcw className="me-2 size-4" />
 						{t("actions.refund")}
 					</Button>
 				)}
@@ -133,7 +133,7 @@ export function RefundButton({
 							id="partial-refund"
 							checked={isPartialRefund}
 							onChange={(e) => setIsPartialRefund(e.target.checked)}
-							className="h-4 w-4"
+							className="size-4"
 						/>
 						<Label htmlFor="partial-refund" className="cursor-pointer text-sm">
 							{t("refund.partialRefund")}
@@ -177,7 +177,7 @@ export function RefundButton({
 					>
 						{refundMutation.isPending ? (
 							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								<Loader2 className="me-2 size-4 animate-spin" />
 								{t("refund.processing")}
 							</>
 						) : isPartialRefund && partialAmount ? (

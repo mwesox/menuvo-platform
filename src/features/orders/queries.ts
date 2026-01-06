@@ -265,6 +265,9 @@ export function useCancelOrder(storeId: number, orderId: number) {
 				queryKey: orderKeys.kitchen(storeId),
 			});
 			queryClient.invalidateQueries({
+				queryKey: orderKeys.kitchenDone(storeId),
+			});
+			queryClient.invalidateQueries({
 				queryKey: orderKeys.detail(orderId),
 			});
 

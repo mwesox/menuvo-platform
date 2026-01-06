@@ -54,17 +54,14 @@ export function UrgencyIndicator({
 			className={cn(
 				"inline-flex items-center rounded-md font-mono",
 				sizeClasses[size],
-				level === "critical" &&
-					"bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400",
-				level === "warning" &&
-					"bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400",
-				level === "normal" &&
-					"bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400",
+				level === "critical" && "bg-red-100 text-red-700",
+				level === "warning" && "bg-yellow-100 text-yellow-700",
+				level === "normal" && "bg-green-100 text-green-700",
 				className,
 			)}
 		>
 			<span
-				className={cn("mr-1.5 size-2 rounded-full", getUrgencyBgColor(level))}
+				className={cn("me-1.5 size-2 rounded-full", getUrgencyBgColor(level))}
 			/>
 			{elapsed}
 		</span>

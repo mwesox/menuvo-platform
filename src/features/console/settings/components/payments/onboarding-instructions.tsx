@@ -68,7 +68,7 @@ export function OnboardingInstructions({
 								key={req.titleKey}
 								className="flex flex-col gap-2 rounded-lg border p-4"
 							>
-								<req.icon className="h-5 w-5 text-primary" />
+								<req.icon className="size-5 text-primary" />
 								<div>
 									<p className="text-sm font-medium">{t(req.titleKey)}</p>
 									<p className="text-xs text-muted-foreground">
@@ -88,13 +88,13 @@ export function OnboardingInstructions({
 					>
 						{createLink.isPending ? (
 							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								<Loader2 className="me-2 size-4 animate-spin" />
 								{t("payments.onboarding.redirecting")}
 							</>
 						) : (
 							<>
 								{t("payments.onboarding.button")}
-								<ExternalLink className="ml-2 h-4 w-4" />
+								<ExternalLink className="ms-2 size-4" />
 							</>
 						)}
 					</Button>

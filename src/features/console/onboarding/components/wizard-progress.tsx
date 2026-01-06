@@ -30,7 +30,7 @@ export function WizardProgress({
 							<div className="flex flex-col items-center">
 								<div
 									className={cn(
-										"flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors",
+										"flex size-10 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors",
 										isActive &&
 											"border-primary bg-primary text-primary-foreground",
 										isCompleted &&
@@ -42,7 +42,7 @@ export function WizardProgress({
 									aria-current={isActive ? "step" : undefined}
 								>
 									{isCompleted ? (
-										<Check className="h-5 w-5" aria-hidden="true" />
+										<Check className="size-5" aria-hidden="true" />
 									) : (
 										step
 									)}

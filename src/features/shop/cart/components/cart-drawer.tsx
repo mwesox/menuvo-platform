@@ -57,7 +57,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 					isMobile ? "max-h-[85dvh]" : "h-full w-full max-w-md",
 				)}
 			>
-				<DrawerHeader className="border-b border-border pb-4 text-left">
+				<DrawerHeader className="border-b border-border pb-4 text-start">
 					<DrawerTitle asChild>
 						<ShopHeading as="h2" size="lg">
 							{t("cart.title")}
@@ -74,7 +74,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 				<div className="flex-1 overflow-y-auto px-4">
 					{items.length === 0 ? (
 						<div className="flex flex-col items-center justify-center py-16 text-center">
-							<ShoppingBag className="w-16 h-16 text-border mb-4" />
+							<ShoppingBag className="size-16 text-border mb-4" />
 							<ShopHeading as="h3" size="lg" className="mb-1">
 								{t("cart.emptyTitle")}
 							</ShopHeading>

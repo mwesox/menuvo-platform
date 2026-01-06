@@ -387,7 +387,7 @@ export function ItemDrawer({
 						{/* Allergens - subtle inline style */}
 						{hasAllergens && (
 							<div className="flex items-center gap-2 py-3 border-y border-border/40 mb-5">
-								<AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+								<AlertTriangle className="size-4 text-amber-600 shrink-0" />
 								<span className="text-sm text-muted-foreground">
 									{t("menu.contains")}:{" "}
 									<span className="text-foreground">
@@ -404,7 +404,7 @@ export function ItemDrawer({
 							<div className="space-y-1 pb-4">
 								{showOptionsLoading ? (
 									<div className="flex items-center justify-center py-8">
-										<Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+										<Loader2 className="size-6 animate-spin text-muted-foreground" />
 									</div>
 								) : (
 									optionGroups.map((group) => (
@@ -443,7 +443,7 @@ export function ItemDrawer({
 						>
 							{/* Mobile: icon + price only */}
 							<span className="flex items-center gap-2 md:hidden">
-								<Plus className="w-5 h-5" />
+								<Plus className="size-5" />
 								{formatPrice(calculateTotal)}
 							</span>
 							{/* Desktop: text + price */}

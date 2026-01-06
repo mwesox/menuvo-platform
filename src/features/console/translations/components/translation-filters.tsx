@@ -91,19 +91,19 @@ export function TranslationFilters({
 						<SelectItem value="all">All Status</SelectItem>
 						<SelectItem value="complete">
 							<span className="flex items-center gap-1.5">
-								<span className="w-2 h-2 rounded-full bg-green-500" />
+								<span className="size-2 rounded-full bg-green-500" />
 								Complete
 							</span>
 						</SelectItem>
 						<SelectItem value="partial">
 							<span className="flex items-center gap-1.5">
-								<span className="w-2 h-2 rounded-full bg-yellow-500" />
+								<span className="size-2 rounded-full bg-yellow-500" />
 								Partial
 							</span>
 						</SelectItem>
 						<SelectItem value="missing">
 							<span className="flex items-center gap-1.5">
-								<span className="w-2 h-2 rounded-full bg-red-500" />
+								<span className="size-2 rounded-full bg-red-500" />
 								Missing
 							</span>
 						</SelectItem>
@@ -119,7 +119,7 @@ export function TranslationFilters({
 					placeholder={t("placeholders.searchTranslations", "Search...")}
 					value={search}
 					onChange={(e) => onSearchChange(e.target.value)}
-					className="h-8 pl-8 text-xs"
+					className="h-8 ps-8 text-xs"
 				/>
 			</div>
 		</div>

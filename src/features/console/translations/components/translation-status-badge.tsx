@@ -21,17 +21,17 @@ export function TranslationStatusBadge({
 	const config = {
 		complete: {
 			icon: Check,
-			bgClass: "bg-green-500/20 text-green-600 dark:text-green-400",
+			bgClass: "bg-green-500/20 text-green-600",
 			dotClass: "bg-green-500",
 		},
 		partial: {
 			icon: AlertTriangle,
-			bgClass: "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400",
+			bgClass: "bg-yellow-500/20 text-yellow-600",
 			dotClass: "bg-yellow-500",
 		},
 		missing: {
 			icon: X,
-			bgClass: "bg-red-500/15 text-red-600 dark:text-red-400",
+			bgClass: "bg-red-500/15 text-red-600",
 			dotClass: "bg-red-500",
 		},
 	};

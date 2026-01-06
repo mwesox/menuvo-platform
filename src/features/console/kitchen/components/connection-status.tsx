@@ -28,8 +28,8 @@ export function ConnectionStatus({ className }: ConnectionStatusProps) {
 					className={cn(
 						"flex items-center gap-2 rounded-md px-2 py-1 text-sm",
 						isOnline
-							? "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400"
-							: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400",
+							? "bg-green-100 text-green-700"
+							: "bg-red-100 text-red-700",
 						justReconnected && "animate-pulse",
 						className,
 					)}

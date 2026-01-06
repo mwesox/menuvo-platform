@@ -245,7 +245,7 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 										size="icon"
 										onClick={() => handleRemoveSlot(slotIndex)}
 									>
-										<Trash2 className="h-4 w-4" />
+										<Trash2 className="size-4" />
 									</Button>
 								)}
 							</div>
@@ -257,7 +257,7 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 							onClick={handleAddSlot}
 							className="mt-2"
 						>
-							<Plus className="h-4 w-4 mr-1" />
+							<Plus className="size-4 me-1" />
 							{tCommon("buttons.add")} slot
 						</Button>
 					</div>

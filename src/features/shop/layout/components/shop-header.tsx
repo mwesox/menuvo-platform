@@ -50,7 +50,7 @@ function CartButton({ onClick }: { onClick: () => void }) {
 				<ShoppingCart className="size-5" />
 				{itemCount > 0 && (
 					<span
-						className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full text-xs font-medium"
+						className="absolute -end-1 -top-1 flex size-5 items-center justify-center rounded-full text-xs font-medium"
 						style={{
 							backgroundColor: "var(--primary)",
 							color: "var(--primary-foreground)",
@@ -66,7 +66,7 @@ function CartButton({ onClick }: { onClick: () => void }) {
 				variant="ghost"
 				className={cn(
 					"hidden md:flex items-center gap-2 text-foreground hover:bg-accent hover:text-accent-foreground",
-					itemCount > 0 && "pr-3",
+					itemCount > 0 && "pe-3",
 				)}
 				onClick={onClick}
 				aria-label={t("header.cartWithItems", { count: itemCount })}
@@ -118,7 +118,7 @@ function SearchInput() {
 	// Always render - context should always be available in shop routes
 	return (
 		<div className="relative hidden md:block">
-			<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+			<Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 			<input
 				ref={inputRef}
 				type="text"
@@ -127,10 +127,10 @@ function SearchInput() {
 				onFocus={() => setIsFocused(true)}
 				onBlur={() => setIsFocused(false)}
 				placeholder={t("header.searchPlaceholder")}
-				className="h-9 min-w-48 w-56 md:w-64 lg:w-80 xl:w-96 rounded-lg border border-transparent bg-muted/50 pl-9 pr-16 text-sm text-foreground placeholder:text-muted-foreground focus:border-border focus:bg-background focus:outline-none"
+				className="h-9 min-w-48 w-56 md:w-64 lg:w-80 xl:w-96 rounded-lg border border-transparent bg-muted/50 ps-9 pe-16 text-sm text-foreground placeholder:text-muted-foreground focus:border-border focus:bg-background focus:outline-none"
 			/>
 			{/* Keyboard shortcut hint or clear button */}
-			<div className="absolute right-2 top-1/2 -translate-y-1/2">
+			<div className="absolute end-2 top-1/2 -translate-y-1/2">
 				{searchQuery ? (
 					<button
 						type="button"

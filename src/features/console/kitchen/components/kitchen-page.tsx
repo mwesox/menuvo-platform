@@ -5,7 +5,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { ChefHat, Store } from "lucide-react";
-import { useEffect, useEffectEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
 import {
@@ -19,6 +18,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Store as StoreType } from "@/db/schema";
 import { orderQueries } from "@/features/orders/queries";
 import { cn } from "@/lib/utils";
+import { useAudioPermission } from "../hooks/use-audio-permission";
 import { useKitchenBoard } from "../hooks/use-kitchen-board";
 import { useOrderNotifications } from "../hooks/use-order-notifications";
 import { AudioControl } from "./audio-control";
@@ -62,60 +62,17 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 	);
 
 	// Initialize board state
-	const { columns, moveCard, moveToNext, canDrop } = useKitchenBoard(
-		storeId ?? 0,
-		activeOrders,
-		doneOrders,
-	);
+	const { columns, moveCard, moveToNext, canDrop, lastMovedOrderId } =
+		useKitchenBoard(storeId ?? 0, activeOrders, doneOrders);
 
 	// Initialize notifications and get audio control functions
+	// Pass ALL orders (active + done) so we track all IDs and don't alert when moving from done
+	const allOrders = [...activeOrders, ...doneOrders];
 	const { requestPermission, playNotification, alertActive, dismissAlert } =
-		useOrderNotifications(activeOrders);
+		useOrderNotifications(allOrders);
 
-	// Stable reference to requestPermission for use in effects
-	const onRequestPermission = useEffectEvent(() => {
-		requestPermission();
-	});
-
-	// useEffectEvent provides a stable reference to dismissAlert that can be
-	// used in the effect without being a dependency, and always has the latest value
-	const onDismissAlert = useEffectEvent(() => {
-		dismissAlert();
-	});
-
-	// Enable audio on first user interaction with the page
-	// Browsers require a user gesture before audio can play
-	useEffect(() => {
-		const events = ["click", "touchstart", "keydown"] as const;
-
-		for (const event of events) {
-			window.addEventListener(event, onRequestPermission, { once: true });
-		}
-
-		return () => {
-			for (const event of events) {
-				window.removeEventListener(event, onRequestPermission);
-			}
-		};
-	}, []); // onRequestPermission excluded - it's an effect event
-
-	// Set up global event listeners to dismiss alert on any user interaction
-	// Using { once: true } so listeners auto-remove after firing
-	useEffect(() => {
-		if (!alertActive) return;
-
-		const events = ["mousemove", "click", "touchstart", "keydown"] as const;
-
-		for (const event of events) {
-			window.addEventListener(event, onDismissAlert, { once: true });
-		}
-
-		return () => {
-			for (const event of events) {
-				window.removeEventListener(event, onDismissAlert);
-			}
-		};
-	}, [alertActive]); // onDismissAlert excluded - it's an effect event
+	// Set up audio permission and alert dismissal effects
+	useAudioPermission({ requestPermission, alertActive, dismissAlert });
 
 	// No stores available
 	if (stores.length === 0) {
@@ -125,7 +82,7 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 					<PageActionBar title={t("title")} />
 					<div className="flex flex-1 items-center justify-center">
 						<div className="flex flex-col items-center gap-2 text-muted-foreground">
-							<Store className="h-12 w-12" />
+							<Store className="size-12" />
 							<p>{t("noStores")}</p>
 						</div>
 					</div>
@@ -172,7 +129,7 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 					<PageActionBar title={t("title")} actions={actions} />
 					<div className="flex flex-1 items-center justify-center">
 						<div className="flex flex-col items-center gap-2 text-muted-foreground">
-							<ChefHat className="h-12 w-12" />
+							<ChefHat className="size-12" />
 							<p>{t("selectStore")}</p>
 						</div>
 					</div>
@@ -200,6 +157,7 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 						moveCard={moveCard}
 						moveToNext={moveToNext}
 						canDrop={canDrop}
+						lastMovedOrderId={lastMovedOrderId}
 					/>
 				</div>
 			</div>

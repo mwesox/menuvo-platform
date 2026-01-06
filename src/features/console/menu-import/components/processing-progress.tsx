@@ -69,11 +69,11 @@ export function ProcessingProgress({
 			{/* Main spinner */}
 			<div className="flex justify-center">
 				{isComplete ? (
-					<div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-						<Check className="h-8 w-8 text-primary" />
+					<div className="size-16 rounded-full bg-primary/10 flex items-center justify-center">
+						<Check className="size-8 text-primary" />
 					</div>
 				) : (
-					<Loader2 className="h-16 w-16 text-primary animate-spin" />
+					<Loader2 className="size-16 text-primary animate-spin" />
 				)}
 			</div>
 
@@ -101,7 +101,7 @@ export function ProcessingProgress({
 					return (
 						<div key={stage.key} className="flex flex-col items-center gap-2">
 							<div
-								className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+								className={`size-10 rounded-full flex items-center justify-center transition-colors ${
 									isDone
 										? "bg-primary text-primary-foreground"
 										: isActive
@@ -110,11 +110,11 @@ export function ProcessingProgress({
 								}`}
 							>
 								{isDone ? (
-									<Check className="h-5 w-5" />
+									<Check className="size-5" />
 								) : isActive ? (
-									<Icon className="h-5 w-5 animate-pulse" />
+									<Icon className="size-5 animate-pulse" />
 								) : (
-									<Icon className="h-5 w-5" />
+									<Icon className="size-5" />
 								)}
 							</div>
 							<span

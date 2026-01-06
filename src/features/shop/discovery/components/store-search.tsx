@@ -24,7 +24,7 @@ export function StoreSearch({
 		<div className="space-y-4">
 			{/* Search input - elevated, prominent */}
 			<div className="relative">
-				<Search className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/60" />
+				<Search className="pointer-events-none absolute start-5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground/60" />
 				<input
 					type="text"
 					value={searchQuery}
@@ -32,7 +32,7 @@ export function StoreSearch({
 					placeholder={t("search.placeholder")}
 					className={cn(
 						"h-14 w-full rounded-2xl",
-						"bg-card pl-14 pr-12",
+						"bg-card ps-14 pe-12",
 						"text-foreground text-base",
 						"placeholder:text-muted-foreground/50",
 						"shadow-lg shadow-foreground/[0.03]",
@@ -46,10 +46,10 @@ export function StoreSearch({
 					<button
 						type="button"
 						onClick={() => onSearchChange("")}
-						className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+						className="absolute end-4 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
 						aria-label={t("search.clearSearch")}
 					>
-						<X className="h-4 w-4" />
+						<X className="size-4" />
 					</button>
 				)}
 			</div>

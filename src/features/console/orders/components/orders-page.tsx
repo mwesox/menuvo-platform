@@ -90,7 +90,7 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 				<PageActionBar title={t("title")} />
 				<div className="flex flex-1 items-center justify-center">
 					<div className="flex flex-col items-center gap-2 text-muted-foreground">
-						<Store className="h-12 w-12" />
+						<Store className="size-12" />
 						<p>No stores available</p>
 					</div>
 				</div>

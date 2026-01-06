@@ -80,16 +80,16 @@ export function SubscriptionActions({
 							onClick={handleBillingPortal}
 							disabled={billingPortalMutation.isPending}
 						>
-							<CreditCard className="mr-2 h-4 w-4" />
+							<CreditCard className="me-2 size-4" />
 							{t("subscription.actions.manageBilling")}
-							<ExternalLink className="ml-2 h-3 w-3" />
+							<ExternalLink className="ms-2 size-3" />
 						</Button>
 					)}
 
 					{/* Resume (for paused) */}
 					{canResume && (
 						<Button onClick={handleResume} disabled={resumeMutation.isPending}>
-							<PlayCircle className="mr-2 h-4 w-4" />
+							<PlayCircle className="me-2 size-4" />
 							{resumeMutation.isPending
 								? t("subscription.actions.resuming")
 								: t("subscription.actions.resume")}
@@ -102,7 +102,7 @@ export function SubscriptionActions({
 							variant="destructive"
 							onClick={() => setShowCancelDialog(true)}
 						>
-							<XCircle className="mr-2 h-4 w-4" />
+							<XCircle className="me-2 size-4" />
 							{t("subscription.actions.cancel")}
 						</Button>
 					)}

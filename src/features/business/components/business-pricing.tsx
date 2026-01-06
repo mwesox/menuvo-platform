@@ -47,14 +47,14 @@ export function BusinessPricing() {
 	return (
 		<section
 			id="pricing"
-			className="py-24 bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
+			className="py-24 bg-gradient-to-b from-white via-gray-50 to-white"
 		>
 			<div className="container px-4 md:px-6 max-w-7xl mx-auto">
 				<div className="flex flex-col items-center justify-center space-y-4 text-center mb-16">
-					<h2 className="text-3xl font-sans font-bold tracking-tighter sm:text-4xl md:text-5xl text-gray-900 dark:text-white">
+					<h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-gray-900 text-pretty">
 						{t("pricing.title")}
 					</h2>
-					<p className="mx-auto max-w-[700px] font-sans text-gray-600 dark:text-gray-400 md:text-xl">
+					<p className="mx-auto max-w-[700px] text-gray-600 md:text-xl">
 						{t("pricing.subtitle")}
 					</p>
 				</div>
@@ -65,13 +65,13 @@ export function BusinessPricing() {
 							key={tier.key}
 							className={`relative h-full rounded-xl border p-8 transition-all duration-500 backdrop-blur-sm hover:shadow-xl ${
 								tier.highlighted
-									? "border-[#e1393b]/30 shadow-lg pt-12 bg-white dark:bg-gray-800"
-									: "border-gray-200 dark:border-gray-700 shadow-sm hover:border-gray-300/60 bg-white/80 dark:bg-gray-800/80"
+									? "border-brand-red/30 shadow-lg pt-12 bg-white"
+									: "border-gray-200 shadow-sm hover:border-gray-300/60 bg-white/80"
 							}`}
 						>
 							{tier.highlighted && (
-								<div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-									<span className="inline-block rounded-full bg-[#e1393b] px-4 py-1.5 text-xs font-sans font-semibold text-white shadow-md uppercase tracking-wide">
+								<div className="absolute -top-3 start-1/2 -translate-x-1/2 z-10">
+									<span className="inline-block rounded-full bg-brand-red px-4 py-1.5 text-xs font-semibold text-white shadow-md uppercase tracking-wide">
 										{t("pricing.recommended")}
 									</span>
 								</div>
@@ -79,44 +79,40 @@ export function BusinessPricing() {
 
 							<div className="space-y-5">
 								<div className="space-y-2">
-									<h3 className="text-xl font-sans font-bold text-gray-900 dark:text-white">
+									<h3 className="text-xl font-bold text-gray-900">
 										{tier.name}
 									</h3>
-									<p className="font-sans text-sm text-gray-500 dark:text-gray-400">
-										{tier.description}
-									</p>
+									<p className="text-sm text-gray-500">{tier.description}</p>
 								</div>
 
 								<div className="flex items-baseline gap-2">
-									<span className="text-2xl font-sans font-bold tracking-tight text-gray-900 dark:text-white">
+									<span className="text-2xl font-bold tracking-tight text-gray-900">
 										€{tier.price}
 									</span>
-									<span className="font-sans text-sm text-gray-500 dark:text-gray-400">
-										{tier.period}
-									</span>
+									<span className="text-sm text-gray-500">{tier.period}</span>
 								</div>
 
 								<a
 									href="/console/onboarding"
-									className={`w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg px-6 text-sm font-sans font-semibold transition-all duration-300 cursor-pointer uppercase tracking-wide ${
+									className={`w-full inline-flex items-center justify-center gap-2 h-11 rounded-lg px-6 text-sm font-semibold transition-all duration-300 cursor-pointer uppercase tracking-wide ${
 										tier.highlighted
-											? "bg-[#e1393b] text-white shadow-md hover:bg-[#c32d2f] hover:shadow-lg active:scale-[0.98]"
-											: "bg-white border border-gray-300 text-gray-900 hover:border-[#e1393b]/50 hover:bg-gray-50 shadow-sm hover:shadow-md active:scale-[0.98]"
+											? "bg-brand-red text-white shadow-md hover:bg-brand-red-dark hover:shadow-lg active:scale-[0.98]"
+											: "bg-white border border-gray-300 text-gray-900 hover:border-brand-red/50 hover:bg-gray-50 shadow-sm hover:shadow-md active:scale-[0.98]"
 									}`}
 								>
 									<span>{tier.cta}</span>
-									<ChevronRight className="w-4 h-4 transition-transform duration-300" />
+									<ChevronRight className="size-4 transition-transform duration-300" />
 								</a>
 
-								<div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+								<div className="pt-2 border-t border-gray-200">
 									<ul className="space-y-3">
 										{tier.features.map((feature) => (
 											<li key={feature} className="flex items-start gap-2.5">
 												<Check
-													className="h-4 w-4 text-[#e1393b] shrink-0 mt-0.5"
+													className="size-4 text-brand-red shrink-0 mt-0.5"
 													strokeWidth={2.5}
 												/>
-												<span className="font-sans text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+												<span className="text-sm leading-relaxed text-gray-600">
 													{feature}
 												</span>
 											</li>
@@ -128,29 +124,29 @@ export function BusinessPricing() {
 					))}
 				</div>
 
-				<p className="mt-2 font-sans text-xs text-gray-500 dark:text-gray-400 text-center">
+				<p className="mt-2 text-xs text-gray-500 text-center">
 					{t("comparison.note")}
 				</p>
 
 				<div className="mt-16">
-					<h3 className="text-2xl font-sans font-bold text-center mb-8 text-gray-900 dark:text-white">
+					<h3 className="text-2xl font-bold text-center mb-8 text-gray-900">
 						{t("comparison.title")}
 					</h3>
-					<div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl">
+					<div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl">
 						<div className="overflow-x-auto">
 							<table className="w-full">
 								<thead>
-									<tr className="border-b border-gray-200 dark:border-gray-700">
-										<th className="px-6 py-4 text-left font-sans font-semibold bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300">
+									<tr className="border-b border-gray-200">
+										<th className="px-6 py-4 text-start font-semibold bg-gray-50 text-gray-700">
 											{t("comparison.feature")}
 										</th>
-										<th className="px-6 py-4 text-center font-sans font-bold bg-[#e1393b]/10 text-[#e1393b] relative">
+										<th className="px-6 py-4 text-center font-bold bg-brand-red/10 text-brand-red relative">
 											<span>{t("comparison.menuvo")}</span>
 										</th>
-										<th className="px-6 py-4 text-center font-sans font-semibold bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300">
+										<th className="px-6 py-4 text-center font-semibold bg-gray-50 text-gray-700">
 											Lieferando
 										</th>
-										<th className="px-6 py-4 text-center font-sans font-semibold bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300">
+										<th className="px-6 py-4 text-center font-semibold bg-gray-50 text-gray-700">
 											Wolt
 										</th>
 									</tr>
@@ -159,18 +155,18 @@ export function BusinessPricing() {
 									{comparison.map((row) => (
 										<tr
 											key={row.feature}
-											className="border-b border-gray-100 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700/20 transition-colors"
+											className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors"
 										>
-											<td className="px-6 py-4 font-sans font-medium text-gray-900 dark:text-white">
+											<td className="px-6 py-4 font-medium text-gray-900">
 												{row.feature}
 											</td>
-											<td className="px-6 py-4 text-center font-sans font-bold text-[#e1393b] bg-[#e1393b]/5 relative">
+											<td className="px-6 py-4 text-center font-bold text-brand-red bg-brand-red/5 relative">
 												<span className="relative z-10">{row.menuvo}</span>
 											</td>
-											<td className="px-6 py-4 text-center font-sans text-gray-600 dark:text-gray-400">
+											<td className="px-6 py-4 text-center text-gray-600">
 												{row.lieferando}
 											</td>
-											<td className="px-6 py-4 text-center font-sans text-gray-600 dark:text-gray-400">
+											<td className="px-6 py-4 text-center text-gray-600">
 												{row.wolt}
 											</td>
 										</tr>
@@ -179,7 +175,7 @@ export function BusinessPricing() {
 							</table>
 						</div>
 					</div>
-					<p className="mt-3 font-sans text-xs text-gray-500 dark:text-gray-400 text-center">
+					<p className="mt-3 text-xs text-gray-500 text-center">
 						{t("comparison.provisionNote")}
 					</p>
 				</div>

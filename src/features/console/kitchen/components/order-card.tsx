@@ -33,6 +33,8 @@ interface OrderCardProps {
 	columnId: KanbanColumnId;
 	/** Callback when "Next" button is clicked */
 	onNext?: (orderId: number) => void;
+	/** Whether this card was the last one moved (for visual highlighting) */
+	isLastMoved?: boolean;
 	className?: string;
 }
 
@@ -41,6 +43,7 @@ export function OrderCard({
 	storeId,
 	columnId,
 	onNext,
+	isLastMoved,
 	className,
 }: OrderCardProps) {
 	const { t } = useTranslation("console-kitchen");
@@ -72,7 +75,7 @@ export function OrderCard({
 				layoutId={`order-card-${order.id}`}
 				data-order-id={order.id}
 				className={cn(
-					"group relative cursor-grab active:cursor-grabbing",
+					"group relative cursor-grab rounded-lg active:cursor-grabbing",
 					isDragging && "opacity-50",
 					className,
 				)}
@@ -81,13 +84,13 @@ export function OrderCard({
 				}}
 			>
 				{/* Actions menu - hidden until hover */}
-				<div className="absolute top-2 right-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
+				<div className="absolute top-2 end-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button
 								variant="ghost"
 								size="icon"
-								className="h-7 w-7 bg-background/80 backdrop-blur-sm"
+								className="size-7 bg-background/80 backdrop-blur-sm"
 							>
 								<MoreVertical className="size-4" />
 							</Button>
@@ -97,7 +100,7 @@ export function OrderCard({
 								onClick={() => setCancelDialogOpen(true)}
 								className="text-destructive"
 							>
-								<XCircle className="mr-2 size-4" />
+								<XCircle className="me-2 size-4" />
 								{t("actions.cancel")}
 							</DropdownMenuItem>
 						</DropdownMenuContent>
@@ -109,6 +112,7 @@ export function OrderCard({
 					order={order}
 					columnId={columnId}
 					onNext={onNext ? () => onNext(order.id) : undefined}
+					isLastMoved={isLastMoved}
 				/>
 			</motion.div>
 

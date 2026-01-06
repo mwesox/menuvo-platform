@@ -28,6 +28,8 @@ interface KanbanColumnProps {
 	) => boolean;
 	/** Callback when "Next" button is clicked on an order */
 	onNext?: (orderId: number) => void;
+	/** ID of the last moved order for visual highlighting */
+	lastMovedOrderId?: number | null;
 	className?: string;
 }
 
@@ -48,6 +50,7 @@ export function KanbanColumn({
 	storeId,
 	canDrop,
 	onNext,
+	lastMovedOrderId,
 	className,
 }: KanbanColumnProps) {
 	const { t } = useTranslation("console-kitchen");
@@ -124,6 +127,7 @@ export function KanbanColumn({
 								storeId={storeId}
 								columnId={id}
 								onNext={onNext}
+								isLastMoved={order.id === lastMovedOrderId}
 							/>
 						))
 					)}

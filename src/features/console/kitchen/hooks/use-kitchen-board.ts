@@ -6,13 +6,9 @@
  * - State updates only on drop via moveCard function
  */
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import type { OrderStatus } from "@/features/orders/constants";
-import { orderKeys } from "@/features/orders/queries";
-import { updateOrderStatus } from "@/features/orders/server/orders.functions";
 import type { OrderWithItems } from "@/features/orders/types";
 import { COLUMN_TO_STATUS, type KanbanColumnId } from "../constants";
 import {
@@ -23,8 +19,7 @@ import {
 	sortByCompletionTime,
 	sortByUrgencyAndTime,
 } from "../logic/order-sorting";
-import { useMutationQueue } from "../stores/mutation-queue";
-import { useConnectionStatus } from "./use-connection-status";
+import { useKitchenUpdateOrderStatus } from "../queries";
 
 // ============================================================================
 // TYPES
@@ -51,7 +46,11 @@ export interface KitchenBoardActions {
 	) => boolean;
 }
 
-export type KitchenBoardResult = KitchenBoardState & KitchenBoardActions;
+export type KitchenBoardResult = KitchenBoardState &
+	KitchenBoardActions & {
+		/** ID of the last moved order for visual highlighting */
+		lastMovedOrderId: number | null;
+	};
 
 // ============================================================================
 // HELPERS
@@ -142,51 +141,15 @@ export function useKitchenBoard(
 	doneOrders: OrderWithItems[],
 ): KitchenBoardResult {
 	const { t } = useTranslation("console-kitchen");
-	const queryClient = useQueryClient();
-	const { isOnline } = useConnectionStatus();
-	const mutationQueue = useMutationQueue();
+
+	// Track last moved order for visual highlighting
+	const [lastMovedOrderId, setLastMovedOrderId] = useState<number | null>(null);
 
 	// Group orders into columns
 	const columns = groupOrdersByColumn(activeOrders, doneOrders);
 
-	// Status update mutation - direct call to server function
-	const statusMutation = useMutation({
-		mutationFn: async ({
-			orderId,
-			status,
-		}: {
-			orderId: number;
-			status: OrderStatus;
-		}) => {
-			return updateOrderStatus({ data: { orderId, status } });
-		},
-		onSuccess: () => {
-			// Invalidate queries to sync with server
-			queryClient.invalidateQueries({
-				queryKey: orderKeys.kitchen(storeId),
-			});
-			queryClient.invalidateQueries({
-				queryKey: orderKeys.kitchenDone(storeId),
-			});
-		},
-		onError: (_error, variables) => {
-			// Queue for retry if offline
-			if (!isOnline) {
-				mutationQueue.addMutation({
-					type: "updateStatus",
-					orderId: variables.orderId,
-					payload: { status: variables.status },
-				});
-				toast.info(t("info.queuedForSync"));
-			} else {
-				toast.error(t("errors.updateFailed"));
-				// Invalidate to revert to server state
-				queryClient.invalidateQueries({
-					queryKey: orderKeys.kitchen(storeId),
-				});
-			}
-		},
-	});
+	// Status update mutation with offline queueing
+	const statusMutation = useKitchenUpdateOrderStatus(storeId);
 
 	// Check if drop is valid
 	const canDrop = useCallback(
@@ -212,7 +175,10 @@ export function useKitchenBoard(
 			}
 
 			const newStatus = COLUMN_TO_STATUS[targetColumn];
-			statusMutation.mutate({ orderId, status: newStatus });
+			statusMutation.mutate(
+				{ orderId, status: newStatus },
+				{ onSuccess: () => setLastMovedOrderId(orderId) },
+			);
 		},
 		[columns, statusMutation, t],
 	);
@@ -230,7 +196,10 @@ export function useKitchenBoard(
 
 			// Persist to server
 			const newStatus = COLUMN_TO_STATUS[nextColumn];
-			statusMutation.mutate({ orderId, status: newStatus });
+			statusMutation.mutate(
+				{ orderId, status: newStatus },
+				{ onSuccess: () => setLastMovedOrderId(orderId) },
+			);
 		},
 		[columns, statusMutation],
 	);
@@ -238,6 +207,7 @@ export function useKitchenBoard(
 	return {
 		// State
 		columns,
+		lastMovedOrderId,
 
 		// Actions
 		moveCard,

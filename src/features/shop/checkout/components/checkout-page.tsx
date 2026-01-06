@@ -175,7 +175,7 @@ export function CheckoutPage({
 			<div className="min-h-screen bg-background">
 				<div className="max-w-xl mx-auto px-4 py-12">
 					<ShopCard padding="lg" className="text-center space-y-4">
-						<Loader2 className="w-12 h-12 mx-auto animate-spin text-primary" />
+						<Loader2 className="size-12 mx-auto animate-spin text-primary" />
 						<ShopHeading as="h1" size="lg">
 							{t("checkout.payment.redirecting")}
 						</ShopHeading>
@@ -258,7 +258,7 @@ export function CheckoutPage({
 						<div>
 							<Label htmlFor="customerNotes" className="text-sm font-medium">
 								{t("checkout.specialRequests")}
-								<span className="text-muted-foreground font-normal ml-1">
+								<span className="text-muted-foreground font-normal ms-1">
 									({t("checkout.optional")})
 								</span>
 							</Label>

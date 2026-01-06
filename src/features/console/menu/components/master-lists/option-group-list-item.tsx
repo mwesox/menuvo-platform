@@ -58,7 +58,7 @@ export function OptionGroupListItem({
 			type="button"
 			onClick={() => onSelect(optionGroup.id)}
 			className={cn(
-				"w-full text-left px-3 py-2.5 rounded-lg transition-colors",
+				"w-full text-start px-3 py-2.5 rounded-lg transition-colors",
 				"hover:bg-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 				isSelected && "bg-accent",
 			)}
@@ -66,11 +66,11 @@ export function OptionGroupListItem({
 			<div className="flex items-center gap-3">
 				<div
 					className={cn(
-						"flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center",
+						"flex-shrink-0 size-8 rounded-md flex items-center justify-center",
 						isSelected ? "bg-primary text-primary-foreground" : "bg-muted",
 					)}
 				>
-					<ListChecks className="h-4 w-4" />
+					<ListChecks className="size-4" />
 				</div>
 
 				<div className="flex-1 min-w-0">

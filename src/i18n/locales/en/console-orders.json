@@ -64,5 +64,12 @@
 		"30": "Last 30 days",
 		"90": "Last 90 days",
 		"all": "All time"
+	},
+	"export": {
+		"tooltip": "Export to CSV",
+		"noData": "No orders to export with current filters",
+		"success": "Exported {{count}} orders",
+		"successLimited": "Exported {{count}} of {{total}} orders (max 1000)",
+		"error": "Failed to export orders"
 	}
 }

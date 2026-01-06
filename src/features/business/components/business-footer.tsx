@@ -14,7 +14,7 @@ export function BusinessFooter() {
 	}
 
 	return (
-		<footer className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 pb-12">
+		<footer className="border-t border-gray-200 bg-gray-50 pb-12">
 			<div className="container px-4 md:px-6 py-16 max-w-7xl mx-auto">
 				<div className="grid gap-8 sm:grid-cols-2 md:grid-cols-4">
 					<div className="space-y-4">
@@ -22,27 +22,23 @@ export function BusinessFooter() {
 							<img
 								src="/menuvo-app-icon.svg"
 								alt="Menuvo Logo"
-								className="h-8 w-8"
+								className="size-8"
 							/>
-							<span className="text-lg font-sans font-bold text-gray-900 dark:text-white">
-								Menuvo
-							</span>
+							<span className="text-lg font-bold text-gray-900">Menuvo</span>
 						</div>
-						<p className="font-sans text-sm text-gray-600 dark:text-gray-400">
-							{t("footer.tagline")}
-						</p>
+						<p className="text-sm text-gray-600">{t("footer.tagline")}</p>
 					</div>
 
 					<div className="space-y-4">
-						<h4 className="text-sm font-sans font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+						<h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
 							{t("footer.product")}
 						</h4>
-						<ul className="space-y-2 font-sans text-sm">
+						<ul className="space-y-2 text-sm">
 							<li>
 								<button
 									type="button"
 									onClick={() => scrollToSection("features")}
-									className="text-gray-600 dark:text-gray-400 hover:text-[#e1393b] transition-colors cursor-pointer"
+									className="text-gray-600 hover:text-brand-red transition-colors cursor-pointer"
 								>
 									{t("header.features")}
 								</button>
@@ -51,7 +47,7 @@ export function BusinessFooter() {
 								<button
 									type="button"
 									onClick={() => scrollToSection("pricing")}
-									className="text-gray-600 dark:text-gray-400 hover:text-[#e1393b] transition-colors cursor-pointer"
+									className="text-gray-600 hover:text-brand-red transition-colors cursor-pointer"
 								>
 									{t("header.pricing")}
 								</button>
@@ -60,7 +56,7 @@ export function BusinessFooter() {
 								<button
 									type="button"
 									onClick={() => scrollToSection("faq")}
-									className="text-gray-600 dark:text-gray-400 hover:text-[#e1393b] transition-colors cursor-pointer"
+									className="text-gray-600 hover:text-brand-red transition-colors cursor-pointer"
 								>
 									{t("header.faq")}
 								</button>
@@ -69,14 +65,14 @@ export function BusinessFooter() {
 					</div>
 
 					<div className="space-y-4">
-						<h4 className="text-sm font-sans font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+						<h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
 							{t("footer.company")}
 						</h4>
-						<ul className="space-y-2 font-sans text-sm">
+						<ul className="space-y-2 text-sm">
 							<li>
 								<Link
 									to="/business"
-									className="text-gray-600 dark:text-gray-400 hover:text-[#e1393b] transition-colors"
+									className="text-gray-600 hover:text-brand-red transition-colors"
 								>
 									{t("footer.contact")}
 								</Link>
@@ -85,14 +81,14 @@ export function BusinessFooter() {
 					</div>
 
 					<div className="space-y-4">
-						<h4 className="text-sm font-sans font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+						<h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
 							{t("footer.legal")}
 						</h4>
-						<ul className="space-y-2 font-sans text-sm">
+						<ul className="space-y-2 text-sm">
 							<li>
 								<a
 									href="/legal/privacy"
-									className="text-gray-600 dark:text-gray-400 hover:text-[#e1393b] transition-colors"
+									className="text-gray-600 hover:text-brand-red transition-colors"
 								>
 									{t("footer.privacy")}
 								</a>
@@ -100,7 +96,7 @@ export function BusinessFooter() {
 							<li>
 								<a
 									href="/legal/terms"
-									className="text-gray-600 dark:text-gray-400 hover:text-[#e1393b] transition-colors"
+									className="text-gray-600 hover:text-brand-red transition-colors"
 								>
 									{t("footer.terms")}
 								</a>
@@ -108,7 +104,7 @@ export function BusinessFooter() {
 							<li>
 								<a
 									href="/legal/impressum"
-									className="text-gray-600 dark:text-gray-400 hover:text-[#e1393b] transition-colors"
+									className="text-gray-600 hover:text-brand-red transition-colors"
 								>
 									{t("footer.impressum")}
 								</a>
@@ -117,32 +113,32 @@ export function BusinessFooter() {
 					</div>
 				</div>
 
-				<div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+				<div className="mt-12 pt-8 border-t border-gray-200">
 					<div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-						<p className="font-sans text-sm text-gray-500 dark:text-gray-400">
+						<p className="text-sm text-gray-500">
 							{t("footer.copyright", { year: currentYear })}
 						</p>
 						<div className="flex gap-4">
 							<button
 								type="button"
-								className="text-gray-500 hover:text-[#e1393b] transition-colors"
+								className="text-gray-500 hover:text-brand-red transition-colors"
 								aria-label="Twitter"
 							>
-								<Twitter className="w-5 h-5" />
+								<Twitter className="size-5" />
 							</button>
 							<button
 								type="button"
-								className="text-gray-500 hover:text-[#e1393b] transition-colors"
+								className="text-gray-500 hover:text-brand-red transition-colors"
 								aria-label="Instagram"
 							>
-								<Instagram className="w-5 h-5" />
+								<Instagram className="size-5" />
 							</button>
 							<button
 								type="button"
-								className="text-gray-500 hover:text-[#e1393b] transition-colors"
+								className="text-gray-500 hover:text-brand-red transition-colors"
 								aria-label="Facebook"
 							>
-								<Facebook className="w-5 h-5" />
+								<Facebook className="size-5" />
 							</button>
 						</div>
 					</div>

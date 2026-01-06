@@ -31,6 +31,8 @@ interface KanbanBoardProps {
 		sourceColumn: KanbanColumnId,
 		targetColumn: KanbanColumnId,
 	) => boolean;
+	/** ID of the last moved order for visual highlighting */
+	lastMovedOrderId?: number | null;
 }
 
 export function KanbanBoard({
@@ -39,6 +41,7 @@ export function KanbanBoard({
 	moveCard,
 	moveToNext,
 	canDrop,
+	lastMovedOrderId,
 }: KanbanBoardProps) {
 	// Monitor all drag operations at board level
 	useEffect(() => {
@@ -77,6 +80,7 @@ export function KanbanBoard({
 						storeId={storeId}
 						canDrop={canDrop}
 						onNext={moveToNext}
+						lastMovedOrderId={lastMovedOrderId}
 					/>
 				))}
 			</div>

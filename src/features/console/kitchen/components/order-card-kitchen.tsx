@@ -17,10 +17,10 @@ import { useUrgency } from "../hooks/use-urgency";
 const getHeaderStyle = (orderType: string): string => {
 	if (orderType === "takeaway") {
 		// Amber = action, needs packaging
-		return "bg-amber-600 text-white dark:bg-amber-700";
+		return "bg-amber-600 text-white";
 	}
 	// Blue = calm, seated, staying (default for dine_in and other types)
-	return "bg-blue-700 text-white dark:bg-blue-800";
+	return "bg-blue-700 text-white";
 };
 
 /** Time text style based on urgency - white text on colored backgrounds */
@@ -43,6 +43,8 @@ interface OrderCardKitchenProps {
 	columnId?: KanbanColumnId;
 	/** Callback when "Next" button is clicked */
 	onNext?: () => void;
+	/** Whether this card was the last one moved */
+	isLastMoved?: boolean;
 	className?: string;
 }
 
@@ -50,6 +52,7 @@ export function OrderCardKitchen({
 	order,
 	columnId,
 	onNext,
+	isLastMoved,
 	className,
 }: OrderCardKitchenProps) {
 	const { t } = useTranslation("console-kitchen");
@@ -89,7 +92,7 @@ export function OrderCardKitchen({
 					)}
 				>
 					<span className="min-w-0 truncate">{orderTypeLabel}</span>
-					<span className="min-w-[3ch] shrink-0 text-right font-mono">
+					<span className="min-w-[3ch] shrink-0 text-end font-mono">
 						#{order.id}
 					</span>
 				</div>
@@ -105,6 +108,7 @@ export function OrderCardKitchen({
 			className={cn(
 				"overflow-hidden rounded bg-card shadow-sm",
 				level === "critical" && "animate-pulse-subtle",
+				isLastMoved && "animate-highlight-glow",
 				className,
 			)}
 		>
@@ -122,7 +126,7 @@ export function OrderCardKitchen({
 							{elapsedText}
 						</span>
 					)}
-					<span className="min-w-[3ch] text-right font-bold font-mono">
+					<span className="min-w-[3ch] text-end font-bold font-mono">
 						#{order.id}
 					</span>
 				</div>
@@ -148,7 +152,7 @@ export function OrderCardKitchen({
 							</span>
 						</div>
 						{item.options.length > 0 && (
-							<div className="mt-0.5 ml-7 text-muted-foreground text-sm">
+							<div className="mt-0.5 ms-7 text-muted-foreground text-sm">
 								{item.options.map((opt) => (
 									<div key={opt.id} className="flex items-center gap-1">
 										<span className="text-muted-foreground/60">•</span>
@@ -164,13 +168,11 @@ export function OrderCardKitchen({
 
 			{/* Customer notes */}
 			{order.customerNotes && (
-				<div className="border-t bg-amber-50/80 px-3 py-2 text-sm dark:bg-amber-950/30">
-					<span className="font-medium text-amber-700 dark:text-amber-300">
+				<div className="border-t bg-amber-50/80 px-3 py-2 text-sm">
+					<span className="font-medium text-amber-700">
 						{t("labels.notes")}:
 					</span>{" "}
-					<span className="text-amber-900 dark:text-amber-100">
-						{order.customerNotes}
-					</span>
+					<span className="text-amber-900">{order.customerNotes}</span>
 				</div>
 			)}
 
@@ -188,7 +190,7 @@ export function OrderCardKitchen({
 						onPointerDown={(e) => e.stopPropagation()}
 					>
 						{t("actions.next")}
-						<ChevronRight className="ml-1 pointer-coarse:size-5 size-4" />
+						<ChevronRight className="ms-1 pointer-coarse:size-5 size-4" />
 					</Button>
 				</div>
 			)}

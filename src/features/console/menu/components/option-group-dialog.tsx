@@ -604,12 +604,12 @@ export function OptionGroupDialog({
 																	onClick={() => field.removeValue(index)}
 																	className="shrink-0 text-muted-foreground hover:text-destructive"
 																>
-																	<X className="h-4 w-4" />
+																	<X className="size-4" />
 																</Button>
 															</div>
 
 															{/* Choice options row */}
-															<div className="flex items-center gap-4 pl-2">
+															<div className="flex items-center gap-4 ps-2">
 																{/* Default checkbox */}
 																<form.Field
 																	name={`choices[${index}].isDefault`}

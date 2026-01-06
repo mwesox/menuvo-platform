@@ -59,7 +59,7 @@ export function CategoryDetail({
 							? tCommon("labels.item")
 							: tCommon("labels.items")}
 						{availableItemCount < category.items.length && (
-							<span className="ml-1">
+							<span className="ms-1">
 								({availableItemCount} {t("labels.available")})
 							</span>
 						)}
@@ -69,18 +69,18 @@ export function CategoryDetail({
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="outline" size="icon">
-							<MoreHorizontal className="h-4 w-4" />
+							<MoreHorizontal className="size-4" />
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						<DropdownMenuItem onClick={() => onEdit(category)}>
-							<Pencil className="mr-2 h-4 w-4" />
+							<Pencil className="me-2 size-4" />
 							{tCommon("buttons.edit")}
 						</DropdownMenuItem>
 						<DropdownMenuItem
 							onClick={() => onToggleActive(category.id, !category.isActive)}
 						>
-							<Power className="mr-2 h-4 w-4" />
+							<Power className="me-2 size-4" />
 							{category.isActive
 								? tCommon("buttons.hide")
 								: tCommon("buttons.show")}
@@ -90,7 +90,7 @@ export function CategoryDetail({
 							className="text-destructive"
 							onClick={() => onDelete(category.id)}
 						>
-							<Trash2 className="mr-2 h-4 w-4" />
+							<Trash2 className="me-2 size-4" />
 							{tCommon("buttons.delete")}
 						</DropdownMenuItem>
 					</DropdownMenuContent>
@@ -102,7 +102,7 @@ export function CategoryDetail({
 			{/* Edit button */}
 			<div className="pt-4 border-t">
 				<Button onClick={() => onEdit(category)} className="w-full">
-					<Pencil className="mr-2 h-4 w-4" />
+					<Pencil className="me-2 size-4" />
 					{t("titles.editCategory")}
 				</Button>
 			</div>

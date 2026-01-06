@@ -33,11 +33,11 @@ function getFileIcon(filename: string) {
 	switch (ext) {
 		case "xlsx":
 		case "csv":
-			return <FileSpreadsheet className="h-8 w-8 text-green-600" />;
+			return <FileSpreadsheet className="size-8 text-green-600" />;
 		case "json":
-			return <FileJson className="h-8 w-8 text-yellow-600" />;
+			return <FileJson className="size-8 text-yellow-600" />;
 		default:
-			return <FileText className="h-8 w-8 text-blue-600" />;
+			return <FileText className="size-8 text-blue-600" />;
 	}
 }
 
@@ -134,7 +134,7 @@ export function FileDropzone({
 							setValidationError(null);
 						}}
 					>
-						<X className="h-4 w-4" />
+						<X className="size-4" />
 					</Button>
 				</div>
 			</div>
@@ -167,7 +167,7 @@ export function FileDropzone({
 			onClick={() => inputRef.current?.click()}
 			onKeyDown={handleKeyDown}
 		>
-			<Upload className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
+			<Upload className="size-10 mx-auto text-muted-foreground mb-4" />
 			<p className="text-sm text-muted-foreground mb-2">
 				{t("import.dropzone.dragAndDrop")}
 			</p>

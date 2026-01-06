@@ -120,9 +120,9 @@ export function QRCodeDialog({
 									className="shrink-0"
 								>
 									{copiedShort ? (
-										<Check className="h-4 w-4 text-green-500" />
+										<Check className="size-4 text-green-500" />
 									) : (
-										<Copy className="h-4 w-4" />
+										<Copy className="size-4" />
 									)}
 								</Button>
 							</div>
@@ -142,16 +142,16 @@ export function QRCodeDialog({
 									className="shrink-0"
 								>
 									{copiedFull ? (
-										<Check className="h-4 w-4 text-green-500" />
+										<Check className="size-4 text-green-500" />
 									) : (
-										<Link className="h-4 w-4" />
+										<Link className="size-4" />
 									)}
 								</Button>
 							</div>
 						</div>
 
 						<Button onClick={handleDownload} className="w-full">
-							<Download className="mr-2 h-4 w-4" />
+							<Download className="me-2 size-4" />
 							{t("labels.downloadQrCode")}
 						</Button>
 					</div>

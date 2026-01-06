@@ -158,7 +158,7 @@ function EditStorePage() {
 										variant="destructive"
 										onClick={() => setShowDeleteDialog(true)}
 									>
-										<Trash2 className="mr-2 h-4 w-4" />
+										<Trash2 className="me-2 h-4 w-4" />
 										{tCommon("buttons.delete")}
 									</Button>
 								</div>

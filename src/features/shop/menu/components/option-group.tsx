@@ -152,15 +152,13 @@ function SingleSelectGroup({
 							/>
 							<div
 								className={cn(
-									"w-5 h-5 rounded-full border-2 shrink-0",
+									"size-5 rounded-full border-2 shrink-0",
 									"flex items-center justify-center transition-all duration-150",
 									"peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
 									isSelected ? "border-primary bg-primary" : "border-border",
 								)}
 							>
-								{isSelected && (
-									<div className="w-2 h-2 rounded-full bg-white" />
-								)}
+								{isSelected && <div className="size-2 rounded-full bg-white" />}
 							</div>
 							<span
 								className={cn(
@@ -250,7 +248,7 @@ function MultiSelectGroup({
 							/>
 							<div
 								className={cn(
-									"w-5 h-5 rounded-md border-2 shrink-0",
+									"size-5 rounded-md border-2 shrink-0",
 									"flex items-center justify-center transition-all duration-150",
 									"peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
 									isSelected ? "border-primary bg-primary" : "border-border",
@@ -258,7 +256,7 @@ function MultiSelectGroup({
 								)}
 							>
 								{isSelected && (
-									<Check className="w-3 h-3 text-white stroke-[3]" />
+									<Check className="size-3 text-white stroke-[3]" />
 								)}
 							</div>
 							<span

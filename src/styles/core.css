@@ -38,12 +38,13 @@ code {
 	--color-warning: var(--warning);
 	--color-warning-foreground: var(--warning-foreground);
 
-	/* Charts */
-	--color-chart-1: var(--chart-1);
-	--color-chart-2: var(--chart-2);
-	--color-chart-3: var(--chart-3);
-	--color-chart-4: var(--chart-4);
-	--color-chart-5: var(--chart-5);
+	/* Brand colors */
+	--color-brand-red: var(--brand-red);
+	--color-brand-red-dark: var(--brand-red-dark);
+	--color-brand-red-light: var(--brand-red-light);
+	--color-brand-red-lighter: var(--brand-red-lighter);
+	--color-brand-orange: var(--brand-orange);
+	--color-brand-dark: var(--brand-dark);
 
 	/* Radius */
 	--radius-sm: calc(var(--radius) - 4px);
@@ -75,6 +76,16 @@ code {
 		font-family: var(--font-body);
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
+	}
+
+	/* Global @container defaults for responsive components */
+	main,
+	section,
+	article,
+	aside,
+	.card,
+	[data-slot="content"] {
+		container-type: inline-size;
 	}
 }
 

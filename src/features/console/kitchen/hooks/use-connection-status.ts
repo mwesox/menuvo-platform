@@ -3,6 +3,7 @@
  */
 
 import { useEffect, useState, useSyncExternalStore } from "react";
+import { RECONNECTION_FEEDBACK_DURATION_MS } from "../constants";
 
 // ============================================================================
 // EXTERNAL STORE FOR SSR-SAFE ONLINE STATUS
@@ -33,7 +34,7 @@ function getServerSnapshot() {
 export interface ConnectionStatusResult {
 	/** Whether the browser is online */
 	isOnline: boolean;
-	/** Whether we recently reconnected (within last 5 seconds) */
+	/** Whether we recently reconnected (within RECONNECTION_FEEDBACK_DURATION_MS) */
 	justReconnected: boolean;
 }
 
@@ -62,8 +63,10 @@ export function useConnectionStatus(): ConnectionStatusResult {
 	useEffect(() => {
 		function handleOnline() {
 			setJustReconnected(true);
-			// Clear after 5 seconds
-			const timeout = setTimeout(() => setJustReconnected(false), 5000);
+			const timeout = setTimeout(
+				() => setJustReconnected(false),
+				RECONNECTION_FEEDBACK_DURATION_MS,
+			);
 			return () => clearTimeout(timeout);
 		}
 

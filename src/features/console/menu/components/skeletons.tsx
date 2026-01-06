@@ -67,11 +67,11 @@ export function ItemFormSkeleton() {
 						</CardHeader>
 						<CardContent className="space-y-2">
 							<div className="flex items-center gap-3">
-								<Skeleton className="h-5 w-5 rounded" />
+								<Skeleton className="size-5 rounded" />
 								<Skeleton className="h-5 w-32" />
 							</div>
 							<div className="flex items-center gap-3">
-								<Skeleton className="h-5 w-5 rounded" />
+								<Skeleton className="size-5 rounded" />
 								<Skeleton className="h-5 w-28" />
 							</div>
 						</CardContent>

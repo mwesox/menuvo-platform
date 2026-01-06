@@ -85,13 +85,13 @@ export function ConsoleHeader({
 					<DropdownMenuContent align="end" className="w-48">
 						<DropdownMenuItem asChild>
 							<Link to="/console/settings/merchant">
-								<User className="mr-2 h-4 w-4" />
+								<User className="me-2 h-4 w-4" />
 								{t("profile", "Profil")}
 							</Link>
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem className="text-destructive focus:text-destructive">
-							<LogOut className="mr-2 h-4 w-4" />
+							<LogOut className="me-2 h-4 w-4" />
 							{t("logout", "Abmelden")}
 						</DropdownMenuItem>
 					</DropdownMenuContent>

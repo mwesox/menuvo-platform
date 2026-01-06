@@ -102,7 +102,7 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 				{order.customerEmail && (
 					<div className="flex justify-between">
 						<span className="text-muted-foreground">{t("fields.email")}</span>
-						<span className="truncate ml-4">{order.customerEmail}</span>
+						<span className="truncate ms-4">{order.customerEmail}</span>
 					</div>
 				)}
 				{order.customerPhone && (
@@ -142,7 +142,7 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 							</span>
 						</div>
 						{item.options.length > 0 && (
-							<div className="pl-4 space-y-0.5">
+							<div className="ps-4 space-y-0.5">
 								{item.options.map((option) => (
 									<div
 										key={option.id}

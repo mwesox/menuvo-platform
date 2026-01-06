@@ -48,9 +48,9 @@ export function FloatingCart() {
 			{/* Left side - icon with badge + label */}
 			<div className="flex items-center gap-3">
 				<div className="relative">
-					<ShoppingCart className="w-5 h-5" />
+					<ShoppingCart className="size-5" />
 					{/* Item count badge */}
-					<span className="absolute -top-2 -right-2 bg-background text-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+					<span className="absolute -top-2 -right-2 bg-background text-foreground text-xs font-bold size-5 rounded-full flex items-center justify-center shadow-sm">
 						{itemCount}
 					</span>
 				</div>

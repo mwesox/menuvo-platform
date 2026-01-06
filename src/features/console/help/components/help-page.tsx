@@ -22,7 +22,7 @@ export function HelpPage() {
 				<Card>
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
-							<HelpCircle className="h-5 w-5" />
+							<HelpCircle className="size-5" />
 							{t("documentation.title")}
 						</CardTitle>
 						<CardDescription>{t("documentation.description")}</CardDescription>
@@ -35,7 +35,7 @@ export function HelpPage() {
 				<Card>
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
-							<Mail className="h-5 w-5" />
+							<Mail className="size-5" />
 							{t("contact.title")}
 						</CardTitle>
 						<CardDescription>{t("contact.description")}</CardDescription>

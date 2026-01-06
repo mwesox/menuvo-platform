@@ -51,7 +51,7 @@ export function OrderListItem({
 			type="button"
 			onClick={onSelect}
 			className={cn(
-				"flex w-full flex-col gap-2 rounded-lg border p-3 text-left transition-colors hover:bg-accent",
+				"flex w-full flex-col gap-2 rounded-lg border p-3 text-start transition-colors hover:bg-accent",
 				isSelected && "bg-accent border-primary",
 			)}
 		>

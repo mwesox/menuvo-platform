@@ -17,15 +17,15 @@ export function CheckoutPageSkeleton() {
 						<Skeleton className="h-5 w-24 bg-muted" />
 						<div className="space-y-3">
 							<div className="flex items-center gap-3">
-								<Skeleton className="h-4 w-4 rounded-full bg-muted" />
+								<Skeleton className="size-4 rounded-full bg-muted" />
 								<Skeleton className="h-4 w-20 bg-muted" />
 							</div>
 							<div className="flex items-center gap-3">
-								<Skeleton className="h-4 w-4 rounded-full bg-muted" />
+								<Skeleton className="size-4 rounded-full bg-muted" />
 								<Skeleton className="h-4 w-24 bg-muted" />
 							</div>
 							<div className="flex items-center gap-3">
-								<Skeleton className="h-4 w-4 rounded-full bg-muted" />
+								<Skeleton className="size-4 rounded-full bg-muted" />
 								<Skeleton className="h-4 w-20 bg-muted" />
 							</div>
 						</div>
@@ -42,7 +42,7 @@ export function CheckoutPageSkeleton() {
 						<Skeleton className="h-5 w-32 bg-muted" />
 						<div className="space-y-3">
 							<div className="flex justify-between">
-								<Skeleton className="h-4 w-40 bg-muted" />
+								<Skeleton className="size-40 bg-muted" />
 								<Skeleton className="h-4 w-12 bg-muted" />
 							</div>
 							<div className="flex justify-between">
@@ -75,7 +75,7 @@ export function OrderConfirmationPageSkeleton() {
 			<div className="max-w-lg mx-auto px-4 py-6">
 				{/* Success icon placeholder */}
 				<div className="flex flex-col items-center mb-6">
-					<Skeleton className="h-16 w-16 rounded-full bg-muted mb-4" />
+					<Skeleton className="size-16 rounded-full bg-muted mb-4" />
 					<Skeleton className="h-8 w-48 bg-muted mb-2" />
 					<Skeleton className="h-4 w-64 bg-muted" />
 				</div>

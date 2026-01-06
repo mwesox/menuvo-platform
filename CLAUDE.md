@@ -19,7 +19,7 @@ This file is a quick reference. The docs are the source of truth.
   - Console: `www.menuvo.app/console`
   - Only infrastructure uses subdomains: `status.menuvo.app`, `monitor.menuvo.app`
 - Use ShadCN MCP server to review latest docs and APIs and docs about ShadCN Components and the framework.
-
+- Never do git reset commands !!! NEVER !!!
 
 ## Subagent Instructions
 

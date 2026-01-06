@@ -53,7 +53,7 @@ export function ItemDetail({
 						/>
 					) : (
 						<div className="h-32 w-32 rounded-lg bg-muted flex items-center justify-center">
-							<ImageOff className="h-8 w-8 text-muted-foreground" />
+							<ImageOff className="size-8 text-muted-foreground" />
 						</div>
 					)}
 				</div>
@@ -78,7 +78,7 @@ export function ItemDetail({
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<Button variant="outline" size="icon">
-									<MoreHorizontal className="h-4 w-4" />
+									<MoreHorizontal className="size-4" />
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
@@ -87,7 +87,7 @@ export function ItemDetail({
 										to="/console/menu/items/$itemId"
 										params={{ itemId: String(item.id) }}
 									>
-										<Pencil className="mr-2 h-4 w-4" />
+										<Pencil className="me-2 size-4" />
 										{tCommon("buttons.edit")}
 									</Link>
 								</DropdownMenuItem>
@@ -96,7 +96,7 @@ export function ItemDetail({
 									className="text-destructive"
 									onClick={() => onDelete(item.id)}
 								>
-									<Trash2 className="mr-2 h-4 w-4" />
+									<Trash2 className="me-2 size-4" />
 									{tCommon("buttons.delete")}
 								</DropdownMenuItem>
 							</DropdownMenuContent>
@@ -149,7 +149,7 @@ export function ItemDetail({
 						to="/console/menu/items/$itemId"
 						params={{ itemId: String(item.id) }}
 					>
-						<Pencil className="mr-2 h-4 w-4" />
+						<Pencil className="me-2 size-4" />
 						{t("itemCard.editItem")}
 					</Link>
 				</Button>

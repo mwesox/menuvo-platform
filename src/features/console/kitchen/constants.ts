@@ -102,6 +102,13 @@ export const NOTIFICATION_BEEP_GAP = 0.1; // Gap between beeps in seconds
 export const NOTIFICATION_REPEAT_INTERVAL = 10_000; // 10 seconds
 
 // ============================================================================
+// CONNECTION STATUS
+// ============================================================================
+
+/** Milliseconds to show "just reconnected" indicator after coming back online */
+export const RECONNECTION_FEEDBACK_DURATION_MS = 5000;
+
+// ============================================================================
 // LABELS
 // ============================================================================
 

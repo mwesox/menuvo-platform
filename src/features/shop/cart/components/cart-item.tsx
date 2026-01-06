@@ -26,7 +26,7 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 	return (
 		<div className="flex gap-3 py-4 border-b border-border/50">
 			{/* Item image - responsive sizing */}
-			<div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 flex-shrink-0 overflow-hidden">
+			<div className="size-12 sm:size-14 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 flex-shrink-0 overflow-hidden">
 				{item.imageUrl && (
 					<img
 						src={item.imageUrl}
@@ -55,7 +55,7 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 						className="p-1.5 text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
 						aria-label={t("cart.removeItem", { name: item.name })}
 					>
-						<X className="w-4 h-4" />
+						<X className="size-4" />
 					</button>
 				</div>
 

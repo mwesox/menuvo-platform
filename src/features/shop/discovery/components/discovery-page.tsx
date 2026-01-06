@@ -142,7 +142,7 @@ export function DiscoveryPageSkeleton() {
 						{/* Search placeholder */}
 						<div className="mt-4 space-y-4 sm:mt-5">
 							<div className="flex h-14 items-center gap-3 rounded-2xl bg-card px-5 shadow-lg shadow-foreground/[0.03] ring-1 ring-border/50">
-								<Search className="h-5 w-5 text-muted-foreground/60" />
+								<Search className="size-5 text-muted-foreground/60" />
 								<span className="text-muted-foreground/50">
 									{t("loading.searchPlaceholder")}
 								</span>
@@ -167,8 +167,8 @@ export function DiscoveryPageError({ reset }: ErrorComponentProps) {
 
 	return (
 		<div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-			<div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-				<Store className="h-8 w-8 text-muted-foreground" />
+			<div className="mb-4 flex size-16 items-center justify-center rounded-full bg-muted">
+				<Store className="size-8 text-muted-foreground" />
 			</div>
 			<h2
 				className="text-xl text-foreground"
