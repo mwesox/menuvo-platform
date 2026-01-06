@@ -2,6 +2,7 @@ import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
+	type CreateMolliePaymentInput,
 	createMolliePayment,
 	getMolliePaymentStatus,
 } from "@/features/orders/server/mollie-checkout.functions";
@@ -152,8 +153,8 @@ export function useCreateMolliePayment() {
 	const router = useRouter();
 
 	return useMutation({
-		mutationFn: (data: { orderId: number; returnUrl: string }) =>
-			createMolliePayment({ data }),
+		mutationFn: (input: CreateMolliePaymentInput) =>
+			createMolliePayment({ data: input }),
 		onError: (error) => {
 			toast.error(error.message || "Failed to create payment");
 		},
