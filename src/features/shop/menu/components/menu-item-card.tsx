@@ -1,7 +1,12 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { getRouteApi } from "@tanstack/react-router";
 import { Plus, UtensilsCrossed } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { shopQueries } from "../../queries";
 import { focusRing, ShopPrice } from "../../shared/components/ui";
+
+const routeApi = getRouteApi("/$slug/");
 
 interface MenuItemCardProps {
 	item: {
@@ -18,15 +23,25 @@ interface MenuItemCardProps {
 
 export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 	const { t } = useTranslation(["shop", "menu"]);
+	const { slug } = routeApi.useParams();
+	const queryClient = useQueryClient();
 
 	const handleCardClick = () => {
 		onSelect(item);
+	};
+
+	// Prefetch item options on hover for items that have options
+	const handlePointerEnter = () => {
+		if (item.hasOptions) {
+			queryClient.prefetchQuery(shopQueries.itemOptions(item.id, slug));
+		}
 	};
 
 	return (
 		<button
 			type="button"
 			onClick={handleCardClick}
+			onPointerEnter={handlePointerEnter}
 			className={cn(
 				"group flex gap-4 p-4 bg-card rounded-2xl text-left w-full",
 				"border border-border/50 shadow-md shadow-stone-300/50",

@@ -52,7 +52,7 @@ import { optionGroupFormSchema } from "../options.schemas.ts";
 interface OptionGroupDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	optionGroup?: (OptionGroup & { optionChoices: OptionChoice[] }) | null;
+	optionGroup?: (OptionGroup & { choices: OptionChoice[] }) | null;
 	onSave: (data: {
 		name: string;
 		description?: string;
@@ -178,7 +178,7 @@ export function OptionGroupDialog({
 				);
 				form.setFieldValue(
 					"choices",
-					optionGroup.optionChoices.map((choice) => ({
+					optionGroup.choices.map((choice) => ({
 						id: choice.id,
 						name: getDisplayName(choice.translations, language),
 						priceModifier: String(choice.priceModifier),

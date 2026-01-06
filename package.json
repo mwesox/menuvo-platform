@@ -50,6 +50,8 @@
     "k6:mock:stripe": "bun run k6/mocks/stripe-mock-server.js"
   },
   "dependencies": {
+    "@fontsource-variable/dm-sans": "^5.2.8",
+    "@fontsource/playfair-display": "^5.2.8",
     "@mollie/api-client": "^4.3.3",
     "@openrouter/sdk": "^0.3.11",
     "@radix-ui/react-accordion": "^1.2.12",

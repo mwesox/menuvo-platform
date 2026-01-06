@@ -40,8 +40,9 @@ export const Route = createFileRoute("/$slug")({
 			throw notFound();
 		}
 
+		// Use light query for efficient initial load
 		const store = await context.queryClient.ensureQueryData(
-			shopQueries.storeBySlug(params.slug),
+			shopQueries.menu(params.slug),
 		);
 		if (!store) {
 			throw notFound();

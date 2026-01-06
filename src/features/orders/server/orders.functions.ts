@@ -90,10 +90,7 @@ export const createOrder = createServerFn({ method: "POST" })
 			"Creating order",
 		);
 
-		const { orderStatus, paymentStatus } = getInitialOrderStatus(
-			data.orderType,
-			data.paymentMethod,
-		);
+		const { orderStatus, paymentStatus } = getInitialOrderStatus();
 
 		try {
 			const order = await db.transaction(async (tx) => {
@@ -229,7 +226,7 @@ export const getOrdersByStore = createServerFn({ method: "GET" })
 	});
 
 /**
- * Get orders for kitchen monitor (only paid/pay-at-counter orders in active states)
+ * Get orders for kitchen monitor (only paid orders in active states)
  */
 export const getKitchenOrders = createServerFn({ method: "GET" })
 	.inputValidator(getKitchenOrdersSchema)
@@ -238,7 +235,7 @@ export const getKitchenOrders = createServerFn({ method: "GET" })
 			where: and(
 				eq(orders.storeId, data.storeId),
 				inArray(orders.status, ["confirmed", "preparing", "ready"]),
-				inArray(orders.paymentStatus, ["paid", "pay_at_counter"]),
+				eq(orders.paymentStatus, "paid"),
 			),
 			orderBy: [desc(orders.createdAt)],
 			with: {

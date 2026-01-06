@@ -474,7 +474,7 @@ export const itemsRelations = relations(items, ({ one, many }) => ({
 		fields: [items.storeId],
 		references: [stores.id],
 	}),
-	itemOptionGroups: many(itemOptionGroups),
+	optGroups: many(itemOptionGroups),
 }));
 
 // ============================================================================
@@ -537,8 +537,8 @@ export const optionGroupsRelations = relations(
 			fields: [optionGroups.storeId],
 			references: [stores.id],
 		}),
-		optionChoices: many(optionChoices),
-		itemOptionGroups: many(itemOptionGroups),
+		choices: many(optionChoices),
+		optGroups: many(itemOptionGroups),
 	}),
 );
 
@@ -573,7 +573,7 @@ export const optionChoices = pgTable("option_choices", {
 });
 
 export const optionChoicesRelations = relations(optionChoices, ({ one }) => ({
-	optionGroup: one(optionGroups, {
+	optGroup: one(optionGroups, {
 		fields: [optionChoices.optionGroupId],
 		references: [optionGroups.id],
 	}),
@@ -603,7 +603,7 @@ export const itemOptionGroupsRelations = relations(
 			fields: [itemOptionGroups.itemId],
 			references: [items.id],
 		}),
-		optionGroup: one(optionGroups, {
+		optGroup: one(optionGroups, {
 			fields: [itemOptionGroups.optionGroupId],
 			references: [optionGroups.id],
 		}),

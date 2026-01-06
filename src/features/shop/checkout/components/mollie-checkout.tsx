@@ -3,7 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ShopButton, ShopCard, ShopHeading } from "../../shared/components/ui";
-import { useCreateMolliePayment } from "../queries";
+import { useCreatePayment } from "../queries";
 
 interface MollieCheckoutProps {
 	orderId: number;
@@ -24,7 +24,7 @@ interface MollieCheckoutProps {
  */
 export function MollieCheckout({ orderId, storeSlug }: MollieCheckoutProps) {
 	const { t } = useTranslation("shop");
-	const createPayment = useCreateMolliePayment();
+	const createPayment = useCreatePayment();
 
 	const handlePayNow = async () => {
 		const returnUrl = `${window.location.origin}/${storeSlug}/checkout/return`;

@@ -66,10 +66,7 @@ export const KITCHEN_VISIBLE_STATUSES = [
 /**
  * Payment statuses that allow kitchen visibility
  */
-export const KITCHEN_VALID_PAYMENT_STATUSES = [
-	"paid",
-	"pay_at_counter",
-] as const;
+export const KITCHEN_VALID_PAYMENT_STATUSES = ["paid"] as const;
 
 /**
  * Terminal order statuses (cannot transition further)

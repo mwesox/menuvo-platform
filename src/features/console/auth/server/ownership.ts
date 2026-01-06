@@ -204,7 +204,7 @@ export async function validateOptionChoiceOwnership(
 	const optionChoice = await db.query.optionChoices.findFirst({
 		where: eq(optionChoices.id, optionChoiceId),
 		with: {
-			optionGroup: {
+			optGroup: {
 				with: {
 					store: {
 						columns: { merchantId: true },
@@ -213,7 +213,7 @@ export async function validateOptionChoiceOwnership(
 			},
 		},
 	});
-	return optionChoice?.optionGroup.store.merchantId === merchantId;
+	return optionChoice?.optGroup.store.merchantId === merchantId;
 }
 
 /**
@@ -226,7 +226,7 @@ export async function getOptionChoiceWithOwnership(
 	const optionChoice = await db.query.optionChoices.findFirst({
 		where: eq(optionChoices.id, optionChoiceId),
 		with: {
-			optionGroup: {
+			optGroup: {
 				columns: { id: true },
 				with: {
 					store: {
@@ -242,7 +242,7 @@ export async function getOptionChoiceWithOwnership(
 		},
 	});
 
-	if (optionChoice?.optionGroup.store.merchantId !== merchantId) {
+	if (optionChoice?.optGroup.store.merchantId !== merchantId) {
 		return null;
 	}
 

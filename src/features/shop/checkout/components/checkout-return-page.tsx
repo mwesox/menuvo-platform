@@ -11,7 +11,7 @@ import {
 	ShopHeading,
 	ShopMutedText,
 } from "../../shared/components/ui";
-import { useCheckoutSessionStatus, useMolliePaymentStatus } from "../queries";
+import { useCheckoutSessionStatus, usePaymentStatus } from "../queries";
 
 interface CheckoutReturnPageProps {
 	storeSlug: string;
@@ -20,9 +20,11 @@ interface CheckoutReturnPageProps {
 /**
  * Handles post-payment redirect from both:
  * - Stripe Embedded Checkout (session_id in URL)
- * - Mollie Hosted Checkout (order_id in URL)
+ * - Redirect Checkout (order_id in URL)
  *
- * Polls for payment confirmation and redirects to order confirmation on success.
+ * For synchronous payment methods (credit cards, PayPal), the status is immediately
+ * final when the user returns from Mollie - no polling needed.
+ * Redirects to order confirmation on success, shows error state otherwise.
  */
 export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 	const { t } = useTranslation("shop");
@@ -32,10 +34,10 @@ export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 	// Stripe session ID from query params
 	const sessionId = search.session_id;
 
-	// Mollie order ID from query params (added by our return URL)
+	// Order ID from query params (added by our return URL for redirect checkout)
 	const orderId = search.order_id ? Number(search.order_id) : null;
 
-	// Query for order details (to get Mollie payment ID)
+	// Query for order details (to get payment ID)
 	const { data: order } = useQuery({
 		...orderQueries.detail(orderId ?? 0),
 		enabled: !!orderId && !sessionId,
@@ -44,19 +46,23 @@ export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 	// Stripe: Poll checkout session status
 	const stripeStatus = useCheckoutSessionStatus(sessionId ?? null);
 
-	// Mollie: Poll payment status using the payment ID from the order
-	const molliePaymentId = order?.molliePaymentId ?? null;
-	const mollieStatus = useMolliePaymentStatus(molliePaymentId);
+	// Redirect checkout: Fetch payment status using the payment ID from the order
+	const paymentId = order?.molliePaymentId ?? null;
+	const redirectPaymentStatus = usePaymentStatus(paymentId);
 
-	// Determine which provider we're dealing with
-	const isMollie = !!orderId && !sessionId;
+	// Determine which checkout flow we're handling
+	const isRedirectCheckout = !!orderId && !sessionId;
 
 	// Get the relevant status data
-	const data = isMollie ? mollieStatus.data : stripeStatus.data;
-	const isLoading = isMollie
-		? mollieStatus.isLoading || (!molliePaymentId && !!orderId)
+	const data = isRedirectCheckout
+		? redirectPaymentStatus.data
+		: stripeStatus.data;
+	const isLoading = isRedirectCheckout
+		? redirectPaymentStatus.isLoading || (!paymentId && !!orderId)
 		: stripeStatus.isLoading;
-	const isError = isMollie ? mollieStatus.isError : stripeStatus.isError;
+	const isError = isRedirectCheckout
+		? redirectPaymentStatus.isError
+		: stripeStatus.isError;
 
 	// Redirect to order confirmation when payment is confirmed
 	useEffect(() => {
@@ -69,8 +75,8 @@ export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 		}
 	}, [data, orderId, storeSlug, navigate]);
 
-	// Show loading state while verifying payment
-	if (isLoading || data?.paymentStatus === "awaiting_confirmation") {
+	// Show loading state only during initial fetch
+	if (isLoading) {
 		return (
 			<div className="min-h-screen bg-background">
 				<div className="max-w-lg mx-auto px-4 py-12">
@@ -86,42 +92,26 @@ export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 		);
 	}
 
-	// Show error state if payment failed or expired
-	if (
-		isError ||
-		data?.paymentStatus === "failed" ||
-		data?.paymentStatus === "expired"
-	) {
-		return (
-			<div className="min-h-screen bg-background">
-				<div className="max-w-lg mx-auto px-4 py-12">
-					<ShopCard padding="lg" className="text-center space-y-4">
-						<div className="w-12 h-12 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
-							<span className="text-destructive text-2xl">!</span>
-						</div>
-						<ShopHeading as="h1" size="lg">
-							{t("checkout.return.paymentFailed")}
-						</ShopHeading>
-						<ShopMutedText>
-							{data?.paymentStatus === "expired"
-								? t("checkout.return.sessionExpired")
-								: t("checkout.return.tryAgain")}
-						</ShopMutedText>
-					</ShopCard>
-				</div>
-			</div>
-		);
-	}
+	// Show error state for any non-paid status or query error
+	// For synchronous payment methods (credit cards, PayPal), the status is
+	// immediately final when user returns - no need to poll or wait
+	const errorMessage = isError
+		? t("checkout.return.tryAgain")
+		: data?.paymentStatus === "expired"
+			? t("checkout.return.sessionExpired")
+			: t("checkout.return.tryAgain");
 
-	// Fallback for unexpected states
 	return (
 		<div className="min-h-screen bg-background">
 			<div className="max-w-lg mx-auto px-4 py-12">
 				<ShopCard padding="lg" className="text-center space-y-4">
-					<Loader2 className="w-12 h-12 mx-auto animate-spin text-primary" />
+					<div className="w-12 h-12 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
+						<span className="text-destructive text-2xl">!</span>
+					</div>
 					<ShopHeading as="h1" size="lg">
-						{t("checkout.return.processing")}
+						{t("checkout.return.paymentFailed")}
 					</ShopHeading>
+					<ShopMutedText>{errorMessage}</ShopMutedText>
 				</ShopCard>
 			</div>
 		</div>

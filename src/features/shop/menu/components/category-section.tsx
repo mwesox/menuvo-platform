@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import type { MenuItem } from "../../schemas";
+import type { MenuItemLight } from "../../schemas";
 import { MenuItemCard } from "./menu-item-card";
 
 interface CategorySectionProps {
@@ -7,9 +7,9 @@ interface CategorySectionProps {
 		id: number;
 		name: string;
 		description: string | null;
-		items: MenuItem[];
+		items: MenuItemLight[];
 	};
-	onItemSelect: (item: MenuItem) => void;
+	onItemSelect: (item: MenuItemLight) => void;
 	refSetter: (el: HTMLDivElement | null) => void;
 }
 
@@ -54,7 +54,7 @@ export function CategorySection({
 						key={item.id}
 						item={{
 							...item,
-							hasOptions: item.optionGroups.length > 0,
+							hasOptions: item.hasOptionGroups,
 						}}
 						onSelect={() => onItemSelect(item)}
 					/>

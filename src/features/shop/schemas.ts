@@ -98,6 +98,37 @@ export const menuItemWithDefaultsSchema = menuItemSchema.extend({
 export type MenuItemWithDefaults = z.infer<typeof menuItemWithDefaultsSchema>;
 
 // ============================================================================
+// Light Menu Item Schemas (for efficient loading)
+// ============================================================================
+
+/**
+ * Schema for menu item without option groups (light load).
+ * Used for initial menu browsing - options loaded on demand when opening item drawer.
+ */
+export const menuItemLightSchema = z.object({
+	id: z.number(),
+	name: z.string(),
+	description: z.string().nullable(),
+	price: z.number(),
+	imageUrl: z.string().nullable(),
+	allergens: z.array(z.string()).nullable(),
+	displayOrder: z.number(),
+	hasOptionGroups: z.boolean(), // Flag instead of full option data
+});
+
+export type MenuItemLight = z.infer<typeof menuItemLightSchema>;
+
+/**
+ * Schema for item options input.
+ */
+export const itemOptionsInputSchema = z.object({
+	itemId: z.number(),
+	storeSlug: z.string().min(1),
+});
+
+export type ItemOptionsInput = z.infer<typeof itemOptionsInputSchema>;
+
+// ============================================================================
 // Store Schemas
 // ============================================================================
 

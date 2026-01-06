@@ -18,6 +18,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import type Stripe from "stripe";
 import { z } from "zod";
+import { config } from "@/config";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 import { DatabaseError, NotFoundError } from "@/lib/errors";
@@ -63,9 +64,6 @@ export type ExpireCheckoutSessionInput = z.infer<
 // ============================================================================
 // CONSTANTS
 // ============================================================================
-
-/** Platform fee percentage (5%) */
-const PLATFORM_FEE_PERCENT = 0.05;
 
 /** Checkout session expiration time in seconds (30 minutes) */
 const CHECKOUT_EXPIRATION_SECONDS = 30 * 60;
@@ -245,7 +243,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 			if (merchantAccountId) {
 				// Connected account - platform takes application fee
 				const applicationFeeAmount = Math.round(
-					order.totalAmount * PLATFORM_FEE_PERCENT,
+					order.totalAmount * config.platformFeePercent,
 				);
 
 				session = await stripe.checkout.sessions.create(

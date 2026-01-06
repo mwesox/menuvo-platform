@@ -15,7 +15,7 @@ import { useEntityDisplay } from "@/features/console/menu/hooks";
 import { getDisplayName } from "@/features/console/menu/logic/display";
 import { cn } from "@/lib/utils";
 
-type OptionGroupWithChoices = OptionGroup & { optionChoices: OptionChoice[] };
+type OptionGroupWithChoices = OptionGroup & { choices: OptionChoice[] };
 
 interface OptionGroupDetailProps {
 	optionGroup: OptionGroupWithChoices;
@@ -138,7 +138,7 @@ export function OptionGroupDetail({
 	);
 	const language = useDisplayLanguage();
 
-	const availableChoices = optionGroup.optionChoices.filter(
+	const availableChoices = optionGroup.choices.filter(
 		(c) => c.isAvailable,
 	).length;
 
@@ -239,7 +239,7 @@ export function OptionGroupDetail({
 						{t("optionGroups.choicesCount")}
 					</span>
 					<span className="font-medium">
-						{optionGroup.optionChoices.length} ({availableChoices}{" "}
+						{optionGroup.choices.length} ({availableChoices}{" "}
 						{t("labels.available")})
 					</span>
 				</div>
@@ -248,10 +248,10 @@ export function OptionGroupDetail({
 			{/* Choices list */}
 			<div>
 				<h3 className="text-sm font-medium mb-3">
-					{t("optionGroups.choices")} ({optionGroup.optionChoices.length})
+					{t("optionGroups.choices")} ({optionGroup.choices.length})
 				</h3>
 
-				{optionGroup.optionChoices.length === 0 ? (
+				{optionGroup.choices.length === 0 ? (
 					<div className="rounded-lg border border-dashed p-6 text-center">
 						<p className="text-sm text-muted-foreground">
 							{t("optionGroups.noChoices")}
@@ -259,7 +259,7 @@ export function OptionGroupDetail({
 					</div>
 				) : (
 					<div className="rounded-lg border divide-y">
-						{optionGroup.optionChoices.map((choice) => (
+						{optionGroup.choices.map((choice) => (
 							<div
 								key={choice.id}
 								className={cn(

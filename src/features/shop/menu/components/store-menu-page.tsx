@@ -22,11 +22,12 @@ const routeApi = getRouteApi("/$slug/");
 /**
  * Main store menu page component.
  * Displays category navigation and menu items.
+ * Uses light query - option groups are fetched on demand when opening item drawer.
  */
 export function StoreMenuPage() {
 	const { t } = useTranslation("shop");
 	const { slug } = routeApi.useParams();
-	const { data: store } = useSuspenseQuery(shopQueries.storeBySlug(slug));
+	const { data: store } = useSuspenseQuery(shopQueries.menu(slug));
 
 	const setStore = useCartStore((s) => s.setStore);
 

@@ -11,6 +11,8 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
+import { useIsMobile } from "@/hooks/use-media-query";
+import { cn } from "@/lib/utils";
 import {
 	ShopButton,
 	ShopHeading,
@@ -28,6 +30,7 @@ interface CartDrawerProps {
 export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 	const { t } = useTranslation("shop");
 	const navigate = useNavigate();
+	const isMobile = useIsMobile();
 	const items = useCartStore((s) => s.items);
 	const storeSlug = useCartStore((s) => s.storeSlug);
 	// Compute from items (getters don't work with persist middleware)
@@ -43,8 +46,17 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 	};
 
 	return (
-		<Drawer open={open} onOpenChange={onOpenChange}>
-			<DrawerContent className="max-h-[85dvh] flex flex-col">
+		<Drawer
+			open={open}
+			onOpenChange={onOpenChange}
+			direction={isMobile ? "bottom" : "right"}
+		>
+			<DrawerContent
+				className={cn(
+					"flex flex-col",
+					isMobile ? "max-h-[85dvh]" : "h-full w-full max-w-md",
+				)}
+			>
 				<DrawerHeader className="border-b border-border pb-4 text-left">
 					<DrawerTitle asChild>
 						<ShopHeading as="h2" size="lg">

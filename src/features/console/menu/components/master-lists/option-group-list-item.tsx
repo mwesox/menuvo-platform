@@ -5,7 +5,7 @@ import type { OptionChoice, OptionGroup, OptionGroupType } from "@/db/schema";
 import { useEntityDisplayName } from "@/features/console/menu/hooks";
 import { cn } from "@/lib/utils";
 
-type OptionGroupWithChoices = OptionGroup & { optionChoices: OptionChoice[] };
+type OptionGroupWithChoices = OptionGroup & { choices: OptionChoice[] };
 
 interface OptionGroupListItemProps {
 	optionGroup: OptionGroupWithChoices;
@@ -51,7 +51,7 @@ export function OptionGroupListItem({
 }: OptionGroupListItemProps) {
 	const { t } = useTranslation("menu");
 	const displayName = useEntityDisplayName(optionGroup.translations);
-	const choiceCount = optionGroup.optionChoices.length;
+	const choiceCount = optionGroup.choices.length;
 
 	return (
 		<button

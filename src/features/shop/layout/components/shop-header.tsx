@@ -177,7 +177,7 @@ function StoreInfo() {
 
 	// Use the same query as the child route - data will be cached
 	const { data: store } = useQuery({
-		...shopQueries.storeBySlug(slug ?? ""),
+		...shopQueries.menu(slug ?? ""),
 		enabled: !!slug,
 	});
 

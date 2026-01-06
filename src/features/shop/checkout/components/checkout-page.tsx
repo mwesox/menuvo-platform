@@ -20,7 +20,7 @@ import {
 	ShopPrice,
 	ShopPriceRow,
 } from "../../shared/components/ui";
-import { useCreateMolliePayment } from "../queries";
+import { useCreatePayment } from "../queries";
 
 interface CheckoutPageProps {
 	storeId: number;
@@ -77,15 +77,14 @@ export function CheckoutPage({
 
 	// Form state
 	const [customerName, setCustomerName] = useState("");
-	const [customerEmail, setCustomerEmail] = useState("");
 	const [orderType, setOrderType] = useState<OrderType>("dine_in");
 
-	// Mollie redirect state
-	const [isMollieRedirecting, setIsMollieRedirecting] = useState(false);
+	// Payment redirect state
+	const [isPaymentRedirecting, setIsPaymentRedirecting] = useState(false);
 
 	// Mutations
 	const createOrderMutation = useCreateOrder(storeId);
-	const createMolliePaymentMutation = useCreateMolliePayment();
+	const createPaymentMutation = useCreatePayment();
 
 	// Check if merchant can accept online payments (computed on server)
 	if (!capabilities.canAcceptOnlinePayment) {
@@ -98,17 +97,6 @@ export function CheckoutPage({
 	const validateForm = (): boolean => {
 		if (!customerName.trim()) {
 			toast.error(t("checkout.nameRequired"));
-			return false;
-		}
-
-		if (!customerEmail.trim()) {
-			toast.error(t("checkout.emailRequired"));
-			return false;
-		}
-
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(customerEmail)) {
-			toast.error(t("checkout.invalidEmail"));
 			return false;
 		}
 
@@ -143,7 +131,6 @@ export function CheckoutPage({
 			items: orderItems,
 			orderType,
 			customerName: customerName.trim(),
-			customerEmail: customerEmail.trim(),
 			paymentMethod: "mollie",
 			subtotal,
 			taxAmount: 0,
@@ -158,10 +145,10 @@ export function CheckoutPage({
 
 			const returnUrl = `${window.location.origin}/${storeSlug}/checkout/return`;
 
-			// Create Mollie payment and redirect to hosted checkout
-			setIsMollieRedirecting(true);
+			// Create payment and redirect to hosted checkout
+			setIsPaymentRedirecting(true);
 
-			const payment = await createMolliePaymentMutation.mutateAsync({
+			const payment = await createPaymentMutation.mutateAsync({
 				orderId: order.id,
 				returnUrl,
 			});
@@ -169,17 +156,17 @@ export function CheckoutPage({
 			if (payment.checkoutUrl) {
 				// Clear cart before redirect
 				clearCart();
-				// Redirect to Mollie hosted checkout
+				// Redirect to hosted checkout
 				window.location.href = payment.checkoutUrl;
 			}
 		} catch {
-			setIsMollieRedirecting(false);
+			setIsPaymentRedirecting(false);
 			// Error toast handled by mutation
 		}
 	};
 
-	// Show Mollie redirect loading state
-	if (isMollieRedirecting) {
+	// Show payment redirect loading state
+	if (isPaymentRedirecting) {
 		return (
 			<div className="min-h-screen bg-background">
 				<div className="max-w-lg mx-auto px-4 py-12">
@@ -196,10 +183,9 @@ export function CheckoutPage({
 	}
 
 	const isSubmitting =
-		createOrderMutation.isPending || createMolliePaymentMutation.isPending;
+		createOrderMutation.isPending || createPaymentMutation.isPending;
 
-	const isFormValid =
-		customerName.trim() && customerEmail.trim() && items.length > 0;
+	const isFormValid = customerName.trim() && items.length > 0;
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -250,41 +236,19 @@ export function CheckoutPage({
 							{t("checkout.yourInfo")}
 						</ShopHeading>
 
-						<div className="space-y-3">
-							<div>
-								<Label htmlFor="customerName" className="text-sm font-medium">
-									{t("checkout.yourName")}
-								</Label>
-								<Input
-									id="customerName"
-									type="text"
-									value={customerName}
-									onChange={(e) => setCustomerName(e.target.value)}
-									placeholder={t("checkout.namePlaceholder")}
-									className="mt-1 w-full"
-									autoComplete="name"
-								/>
-							</div>
-
-							{/* Email field - required for payment */}
-							<div>
-								<Label htmlFor="customerEmail" className="text-sm font-medium">
-									{t("checkout.yourEmail")}
-									<span className="text-destructive ml-1">*</span>
-								</Label>
-								<Input
-									id="customerEmail"
-									type="email"
-									value={customerEmail}
-									onChange={(e) => setCustomerEmail(e.target.value)}
-									placeholder={t("checkout.emailPlaceholder")}
-									className="mt-1 w-full"
-									autoComplete="email"
-								/>
-								<ShopMutedText className="text-xs mt-1">
-									{t("checkout.emailRequiredForOnline")}
-								</ShopMutedText>
-							</div>
+						<div>
+							<Label htmlFor="customerName" className="text-sm font-medium">
+								{t("checkout.yourName")}
+							</Label>
+							<Input
+								id="customerName"
+								type="text"
+								value={customerName}
+								onChange={(e) => setCustomerName(e.target.value)}
+								placeholder={t("checkout.namePlaceholder")}
+								className="mt-1 w-full"
+								autoComplete="name"
+							/>
 						</div>
 					</ShopCard>
 

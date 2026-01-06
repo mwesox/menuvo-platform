@@ -86,40 +86,12 @@ describe("orders.functions", () => {
 			expect(result.totalAmount).toBe(2400);
 		});
 
-		it("should set confirmed status for pay_at_counter", async () => {
-			const result = await createOrder({
-				data: {
-					storeId,
-					orderType: "takeaway",
-					paymentMethod: "pay_at_counter",
-					items: [
-						{
-							itemId,
-							name: `Test Item ${testRunId}`,
-							quantity: 1,
-							unitPrice: 500,
-							optionsPrice: 0,
-							totalPrice: 500,
-							options: [],
-						},
-					],
-					subtotal: 500,
-					taxAmount: 0,
-					tipAmount: 0,
-					totalAmount: 500,
-				},
-			});
-
-			expect(result.status).toBe("confirmed");
-			expect(result.paymentStatus).toBe("pay_at_counter");
-		});
-
-		it("should set confirmed status for dine_in orders", async () => {
+		it("should set awaiting_payment status for dine_in orders", async () => {
 			const result = await createOrder({
 				data: {
 					storeId,
 					orderType: "dine_in",
-					paymentMethod: "card", // Payment method ignored for dine_in
+					paymentMethod: "card",
 					items: [
 						{
 							itemId,
@@ -138,8 +110,9 @@ describe("orders.functions", () => {
 				},
 			});
 
-			expect(result.status).toBe("confirmed");
-			expect(result.paymentStatus).toBe("pay_at_counter");
+			// All orders require payment - no special handling for dine_in
+			expect(result.status).toBe("awaiting_payment");
+			expect(result.paymentStatus).toBe("pending");
 		});
 	});
 
@@ -223,10 +196,10 @@ describe("orders.functions", () => {
 			const result = await getKitchenOrders({ data: { storeId } });
 
 			expect(Array.isArray(result)).toBe(true);
-			// All results should be in kitchen-visible statuses
+			// All results should be in kitchen-visible statuses with paid payment
 			for (const order of result) {
 				expect(["confirmed", "preparing", "ready"]).toContain(order.status);
-				expect(["paid", "pay_at_counter"]).toContain(order.paymentStatus);
+				expect(order.paymentStatus).toBe("paid");
 			}
 		});
 	});

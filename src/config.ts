@@ -9,4 +9,7 @@ export const config = {
 
 	/** Default locale for external services (Mollie onboarding, etc.) */
 	defaultLocale: "de_DE",
+
+	/** Platform fee percentage for connected merchant payments (5%) */
+	platformFeePercent: 0.05,
 } as const;

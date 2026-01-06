@@ -5,9 +5,6 @@ import { env } from "@/env";
  * All hardcoded values and environment-based settings in one place.
  */
 export const MOLLIE_CONFIG = {
-	/** Platform fee percentage for connected merchant payments */
-	PLATFORM_FEE_PERCENT: 0.05,
-
 	/** Default country code for Mollie Client Links */
 	DEFAULT_COUNTRY: "DE",
 

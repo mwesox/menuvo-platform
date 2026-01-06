@@ -118,7 +118,7 @@ export function TranslationsTab({ storeId }: TranslationsTabProps) {
 				>,
 			});
 
-			for (const choice of og.optionChoices) {
+			for (const choice of og.choices) {
 				entities.push({
 					id: choice.id,
 					name: getDisplayName(choice.translations, primaryLanguage),
