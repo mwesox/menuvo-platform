@@ -24,14 +24,14 @@ export function MerchantLoginPage() {
 	});
 
 	return (
-		<div className="min-h-screen bg-zinc-50">
+		<div className="min-h-screen bg-background">
 			<div className="mx-auto max-w-3xl px-4 py-12">
 				<div className="mb-8 text-center">
 					<h1 className="flex items-center justify-center gap-2 font-bold text-3xl tracking-tight">
 						Developer Login
 						<Logo height={66} />
 					</h1>
-					<p className="mt-2 text-zinc-600">
+					<p className="mt-2 text-muted-foreground">
 						Select a merchant account to continue
 					</p>
 				</div>

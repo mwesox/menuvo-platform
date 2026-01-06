@@ -3,6 +3,60 @@
 		"title": "Willkommen bei",
 		"subtitle": "Richten Sie Ihr Restaurant-Verwaltungskonto ein"
 	},
+	"slides": {
+		"stepOf": "von {{total}}",
+		"stepIndicator": "Schritt {{current}} von {{total}}",
+		"back": "Zurück",
+		"continue": "Weiter",
+		"pressEnter": "Enter drücken",
+		"createAccount": "Account erstellen",
+		"creating": "Wird erstellt...",
+		"welcome": {
+			"title": "Schön, dass du hier bist",
+			"description": "Bevor wir loslegen, brauchen wir ein paar Infos über dich und dein Restaurant. Dauert nur",
+			"duration": "2 Minuten",
+			"pills": {
+				"business": "Geschäftsinfos",
+				"contact": "Kontaktdaten",
+				"store": "Dein Store"
+			},
+			"cta": "Los geht's",
+			"timeHint": ""
+		},
+		"business": {
+			"title": "Wie heißt dein Unternehmen?",
+			"why": "Erscheint auf Rechnungen und rechtlichen Dokumenten."
+		},
+		"owner": {
+			"title": "Wer ist der Geschäftsinhaber?",
+			"why": "Diese Person wird als rechtlich Verantwortlicher eingetragen."
+		},
+		"contact": {
+			"title": "Wie können wir dich erreichen?",
+			"why": "Für wichtige Updates und deine Login-Daten."
+		},
+		"store": {
+			"title": "Name deiner ersten Filiale",
+			"why": "Das ist der Name, den deine Gäste sehen werden. Du kannst später weitere Filialen hinzufügen.",
+			"urlPreview": "Deine Filial-URL wird sein:"
+		},
+		"address": {
+			"title": "Wo befindet sich deine Filiale?",
+			"why": "Damit Gäste wissen, wo sie dich finden."
+		},
+		"review": {
+			"title": "Sieht gut aus!",
+			"subtitle": "Prüfe kurz deine Angaben",
+			"edit": "Bearbeiten",
+			"sections": {
+				"business": "Dein Geschäft",
+				"contact": "Kontakt",
+				"store": "Deine erste Filiale"
+			},
+			"createAccount": "Account erstellen",
+			"creating": "Account wird erstellt..."
+		}
+	},
 	"titles": {
 		"welcome": "Willkommen",
 		"letsGetStarted": "Los geht's",
@@ -35,26 +89,26 @@
 	"fields": {
 		"businessName": "Firmenname",
 		"ownerName": "Name des Geschäftsinhabers",
-		"contactEmail": "Kontakt-E-Mail",
+		"contactEmail": "E-Mail",
 		"phone": "Telefon",
 		"primaryLanguage": "Hauptsprache",
 		"storeName": "Filialname",
 		"storeSlug": "URL-Kurzname",
-		"streetAddress": "Straßenadresse",
+		"streetAddress": "Straße & Hausnummer",
 		"city": "Stadt",
-		"postalCode": "Postleitzahl",
+		"postalCode": "PLZ",
 		"country": "Land",
 		"timezone": "Zeitzone",
 		"currency": "Währung"
 	},
 	"placeholders": {
-		"businessName": "Acme Restaurant Gruppe",
+		"businessName": "z.B. Acme Restaurant GmbH",
 		"ownerName": "z.B. Max Mustermann",
 		"contactEmail": "kontakt@beispiel.de",
-		"phone": "+49 123 456 789",
+		"phone": "123 456 789",
 		"selectLanguage": "Sprache auswählen",
-		"storeName": "Innenstadt-Standort",
-		"storeSlug": "ihr-filialname",
+		"storeName": "z.B. Innenstadt",
+		"storeSlug": "dein-store-name",
 		"streetAddress": "Hauptstraße 123",
 		"city": "Berlin",
 		"postalCode": "10115",
@@ -64,7 +118,7 @@
 	},
 	"toast": {
 		"successTitle": "Willkommen bei Menuvo!",
-		"successDescription": "Ihr Konto wurde erfolgreich erstellt.",
+		"successDescription": "Dein Konto wurde erfolgreich erstellt.",
 		"errorTitle": "Konto konnte nicht erstellt werden"
 	}
 }

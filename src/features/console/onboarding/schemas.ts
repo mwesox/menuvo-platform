@@ -1,20 +1,8 @@
 import { z } from "zod";
 
 // ============================================================================
-// FIELD-LEVEL SCHEMAS (for onBlur validation)
+// FIELD-LEVEL SCHEMAS
 // ============================================================================
-
-// Helper to create a TanStack Form validator from a Zod schema
-export function zodValidator<T>(schema: z.ZodType<T>) {
-	return ({ value }: { value: T }) => {
-		const result = schema.safeParse(value);
-		if (!result.success) {
-			// Zod v4 uses .issues instead of .errors
-			return result.error.issues[0]?.message;
-		}
-		return undefined;
-	};
-}
 
 // Merchant field schemas
 export const merchantNameSchema = z
@@ -25,18 +13,20 @@ export const merchantNameSchema = z
 export const ownerNameSchema = z
 	.string()
 	.min(2, "validation:ownerName.min")
-	.max(100, "validation:ownerName.max");
+	.max(100, "validation:ownerName.max")
+	.refine(
+		(val) => val.trim().split(/\s+/).length >= 2,
+		"validation:ownerName.fullName",
+	);
 
 export const merchantEmailSchema = z.string().email("validation:email.invalid");
 
-// German phone: required, must be valid format
-// Accepts: +49..., 0..., with or without spaces/dashes
-const germanPhoneRegex = /^(\+49|0)[1-9][0-9\s\-/]{6,14}$/;
+// Phone: E.164 format from react-phone-number-input (e.g., +4917612345678)
 export const merchantPhoneSchema = z
 	.string()
 	.min(1, "validation:phone.required")
 	.refine(
-		(val) => germanPhoneRegex.test(val.replace(/\s/g, "")),
+		(val) => val.startsWith("+") && val.length >= 8,
 		"validation:phone.invalid",
 	);
 
@@ -49,7 +39,11 @@ export const storeNameSchema = z
 export const storeStreetSchema = z
 	.string()
 	.min(3, "validation:street.required")
-	.max(200, "validation:street.max");
+	.max(200, "validation:street.max")
+	.refine(
+		(val) => val.trim().split(/\s+/).length >= 2,
+		"validation:street.incomplete",
+	);
 
 // German city name: letters, spaces, hyphens, umlauts
 const cityNameRegex = /^[a-zA-ZäöüÄÖÜß\s\-'.]+$/;
@@ -60,13 +54,10 @@ export const storeCitySchema = z
 	.refine((val) => cityNameRegex.test(val), "validation:city.invalid");
 
 // German postal code: exactly 5 digits
-const germanPostalCodeRegex = /^[0-9]{5}$/;
 export const storePostalCodeSchema = z
 	.string()
-	.refine(
-		(val) => germanPostalCodeRegex.test(val),
-		"validation:postalCode.invalid",
-	);
+	.length(5, "validation:postalCode.length")
+	.regex(/^[0-9]{5}$/, "validation:postalCode.invalid");
 
 export const storeCountrySchema = z
 	.string()
@@ -118,3 +109,40 @@ export const onboardingFormSchema = z.object({
 	store: storeStepFormSchema,
 });
 export type OnboardingFormInput = z.infer<typeof onboardingFormSchema>;
+
+// ============================================================================
+// SLIDE-SPECIFIC SCHEMAS (for per-slide form validation)
+// ============================================================================
+
+// Slide 1: Business Name
+export const businessSlideSchema = z.object({
+	name: merchantNameSchema,
+});
+export type BusinessSlideInput = z.infer<typeof businessSlideSchema>;
+
+// Slide 2: Owner Name
+export const ownerSlideSchema = z.object({
+	ownerName: ownerNameSchema,
+});
+export type OwnerSlideInput = z.infer<typeof ownerSlideSchema>;
+
+// Slide 3: Contact (Email + Phone)
+export const contactSlideSchema = z.object({
+	email: merchantEmailSchema,
+	phone: merchantPhoneSchema,
+});
+export type ContactSlideInput = z.infer<typeof contactSlideSchema>;
+
+// Slide 4: Store Name
+export const storeNameSlideSchema = z.object({
+	name: storeNameSchema,
+});
+export type StoreNameSlideInput = z.infer<typeof storeNameSlideSchema>;
+
+// Slide 5: Address
+export const addressSlideSchema = z.object({
+	street: storeStreetSchema,
+	city: storeCitySchema,
+	postalCode: storePostalCodeSchema,
+});
+export type AddressSlideInput = z.infer<typeof addressSlideSchema>;

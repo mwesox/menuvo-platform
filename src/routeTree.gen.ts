@@ -20,6 +20,10 @@ import { Route as ConsoleIndexRouteImport } from './routes/console/index'
 import { Route as BusinessIndexRouteImport } from './routes/business/index'
 import { Route as SlugIndexRouteImport } from './routes/$slug/index'
 import { Route as QShortCodeRouteImport } from './routes/q/$shortCode'
+import { Route as LegalTermsRouteImport } from './routes/legal/terms'
+import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
+import { Route as LegalImpressumRouteImport } from './routes/legal/impressum'
+import { Route as LegalCookiesRouteImport } from './routes/legal/cookies'
 import { Route as ConsoleStoresIndexRouteImport } from './routes/console/stores/index'
 import { Route as ConsoleSettingsIndexRouteImport } from './routes/console/settings/index'
 import { Route as ConsoleOrdersIndexRouteImport } from './routes/console/orders/index'
@@ -94,6 +98,26 @@ const SlugIndexRoute = SlugIndexRouteImport.update({
 const QShortCodeRoute = QShortCodeRouteImport.update({
   id: '/q/$shortCode',
   path: '/q/$shortCode',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalTermsRoute = LegalTermsRouteImport.update({
+  id: '/legal/terms',
+  path: '/legal/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalImpressumRoute = LegalImpressumRouteImport.update({
+  id: '/legal/impressum',
+  path: '/legal/impressum',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalCookiesRoute = LegalCookiesRouteImport.update({
+  id: '/legal/cookies',
+  path: '/legal/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConsoleStoresIndexRoute = ConsoleStoresIndexRouteImport.update({
@@ -206,6 +230,10 @@ export interface FileRoutesByFullPath {
   '/health': typeof HealthRoute
   '/live': typeof LiveRoute
   '/onboarding': typeof OnboardingRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/impressum': typeof LegalImpressumRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/q/$shortCode': typeof QShortCodeRoute
   '/$slug/': typeof SlugIndexRoute
   '/business/': typeof BusinessIndexRoute
@@ -236,6 +264,10 @@ export interface FileRoutesByTo {
   '/health': typeof HealthRoute
   '/live': typeof LiveRoute
   '/onboarding': typeof OnboardingRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/impressum': typeof LegalImpressumRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/q/$shortCode': typeof QShortCodeRoute
   '/$slug': typeof SlugIndexRoute
   '/business': typeof BusinessIndexRoute
@@ -270,6 +302,10 @@ export interface FileRoutesById {
   '/health': typeof HealthRoute
   '/live': typeof LiveRoute
   '/onboarding': typeof OnboardingRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/impressum': typeof LegalImpressumRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/q/$shortCode': typeof QShortCodeRoute
   '/$slug/': typeof SlugIndexRoute
   '/business/': typeof BusinessIndexRoute
@@ -305,6 +341,10 @@ export interface FileRouteTypes {
     | '/health'
     | '/live'
     | '/onboarding'
+    | '/legal/cookies'
+    | '/legal/impressum'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/q/$shortCode'
     | '/$slug/'
     | '/business/'
@@ -335,6 +375,10 @@ export interface FileRouteTypes {
     | '/health'
     | '/live'
     | '/onboarding'
+    | '/legal/cookies'
+    | '/legal/impressum'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/q/$shortCode'
     | '/$slug'
     | '/business'
@@ -368,6 +412,10 @@ export interface FileRouteTypes {
     | '/health'
     | '/live'
     | '/onboarding'
+    | '/legal/cookies'
+    | '/legal/impressum'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/q/$shortCode'
     | '/$slug/'
     | '/business/'
@@ -402,6 +450,10 @@ export interface RootRouteChildren {
   HealthRoute: typeof HealthRoute
   LiveRoute: typeof LiveRoute
   OnboardingRoute: typeof OnboardingRoute
+  LegalCookiesRoute: typeof LegalCookiesRoute
+  LegalImpressumRoute: typeof LegalImpressumRoute
+  LegalPrivacyRoute: typeof LegalPrivacyRoute
+  LegalTermsRoute: typeof LegalTermsRoute
   QShortCodeRoute: typeof QShortCodeRoute
   ApiMenuImportUploadRoute: typeof ApiMenuImportUploadRoute
   ApiMollieCallbackRoute: typeof ApiMollieCallbackRoute
@@ -485,6 +537,34 @@ declare module '@tanstack/react-router' {
       path: '/q/$shortCode'
       fullPath: '/q/$shortCode'
       preLoaderRoute: typeof QShortCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/terms': {
+      id: '/legal/terms'
+      path: '/legal/terms'
+      fullPath: '/legal/terms'
+      preLoaderRoute: typeof LegalTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/privacy': {
+      id: '/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/impressum': {
+      id: '/legal/impressum'
+      path: '/legal/impressum'
+      fullPath: '/legal/impressum'
+      preLoaderRoute: typeof LegalImpressumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/cookies': {
+      id: '/legal/cookies'
+      path: '/legal/cookies'
+      fullPath: '/legal/cookies'
+      preLoaderRoute: typeof LegalCookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/console/stores/': {
@@ -708,6 +788,10 @@ const rootRouteChildren: RootRouteChildren = {
   HealthRoute: HealthRoute,
   LiveRoute: LiveRoute,
   OnboardingRoute: OnboardingRoute,
+  LegalCookiesRoute: LegalCookiesRoute,
+  LegalImpressumRoute: LegalImpressumRoute,
+  LegalPrivacyRoute: LegalPrivacyRoute,
+  LegalTermsRoute: LegalTermsRoute,
   QShortCodeRoute: QShortCodeRoute,
   ApiMenuImportUploadRoute: ApiMenuImportUploadRoute,
   ApiMollieCallbackRoute: ApiMollieCallbackRoute,

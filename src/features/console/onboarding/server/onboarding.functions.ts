@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/db";
 import { merchants, stores } from "@/db/schema.ts";
+import { loginAsMerchant } from "@/features/console/auth/server/fake-auth.functions";
 import { generateSlug } from "@/lib/slug";
 import { onboardingSchema } from "../schemas.ts";
 
@@ -64,6 +65,9 @@ export const onboardMerchant = createServerFn({ method: "POST" })
 				store: newStore,
 			};
 		});
+
+		// Set auth cookie for the new merchant
+		await loginAsMerchant({ data: { merchantId: result.merchant.id } });
 
 		return result;
 	});
