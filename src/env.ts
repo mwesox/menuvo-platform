@@ -14,8 +14,6 @@ export const env = createEnv({
 		STRIPE_PRICE_MAX: z.string().optional(),
 		// OpenRouter AI
 		OPENROUTER_API_KEY: z.string().min(1),
-		// Redis (Bun reads REDIS_URL automatically)
-		REDIS_URL: z.string().url().optional(),
 		// S3-compatible Storage (public images bucket)
 		S3_ENDPOINT: z.string().url().optional(),
 		S3_ACCESS_KEY_ID: z.string().min(1).optional(),
@@ -76,8 +74,6 @@ export const env = createEnv({
 		STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO,
 		STRIPE_PRICE_MAX: process.env.STRIPE_PRICE_MAX,
 		OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
-		// Redis
-		REDIS_URL: process.env.REDIS_URL,
 		// S3-compatible Storage
 		S3_ENDPOINT: process.env.S3_ENDPOINT,
 		S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID,

@@ -37,24 +37,6 @@ services:
     networks:
       - menuvo
 
-  # Redis - Queue & Caching
-  redis:
-    image: redis:8-alpine
-    container_name: menuvo-redis
-    restart: always
-    mem_limit: 256m
-    cpus: 0.5
-    command: redis-server --appendonly yes --maxmemory 200mb --maxmemory-policy allkeys-lru
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - menuvo
-
   # Menuvo Platform - TanStack Start (Console + Shop)
   platform-a:
     image: ghcr.io/mwesox/menuvo-platform:${VERSION:-latest}
@@ -69,9 +51,6 @@ services:
 
       # Database
       DATABASE_URL: postgres://menuvo:${DB_PASSWORD}@postgres:5432/menuvo
-
-      # Redis
-      REDIS_URL: redis://redis:6379
 
       # Auth
       AUTH_SECRET: ${AUTH_SECRET}
@@ -100,8 +79,6 @@ services:
 
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
@@ -126,9 +103,6 @@ services:
       # Database
       DATABASE_URL: postgres://menuvo:${DB_PASSWORD}@postgres:5432/menuvo
 
-      # Redis
-      REDIS_URL: redis://redis:6379
-
       # Auth
       AUTH_SECRET: ${AUTH_SECRET}
 
@@ -156,8 +130,6 @@ services:
 
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
@@ -272,8 +244,6 @@ services:
 
 volumes:
   postgres_data:
-    driver: local
-  redis_data:
     driver: local
   caddy_data:
     driver: local

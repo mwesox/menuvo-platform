@@ -1,14 +1,8 @@
-import { RedisClient } from "bun";
-import { env } from "@/env";
-
-const redis = new RedisClient(env.REDIS_URL ?? "redis://localhost:6379");
-
 type HealthStatus = "ok" | "error";
 
 type HealthResponse = {
 	status: HealthStatus;
 	db: HealthStatus;
-	redis: HealthStatus;
 	timestamp: string;
 };
 
@@ -16,20 +10,12 @@ export async function checkHealth(): Promise<{
 	statusCode: number;
 	payload: HealthResponse;
 }> {
-	let statusCode = 200;
-	const checks: { db: HealthStatus; redis: HealthStatus } = {
+	const statusCode = 200;
+	const checks: { db: HealthStatus } = {
 		db: "ok",
-		redis: "ok",
 	};
 
-	// DB check temporarily disabled.
-
-	try {
-		await redis.send("PING", []);
-	} catch {
-		checks.redis = "error";
-		statusCode = 503;
-	}
+	// DB check temporarily disabled - postgres healthcheck handles this
 
 	return {
 		statusCode,
