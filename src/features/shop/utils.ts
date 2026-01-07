@@ -1,5 +1,8 @@
 import type { MenuItem, MenuItemWithDefaults } from "./schemas";
 
+// Re-export price formatting utilities from the centralized location
+export { formatPrice, formatPriceModifier } from "@/components/ui/price-input";
+
 /**
  * @deprecated Since API now returns isDefault directly, this is a pass-through.
  * Kept for backward compatibility but can be removed once all callers are updated.
@@ -10,48 +13,6 @@ export function enrichMenuItemWithDefaults(
 	// API now returns all default/quantity fields directly
 	// This function is now a pass-through for backward compatibility
 	return item as MenuItemWithDefaults;
-}
-
-/**
- * Format a price in cents to a currency string.
- * @param cents - The price in cents
- * @param currency - The currency code (default: "EUR")
- * @returns Formatted price string (e.g., "$12.99")
- */
-export function formatPrice(cents: number, currency = "EUR"): string {
-	const formatter = new Intl.NumberFormat(undefined, {
-		style: "currency",
-		currency,
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2,
-	});
-
-	return formatter.format(cents / 100);
-}
-
-/**
- * Format a price modifier (can be positive or negative) with appropriate sign.
- * @param cents - The price modifier in cents
- * @param currency - The currency code (default: "EUR")
- * @returns Formatted string with sign (e.g., "+€2.20" or "−€2.20")
- */
-export function formatPriceModifier(cents: number, currency = "EUR"): string {
-	const formatter = new Intl.NumberFormat(undefined, {
-		style: "currency",
-		currency,
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2,
-	});
-
-	const formatted = formatter.format(Math.abs(cents) / 100);
-
-	if (cents > 0) {
-		return `+${formatted}`;
-	}
-	if (cents < 0) {
-		return `−${formatted}`; // Using proper minus sign (U+2212)
-	}
-	return formatted;
 }
 
 /**

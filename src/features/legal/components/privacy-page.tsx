@@ -5,7 +5,7 @@ import company from "../data/company.json";
 export function PrivacyPage() {
 	return (
 		<div className="@container">
-			<div className="mx-auto max-w-3xl px-4 py-6 @md:px-6 @md:py-8">
+			<div className="mx-auto max-w-3xl @md:px-6 px-4 @md:py-8 py-6">
 				<Button
 					variant="ghost"
 					size="sm"
@@ -16,11 +16,11 @@ export function PrivacyPage() {
 					Zurück
 				</Button>
 
-				<h1 className="mb-6 font-semibold text-xl @md:mb-8 @md:text-2xl">
+				<h1 className="@md:mb-8 mb-6 font-semibold @md:text-2xl text-xl">
 					Datenschutzerklärung
 				</h1>
 
-				<div className="space-y-5 text-sm leading-relaxed @md:space-y-6">
+				<div className="@md:space-y-6 space-y-5 text-sm leading-relaxed">
 					<section>
 						<h2 className="mb-2 font-medium text-base">1. Verantwortlicher</h2>
 						<p>{company.name}</p>

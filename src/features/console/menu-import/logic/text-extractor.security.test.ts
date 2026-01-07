@@ -74,8 +74,7 @@ describe("Text Extractor Security", () => {
 		});
 
 		it("truncates large markdown content", () => {
-			const largeMD =
-				"# Menu\n\n" + "- Item $9.99: Description here\n".repeat(20000);
+			const largeMD = `# Menu\n\n${"- Item $9.99: Description here\n".repeat(20000)}`;
 			const buffer = Buffer.from(largeMD);
 
 			const result = extractTextFromFile(buffer, "md");

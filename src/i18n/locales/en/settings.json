@@ -84,7 +84,8 @@
 	"actions": {
 		"addLanguage": "Add Language",
 		"addClosure": "Add Closure",
-		"deleteClosure": "Delete Closure"
+		"deleteClosure": "Delete Closure",
+		"addTimeSlot": "Add time slot"
 	},
 	"confirmations": {
 		"deleteClosure": "Are you sure you want to delete this scheduled closure? This action cannot be undone."

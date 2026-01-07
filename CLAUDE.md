@@ -127,6 +127,24 @@ CSS files:
 - `src/styles/themes/shop.css`
 - `src/styles/themes/console.css`
 
+### Radius (shadcn-compatible)
+
+Theme-aware radius system. Each theme sets `--radius` in its CSS file, all classes scale from it via `@theme inline` in core.css.
+
+| Class | Formula | Shop (6px) | Console (8px) | Discovery (12px) |
+|-------|---------|------------|---------------|------------------|
+| `rounded-sm` | base - 4px | 2px | 4px | 8px |
+| `rounded-md` | base - 2px | 4px | 6px | 10px |
+| `rounded-lg` | base | 6px | 8px | 12px |
+| `rounded-xl` | base + 4px | 10px | 12px | 16px |
+| `rounded-2xl` | base + 8px | 14px | 16px | 20px |
+| `rounded-3xl` | base + 12px | 18px | 20px | 24px |
+
+**Rules:**
+- Use `rounded-{sm|md|lg|xl|2xl|3xl}` - themed
+- Use `rounded-full` - always 50%
+- Never use `rounded-[Npx]` or hardcoded pixel values
+
 ---
 
 ## Adding Shadcn Components

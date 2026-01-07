@@ -16,6 +16,7 @@ import {
 	createTestRunId,
 	createTestStore,
 } from "@/test/factories";
+import { clearTestAuth, setTestAuth } from "@/test/setup";
 import {
 	cancelOrder,
 	createOrder,
@@ -47,9 +48,16 @@ describe("orders.functions", () => {
 			price: 1000,
 		});
 		itemId = item.id;
+
+		// Set up auth context for server functions
+		setTestAuth({
+			merchantId: merchant.id,
+			merchant: { id: merchant.id, name: merchant.name },
+		});
 	});
 
 	afterAll(async () => {
+		clearTestAuth();
 		await cleanupTestData(testRunId);
 		await closeTestDb();
 	});

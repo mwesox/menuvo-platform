@@ -17,6 +17,7 @@ import {
 	createTestStore,
 	testDb,
 } from "@/test/factories";
+import { clearTestAuth, setTestAuth } from "@/test/setup";
 import {
 	createCategory,
 	deleteCategory,
@@ -37,9 +38,16 @@ describe("categories.functions", () => {
 
 		const store = await createTestStore({ testRunId, merchantId });
 		storeId = store.id;
+
+		// Set up auth context for server functions
+		setTestAuth({
+			merchantId: merchant.id,
+			merchant: { id: merchant.id, name: merchant.name },
+		});
 	});
 
 	afterAll(async () => {
+		clearTestAuth();
 		await cleanupTestData(testRunId);
 		await closeTestDb();
 	});

@@ -70,7 +70,6 @@ export const itemQueries = {
 		queryOptions({
 			queryKey: menuKeys.items.detail(itemId),
 			queryFn: () => getItem({ data: { itemId } }),
-			staleTime: 0, // Always refetch when opening item
 		}),
 };
 

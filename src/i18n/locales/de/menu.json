@@ -21,6 +21,16 @@
 		"categoryDetails": "Kategoriedetails",
 		"optionGroupDetails": "Optionsgruppendetails"
 	},
+	"table": {
+		"category": "Kategorie",
+		"image": "Bild",
+		"items": "Produkte",
+		"status": "Status",
+		"price": "Preis",
+		"name": "Name",
+		"type": "Typ",
+		"choices": "Auswahlmöglichkeiten"
+	},
 	"labels": {
 		"categoryName": "Kategoriename",
 		"itemName": "Artikelname",
@@ -62,7 +72,9 @@
 		"noOptionGroups": "Noch keine Optionsgruppen",
 		"noOptionGroupsDescription": "Erstellen Sie Optionsgruppen für Anpassungen wie Größen, Toppings oder Extras.",
 		"noChoices": "Noch keine Auswahlmöglichkeiten hinzugefügt. Fügen Sie Ihre erste Auswahl unten hinzu.",
-		"noItemsInCategory": "Noch keine Artikel in dieser Kategorie"
+		"noItemsInCategory": "Noch keine Artikel in dieser Kategorie",
+		"unnamed": "Unbenannt",
+		"selectStore": "Bitte wählen Sie einen Laden aus"
 	},
 	"dialogs": {
 		"createCategoryDescription": "Erstellen Sie eine neue Speisekartenkategorie.",
@@ -87,6 +99,7 @@
 		"optionGroupDescription": "Optionale Beschreibung für diese Optionsgruppe",
 		"itemName": "z. B. Pizza Margherita",
 		"kitchenName": "z. B. MARG",
+		"choiceName": "z. B. Extra Käse, Pepperoni",
 		"itemDescription": "Beschreiben Sie diesen Artikel...",
 		"aggregateMinQuantity": "Kein Minimum",
 		"aggregateMaxQuantity": "Kein Maximum"
@@ -120,11 +133,17 @@
 		"backToItems": "Zurück zu Artikel"
 	},
 	"pageHeaders": {
+		"categoriesDescription": "Verwalten Sie Ihre Speisekartenkategorien",
 		"addItemTitle": "Artikel hinzufügen",
 		"addItemDescription": "Einen neuen Speiseartikel erstellen",
 		"editItemTitle": "Artikel bearbeiten",
 		"editItemDescription": "{itemName} bearbeiten",
-		"categoryItemsDescription": "Artikel in {categoryName} verwalten"
+		"categoryItemsDescription": "Artikel in {categoryName} verwalten",
+		"optionGroupsDescription": "Verwalten Sie Optionsgruppen für Artikelanpassungen",
+		"addOptionGroupTitle": "Optionsgruppe hinzufügen",
+		"addOptionGroupDescription": "Erstellen Sie eine neue Optionsgruppe mit Auswahlmöglichkeiten",
+		"editOptionGroupTitle": "Optionsgruppe bearbeiten",
+		"editOptionGroupDescription": "{optionGroupName} bearbeiten"
 	},
 	"messages": {
 		"needCategoryFirst": "Sie müssen zuerst eine Kategorie erstellen, bevor Sie Artikel hinzufügen können.",

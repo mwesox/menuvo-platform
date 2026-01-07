@@ -92,10 +92,13 @@ export const loginAsMerchant = createServerFn({ method: "POST" })
 		}
 
 		// Set cookie (30 days expiry)
+		// Note: sameSite only set in production - Safari requires Secure flag with SameSite=lax
+		// and localhost runs over HTTP, causing cookie not to be sent on subsequent requests
+		const isProduction = process.env.NODE_ENV === "production";
 		setCookie(MERCHANT_ID_COOKIE, String(data.merchantId), {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "lax",
+			secure: isProduction,
+			...(isProduction && { sameSite: "lax" }),
 			maxAge: 60 * 60 * 24 * 30, // 30 days
 			path: "/",
 		});

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button.tsx";
 import {
 	Card,
@@ -43,7 +44,7 @@ import { ImageUploadField } from "@/features/console/images/components/image-upl
 import { useDisplayLanguage } from "@/features/console/menu/contexts/display-language-context";
 import { ALLERGEN_KEYS } from "../constants.ts";
 import { getDisplayName } from "../logic/display.ts";
-import { categoryQueries, itemQueries } from "../queries.ts";
+import { menuKeys } from "../queries.ts";
 import {
 	formToTranslations,
 	itemFormSchema,
@@ -75,6 +76,7 @@ export function ItemForm({
 	const { t } = useTranslation("menu");
 	const { t: tCommon } = useTranslation("common");
 	const { t: tForms } = useTranslation("forms");
+	const { t: tToasts } = useTranslation("toasts");
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const language = useDisplayLanguage();
@@ -108,13 +110,17 @@ export function ItemForm({
 					kitchenName: input.kitchenName,
 				},
 			}),
-		onSuccess: () => {
+		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({
-				queryKey: itemQueries.byStore(storeId).queryKey,
+				queryKey: menuKeys.items.byStore(storeId),
 			});
 			queryClient.invalidateQueries({
-				queryKey: categoryQueries.byStore(storeId).queryKey,
+				queryKey: menuKeys.categories.detail(variables.categoryId),
 			});
+			toast.success(tToasts("success.itemCreated"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.createItem"));
 		},
 	});
 
@@ -139,13 +145,31 @@ export function ItemForm({
 					kitchenName: input.kitchenName,
 				},
 			}),
-		onSuccess: () => {
+		onSuccess: (updatedItem, variables) => {
+			// Update item detail cache immediately
+			queryClient.setQueryData(
+				menuKeys.items.detail(updatedItem.id),
+				updatedItem,
+			);
+			// Invalidate list query to ensure fresh data on navigation
 			queryClient.invalidateQueries({
-				queryKey: itemQueries.byStore(storeId).queryKey,
+				queryKey: menuKeys.items.byStore(storeId),
 			});
-			queryClient.invalidateQueries({
-				queryKey: categoryQueries.byStore(storeId).queryKey,
-			});
+			// Invalidate category detail (if category changed, invalidate both old and new)
+			if (variables.categoryId) {
+				queryClient.invalidateQueries({
+					queryKey: menuKeys.categories.detail(variables.categoryId),
+				});
+			}
+			if (initialCategoryId && initialCategoryId !== variables.categoryId) {
+				queryClient.invalidateQueries({
+					queryKey: menuKeys.categories.detail(initialCategoryId),
+				});
+			}
+			toast.success(tToasts("success.itemUpdated"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.updateItem"));
 		},
 	});
 
@@ -208,9 +232,12 @@ export function ItemForm({
 					data: { itemId, optionGroupIds: selectedOptionGroupIds },
 				});
 
+				// Navigate back to the category's items list
+				const targetCategoryId = selectedCategoryId;
 				navigate({
-					to: "/console/menu",
-					search: { storeId, tab: "items" as const },
+					to: "/console/menu/categories/$categoryId",
+					params: { categoryId: targetCategoryId },
+					search: { storeId },
 				});
 			} catch {
 				// Error toast is handled by mutation hooks

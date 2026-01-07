@@ -8,11 +8,51 @@ import {
 	getFileBuffer,
 	getPublicUrl,
 	uploadFile,
-} from "./s3-client";
+} from "@/lib/storage/s3-client";
+import {
+	DISPLAY_SIZE,
+	THUMBNAIL_QUALITY,
+	THUMBNAIL_SIZE,
+	WEBP_QUALITY,
+} from "../constants";
 
-// Image variant sizes
-const THUMBNAIL_SIZE = 200; // Square thumbnail for lists
-const DISPLAY_SIZE = 800; // Main display size for detail views
+/**
+ * Result of processing an image to variants.
+ */
+export interface ProcessedImageVariants {
+	webpBuffer: Buffer;
+	thumbnailBuffer: Buffer;
+	width: number;
+	height: number;
+}
+
+/**
+ * Process an uploaded image buffer and generate WebP + thumbnail variants.
+ * Pure function: buffer in → variants out.
+ */
+export async function processToVariants(
+	inputBuffer: Uint8Array,
+): Promise<ProcessedImageVariants> {
+	const buffer = Buffer.from(inputBuffer);
+	const image = sharp(buffer);
+	const metadata = await image.metadata();
+
+	// Convert to WebP
+	const webpBuffer = await image.webp({ quality: WEBP_QUALITY }).toBuffer();
+
+	// Generate thumbnail (square crop)
+	const thumbnailBuffer = await sharp(buffer)
+		.resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, { fit: "cover" })
+		.webp({ quality: THUMBNAIL_QUALITY })
+		.toBuffer();
+
+	return {
+		webpBuffer,
+		thumbnailBuffer,
+		width: metadata.width ?? 0,
+		height: metadata.height ?? 0,
+	};
+}
 
 /**
  * Process an uploaded image and convert it to WebP format.
@@ -24,7 +64,7 @@ export async function processToWebp(
 	const image = sharp(inputBuffer);
 	const metadata = await image.metadata();
 
-	const buffer = await image.webp({ quality: 85 }).toBuffer();
+	const buffer = await image.webp({ quality: WEBP_QUALITY }).toBuffer();
 
 	return {
 		buffer,
@@ -54,7 +94,7 @@ export async function processImageVariants(imageId: string): Promise<void> {
 	// Generate thumbnail (200x200, cover crop for square)
 	const thumbnailBuffer = await sharp(originalBuffer)
 		.resize(THUMBNAIL_SIZE, THUMBNAIL_SIZE, { fit: "cover" })
-		.webp({ quality: 80 })
+		.webp({ quality: THUMBNAIL_QUALITY })
 		.toBuffer();
 
 	const thumbnailKey = record.key.replace(".webp", "_thumb.webp");
@@ -63,7 +103,7 @@ export async function processImageVariants(imageId: string): Promise<void> {
 	// Generate display variant (800px max, maintain aspect ratio)
 	const displayBuffer = await sharp(originalBuffer)
 		.resize(DISPLAY_SIZE, DISPLAY_SIZE, { fit: "inside" })
-		.webp({ quality: 85 })
+		.webp({ quality: WEBP_QUALITY })
 		.toBuffer();
 
 	const displayKey = record.key.replace(".webp", "_display.webp");

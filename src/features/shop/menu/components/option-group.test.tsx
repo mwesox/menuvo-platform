@@ -205,9 +205,9 @@ describe("OptionGroup", () => {
 				/>,
 			);
 
-			// Medium has +€2.00, Large has +€4.00
-			expect(screen.getByText("+€2.00")).toBeInTheDocument();
-			expect(screen.getByText("+€4.00")).toBeInTheDocument();
+			// Medium has +2,00 €, Large has +4,00 € (German locale)
+			expect(screen.getByText("+2,00 €")).toBeInTheDocument();
+			expect(screen.getByText("+4,00 €")).toBeInTheDocument();
 		});
 	});
 

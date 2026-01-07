@@ -4,7 +4,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { images } from "@/db/schema";
-import { deleteImageVariants } from "@/lib/storage/image-processor";
+import { deleteImageVariants } from "../logic/image-processing";
 import { deleteImageSchema, getImageSchema } from "../schemas";
 
 /**

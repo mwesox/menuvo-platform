@@ -340,16 +340,16 @@ export function ItemDrawer({
 	return (
 		<Drawer open={open} onOpenChange={onOpenChange}>
 			<DrawerContent
-				className="max-h-[85dvh] overflow-hidden md:mx-auto md:max-w-lg md:rounded-t-(--radius)"
+				className="max-h-[90dvh] min-h-[75dvh] overflow-hidden md:mx-auto md:max-w-lg md:rounded-t-(--radius)"
 				hideHandle
 			>
 				{/* Handle */}
-				<div className="mx-auto mt-4 mb-4 h-1 w-10 shrink-0 rounded-full bg-border" />
+				<div className="mx-auto mt-4 mb-2 h-1 w-10 shrink-0 rounded-full bg-border" />
 				{/* Scrollable content */}
-				<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+				<div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
 					{/* Hero image - full width, edge to edge */}
 					{item.imageUrl && (
-						<div className="relative h-48 overflow-hidden md:h-56">
+						<div className="relative h-56 overflow-hidden md:h-64">
 							<img
 								src={item.imageUrl}
 								alt={item.name}
@@ -363,7 +363,7 @@ export function ItemDrawer({
 					<div
 						className={cn(
 							"fade-in-0 slide-in-from-bottom-2 relative animate-in px-6 pb-4 duration-300",
-							item.imageUrl ? "-mt-8" : "pt-2",
+							item.imageUrl ? "-mt-8" : "pt-8",
 						)}
 					>
 						{/* Title */}
@@ -428,6 +428,9 @@ export function ItemDrawer({
 							</div>
 						)}
 					</div>
+
+					{/* Spacer - pushes footer down when content is minimal */}
+					<div className="min-h-8 flex-1" />
 				</div>
 
 				{/* Sticky footer with shadow */}

@@ -12,8 +12,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card.tsx";
 import { Field, FieldLabel } from "@/components/ui/field.tsx";
-import { Input } from "@/components/ui/input.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
+import { TimeInput } from "@/components/ui/time-input.tsx";
 import type { DayOfWeek, StoreHour } from "@/db/schema.ts";
 import {
 	type DayHoursInput,
@@ -153,6 +153,7 @@ interface DayRowProps {
 }
 
 function DayRow({ day, value, onChange }: DayRowProps) {
+	const { t } = useTranslation("settings");
 	const { t: tCommon } = useTranslation("common");
 	const handleToggle = useCallback(
 		(isOpen: boolean) => {
@@ -219,22 +220,20 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 								key={`${slot.openTime}-${slot.closeTime}-${slotIndex}`}
 								className="flex items-center gap-2"
 							>
-								<Input
-									type="time"
+								<TimeInput
 									value={slot.openTime}
-									onChange={(e) =>
-										handleSlotChange(slotIndex, "openTime", e.target.value)
+									onChange={(val) =>
+										handleSlotChange(slotIndex, "openTime", val)
 									}
 									className="w-32"
 								/>
 								<span className="text-muted-foreground">
 									{tCommon("labels.to")}
 								</span>
-								<Input
-									type="time"
+								<TimeInput
 									value={slot.closeTime}
-									onChange={(e) =>
-										handleSlotChange(slotIndex, "closeTime", e.target.value)
+									onChange={(val) =>
+										handleSlotChange(slotIndex, "closeTime", val)
 									}
 									className="w-32"
 								/>
@@ -258,7 +257,7 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 							className="mt-2"
 						>
 							<Plus className="me-1 size-4" />
-							{tCommon("buttons.add")} slot
+							{t("actions.addTimeSlot")}
 						</Button>
 					</div>
 				) : (

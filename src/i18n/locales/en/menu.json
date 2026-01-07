@@ -21,6 +21,16 @@
 		"categoryDetails": "Category Details",
 		"optionGroupDetails": "Option Group Details"
 	},
+	"table": {
+		"category": "Category",
+		"image": "Image",
+		"items": "Items",
+		"status": "Status",
+		"price": "Price",
+		"name": "Name",
+		"type": "Type",
+		"choices": "Choices"
+	},
 	"labels": {
 		"categoryName": "Category Name",
 		"itemName": "Item Name",
@@ -62,7 +72,9 @@
 		"noOptionGroups": "No option groups yet",
 		"noOptionGroupsDescription": "Create option groups for customizations like sizes, toppings, or extras.",
 		"noChoices": "No choices added yet. Add your first choice below.",
-		"noItemsInCategory": "No items in this category yet"
+		"noItemsInCategory": "No items in this category yet",
+		"unnamed": "Unnamed",
+		"selectStore": "Please select a store"
 	},
 	"dialogs": {
 		"createCategoryDescription": "Create a new menu category.",
@@ -87,6 +99,7 @@
 		"optionGroupDescription": "Optional description for this option group",
 		"itemName": "e.g., Margherita Pizza",
 		"kitchenName": "e.g., MARG",
+		"choiceName": "e.g., Extra Cheese, Pepperoni",
 		"itemDescription": "Describe this item...",
 		"aggregateMinQuantity": "No minimum",
 		"aggregateMaxQuantity": "No maximum"
@@ -120,11 +133,17 @@
 		"backToItems": "Back to Items"
 	},
 	"pageHeaders": {
+		"categoriesDescription": "Manage your menu categories",
 		"addItemTitle": "Add Item",
 		"addItemDescription": "Create a new menu item",
 		"editItemTitle": "Edit Item",
 		"editItemDescription": "Editing {itemName}",
-		"categoryItemsDescription": "Manage items in {categoryName}"
+		"categoryItemsDescription": "Manage items in {categoryName}",
+		"optionGroupsDescription": "Manage option groups for item customizations",
+		"addOptionGroupTitle": "Add Option Group",
+		"addOptionGroupDescription": "Create a new option group with choices",
+		"editOptionGroupTitle": "Edit Option Group",
+		"editOptionGroupDescription": "Editing {optionGroupName}"
 	},
 	"messages": {
 		"needCategoryFirst": "You need to create a category first before adding items.",
