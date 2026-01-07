@@ -81,7 +81,7 @@ const config = defineConfig({
   // Externalize Bun-specific and server-only modules from client bundle
   build: {
     rollupOptions: {
-      external: ['bun', 'bun:test', 'postgres', 'drizzle-orm/postgres-js'],
+      external: ['bun', 'bun:test', 'postgres', 'drizzle-orm/postgres-js', 'sharp'],
     },
   },
   // Also configure SSR externalization
@@ -91,7 +91,7 @@ const config = defineConfig({
   },
   // Exclude server-only packages from client bundle optimization
   optimizeDeps: {
-    exclude: ['postgres', 'drizzle-orm/postgres-js'],
+    exclude: ['postgres', 'drizzle-orm/postgres-js', 'sharp'],
   },
 })
 
