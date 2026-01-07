@@ -207,7 +207,7 @@ jobs:
       - name: Ensure core services are running
         run: |
           cd /home/deploy/menuvo
-          docker compose up -d postgres redis
+          docker compose up -d postgres
 
       - name: Pull application images
         run: |
