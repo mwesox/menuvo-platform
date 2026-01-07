@@ -86,7 +86,7 @@ const config = defineConfig({
   },
   // Also configure SSR externalization
   ssr: {
-    external: ['bun', 'postgres', 'drizzle-orm/postgres-js'],
+    external: ['bun', 'postgres', 'drizzle-orm/postgres-js', 'sharp'],
     noExternal: [],
   },
   // Exclude server-only packages from client bundle optimization
