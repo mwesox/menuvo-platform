@@ -90,7 +90,13 @@ async function handleUploadError(error: unknown): Promise<Response> {
 	// Dynamic import to prevent client bundling
 	const { imageLogger } = await import("@/lib/logger");
 
-	imageLogger.error({ error }, "Image upload failed");
+	// Serialize error properly for logging
+	const errorInfo =
+		error instanceof Error
+			? { message: error.message, stack: error.stack, name: error.name }
+			: { raw: String(error) };
+
+	imageLogger.error({ err: errorInfo }, "Image upload failed");
 
 	// Check for known error types
 	if (error instanceof Error && error.name === "ImageUploadError") {
