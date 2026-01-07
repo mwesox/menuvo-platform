@@ -24,7 +24,7 @@ import { createStore, updateStore } from "../server/stores.functions";
 
 interface StoreFormProps {
 	store?: Store;
-	merchantId: number;
+	merchantId: string;
 }
 
 export function StoreForm({ store, merchantId }: StoreFormProps) {

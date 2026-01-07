@@ -18,7 +18,7 @@ import type { SubscriptionStatus } from "../../schemas";
 import { CancelSubscriptionDialog } from "./cancel-subscription-dialog";
 
 interface SubscriptionActionsProps {
-	merchantId: number;
+	merchantId: string;
 	subscription: {
 		subscriptionStatus: SubscriptionStatus;
 		subscriptionId: string | null;

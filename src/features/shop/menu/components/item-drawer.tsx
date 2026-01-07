@@ -23,7 +23,7 @@ interface ItemDrawerProps {
 	item: MenuItemLight | null;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	storeId: number;
+	storeId: string;
 	storeSlug: string;
 	isOpen: boolean;
 }
@@ -34,8 +34,8 @@ interface ItemDrawerProps {
  */
 function calculateGroupPrice(
 	group: MenuItemOptionGroup,
-	selectedChoiceIds: number[],
-	quantitySelections: Map<number, number>,
+	selectedChoiceIds: string[],
+	quantitySelections: Map<string, number>,
 ): number {
 	// For quantity_select groups
 	if (group.type === "quantity_select") {
@@ -79,8 +79,8 @@ function calculateGroupPrice(
  */
 function buildInitialSelections(
 	optionGroups: MenuItemOptionGroup[],
-): Map<number, number[]> {
-	const defaults = new Map<number, number[]>();
+): Map<string, string[]> {
+	const defaults = new Map<string, string[]>();
 
 	for (const group of optionGroups) {
 		if (group.type === "quantity_select") {
@@ -119,12 +119,12 @@ function buildInitialSelections(
  */
 function buildInitialQuantities(
 	optionGroups: MenuItemOptionGroup[],
-): Map<number, Map<number, number>> {
-	const quantities = new Map<number, Map<number, number>>();
+): Map<string, Map<string, number>> {
+	const quantities = new Map<string, Map<string, number>>();
 
 	for (const group of optionGroups) {
 		if (group.type === "quantity_select") {
-			const groupQuantities = new Map<number, number>();
+			const groupQuantities = new Map<string, number>();
 			for (const choice of group.choices) {
 				// If choice has isDefault, set initial quantity to minQuantity or 1
 				if (choice.isDefault && choice.isAvailable) {
@@ -151,17 +151,17 @@ export function ItemDrawer({
 	const { t } = useTranslation("shop");
 	const addItem = useCartStore((s) => s.addItem);
 	const [quantity, setQuantity] = useState(1);
-	const [selectedOptions, setSelectedOptions] = useState<Map<number, number[]>>(
+	const [selectedOptions, setSelectedOptions] = useState<Map<string, string[]>>(
 		new Map(),
 	);
 	const [quantitySelections, setQuantitySelections] = useState<
-		Map<number, Map<number, number>>
+		Map<string, Map<string, number>>
 	>(new Map());
 
 	// Fetch option groups on demand (only when drawer is open AND item has options)
 	const shouldFetchOptions = open && item?.hasOptionGroups && item?.id;
 	const { data: optionsData, isLoading: isLoadingOptions } = useQuery({
-		...shopQueries.itemOptions(item?.id ?? 0, storeSlug),
+		...shopQueries.itemOptions(item?.id ?? "", storeSlug),
 		enabled: !!shouldFetchOptions,
 	});
 
@@ -252,7 +252,7 @@ export function ItemDrawer({
 				// For quantity select, convert quantities to choices with quantity
 				const quantities = quantitySelections.get(group.id) ?? new Map();
 				const choices: {
-					id: number;
+					id: string;
 					name: string;
 					price: number;
 					quantity: number;
@@ -313,13 +313,13 @@ export function ItemDrawer({
 		onOpenChange(false);
 	};
 
-	const handleOptionChange = (groupId: number, choiceIds: number[]) => {
+	const handleOptionChange = (groupId: string, choiceIds: string[]) => {
 		setSelectedOptions((prev) => new Map(prev).set(groupId, choiceIds));
 	};
 
 	const handleQuantityChange = (
-		groupId: number,
-		choiceId: number,
+		groupId: string,
+		choiceId: string,
 		qty: number,
 	) => {
 		setQuantitySelections((prev) => {

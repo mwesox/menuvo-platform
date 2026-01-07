@@ -4,15 +4,15 @@ import { z } from "zod";
  * Schema for deleting an image.
  */
 export const deleteImageSchema = z.object({
-	imageId: z.number().int().positive(),
-	merchantId: z.number().int().positive(),
+	imageId: z.string().uuid(),
+	merchantId: z.string().uuid(),
 });
 
 /**
  * Schema for getting an image by ID.
  */
 export const getImageSchema = z.object({
-	imageId: z.number().int().positive(),
+	imageId: z.string().uuid(),
 });
 
 // Type exports

@@ -16,9 +16,9 @@ const tabSchema = z.enum([
 ]);
 
 const searchSchema = z.object({
-	storeId: z.number().optional(),
+	storeId: z.string().optional(),
 	tab: tabSchema.optional().default("categories"),
-	selected: z.number().optional(),
+	selected: z.string().optional(),
 });
 
 export const Route = createFileRoute("/console/menu/")({

@@ -10,8 +10,8 @@ export const dateRangePresets = ["7", "30", "90", "all"] as const;
 export type DateRangePreset = (typeof dateRangePresets)[number];
 
 const searchSchema = z.object({
-	storeId: z.coerce.number().optional(),
-	selected: z.coerce.number().optional(),
+	storeId: z.string().optional(),
+	selected: z.string().optional(),
 	status: z
 		.enum([
 			"awaiting_payment",

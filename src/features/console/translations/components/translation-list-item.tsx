@@ -5,14 +5,14 @@ import type { EntityType, TranslationStatus } from "../schemas";
 import { TranslationStatusBadge } from "./translation-status-badge";
 
 interface TranslationListItemProps {
-	id: number;
+	id: string;
 	name: string;
 	entityType: EntityType;
 	status: TranslationStatus;
 	statusByLanguage: Record<string, TranslationStatus>;
 	targetLanguages: string[];
 	isSelected: boolean;
-	onSelect: (entityType: EntityType, id: number) => void;
+	onSelect: (entityType: EntityType, id: string) => void;
 }
 
 const entityIcons = {

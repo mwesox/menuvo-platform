@@ -58,10 +58,10 @@ export type CategoryWithItems = Category & { items: unknown[] };
 interface ItemFormProps {
 	item?: Item;
 	categories: CategoryWithItems[];
-	categoryId?: number;
-	storeId: number;
-	merchantId: number;
-	initialOptionGroupIds?: number[];
+	categoryId?: string;
+	storeId: string;
+	merchantId: string;
+	initialOptionGroupIds?: string[];
 }
 
 export function ItemForm({
@@ -81,7 +81,7 @@ export function ItemForm({
 	const isEditing = !!item;
 
 	const [selectedOptionGroupIds, setSelectedOptionGroupIds] = useState<
-		number[]
+		string[]
 	>(initialOptionGroupIds);
 
 	// Get initial category ID from props (edit mode uses item.categoryId, new mode uses categoryId prop)
@@ -90,7 +90,7 @@ export function ItemForm({
 	// Mutations that work with dynamic categoryId from form
 	const createItemMutation = useMutation({
 		mutationFn: (input: {
-			categoryId: number;
+			categoryId: string;
 			translations: Record<string, { name?: string; description?: string }>;
 			price: number;
 			imageUrl?: string;
@@ -120,8 +120,8 @@ export function ItemForm({
 
 	const updateItemMutation = useMutation({
 		mutationFn: (input: {
-			itemId: number;
-			categoryId?: number;
+			itemId: string;
+			categoryId?: string;
 			translations?: Record<string, { name?: string; description?: string }>;
 			price?: number;
 			imageUrl?: string;
@@ -157,7 +157,7 @@ export function ItemForm({
 
 	const form = useForm({
 		defaultValues: {
-			categoryId: initialCategoryId ? String(initialCategoryId) : "",
+			categoryId: initialCategoryId ?? "",
 			name: defaultTranslations.name,
 			description: defaultTranslations.description,
 			price: item ? String(item.price) : "0",
@@ -169,7 +169,7 @@ export function ItemForm({
 			onSubmit: itemFormSchema,
 		},
 		onSubmit: async ({ value }) => {
-			const selectedCategoryId = Number.parseInt(value.categoryId, 10);
+			const selectedCategoryId = value.categoryId;
 			const priceInCents = Number.parseInt(value.price, 10) || 0;
 			const translations = formToTranslations(
 				{ name: value.name, description: value.description },
@@ -178,7 +178,7 @@ export function ItemForm({
 			);
 
 			try {
-				let itemId: number;
+				let itemId: string;
 
 				if (isEditing) {
 					await updateItemMutation.mutateAsync({
@@ -350,10 +350,7 @@ export function ItemForm({
 													</SelectTrigger>
 													<SelectContent>
 														{categories.map((category) => (
-															<SelectItem
-																key={category.id}
-																value={String(category.id)}
-															>
+															<SelectItem key={category.id} value={category.id}>
 																{getDisplayName(
 																	category.translations,
 																	language,

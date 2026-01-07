@@ -17,7 +17,7 @@ import {
 import { useCreateOnboardingLink } from "../../queries";
 
 interface OnboardingInstructionsProps {
-	merchantId: number;
+	merchantId: string;
 }
 
 export function OnboardingInstructions({

@@ -30,9 +30,9 @@ import {
 
 describe("items.functions", () => {
 	const testRunId = createTestRunId();
-	let merchantId: number;
-	let storeId: number;
-	let categoryId: number;
+	let merchantId: string;
+	let storeId: string;
+	let categoryId: string;
 
 	beforeAll(async () => {
 		const merchant = await createTestMerchant({ testRunId });
@@ -66,7 +66,7 @@ describe("items.functions", () => {
 			});
 
 			expect(result).toBeDefined();
-			expect(result.id).toBeGreaterThan(0);
+			expect(typeof result.id).toBe("string");
 			expect(result.categoryId).toBe(categoryId);
 			expect(result.storeId).toBe(storeId);
 			expect(result.price).toBe(1299);
@@ -110,9 +110,9 @@ describe("items.functions", () => {
 		});
 
 		it("should throw for non-existent item", async () => {
-			await expect(getItem({ data: { itemId: 999999 } })).rejects.toThrow(
-				"Item not found",
-			);
+			await expect(
+				getItem({ data: { itemId: crypto.randomUUID() } }),
+			).rejects.toThrow("Item not found");
 		});
 	});
 

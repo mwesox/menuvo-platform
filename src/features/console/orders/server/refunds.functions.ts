@@ -1,3 +1,5 @@
+"use server";
+
 /**
  * Mollie Refund server functions for order refunds.
  *
@@ -26,7 +28,7 @@ import { getMerchantMollieClient } from "@/lib/mollie/connect";
 // ============================================================================
 
 const createMollieRefundSchema = z.object({
-	orderId: z.number().int().positive(),
+	orderId: z.string().uuid(),
 	/** Optional amount in cents for partial refund. If omitted, full refund. */
 	amount: z.number().int().positive().optional(),
 	/** Optional description for the refund */
@@ -34,7 +36,7 @@ const createMollieRefundSchema = z.object({
 });
 
 const getMollieRefundStatusSchema = z.object({
-	orderId: z.number().int().positive(),
+	orderId: z.string().uuid(),
 	refundId: z.string().min(1),
 });
 
@@ -53,7 +55,7 @@ export type GetMollieRefundStatusInput = z.infer<
 
 export class OrderNotRefundableError extends Error {
 	constructor(
-		public orderId: number,
+		public orderId: string,
 		public reason: string,
 	) {
 		super(`Order ${orderId} cannot be refunded: ${reason}`);
@@ -63,7 +65,7 @@ export class OrderNotRefundableError extends Error {
 
 export class RefundAmountExceedsPaymentError extends Error {
 	constructor(
-		public orderId: number,
+		public orderId: string,
 		public requestedAmount: number,
 		public maxAmount: number,
 	) {
@@ -82,7 +84,7 @@ export class RefundAmountExceedsPaymentError extends Error {
  * Find an order with merchant details for refund processing.
  * Validates that the order belongs to the authenticated merchant.
  */
-async function findOrderForRefund(orderId: number, merchantId: number) {
+async function findOrderForRefund(orderId: string, merchantId: string) {
 	const order = await db.query.orders.findFirst({
 		where: eq(orders.id, orderId),
 		with: {

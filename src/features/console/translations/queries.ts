@@ -24,21 +24,21 @@ import {
 
 // Query keys - merchantId obtained from auth context on server
 export const translationKeys = {
-	status: (storeId: number) => ["translations", "status", storeId] as const,
-	missingReport: (storeId: number, languageCode?: LanguageCode) =>
+	status: (storeId: string) => ["translations", "status", storeId] as const,
+	missingReport: (storeId: string, languageCode?: LanguageCode) =>
 		["translations", "missing", storeId, languageCode] as const,
 };
 
 // Query options factories - merchantId obtained from auth context on server
 export const translationQueries = {
-	status: (storeId: number) =>
+	status: (storeId: string) =>
 		queryOptions({
 			queryKey: translationKeys.status(storeId),
 			queryFn: () => getTranslationStatus({ data: { storeId } }),
 			enabled: !!storeId,
 		}),
 
-	missingReport: (storeId: number, languageCode?: LanguageCode) =>
+	missingReport: (storeId: string, languageCode?: LanguageCode) =>
 		queryOptions({
 			queryKey: translationKeys.missingReport(storeId, languageCode),
 			queryFn: () =>
@@ -84,7 +84,7 @@ export function useUpdateMerchantLanguages() {
  * Update translations for a category.
  * Only storeId needed for cache invalidation.
  */
-export function useUpdateCategoryTranslations(storeId: number) {
+export function useUpdateCategoryTranslations(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -110,7 +110,7 @@ export function useUpdateCategoryTranslations(storeId: number) {
  * Update translations for an item.
  * Only storeId needed for cache invalidation.
  */
-export function useUpdateItemTranslations(storeId: number) {
+export function useUpdateItemTranslations(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -136,7 +136,7 @@ export function useUpdateItemTranslations(storeId: number) {
  * Update translations for an option group.
  * Only storeId needed for cache invalidation.
  */
-export function useUpdateOptionGroupTranslations(storeId: number) {
+export function useUpdateOptionGroupTranslations(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -162,7 +162,7 @@ export function useUpdateOptionGroupTranslations(storeId: number) {
  * Update translations for an option choice.
  * Only storeId needed for cache invalidation.
  */
-export function useUpdateOptionChoiceTranslations(storeId: number) {
+export function useUpdateOptionChoiceTranslations(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 

@@ -26,7 +26,7 @@ import {
 interface BatchCreateDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	storeId: number;
+	storeId: string;
 }
 
 function generateCode(prefix: string, number: number): string {
@@ -38,7 +38,7 @@ function BatchCreateForm({
 	onSuccess,
 	onCancel,
 }: {
-	storeId: number;
+	storeId: string;
 	onSuccess?: () => void;
 	onCancel?: () => void;
 }) {

@@ -1,7 +1,7 @@
 import { useDeferredValue, useMemo, useState } from "react";
 
 interface Store {
-	id: number;
+	id: string;
 	name: string;
 	slug: string;
 	street: string | null;

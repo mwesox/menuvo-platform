@@ -45,9 +45,9 @@ export const orderKeys = {
 	all: ["orders"] as const,
 
 	// Store-scoped queries
-	byStore: (storeId: number) => [...orderKeys.all, "store", storeId] as const,
+	byStore: (storeId: string) => [...orderKeys.all, "store", storeId] as const,
 	byStoreFiltered: (
-		storeId: number,
+		storeId: string,
 		filters?: {
 			status?: OrderStatus;
 			paymentStatus?: PaymentStatus;
@@ -56,12 +56,12 @@ export const orderKeys = {
 	) => [...orderKeys.byStore(storeId), filters] as const,
 
 	// Kitchen queries
-	kitchen: (storeId: number) => [...orderKeys.all, "kitchen", storeId] as const,
-	kitchenDone: (storeId: number) =>
+	kitchen: (storeId: string) => [...orderKeys.all, "kitchen", storeId] as const,
+	kitchenDone: (storeId: string) =>
 		[...orderKeys.all, "kitchen-done", storeId] as const,
 
 	// Single order
-	detail: (orderId: number) => [...orderKeys.all, "detail", orderId] as const,
+	detail: (orderId: string) => [...orderKeys.all, "detail", orderId] as const,
 };
 
 // ============================================================================
@@ -73,7 +73,7 @@ export const orderQueries = {
 	 * Get orders for a store with optional filters
 	 */
 	byStore: (
-		storeId: number,
+		storeId: string,
 		options?: {
 			status?: OrderStatus;
 			paymentStatus?: PaymentStatus;
@@ -105,7 +105,7 @@ export const orderQueries = {
 	/**
 	 * Get orders for kitchen monitor (active orders only)
 	 */
-	kitchen: (storeId: number) =>
+	kitchen: (storeId: string) =>
 		queryOptions({
 			queryKey: orderKeys.kitchen(storeId),
 			queryFn: () => getKitchenOrders({ data: { storeId } }),
@@ -118,7 +118,7 @@ export const orderQueries = {
 	/**
 	 * Get completed orders for kitchen Done archive (last 2 hours)
 	 */
-	kitchenDone: (storeId: number) =>
+	kitchenDone: (storeId: string) =>
 		queryOptions({
 			queryKey: orderKeys.kitchenDone(storeId),
 			queryFn: () => getKitchenDoneOrders({ data: { storeId } }),
@@ -131,7 +131,7 @@ export const orderQueries = {
 	/**
 	 * Get single order by ID
 	 */
-	detail: (orderId: number) =>
+	detail: (orderId: string) =>
 		queryOptions({
 			queryKey: orderKeys.detail(orderId),
 			queryFn: () => getOrder({ data: { orderId } }),
@@ -147,7 +147,7 @@ export const orderQueries = {
 /**
  * Create a new order
  */
-export function useCreateOrder(storeId: number) {
+export function useCreateOrder(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -210,7 +210,7 @@ export function useCreateCheckoutSession() {
 /**
  * Update order status
  */
-export function useUpdateOrderStatus(storeId: number, orderId: number) {
+export function useUpdateOrderStatus(storeId: string, orderId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -250,7 +250,7 @@ export function useUpdateOrderStatus(storeId: number, orderId: number) {
 /**
  * Cancel an order
  */
-export function useCancelOrder(storeId: number, orderId: number) {
+export function useCancelOrder(storeId: string, orderId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -289,7 +289,7 @@ export function useCancelOrder(storeId: number, orderId: number) {
 /**
  * Add merchant notes to an order
  */
-export function useAddMerchantNotes(orderId: number) {
+export function useAddMerchantNotes(orderId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -310,7 +310,7 @@ export function useAddMerchantNotes(orderId: number) {
 /**
  * Expire checkout session (cancel payment)
  */
-export function useExpireCheckoutSession(storeId: number, orderId: number) {
+export function useExpireCheckoutSession(storeId: string, orderId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 

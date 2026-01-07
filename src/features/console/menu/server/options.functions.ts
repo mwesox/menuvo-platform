@@ -1,8 +1,17 @@
+"use server";
+
 import { createServerFn } from "@tanstack/react-start";
 import { asc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { itemOptionGroups, optionChoices, optionGroups } from "@/db/schema.ts";
+import {
+	itemOptionGroups,
+	items,
+	optionChoices,
+	optionGroups,
+} from "@/db/schema.ts";
+import { withAuth } from "../../auth/server/auth-middleware.ts";
+import { requireStoreOwnership } from "../../auth/server/ownership.ts";
 import {
 	createOptionChoiceSchema,
 	createOptionGroupSchema,
@@ -14,14 +23,66 @@ import {
 } from "../options.schemas.ts";
 
 // ============================================================================
+// OWNERSHIP HELPERS
+// ============================================================================
+
+async function requireOptionGroupOwnership(
+	optionGroupId: string,
+	merchantId: string,
+) {
+	const optionGroup = await db.query.optionGroups.findFirst({
+		where: eq(optionGroups.id, optionGroupId),
+		with: { store: { columns: { merchantId: true } } },
+	});
+	if (!optionGroup || optionGroup.store.merchantId !== merchantId) {
+		throw new Error("Option group not found or access denied");
+	}
+	return optionGroup;
+}
+
+async function requireOptionChoiceOwnership(
+	optionChoiceId: string,
+	merchantId: string,
+) {
+	const optionChoice = await db.query.optionChoices.findFirst({
+		where: eq(optionChoices.id, optionChoiceId),
+		with: {
+			optGroup: {
+				with: { store: { columns: { merchantId: true } } },
+			},
+		},
+	});
+	if (!optionChoice || optionChoice.optGroup.store.merchantId !== merchantId) {
+		throw new Error("Option choice not found or access denied");
+	}
+	return optionChoice;
+}
+
+async function requireItemOwnership(itemId: string, merchantId: string) {
+	const item = await db.query.items.findFirst({
+		where: eq(items.id, itemId),
+		with: { store: { columns: { merchantId: true } } },
+	});
+	if (!item || item.store.merchantId !== merchantId) {
+		throw new Error("Item not found or access denied");
+	}
+	return item;
+}
+
+// ============================================================================
 // OPTION GROUPS
 // ============================================================================
 
 export const getOptionGroups = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ storeId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ storeId: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
 		const allOptionGroups = await db.query.optionGroups.findMany({
-			where: eq(optionGroups.storeId, data.storeId),
+			where: eq(optionGroups.storeId, store.id),
 			orderBy: [asc(optionGroups.displayOrder)],
 			with: {
 				choices: {
@@ -33,8 +94,14 @@ export const getOptionGroups = createServerFn({ method: "GET" })
 	});
 
 export const getOptionGroup = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ optionGroupId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ optionGroupId: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		await requireOptionGroupOwnership(
+			data.optionGroupId,
+			context.auth.merchantId,
+		);
+
 		const optionGroup = await db.query.optionGroups.findFirst({
 			where: eq(optionGroups.id, data.optionGroupId),
 			with: {
@@ -57,11 +124,17 @@ export const getOptionGroup = createServerFn({ method: "GET" })
 	});
 
 export const createOptionGroup = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(createOptionGroupSchema)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
+
 		// Get max display order
 		const existing = await db.query.optionGroups.findMany({
-			where: eq(optionGroups.storeId, data.storeId),
+			where: eq(optionGroups.storeId, store.id),
 			orderBy: (optionGroups, { desc }) => [desc(optionGroups.displayOrder)],
 			limit: 1,
 		});
@@ -71,6 +144,7 @@ export const createOptionGroup = createServerFn({ method: "POST" })
 			.insert(optionGroups)
 			.values({
 				...data,
+				storeId: store.id,
 				displayOrder: data.displayOrder ?? maxOrder + 1,
 			})
 			.returning();
@@ -79,8 +153,16 @@ export const createOptionGroup = createServerFn({ method: "POST" })
 	});
 
 export const updateOptionGroup = createServerFn({ method: "POST" })
-	.inputValidator(updateOptionGroupSchema.extend({ optionGroupId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(
+		updateOptionGroupSchema.extend({ optionGroupId: z.string().uuid() }),
+	)
+	.handler(async ({ context, data }) => {
+		await requireOptionGroupOwnership(
+			data.optionGroupId,
+			context.auth.merchantId,
+		);
+
 		const { optionGroupId, ...updates } = data;
 
 		const [updatedOptionGroup] = await db
@@ -97,10 +179,16 @@ export const updateOptionGroup = createServerFn({ method: "POST" })
 	});
 
 export const toggleOptionGroupActive = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(
-		z.object({ optionGroupId: z.number(), isActive: z.boolean() }),
+		z.object({ optionGroupId: z.string().uuid(), isActive: z.boolean() }),
 	)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		await requireOptionGroupOwnership(
+			data.optionGroupId,
+			context.auth.merchantId,
+		);
+
 		const [updatedOptionGroup] = await db
 			.update(optionGroups)
 			.set({ isActive: data.isActive })
@@ -115,8 +203,14 @@ export const toggleOptionGroupActive = createServerFn({ method: "POST" })
 	});
 
 export const deleteOptionGroup = createServerFn({ method: "POST" })
-	.inputValidator(z.object({ optionGroupId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ optionGroupId: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		await requireOptionGroupOwnership(
+			data.optionGroupId,
+			context.auth.merchantId,
+		);
+
 		// Cascade deletes are handled by database constraints
 		// (choices and item links will be deleted automatically)
 		await db
@@ -127,8 +221,9 @@ export const deleteOptionGroup = createServerFn({ method: "POST" })
 
 // Save option group with choices in one transaction
 export const saveOptionGroupWithChoices = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(saveOptionGroupWithChoicesSchema)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
 		const {
 			optionGroupId,
 			storeId,
@@ -141,6 +236,14 @@ export const saveOptionGroupWithChoices = createServerFn({ method: "POST" })
 			aggregateMaxQuantity,
 			...groupData
 		} = data;
+
+		// Validate store ownership
+		const store = await requireStoreOwnership(storeId, context.auth.merchantId);
+
+		// If updating, validate ownership
+		if (optionGroupId) {
+			await requireOptionGroupOwnership(optionGroupId, context.auth.merchantId);
+		}
 
 		// Derive selection constraints based on type
 		const { minSelections, maxSelections } = deriveSelectionsFromType(
@@ -184,7 +287,7 @@ export const saveOptionGroupWithChoices = createServerFn({ method: "POST" })
 				const existingIds = new Set(existingChoices.map((c) => c.id));
 				const newIds = new Set(
 					choices
-						.filter((c): c is typeof c & { id: number } => c.id !== undefined)
+						.filter((c): c is typeof c & { id: string } => c.id !== undefined)
 						.map((c) => c.id),
 				);
 
@@ -226,7 +329,7 @@ export const saveOptionGroupWithChoices = createServerFn({ method: "POST" })
 			} else {
 				// Create new option group
 				const existing = await tx.query.optionGroups.findMany({
-					where: eq(optionGroups.storeId, storeId),
+					where: eq(optionGroups.storeId, store.id),
 					orderBy: (og, { desc }) => [desc(og.displayOrder)],
 					limit: 1,
 				});
@@ -235,7 +338,7 @@ export const saveOptionGroupWithChoices = createServerFn({ method: "POST" })
 				const [created] = await tx
 					.insert(optionGroups)
 					.values({
-						storeId,
+						storeId: store.id,
 						...groupData,
 						type,
 						minSelections,
@@ -287,8 +390,14 @@ export const saveOptionGroupWithChoices = createServerFn({ method: "POST" })
 // ============================================================================
 
 export const createOptionChoice = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(createOptionChoiceSchema)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		await requireOptionGroupOwnership(
+			data.optionGroupId,
+			context.auth.merchantId,
+		);
+
 		// Get max display order for this option group
 		const existing = await db.query.optionChoices.findMany({
 			where: eq(optionChoices.optionGroupId, data.optionGroupId),
@@ -309,10 +418,16 @@ export const createOptionChoice = createServerFn({ method: "POST" })
 	});
 
 export const updateOptionChoice = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(
-		updateOptionChoiceSchema.extend({ optionChoiceId: z.number() }),
+		updateOptionChoiceSchema.extend({ optionChoiceId: z.string().uuid() }),
 	)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		await requireOptionChoiceOwnership(
+			data.optionChoiceId,
+			context.auth.merchantId,
+		);
+
 		const { optionChoiceId, ...updates } = data;
 
 		const [updatedChoice] = await db
@@ -329,10 +444,16 @@ export const updateOptionChoice = createServerFn({ method: "POST" })
 	});
 
 export const toggleOptionChoiceAvailable = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(
-		z.object({ optionChoiceId: z.number(), isAvailable: z.boolean() }),
+		z.object({ optionChoiceId: z.string().uuid(), isAvailable: z.boolean() }),
 	)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		await requireOptionChoiceOwnership(
+			data.optionChoiceId,
+			context.auth.merchantId,
+		);
+
 		const [updatedChoice] = await db
 			.update(optionChoices)
 			.set({ isAvailable: data.isAvailable })
@@ -347,8 +468,14 @@ export const toggleOptionChoiceAvailable = createServerFn({ method: "POST" })
 	});
 
 export const deleteOptionChoice = createServerFn({ method: "POST" })
-	.inputValidator(z.object({ optionChoiceId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ optionChoiceId: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		await requireOptionChoiceOwnership(
+			data.optionChoiceId,
+			context.auth.merchantId,
+		);
+
 		await db
 			.delete(optionChoices)
 			.where(eq(optionChoices.id, data.optionChoiceId));
@@ -359,8 +486,11 @@ export const deleteOptionChoice = createServerFn({ method: "POST" })
 // ============================================================================
 
 export const getItemOptions = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ itemId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ itemId: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		await requireItemOwnership(data.itemId, context.auth.merchantId);
+
 		const itemOptions = await db.query.itemOptionGroups.findMany({
 			where: eq(itemOptionGroups.itemId, data.itemId),
 			orderBy: [asc(itemOptionGroups.displayOrder)],
@@ -380,8 +510,11 @@ export const getItemOptions = createServerFn({ method: "GET" })
 	});
 
 export const updateItemOptions = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(updateItemOptionsSchema)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		await requireItemOwnership(data.itemId, context.auth.merchantId);
+
 		const { itemId, optionGroupIds } = data;
 
 		// Delete all existing item option links

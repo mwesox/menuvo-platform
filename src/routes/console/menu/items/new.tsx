@@ -8,8 +8,8 @@ import { categoryQueries } from "@/features/console/menu/queries";
 import { storeQueries } from "@/features/console/stores/queries";
 
 const searchSchema = z.object({
-	categoryId: z.number().optional(),
-	storeId: z.number(),
+	categoryId: z.string().uuid().optional(),
+	storeId: z.string().uuid(),
 });
 
 export const Route = createFileRoute("/console/menu/items/new")({

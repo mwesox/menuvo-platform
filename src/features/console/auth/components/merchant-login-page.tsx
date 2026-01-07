@@ -14,7 +14,7 @@ export function MerchantLoginPage() {
 	const { data: merchants } = useSuspenseQuery(authQueries.allMerchants);
 
 	const loginMutation = useMutation({
-		mutationFn: (merchantId: number) =>
+		mutationFn: (merchantId: string) =>
 			loginAsMerchant({ data: { merchantId } }),
 		onSuccess: async () => {
 			// Invalidate router to re-run beforeLoad with new cookie

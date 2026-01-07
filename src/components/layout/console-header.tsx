@@ -18,9 +18,9 @@ import {
 } from "@/components/ui/select";
 
 interface ConsoleHeaderProps {
-	stores: Array<{ id: number; name: string; isActive: boolean }>;
-	storeId?: number;
-	onStoreChange?: (storeId: number) => void;
+	stores: Array<{ id: string; name: string; isActive: boolean }>;
+	storeId?: string;
+	onStoreChange?: (storeId: string) => void;
 }
 
 export function ConsoleHeader({
@@ -38,10 +38,7 @@ export function ConsoleHeader({
 			{/* Left: Store selector */}
 			<div className="flex items-center gap-2">
 				{hasMultipleStores && onStoreChange ? (
-					<Select
-						value={storeId ? String(storeId) : undefined}
-						onValueChange={(v) => onStoreChange(Number.parseInt(v, 10))}
-					>
+					<Select value={storeId} onValueChange={(v) => onStoreChange(v)}>
 						<SelectTrigger className="h-8 w-[200px] border-0 bg-transparent hover:bg-accent">
 							<div className="flex items-center gap-2">
 								<Store className="h-4 w-4 text-muted-foreground" />

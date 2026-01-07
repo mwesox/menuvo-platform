@@ -40,6 +40,7 @@ import { Route as ConsoleMenuImportRouteImport } from './routes/console/menu/imp
 import { Route as AuthMerchantLoginRouteImport } from './routes/auth/merchant/login'
 import { Route as ApiMollieCallbackRouteImport } from './routes/api.mollie.callback'
 import { Route as ApiMenuImportUploadRouteImport } from './routes/api.menu-import.upload'
+import { Route as ApiImagesUploadRouteImport } from './routes/api.images.upload'
 import { Route as SlugOrderOrderIdRouteImport } from './routes/$slug/order/$orderId'
 import { Route as SlugCheckoutReturnRouteImport } from './routes/$slug/checkout/return'
 import { Route as ConsoleMenuItemsNewRouteImport } from './routes/console/menu/items/new'
@@ -201,6 +202,11 @@ const ApiMenuImportUploadRoute = ApiMenuImportUploadRouteImport.update({
   path: '/api/menu-import/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiImagesUploadRoute = ApiImagesUploadRouteImport.update({
+  id: '/api/images/upload',
+  path: '/api/images/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SlugOrderOrderIdRoute = SlugOrderOrderIdRouteImport.update({
   id: '/order/$orderId',
   path: '/order/$orderId',
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/console/': typeof ConsoleIndexRoute
   '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
   '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
+  '/api/images/upload': typeof ApiImagesUploadRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/mollie/callback': typeof ApiMollieCallbackRoute
   '/auth/merchant/login': typeof AuthMerchantLoginRoute
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/console': typeof ConsoleIndexRoute
   '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
   '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
+  '/api/images/upload': typeof ApiImagesUploadRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/mollie/callback': typeof ApiMollieCallbackRoute
   '/auth/merchant/login': typeof AuthMerchantLoginRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/console/': typeof ConsoleIndexRoute
   '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
   '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
+  '/api/images/upload': typeof ApiImagesUploadRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/mollie/callback': typeof ApiMollieCallbackRoute
   '/auth/merchant/login': typeof AuthMerchantLoginRoute
@@ -351,6 +360,7 @@ export interface FileRouteTypes {
     | '/console/'
     | '/$slug/checkout/return'
     | '/$slug/order/$orderId'
+    | '/api/images/upload'
     | '/api/menu-import/upload'
     | '/api/mollie/callback'
     | '/auth/merchant/login'
@@ -385,6 +395,7 @@ export interface FileRouteTypes {
     | '/console'
     | '/$slug/checkout/return'
     | '/$slug/order/$orderId'
+    | '/api/images/upload'
     | '/api/menu-import/upload'
     | '/api/mollie/callback'
     | '/auth/merchant/login'
@@ -422,6 +433,7 @@ export interface FileRouteTypes {
     | '/console/'
     | '/$slug/checkout/return'
     | '/$slug/order/$orderId'
+    | '/api/images/upload'
     | '/api/menu-import/upload'
     | '/api/mollie/callback'
     | '/auth/merchant/login'
@@ -455,6 +467,7 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   QShortCodeRoute: typeof QShortCodeRoute
+  ApiImagesUploadRoute: typeof ApiImagesUploadRoute
   ApiMenuImportUploadRoute: typeof ApiMenuImportUploadRoute
   ApiMollieCallbackRoute: typeof ApiMollieCallbackRoute
   AuthMerchantLoginRoute: typeof AuthMerchantLoginRoute
@@ -679,6 +692,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMenuImportUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/images/upload': {
+      id: '/api/images/upload'
+      path: '/api/images/upload'
+      fullPath: '/api/images/upload'
+      preLoaderRoute: typeof ApiImagesUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$slug/order/$orderId': {
       id: '/$slug/order/$orderId'
       path: '/order/$orderId'
@@ -793,6 +813,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   QShortCodeRoute: QShortCodeRoute,
+  ApiImagesUploadRoute: ApiImagesUploadRoute,
   ApiMenuImportUploadRoute: ApiMenuImportUploadRoute,
   ApiMollieCallbackRoute: ApiMollieCallbackRoute,
   AuthMerchantLoginRoute: AuthMerchantLoginRoute,

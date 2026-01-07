@@ -22,7 +22,7 @@ import {
  * Hook for creating a Mollie refund.
  * Supports full or partial refunds for paid Mollie orders.
  */
-export function useCreateMollieRefund(storeId: number, orderId: number) {
+export function useCreateMollieRefund(storeId: string, orderId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 

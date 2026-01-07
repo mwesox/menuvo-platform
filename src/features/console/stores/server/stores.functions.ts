@@ -1,10 +1,12 @@
+"use server";
+
+import slugify from "@sindresorhus/slugify";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { stores } from "@/db/schema.ts";
 import { withAuth } from "@/features/console/auth/server/auth-middleware";
-import { generateSlug } from "@/lib/slug";
 import { createStoreSchema, updateStoreSchema } from "../schemas.ts";
 
 export const getStores = createServerFn({ method: "GET" })
@@ -33,7 +35,7 @@ export const getStoreCities = createServerFn({ method: "GET" })
 
 export const getStore = createServerFn({ method: "GET" })
 	.middleware([withAuth])
-	.inputValidator(z.object({ storeId: z.number() }))
+	.inputValidator(z.object({ storeId: z.string().uuid() }))
 	.handler(async ({ context, data }) => {
 		const { auth } = context;
 		const store = await db.query.stores.findFirst({
@@ -52,7 +54,7 @@ export const createStore = createServerFn({ method: "POST" })
 	.inputValidator(createStoreSchema)
 	.handler(async ({ data }) => {
 		// Generate unique slug
-		const baseSlug = generateSlug(data.name);
+		const baseSlug = slugify(data.name);
 		let slug = baseSlug;
 		let counter = 1;
 
@@ -78,7 +80,7 @@ export const createStore = createServerFn({ method: "POST" })
 	});
 
 export const updateStore = createServerFn({ method: "POST" })
-	.inputValidator(updateStoreSchema.extend({ storeId: z.number() }))
+	.inputValidator(updateStoreSchema.extend({ storeId: z.string().uuid() }))
 	.handler(async ({ data }) => {
 		const { storeId, ...updates } = data;
 
@@ -99,7 +101,9 @@ export const updateStore = createServerFn({ method: "POST" })
 	});
 
 export const toggleStoreActive = createServerFn({ method: "POST" })
-	.inputValidator(z.object({ storeId: z.number(), isActive: z.boolean() }))
+	.inputValidator(
+		z.object({ storeId: z.string().uuid(), isActive: z.boolean() }),
+	)
 	.handler(async ({ data }) => {
 		const [updatedStore] = await db
 			.update(stores)
@@ -115,7 +119,7 @@ export const toggleStoreActive = createServerFn({ method: "POST" })
 	});
 
 export const deleteStore = createServerFn({ method: "POST" })
-	.inputValidator(z.object({ storeId: z.number() }))
+	.inputValidator(z.object({ storeId: z.string().uuid() }))
 	.handler(async ({ data }) => {
 		await db.delete(stores).where(eq(stores.id, data.storeId));
 		return { success: true };
@@ -127,7 +131,7 @@ export const deleteStore = createServerFn({ method: "POST" })
 export const updateStoreImage = createServerFn({ method: "POST" })
 	.inputValidator(
 		z.object({
-			storeId: z.number(),
+			storeId: z.string().uuid(),
 			imageUrl: z.string().optional(),
 		}),
 	)

@@ -2,13 +2,13 @@ import { useDeferredValue, useMemo } from "react";
 import { useShop } from "../../shared/contexts/shop-context";
 
 interface MenuItem {
-	id: number;
+	id: string;
 	name: string;
 	description: string | null;
 }
 
 interface Category {
-	id: number;
+	id: string;
 	name: string;
 	description: string | null;
 	items: MenuItem[];

@@ -29,7 +29,7 @@ type SubscriptionWithPeriod = Stripe.Subscription & {
  */
 async function findMerchantBySubscription(
 	subscription: SubscriptionWithPeriod,
-): Promise<{ id: number } | null> {
+): Promise<{ id: string } | null> {
 	// Try to find by subscriptionId first, then by paymentAccountId (customer_account)
 	const customerAccountId =
 		typeof subscription.customer === "string"

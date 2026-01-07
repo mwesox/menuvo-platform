@@ -1,6 +1,6 @@
 CREATE TABLE "categories" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"store_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"store_id" uuid NOT NULL,
 	"display_order" integer DEFAULT 0 NOT NULL,
 	"is_active" boolean DEFAULT true NOT NULL,
 	"translations" jsonb DEFAULT '{}'::jsonb NOT NULL,
@@ -9,8 +9,8 @@ CREATE TABLE "categories" (
 );
 --> statement-breakpoint
 CREATE TABLE "images" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"merchant_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"merchant_id" uuid NOT NULL,
 	"type" text NOT NULL,
 	"key" text NOT NULL,
 	"original_url" text NOT NULL,
@@ -26,30 +26,31 @@ CREATE TABLE "images" (
 );
 --> statement-breakpoint
 CREATE TABLE "item_option_groups" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"item_id" integer NOT NULL,
-	"option_group_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"item_id" uuid NOT NULL,
+	"option_group_id" uuid NOT NULL,
 	"display_order" integer DEFAULT 0 NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "items" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"category_id" integer NOT NULL,
-	"store_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"category_id" uuid NOT NULL,
+	"store_id" uuid NOT NULL,
 	"price" integer NOT NULL,
 	"image_url" varchar(500),
 	"allergens" text[],
 	"display_order" integer DEFAULT 0 NOT NULL,
 	"is_available" boolean DEFAULT true NOT NULL,
+	"kitchen_name" varchar(50),
 	"translations" jsonb DEFAULT '{}'::jsonb NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "menu_import_jobs" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"store_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"store_id" uuid NOT NULL,
 	"original_filename" text NOT NULL,
 	"file_type" text NOT NULL,
 	"file_key" text NOT NULL,
@@ -60,7 +61,7 @@ CREATE TABLE "menu_import_jobs" (
 );
 --> statement-breakpoint
 CREATE TABLE "merchants" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"owner_name" varchar(255) NOT NULL,
 	"email" varchar(255) NOT NULL,
@@ -99,7 +100,7 @@ CREATE TABLE "mollie_events" (
 	"event_type" text NOT NULL,
 	"resource_id" text NOT NULL,
 	"resource_type" text NOT NULL,
-	"merchant_id" integer,
+	"merchant_id" uuid,
 	"received_at" timestamp DEFAULT now() NOT NULL,
 	"processed_at" timestamp,
 	"processing_status" text DEFAULT 'PENDING' NOT NULL,
@@ -108,8 +109,8 @@ CREATE TABLE "mollie_events" (
 );
 --> statement-breakpoint
 CREATE TABLE "option_choices" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"option_group_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"option_group_id" uuid NOT NULL,
 	"price_modifier" integer DEFAULT 0 NOT NULL,
 	"display_order" integer DEFAULT 0 NOT NULL,
 	"is_available" boolean DEFAULT true NOT NULL,
@@ -122,8 +123,8 @@ CREATE TABLE "option_choices" (
 );
 --> statement-breakpoint
 CREATE TABLE "option_groups" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"store_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"store_id" uuid NOT NULL,
 	"type" text DEFAULT 'multi_select' NOT NULL,
 	"is_required" boolean DEFAULT false NOT NULL,
 	"min_selections" integer DEFAULT 0 NOT NULL,
@@ -139,10 +140,10 @@ CREATE TABLE "option_groups" (
 );
 --> statement-breakpoint
 CREATE TABLE "order_item_options" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"order_item_id" integer NOT NULL,
-	"option_group_id" integer,
-	"option_choice_id" integer,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"order_item_id" uuid NOT NULL,
+	"option_group_id" uuid,
+	"option_choice_id" uuid,
 	"group_name" varchar(200) NOT NULL,
 	"choice_name" varchar(200) NOT NULL,
 	"quantity" integer DEFAULT 1 NOT NULL,
@@ -150,10 +151,11 @@ CREATE TABLE "order_item_options" (
 );
 --> statement-breakpoint
 CREATE TABLE "order_items" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"order_id" integer NOT NULL,
-	"item_id" integer,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"order_id" uuid NOT NULL,
+	"item_id" uuid,
 	"name" varchar(200) NOT NULL,
+	"kitchen_name" varchar(50),
 	"description" text,
 	"quantity" integer NOT NULL,
 	"unit_price" integer NOT NULL,
@@ -163,14 +165,14 @@ CREATE TABLE "order_items" (
 );
 --> statement-breakpoint
 CREATE TABLE "orders" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"store_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"store_id" uuid NOT NULL,
 	"customer_name" varchar(100),
 	"customer_email" varchar(255),
 	"customer_phone" varchar(50),
 	"order_type" text NOT NULL,
 	"status" text DEFAULT 'awaiting_payment' NOT NULL,
-	"service_point_id" integer,
+	"service_point_id" uuid,
 	"subtotal" integer NOT NULL,
 	"tax_amount" integer DEFAULT 0 NOT NULL,
 	"tip_amount" integer DEFAULT 0 NOT NULL,
@@ -191,8 +193,8 @@ CREATE TABLE "orders" (
 );
 --> statement-breakpoint
 CREATE TABLE "service_points" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"store_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"store_id" uuid NOT NULL,
 	"code" varchar(100) NOT NULL,
 	"short_code" varchar(8) NOT NULL,
 	"name" varchar(255) NOT NULL,
@@ -208,8 +210,8 @@ CREATE TABLE "service_points" (
 );
 --> statement-breakpoint
 CREATE TABLE "store_closures" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"store_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"store_id" uuid NOT NULL,
 	"start_date" varchar(10) NOT NULL,
 	"end_date" varchar(10) NOT NULL,
 	"reason" varchar(255),
@@ -218,8 +220,8 @@ CREATE TABLE "store_closures" (
 );
 --> statement-breakpoint
 CREATE TABLE "store_hours" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"store_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"store_id" uuid NOT NULL,
 	"day_of_week" text NOT NULL,
 	"open_time" varchar(5) NOT NULL,
 	"close_time" varchar(5) NOT NULL,
@@ -229,8 +231,8 @@ CREATE TABLE "store_hours" (
 );
 --> statement-breakpoint
 CREATE TABLE "stores" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"merchant_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"merchant_id" uuid NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"slug" varchar(255) NOT NULL,
 	"street" varchar(255),
@@ -284,13 +286,8 @@ ALTER TABLE "service_points" ADD CONSTRAINT "service_points_store_id_stores_id_f
 ALTER TABLE "store_closures" ADD CONSTRAINT "store_closures_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "store_hours" ADD CONSTRAINT "store_hours_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "stores" ADD CONSTRAINT "stores_merchant_id_merchants_id_fk" FOREIGN KEY ("merchant_id") REFERENCES "public"."merchants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "idx_categories_store" ON "categories" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "idx_images_merchant" ON "images" USING btree ("merchant_id");--> statement-breakpoint
 CREATE INDEX "idx_images_type" ON "images" USING btree ("type");--> statement-breakpoint
-CREATE INDEX "idx_item_option_groups_item" ON "item_option_groups" USING btree ("item_id");--> statement-breakpoint
-CREATE INDEX "idx_item_option_groups_group" ON "item_option_groups" USING btree ("option_group_id");--> statement-breakpoint
-CREATE INDEX "idx_items_category" ON "items" USING btree ("category_id");--> statement-breakpoint
-CREATE INDEX "idx_items_store" ON "items" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "idx_menu_import_jobs_store" ON "menu_import_jobs" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "idx_menu_import_jobs_status" ON "menu_import_jobs" USING btree ("status");--> statement-breakpoint
 CREATE INDEX "idx_mollie_events_type" ON "mollie_events" USING btree ("event_type");--> statement-breakpoint
@@ -298,8 +295,6 @@ CREATE INDEX "idx_mollie_events_status" ON "mollie_events" USING btree ("process
 CREATE INDEX "idx_mollie_events_resource" ON "mollie_events" USING btree ("resource_id");--> statement-breakpoint
 CREATE INDEX "idx_mollie_events_received" ON "mollie_events" USING btree ("received_at");--> statement-breakpoint
 CREATE INDEX "idx_mollie_events_merchant" ON "mollie_events" USING btree ("merchant_id");--> statement-breakpoint
-CREATE INDEX "idx_option_choices_group" ON "option_choices" USING btree ("option_group_id");--> statement-breakpoint
-CREATE INDEX "idx_option_groups_store" ON "option_groups" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "idx_order_item_options_order_item_id" ON "order_item_options" USING btree ("order_item_id");--> statement-breakpoint
 CREATE INDEX "idx_order_items_order_id" ON "order_items" USING btree ("order_id");--> statement-breakpoint
 CREATE INDEX "idx_orders_store_id" ON "orders" USING btree ("store_id");--> statement-breakpoint

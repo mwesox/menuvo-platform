@@ -16,8 +16,8 @@ type CategoryWithItems = Category & { items: Item[] };
 interface CategoryDetailProps {
 	category: CategoryWithItems;
 	onEdit: (category: Category) => void;
-	onDelete: (categoryId: number) => void;
-	onToggleActive: (categoryId: number, isActive: boolean) => void;
+	onDelete: (categoryId: string) => void;
+	onToggleActive: (categoryId: string, isActive: boolean) => void;
 }
 
 export function CategoryDetail({

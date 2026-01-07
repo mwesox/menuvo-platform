@@ -7,7 +7,7 @@ import { focusRing } from "../../shared/components/ui";
 
 interface StoreCardProps {
 	store: {
-		id: number;
+		id: string;
 		name: string;
 		slug: string;
 		street: string | null;

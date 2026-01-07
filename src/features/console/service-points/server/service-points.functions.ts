@@ -1,15 +1,34 @@
+"use server";
+
 import { createServerFn } from "@tanstack/react-start";
 import { and, asc, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { db } from "@/db";
 import { servicePoints, stores } from "@/db/schema.ts";
+import { withAuth } from "../../auth/server/auth-middleware.ts";
+import { requireStoreOwnership } from "../../auth/server/ownership.ts";
 import {
 	batchCreateSchema,
 	createServicePointSchema,
 	toggleZoneSchema,
 	updateServicePointSchema,
 } from "../schemas.ts";
+
+// Helper to validate service point ownership
+async function requireServicePointOwnership(
+	servicePointId: string,
+	merchantId: string,
+) {
+	const servicePoint = await db.query.servicePoints.findFirst({
+		where: eq(servicePoints.id, servicePointId),
+		with: { store: { columns: { merchantId: true } } },
+	});
+	if (!servicePoint || servicePoint.store.merchantId !== merchantId) {
+		throw new Error("Service point not found or access denied");
+	}
+	return servicePoint;
+}
 
 /**
  * Generate a unique 8-character short code for QR URLs.
@@ -38,10 +57,15 @@ async function generateUniqueShortCode(): Promise<string> {
  * Get all service points for a store.
  */
 export const getServicePoints = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ storeId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ storeId: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
 		return db.query.servicePoints.findMany({
-			where: eq(servicePoints.storeId, data.storeId),
+			where: eq(servicePoints.storeId, store.id),
 			orderBy: [asc(servicePoints.displayOrder), asc(servicePoints.name)],
 		});
 	});
@@ -50,8 +74,11 @@ export const getServicePoints = createServerFn({ method: "GET" })
  * Get a single service point by ID.
  */
 export const getServicePoint = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ id: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ id: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		await requireServicePointOwnership(data.id, context.auth.merchantId);
+
 		const servicePoint = await db.query.servicePoints.findFirst({
 			where: eq(servicePoints.id, data.id),
 		});
@@ -124,12 +151,18 @@ export const getServicePointByShortCode = createServerFn({ method: "GET" })
  * Create a new service point.
  */
 export const createServicePoint = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(createServicePointSchema)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
+
 		// Check for duplicate code within store
 		const existing = await db.query.servicePoints.findFirst({
 			where: and(
-				eq(servicePoints.storeId, data.storeId),
+				eq(servicePoints.storeId, store.id),
 				eq(servicePoints.code, data.code),
 			),
 		});
@@ -141,7 +174,7 @@ export const createServicePoint = createServerFn({ method: "POST" })
 		let displayOrder = data.displayOrder ?? 0;
 		if (displayOrder === 0) {
 			const lastPoint = await db.query.servicePoints.findFirst({
-				where: eq(servicePoints.storeId, data.storeId),
+				where: eq(servicePoints.storeId, store.id),
 				orderBy: (sp, { desc }) => [desc(sp.displayOrder)],
 			});
 			displayOrder = (lastPoint?.displayOrder ?? -1) + 1;
@@ -153,7 +186,7 @@ export const createServicePoint = createServerFn({ method: "POST" })
 		const [newServicePoint] = await db
 			.insert(servicePoints)
 			.values({
-				storeId: data.storeId,
+				storeId: store.id,
 				code: data.code,
 				shortCode,
 				name: data.name,
@@ -175,9 +208,13 @@ export const createServicePoint = createServerFn({ method: "POST" })
  * Update an existing service point.
  */
 export const updateServicePoint = createServerFn({ method: "POST" })
-	.inputValidator(updateServicePointSchema.extend({ id: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(updateServicePointSchema.extend({ id: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
 		const { id, ...updates } = data;
+
+		// Validate ownership
+		await requireServicePointOwnership(id, context.auth.merchantId);
 
 		// If code is being updated, check for duplicates
 		if (updates.code) {
@@ -240,8 +277,11 @@ export const updateServicePoint = createServerFn({ method: "POST" })
  * Toggle service point active status.
  */
 export const toggleServicePointActive = createServerFn({ method: "POST" })
-	.inputValidator(z.object({ id: z.number(), isActive: z.boolean() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ id: z.string().uuid(), isActive: z.boolean() }))
+	.handler(async ({ context, data }) => {
+		await requireServicePointOwnership(data.id, context.auth.merchantId);
+
 		const [updated] = await db
 			.update(servicePoints)
 			.set({ isActive: data.isActive })
@@ -259,8 +299,11 @@ export const toggleServicePointActive = createServerFn({ method: "POST" })
  * Delete a service point.
  */
 export const deleteServicePoint = createServerFn({ method: "POST" })
-	.inputValidator(z.object({ id: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ id: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		await requireServicePointOwnership(data.id, context.auth.merchantId);
+
 		await db.delete(servicePoints).where(eq(servicePoints.id, data.id));
 		return { success: true };
 	});
@@ -270,10 +313,15 @@ export const deleteServicePoint = createServerFn({ method: "POST" })
  * Useful for suggesting zones when creating new service points.
  */
 export const getServicePointZones = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ storeId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ storeId: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
 		const points = await db.query.servicePoints.findMany({
-			where: eq(servicePoints.storeId, data.storeId),
+			where: eq(servicePoints.storeId, store.id),
 			columns: { zone: true },
 		});
 		const zones = [
@@ -286,14 +334,20 @@ export const getServicePointZones = createServerFn({ method: "GET" })
  * Toggle all service points in a zone active/inactive.
  */
 export const toggleZoneActive = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(toggleZoneSchema)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
+
 		const result = await db
 			.update(servicePoints)
 			.set({ isActive: data.isActive })
 			.where(
 				and(
-					eq(servicePoints.storeId, data.storeId),
+					eq(servicePoints.storeId, store.id),
 					eq(servicePoints.zone, data.zone),
 				),
 			)
@@ -313,9 +367,14 @@ function generateCode(prefix: string, number: number): string {
  * Batch create service points with sequential names/codes.
  */
 export const batchCreateServicePoints = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(batchCreateSchema)
-	.handler(async ({ data }) => {
-		const { storeId, prefix, startNumber, endNumber, zone } = data;
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
+		const { prefix, startNumber, endNumber, zone } = data;
 
 		// Generate all names and codes
 		const pointsToCreate = [];
@@ -328,7 +387,7 @@ export const batchCreateServicePoints = createServerFn({ method: "POST" })
 
 		// Check for existing codes
 		const existingPoints = await db.query.servicePoints.findMany({
-			where: eq(servicePoints.storeId, storeId),
+			where: eq(servicePoints.storeId, store.id),
 			columns: { code: true },
 		});
 		const existingCodes = new Set(existingPoints.map((p) => p.code));
@@ -342,7 +401,7 @@ export const batchCreateServicePoints = createServerFn({ method: "POST" })
 
 		// Calculate starting display order
 		const lastPoint = await db.query.servicePoints.findFirst({
-			where: eq(servicePoints.storeId, storeId),
+			where: eq(servicePoints.storeId, store.id),
 			orderBy: (sp, { desc }) => [desc(sp.displayOrder)],
 		});
 		const startDisplayOrder = (lastPoint?.displayOrder ?? -1) + 1;
@@ -354,7 +413,7 @@ export const batchCreateServicePoints = createServerFn({ method: "POST" })
 
 		// Bulk insert
 		const values = pointsToCreate.map((p, index) => ({
-			storeId,
+			storeId: store.id,
 			code: p.code,
 			shortCode: shortCodes[index],
 			name: p.name,

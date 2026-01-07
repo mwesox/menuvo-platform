@@ -44,6 +44,10 @@ export const env = createEnv({
 			.enum(["true", "false"])
 			.default("false")
 			.transform((v) => v === "true"),
+		// Microsoft Graph Email (Azure AD)
+		EMAIL_TENANT_ID: z.string().min(1).optional(),
+		EMAIL_CLIENT_ID: z.string().min(1).optional(),
+		EMAIL_CLIENT_SECRET: z.string().min(1).optional(),
 	},
 
 	/**
@@ -95,6 +99,10 @@ export const env = createEnv({
 		MOLLIE_PRICE_MAX: process.env.MOLLIE_PRICE_MAX,
 		MOLLIE_TEST_MODE: process.env.MOLLIE_TEST_MODE,
 		MOLLIE_SKIP_ONBOARDING_CHECK: process.env.MOLLIE_SKIP_ONBOARDING_CHECK,
+		// Microsoft Graph Email
+		EMAIL_TENANT_ID: process.env.EMAIL_TENANT_ID,
+		EMAIL_CLIENT_ID: process.env.EMAIL_CLIENT_ID,
+		EMAIL_CLIENT_SECRET: process.env.EMAIL_CLIENT_SECRET,
 		// Client-side (from import.meta.env)
 		VITE_APP_TITLE: import.meta.env.VITE_APP_TITLE,
 		VITE_STRIPE_PUBLISHABLE_KEY: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,

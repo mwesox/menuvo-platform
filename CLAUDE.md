@@ -20,6 +20,7 @@ This file is a quick reference. The docs are the source of truth.
   - Only infrastructure uses subdomains: `status.menuvo.app`, `monitor.menuvo.app`
 - Use ShadCN MCP server to review latest docs and APIs and docs about ShadCN Components and the framework.
 - Never do git reset commands !!! NEVER !!!
+- **Middleware files must not have db imports** - Keep `createMiddleware()` in files without `@/db` imports to prevent server code leaking to client bundle (TanStack Start bug).
 
 ## Subagent Instructions
 
@@ -149,3 +150,15 @@ bunx --bun shadcn@latest add <component>
 | Build UI component | `features/{f}/components/` |
 | Persist client state | `features/{f}/stores/*.ts` |
 | Wire up a page | `src/routes/` (thin wiring only) |
+
+---
+
+## Environment Variables
+
+| File | Purpose |
+|------|---------|
+| `.env.local` | Local dev (git-ignored) |
+| `.env.production` | Non-secret prod configs (committed) |
+| GitHub Secrets | All secrets |
+
+Validate new vars in `src/env.ts`.

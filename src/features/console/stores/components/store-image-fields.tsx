@@ -15,8 +15,8 @@ import { storeKeys } from "../queries";
 import { updateStoreImage } from "../server/stores.functions";
 
 interface StoreImageFieldsProps {
-	storeId: number;
-	merchantId: number;
+	storeId: string;
+	merchantId: string;
 	logoUrl?: string | null;
 }
 

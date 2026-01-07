@@ -35,11 +35,11 @@ export function CheckoutReturnPage({ storeSlug }: CheckoutReturnPageProps) {
 	const sessionId = search.session_id;
 
 	// Order ID from query params (added by our return URL for redirect checkout)
-	const orderId = search.order_id ? Number(search.order_id) : null;
+	const orderId = search.order_id ?? null;
 
 	// Query for order details (to get payment ID)
 	const { data: order } = useQuery({
-		...orderQueries.detail(orderId ?? 0),
+		...orderQueries.detail(orderId ?? ""),
 		enabled: !!orderId && !sessionId,
 	});
 

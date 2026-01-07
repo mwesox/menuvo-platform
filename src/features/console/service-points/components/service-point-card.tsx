@@ -17,8 +17,8 @@ interface ServicePointCardProps {
 	servicePoint: ServicePoint;
 	onEdit: (servicePoint: ServicePoint) => void;
 	onViewQR: (servicePoint: ServicePoint) => void;
-	onToggleActive: (id: number, isActive: boolean) => void;
-	onDelete: (id: number) => void;
+	onToggleActive: (id: string, isActive: boolean) => void;
+	onDelete: (id: string) => void;
 }
 
 export function ServicePointCard({

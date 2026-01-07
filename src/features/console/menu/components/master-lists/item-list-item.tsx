@@ -1,4 +1,12 @@
 import { ImageOff } from "lucide-react";
+import {
+	SelectableItem,
+	SelectableItemActions,
+	SelectableItemContent,
+	SelectableItemDescription,
+	SelectableItemMedia,
+	SelectableItemTitle,
+} from "@/components/ui/selectable-item";
 import type { Item } from "@/db/schema";
 import { useEntityDisplayName } from "@/features/console/menu/hooks";
 import { cn } from "@/lib/utils";
@@ -6,7 +14,7 @@ import { cn } from "@/lib/utils";
 interface ItemListItemProps {
 	item: Item;
 	isSelected: boolean;
-	onSelect: (id: number) => void;
+	onSelect: (id: string) => void;
 }
 
 function formatPrice(cents: number, currency = "EUR"): string {
@@ -24,18 +32,9 @@ export function ItemListItem({
 	const displayName = useEntityDisplayName(item.translations);
 
 	return (
-		<button
-			type="button"
-			onClick={() => onSelect(item.id)}
-			className={cn(
-				"w-full rounded-lg px-3 py-2.5 text-start transition-colors",
-				"hover:bg-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-				isSelected && "bg-accent",
-			)}
-		>
-			<div className="flex items-center gap-3">
-				{/* Thumbnail */}
-				<div className="flex-shrink-0">
+		<SelectableItem variant={isSelected ? "selected" : "default"} asChild>
+			<button type="button" onClick={() => onSelect(item.id)}>
+				<SelectableItemMedia variant="image">
 					{item.imageUrl ? (
 						<img
 							src={item.imageUrl}
@@ -47,36 +46,35 @@ export function ItemListItem({
 							<ImageOff className="size-4 text-muted-foreground" />
 						</div>
 					)}
-				</div>
+				</SelectableItemMedia>
 
-				{/* Content */}
-				<div className="min-w-0 flex-1">
+				<SelectableItemContent>
 					<div className="flex items-center gap-2">
-						<span
+						<SelectableItemTitle
 							className={cn(
-								"truncate font-medium",
 								!item.isAvailable && "text-muted-foreground line-through",
 							)}
 						>
 							{displayName}
-						</span>
+						</SelectableItemTitle>
 					</div>
-					<div className="text-muted-foreground text-xs">
+					<SelectableItemDescription>
 						{formatPrice(item.price)}
 						{!item.isAvailable && (
-							<span className="ms-2 text-amber-600">Nicht verfügbar</span>
+							<span className="ms-2 text-warning">Nicht verfügbar</span>
 						)}
-					</div>
-				</div>
+					</SelectableItemDescription>
+				</SelectableItemContent>
 
-				{/* Availability indicator */}
-				<div
-					className={cn(
-						"size-2 flex-shrink-0 rounded-full",
-						item.isAvailable ? "bg-green-500" : "bg-amber-500",
-					)}
-				/>
-			</div>
-		</button>
+				<SelectableItemActions>
+					<span
+						className={cn(
+							"size-2 rounded-full",
+							item.isAvailable ? "bg-success" : "bg-warning",
+						)}
+					/>
+				</SelectableItemActions>
+			</button>
+		</SelectableItem>
 	);
 }

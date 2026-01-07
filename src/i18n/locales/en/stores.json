@@ -15,6 +15,7 @@
 		"contactSettings": "Contact information and regional settings.",
 		"storeImages": "Upload images for your store to display in the shop.",
 		"storeStatus": "When inactive, this store will not be visible to customers.",
+		"shopUrl": "Share this link with your customers.",
 		"deleteStore": "Permanently delete this store and all its data. This action cannot be undone."
 	},
 	"sections": {
@@ -39,6 +40,7 @@
 		"contactInfo": "Contact Information",
 		"operatingHours": "Operating Hours",
 		"storeStatus": "Store Status",
+		"shopUrl": "Shop URL",
 		"noAddressConfigured": "No address configured",
 		"manageStore": "Manage Store",
 		"deleteStore": "Delete store",
@@ -57,5 +59,12 @@
 	"dialogs": {
 		"deleteTitle": "Delete Store",
 		"deleteDescription": "Are you sure you want to delete this store? This action cannot be undone. All categories and menu items in this store will also be deleted."
+	},
+	"actions": {
+		"copyUrl": "Copy URL",
+		"openShop": "Open Shop"
+	},
+	"toast": {
+		"urlCopied": "URL copied to clipboard"
 	}
 }

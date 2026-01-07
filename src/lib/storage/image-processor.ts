@@ -37,7 +37,7 @@ export async function processToWebp(
  * Generate thumbnail and display variants for an uploaded image.
  * This is called asynchronously by the worker after upload.
  */
-export async function processImageVariants(imageId: number): Promise<void> {
+export async function processImageVariants(imageId: string): Promise<void> {
 	// Fetch the image record
 	const record = await db.query.images.findFirst({
 		where: eq(images.id, imageId),

@@ -110,7 +110,7 @@ export function useOrderNotifications(
 ): OrderNotificationsResult {
 	const { audioMuted, toggleAudio } = useKitchenPreferences();
 	const audioContextRef = useRef<AudioContext | null>(null);
-	const previousOrderIdsRef = useRef<Set<number>>(new Set());
+	const previousOrderIdsRef = useRef<Set<string>>(new Set());
 	const repeatIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
 	// Alert state - true when new orders arrived, waiting for user interaction

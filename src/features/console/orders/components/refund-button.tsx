@@ -19,8 +19,8 @@ import type { PaymentProvider } from "@/db/schema";
 import { useCreateMollieRefund } from "../queries";
 
 interface RefundButtonProps {
-	orderId: number;
-	storeId: number;
+	orderId: string;
+	storeId: string;
 	totalAmount: number;
 	paymentStatus: string;
 	paymentProvider: PaymentProvider | null;

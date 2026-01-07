@@ -80,7 +80,7 @@ export function generateOrdersCSV(orders: ExportOrderRow[]): string {
 
 	const dataRows = orders.map((order) => {
 		const fields = [
-			order.orderId.toString(),
+			order.orderId,
 			formatDate(order.date),
 			escapeCSVField(order.storeName),
 			escapeCSVField(order.customerName),

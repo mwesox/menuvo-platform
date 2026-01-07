@@ -20,8 +20,8 @@ type OptionGroupWithChoices = OptionGroup & { choices: OptionChoice[] };
 interface OptionGroupDetailProps {
 	optionGroup: OptionGroupWithChoices;
 	onEdit: (optionGroup: OptionGroupWithChoices) => void;
-	onDelete: (optionGroupId: number) => void;
-	onToggleActive: (optionGroupId: number, isActive: boolean) => void;
+	onDelete: (optionGroupId: string) => void;
+	onToggleActive: (optionGroupId: string, isActive: boolean) => void;
 }
 
 function formatPrice(cents: number, currency = "EUR"): string {

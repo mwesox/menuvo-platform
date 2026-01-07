@@ -86,12 +86,13 @@ src/
 
 ## Environment Variables
 
-Copy `.env.example` to `.env.local` and configure:
+Copy `.env.example` to `.env.local` for development.
 
-```
-DATABASE_URL=postgresql://...
-OPENROUTER_API_KEY=sk-or-v1-xxxxx  # For AI features
-```
+| File | Purpose |
+|------|---------|
+| `.env.local` | Local dev (git-ignored) |
+| `.env.production` | Non-secret prod configs (committed) |
+| GitHub Secrets | Secrets (DB, Stripe, S3, etc.) |
 
 ## Adding Shadcn Components
 

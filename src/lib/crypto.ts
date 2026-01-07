@@ -39,6 +39,29 @@ async function getEncryptionKey(): Promise<CryptoKey> {
 }
 
 /**
+ * Converts Uint8Array to base64 string (Web-standard, works in browser + server)
+ */
+function uint8ArrayToBase64(bytes: Uint8Array): string {
+	let binary = "";
+	for (let i = 0; i < bytes.length; i++) {
+		binary += String.fromCharCode(bytes[i]);
+	}
+	return btoa(binary);
+}
+
+/**
+ * Converts base64 string to Uint8Array (Web-standard, works in browser + server)
+ */
+function base64ToUint8Array(base64: string): Uint8Array {
+	const binary = atob(base64);
+	const bytes = new Uint8Array(binary.length);
+	for (let i = 0; i < binary.length; i++) {
+		bytes[i] = binary.charCodeAt(i);
+	}
+	return bytes;
+}
+
+/**
  * Encrypts a string value using AES-256-GCM.
  * Returns a base64-encoded string containing IV + ciphertext + tag.
  */
@@ -61,8 +84,8 @@ export async function encryptToken(plaintext: string): Promise<string> {
 	combined.set(iv, 0);
 	combined.set(new Uint8Array(ciphertext), iv.length);
 
-	// Return as base64
-	return Buffer.from(combined).toString("base64");
+	// Return as base64 (using Web-standard APIs instead of Node.js Buffer)
+	return uint8ArrayToBase64(combined);
 }
 
 /**
@@ -72,12 +95,12 @@ export async function encryptToken(plaintext: string): Promise<string> {
 export async function decryptToken(encrypted: string): Promise<string> {
 	const key = await getEncryptionKey();
 
-	// Decode base64
-	const combined = Buffer.from(encrypted, "base64");
+	// Decode base64 (using Web-standard APIs instead of Node.js Buffer)
+	const combined = base64ToUint8Array(encrypted);
 
-	// Extract IV and ciphertext
-	const iv = combined.subarray(0, IV_LENGTH);
-	const ciphertext = combined.subarray(IV_LENGTH);
+	// Extract IV and ciphertext (use slice to get proper ArrayBuffer types)
+	const iv = combined.slice(0, IV_LENGTH);
+	const ciphertext = combined.slice(IV_LENGTH);
 
 	// Decrypt
 	const decrypted = await crypto.subtle.decrypt(

@@ -27,8 +27,8 @@ import {
 
 describe("orders.functions", () => {
 	const testRunId = createTestRunId();
-	let storeId: number;
-	let itemId: number;
+	let storeId: string;
+	let itemId: string;
 
 	beforeAll(async () => {
 		const merchant = await createTestMerchant({ testRunId });
@@ -80,7 +80,7 @@ describe("orders.functions", () => {
 			});
 
 			expect(result).toBeDefined();
-			expect(result.id).toBeGreaterThan(0);
+			expect(typeof result.id).toBe("string");
 			expect(result.storeId).toBe(storeId);
 			expect(result.status).toBe("awaiting_payment"); // Takeaway with card payment
 			expect(result.totalAmount).toBe(2400);
@@ -136,7 +136,7 @@ describe("orders.functions", () => {
 
 		it("should throw NotFoundError for non-existent order", async () => {
 			try {
-				await getOrder({ data: { orderId: 999999 } });
+				await getOrder({ data: { orderId: crypto.randomUUID() } });
 				expect.fail("Should have thrown an error");
 			} catch (error) {
 				const appError = extractError(error);

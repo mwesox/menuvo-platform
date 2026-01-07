@@ -8,7 +8,7 @@ import { uniqueId } from "../utils/test-id";
 
 export interface CategoryFactoryOptions {
 	testRunId: string;
-	storeId: number;
+	storeId: string;
 	/** Shortcut to set the German name directly */
 	name?: string;
 	translations?: EntityTranslations;

@@ -1,9 +1,11 @@
+"use server";
+
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { images } from "@/db/schema.ts";
-import { deleteImageVariants } from "@/lib/storage/image-processor.ts";
-import { deleteImageSchema, getImageSchema } from "../schemas.ts";
+import { images } from "@/db/schema";
+import { deleteImageVariants } from "@/lib/storage/image-processor";
+import { deleteImageSchema, getImageSchema } from "../schemas";
 
 /**
  * Delete an image and all its variants.

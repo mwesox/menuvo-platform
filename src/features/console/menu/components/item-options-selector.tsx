@@ -13,9 +13,9 @@ import { cn } from "@/lib/utils.ts";
 import { optionGroupQueries } from "../options.queries.ts";
 
 interface ItemOptionsSelectorProps {
-	storeId: number;
-	selectedOptionGroupIds: number[];
-	onSelectionChange: (optionGroupIds: number[]) => void;
+	storeId: string;
+	selectedOptionGroupIds: string[];
+	onSelectionChange: (optionGroupIds: string[]) => void;
 }
 
 function getSelectionRuleDescription(
@@ -65,7 +65,7 @@ export function ItemOptionsSelector({
 		(group: OptionGroup) => group.isActive,
 	);
 
-	const handleToggle = (optionGroupId: number, checked: boolean) => {
+	const handleToggle = (optionGroupId: string, checked: boolean) => {
 		const isCurrentlySelected = selectedOptionGroupIds.includes(optionGroupId);
 
 		// Avoid unnecessary updates if state already matches

@@ -17,7 +17,7 @@ import { MollieStatusCard } from "./mollie-status-card";
 // import { PaymentStatusCard } from "./payment-status-card";
 
 interface PaymentsPageProps {
-	merchantId: number;
+	merchantId: string;
 }
 
 export function PaymentsPage({ merchantId }: PaymentsPageProps) {

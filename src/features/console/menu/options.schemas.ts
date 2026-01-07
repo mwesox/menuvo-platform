@@ -40,7 +40,7 @@ export const choiceTranslationsSchema = z.record(
 // ============================================================================
 
 export const createOptionGroupSchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 	translations: entityTranslationsSchema.refine(
 		(t) => Object.values(t).some((v) => v.name && v.name.length >= 2),
 		"validation:optionGroupMultilang.required",
@@ -76,7 +76,7 @@ export type UpdateOptionGroupInput = z.infer<typeof updateOptionGroupSchema>;
 // ============================================================================
 
 const choiceBaseSchema = z.object({
-	id: z.number().int().positive().optional(), // undefined = new choice
+	id: z.string().uuid().optional(), // undefined = new choice
 	translations: choiceTranslationsSchema, // All languages stored in translations
 	priceModifier: z.number().int(), // in cents
 	isDefault: z.boolean().optional().default(false),
@@ -90,8 +90,8 @@ const choiceBaseSchema = z.object({
 
 // Note: isRequired is derived from minSelections > 0
 export const saveOptionGroupWithChoicesSchema = z.object({
-	optionGroupId: z.number().int().positive().optional(), // undefined = create, number = update
-	storeId: z.number().int().positive(),
+	optionGroupId: z.string().uuid().optional(), // undefined = create, string = update
+	storeId: z.string().uuid(),
 	translations: entityTranslationsSchema.refine(
 		(t) => Object.values(t).some((v) => v.name && v.name.length >= 2),
 		"validation:optionGroupMultilang.required",
@@ -155,7 +155,7 @@ export const optionGroupFormSchema = z.object({
 	),
 	choices: z.array(
 		z.object({
-			id: z.number().optional(),
+			id: z.string().uuid().optional(),
 			name: z.string().min(1, "validation:choiceName.required"),
 			priceModifier: signedIntegerString("validation:choicePrice.integer"), // in cents
 			isDefault: z.boolean(),
@@ -173,14 +173,14 @@ export function optionGroupFormToServer(
 	formData: OptionGroupFormInput,
 	language: string,
 	existingGroupTranslations?: EntityTranslations,
-	existingChoices?: Array<{ id: number; translations: ChoiceTranslations }>,
+	existingChoices?: Array<{ id: string; translations: ChoiceTranslations }>,
 ): SaveOptionGroupWithChoicesInput {
 	const parseIntValue = (value: string) => Number.parseInt(value, 10);
 	const parseOptionalInt = (value: string) =>
 		value === "" ? null : Number.parseInt(value, 10);
 
 	return {
-		storeId: 0, // Must be set by caller
+		storeId: "", // Must be set by caller
 		translations: {
 			...(existingGroupTranslations ?? {}),
 			[language]: {
@@ -270,7 +270,7 @@ export function validateOptionGroupTypeConstraints(data: {
 // ============================================================================
 
 export const createOptionChoiceSchema = z.object({
-	optionGroupId: z.number().int().positive(),
+	optionGroupId: z.string().uuid(),
 	translations: choiceTranslationsSchema.refine(
 		(t) => Object.values(t).some((v) => v.name && v.name.length >= 1),
 		"validation:choiceMultilang.required",
@@ -300,8 +300,8 @@ export type UpdateOptionChoiceInput = z.infer<typeof updateOptionChoiceSchema>;
 // ============================================================================
 
 export const updateItemOptionsSchema = z.object({
-	itemId: z.number().int().positive(),
-	optionGroupIds: z.array(z.number().int().positive()),
+	itemId: z.string().uuid(),
+	optionGroupIds: z.array(z.string().uuid()),
 });
 
 export type UpdateItemOptionsInput = z.infer<typeof updateItemOptionsSchema>;

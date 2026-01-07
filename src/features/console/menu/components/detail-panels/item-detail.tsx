@@ -17,8 +17,8 @@ import { cn } from "@/lib/utils";
 
 interface ItemDetailProps {
 	item: Item;
-	onToggleAvailable: (itemId: number, isAvailable: boolean) => void;
-	onDelete: (itemId: number) => void;
+	onToggleAvailable: (itemId: string, isAvailable: boolean) => void;
+	onDelete: (itemId: string) => void;
 }
 
 function formatPrice(cents: number, currency = "EUR"): string {

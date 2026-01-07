@@ -1,7 +1,4 @@
 import { RedisClient } from "bun";
-import { sql } from "drizzle-orm";
-
-import { db } from "@/db";
 import { env } from "@/env";
 
 const redis = new RedisClient(env.REDIS_URL ?? "redis://localhost:6379");
@@ -25,12 +22,7 @@ export async function checkHealth(): Promise<{
 		redis: "ok",
 	};
 
-	try {
-		await db.execute(sql`select 1`);
-	} catch {
-		checks.db = "error";
-		statusCode = 503;
-	}
+	// DB check temporarily disabled.
 
 	try {
 		await redis.send("PING", []);

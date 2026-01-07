@@ -25,7 +25,7 @@ import {
 } from "@/features/console/stores/queries.ts";
 
 interface StoreHoursFormProps {
-	storeId: number;
+	storeId: string;
 }
 
 // Transform database hours to form format (grouped by day)

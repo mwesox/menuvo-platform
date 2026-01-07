@@ -1,12 +1,11 @@
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { merchants } from "@/db/schema";
+"use server";
+
 import { getMerchantIdFromCookie } from "./fake-auth.functions";
 
 export type AuthContext = {
-	merchantId: number;
+	merchantId: string;
 	merchant: {
-		id: number;
+		id: string;
 		name: string;
 		supportedLanguages: string[];
 	};
@@ -26,6 +25,13 @@ export async function getAuthContext(): Promise<AuthContext> {
 	if (!merchantIdFromCookie) {
 		throw new Error("Unauthorized: No merchant session");
 	}
+
+	// Dynamic import to prevent db from leaking to client bundle
+	const [{ eq }, { db }, { merchants }] = await Promise.all([
+		import("drizzle-orm"),
+		import("@/db"),
+		import("@/db/schema"),
+	]);
 
 	const merchant = await db.query.merchants.findFirst({
 		where: eq(merchants.id, merchantIdFromCookie),

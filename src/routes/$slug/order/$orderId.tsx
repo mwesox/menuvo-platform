@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
 	OrderConfirmationPage,
 	OrderConfirmationPageSkeleton,
@@ -7,10 +7,7 @@ import { StoreError } from "@/features/shop/shared";
 
 export const Route = createFileRoute("/$slug/order/$orderId")({
 	loader: async ({ params }) => {
-		const orderId = Number.parseInt(params.orderId, 10);
-		if (Number.isNaN(orderId) || orderId <= 0) {
-			throw notFound();
-		}
+		const orderId = params.orderId;
 		return { orderId, storeSlug: params.slug };
 	},
 	component: OrderConfirmationRouteComponent,

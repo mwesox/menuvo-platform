@@ -6,7 +6,7 @@ const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 // Single closure schema
 export const storeClosureSchema = z
 	.object({
-		id: z.number().optional(),
+		id: z.string().uuid().optional(),
 		startDate: z.string().regex(dateRegex, "Invalid date format (YYYY-MM-DD)"),
 		endDate: z.string().regex(dateRegex, "Invalid date format (YYYY-MM-DD)"),
 		reason: z
@@ -23,12 +23,12 @@ export type StoreClosureInput = z.infer<typeof storeClosureSchema>;
 
 // Server function input schemas
 export const getStoreClosuresSchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 });
 
 export const createStoreClosureSchema = z
 	.object({
-		storeId: z.number().int().positive(),
+		storeId: z.string().uuid(),
 		startDate: z.string().regex(dateRegex, "Invalid date format"),
 		endDate: z.string().regex(dateRegex, "Invalid date format"),
 		reason: z.string().max(255).optional(),
@@ -42,7 +42,7 @@ export type CreateStoreClosureInput = z.infer<typeof createStoreClosureSchema>;
 
 export const updateStoreClosureSchema = z
 	.object({
-		id: z.number().int().positive(),
+		id: z.string().uuid(),
 		startDate: z.string().regex(dateRegex, "Invalid date format"),
 		endDate: z.string().regex(dateRegex, "Invalid date format"),
 		reason: z.string().max(255).optional(),
@@ -55,7 +55,7 @@ export const updateStoreClosureSchema = z
 export type UpdateStoreClosureInput = z.infer<typeof updateStoreClosureSchema>;
 
 export const deleteStoreClosureSchema = z.object({
-	id: z.number().int().positive(),
+	id: z.string().uuid(),
 });
 
 export type DeleteStoreClosureInput = z.infer<typeof deleteStoreClosureSchema>;

@@ -6,7 +6,7 @@ export type IngestEventInput = {
 	eventType: string;
 	resourceId: string;
 	resourceType: string;
-	merchantId: number | null;
+	merchantId: string | null;
 	payload: Record<string, unknown>;
 };
 

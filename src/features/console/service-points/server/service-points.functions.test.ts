@@ -31,8 +31,8 @@ import {
 
 describe("service-points.functions", () => {
 	const testRunId = createTestRunId();
-	let merchantId: number;
-	let storeId: number;
+	let merchantId: string;
+	let storeId: string;
 
 	beforeAll(async () => {
 		const merchant = await createTestMerchant({ testRunId });
@@ -60,7 +60,7 @@ describe("service-points.functions", () => {
 			});
 
 			expect(result).toBeDefined();
-			expect(result.id).toBeGreaterThan(0);
+			expect(typeof result.id).toBe("string");
 			expect(result.name).toBe("Test Table");
 			expect(result.code).toBe(code);
 			expect(result.zone).toBe("Indoor");
@@ -94,9 +94,9 @@ describe("service-points.functions", () => {
 		});
 
 		it("should throw for non-existent service point", async () => {
-			await expect(getServicePoint({ data: { id: 999999 } })).rejects.toThrow(
-				"not found",
-			);
+			await expect(
+				getServicePoint({ data: { id: crypto.randomUUID() } }),
+			).rejects.toThrow("not found");
 		});
 	});
 

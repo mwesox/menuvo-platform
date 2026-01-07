@@ -400,7 +400,7 @@ const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
  *
  * @param merchantId - The merchant's database ID
  */
-export async function getMerchantMollieClient(merchantId: number) {
+export async function getMerchantMollieClient(merchantId: string) {
 	mollieLogger.debug({ merchantId }, "Getting Mollie client for merchant");
 
 	const merchant = await db.query.merchants.findFirst({
@@ -478,7 +478,7 @@ export async function getMerchantMollieClient(merchantId: number) {
  * @param tokens - The OAuth tokens to store
  */
 export async function storeMerchantTokens(
-	merchantId: number,
+	merchantId: string,
 	tokens: OAuthTokens,
 ): Promise<void> {
 	mollieLogger.info({ merchantId }, "Storing Mollie tokens for merchant");

@@ -20,7 +20,7 @@ import {
 import { AttributesEditor } from "./attributes-editor.tsx";
 
 interface ServicePointFormProps {
-	storeId: number;
+	storeId: string;
 	servicePoint?: ServicePoint;
 	onSuccess?: () => void;
 	onCancel?: () => void;

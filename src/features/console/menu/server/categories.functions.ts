@@ -1,18 +1,42 @@
+"use server";
+
 import { createServerFn } from "@tanstack/react-start";
 import { asc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { categories } from "@/db/schema.ts";
+import { withAuth } from "../../auth/server/auth-middleware.ts";
+import { requireStoreOwnership } from "../../auth/server/ownership.ts";
 import { createCategorySchema, updateCategorySchema } from "../schemas.ts";
 
 // Sort by name extracted from translations JSONB (German as primary)
 const categoryNameSort = asc(sql`${categories.translations}->'de'->>'name'`);
 
+// Helper to validate category ownership (for functions that take categoryId)
+async function requireCategoryOwnership(
+	categoryId: string,
+	merchantId: string,
+) {
+	const category = await db.query.categories.findFirst({
+		where: eq(categories.id, categoryId),
+		with: { store: { columns: { merchantId: true } } },
+	});
+	if (!category || category.store.merchantId !== merchantId) {
+		throw new Error("Category not found or access denied");
+	}
+	return category;
+}
+
 export const getCategories = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ storeId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ storeId: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
 		const allCategories = await db.query.categories.findMany({
-			where: eq(categories.storeId, data.storeId),
+			where: eq(categories.storeId, store.id),
 			orderBy: [asc(categories.displayOrder), categoryNameSort],
 			with: {
 				items: {
@@ -27,8 +51,11 @@ export const getCategories = createServerFn({ method: "GET" })
 	});
 
 export const getCategory = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ categoryId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ categoryId: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		await requireCategoryOwnership(data.categoryId, context.auth.merchantId);
+
 		const category = await db.query.categories.findFirst({
 			where: eq(categories.id, data.categoryId),
 			with: {
@@ -47,11 +74,17 @@ export const getCategory = createServerFn({ method: "GET" })
 	});
 
 export const createCategory = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(createCategorySchema)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
+
 		// Get max display order
 		const existing = await db.query.categories.findMany({
-			where: eq(categories.storeId, data.storeId),
+			where: eq(categories.storeId, store.id),
 			orderBy: (categories, { desc }) => [desc(categories.displayOrder)],
 			limit: 1,
 		});
@@ -61,6 +94,7 @@ export const createCategory = createServerFn({ method: "POST" })
 			.insert(categories)
 			.values({
 				...data,
+				storeId: store.id, // Use validated store
 				displayOrder: data.displayOrder ?? maxOrder + 1,
 			})
 			.returning();
@@ -69,8 +103,13 @@ export const createCategory = createServerFn({ method: "POST" })
 	});
 
 export const updateCategory = createServerFn({ method: "POST" })
-	.inputValidator(updateCategorySchema.extend({ categoryId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(
+		updateCategorySchema.extend({ categoryId: z.string().uuid() }),
+	)
+	.handler(async ({ context, data }) => {
+		await requireCategoryOwnership(data.categoryId, context.auth.merchantId);
+
 		const { categoryId, ...updates } = data;
 
 		const [updatedCategory] = await db
@@ -87,8 +126,13 @@ export const updateCategory = createServerFn({ method: "POST" })
 	});
 
 export const toggleCategoryActive = createServerFn({ method: "POST" })
-	.inputValidator(z.object({ categoryId: z.number(), isActive: z.boolean() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(
+		z.object({ categoryId: z.string().uuid(), isActive: z.boolean() }),
+	)
+	.handler(async ({ context, data }) => {
+		await requireCategoryOwnership(data.categoryId, context.auth.merchantId);
+
 		const [updatedCategory] = await db
 			.update(categories)
 			.set({ isActive: data.isActive })
@@ -103,8 +147,11 @@ export const toggleCategoryActive = createServerFn({ method: "POST" })
 	});
 
 export const deleteCategory = createServerFn({ method: "POST" })
-	.inputValidator(z.object({ categoryId: z.number() }))
-	.handler(async ({ data }) => {
+	.middleware([withAuth])
+	.inputValidator(z.object({ categoryId: z.string().uuid() }))
+	.handler(async ({ context, data }) => {
+		await requireCategoryOwnership(data.categoryId, context.auth.merchantId);
+
 		await db.delete(categories).where(eq(categories.id, data.categoryId));
 		return { success: true };
 	});

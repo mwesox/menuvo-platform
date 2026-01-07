@@ -1,3 +1,5 @@
+"use server";
+
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
@@ -81,7 +83,7 @@ function calculateStatus(
  * Now checks ALL supported languages equally (no special treatment for default).
  */
 export const getTranslationStatus = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ storeId: z.number() }))
+	.inputValidator(z.object({ storeId: z.string().uuid() }))
 	.middleware([withAuth])
 	.handler(async ({ data, context }) => {
 		const { storeId } = data;
@@ -186,7 +188,7 @@ export const getTranslationStatus = createServerFn({ method: "GET" })
 export const getMissingTranslationsReport = createServerFn({ method: "GET" })
 	.inputValidator(
 		z.object({
-			storeId: z.number(),
+			storeId: z.string().uuid(),
 			languageCode: languageCodeSchema.optional(),
 		}),
 	)
@@ -237,20 +239,20 @@ export const getMissingTranslationsReport = createServerFn({ method: "GET" })
 		// Count missing translations
 		const missing = {
 			categories: [] as {
-				id: number;
+				id: string;
 				name: string;
 				missingLanguages: string[];
 			}[],
-			items: [] as { id: number; name: string; missingLanguages: string[] }[],
+			items: [] as { id: string; name: string; missingLanguages: string[] }[],
 			optionGroups: [] as {
-				id: number;
+				id: string;
 				name: string;
 				missingLanguages: string[];
 			}[],
 			optionChoices: [] as {
-				id: number;
+				id: string;
 				name: string;
-				optionGroupId: number;
+				optionGroupId: string;
 				missingLanguages: string[];
 			}[],
 		};

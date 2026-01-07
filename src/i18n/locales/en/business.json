@@ -1,181 +1,167 @@
 {
 	"meta": {
-		"title": "Menuvo - Digital Orders for Your Restaurant",
-		"description": "Your own online ordering system in under 5 minutes. 100% of your revenue, no commissions. AI menu assistant included. GDPR compliant and hosted in Germany."
+		"title": "Menuvo - QR Ordering for Your Restaurant",
+		"description": "Guests scan, order, pay. Live in 5 minutes. No monthly fees, just 2.9% per order. No new POS system needed."
 	},
 	"header": {
 		"features": "Features",
 		"pricing": "Pricing",
 		"faq": "FAQ",
-		"cta": "Start Free"
+		"cta": "Get Started"
 	},
 	"hero": {
-		"headline": "Digital Orders for Your Restaurant",
-		"subtitle": "More time for kitchen & guests. More revenue with every order.",
-		"description": "Your own online ordering system set up in under 5 minutes – less stress on the phone, more cross-selling and higher order values. Your guests order in seconds at the table – without waiting for service or busy phone lines."
+		"badge": "No monthly fees",
+		"headline": "Guests scan. Order. Pay.",
+		"subtitle": "QR ordering without a new POS system.",
+		"description": "Customers scan the QR code, choose from your menu and pay – the order goes straight to your kitchen. Set up in 5 minutes, works with your existing setup."
 	},
 	"cta": {
 		"primary": "Start Free",
 		"secondary": "Learn More",
-		"title": "Ready to make more revenue with less stress?",
-		"subtitle": "Start now for free and see how your team has more time for what matters: preparing food, serving guests – instead of taking orders over the phone.",
-		"button": "Start Free",
-		"trustStatement": "Setup in under 5 minutes · Less effort at counter & phone · Cancel anytime"
+		"title": "Ready for less stress and more orders?",
+		"subtitle": "Start now – no credit card, no monthly fees. You only pay when you earn.",
+		"button": "Start Free Now",
+		"trustStatement": "Live in 5 minutes · No monthly costs · Cancel anytime"
 	},
 	"trust": {
-		"noSetupFee": "No Setup Fee",
-		"gdpr": "GDPR Compliant",
-		"hostedDe": "Hosted in Germany"
+		"noMonthlyFee": "€0 monthly",
+		"payPerOrder": "2.9% per order",
+		"noHardware": "No hardware needed"
 	},
 	"ai": {
-		"headline": "AI Creates Your Digital Menu in Minutes",
-		"description": "Upload your menu – our AI takes care of the rest. No manual entry necessary."
+		"headline": "Upload your menu. Done.",
+		"description": "Upload a photo or PDF – our AI creates your digital menu in minutes. No manual typing."
 	},
 	"features": {
-		"title": "Everything Your Restaurant Needs",
-		"subtitle": "Powerful features that grow your business - no commission",
+		"title": "Everything included. No hidden costs.",
+		"subtitle": "Full QR ordering – not just payment",
+		"ordering": {
+			"title": "Real ordering, not just payment",
+			"description": "Customers see your menu, select dishes, add to cart and pay – straight to your kitchen."
+		},
+		"kitchen": {
+			"title": "Straight to the kitchen",
+			"description": "Orders appear instantly on your kitchen display or printer. No writing notes, no misunderstandings."
+		},
 		"aiMenu": {
-			"title": "AI Menu Assistant",
-			"description": "Simply upload your menu – our AI assistant automatically creates your digital menu with prices and descriptions."
+			"title": "AI Menu Import",
+			"description": "Take a photo of your menu or upload a PDF – online in 5 minutes. Other systems need hours for manual entry."
 		},
-		"revenue": {
-			"title": "More Revenue Per Guest",
-			"description": "Automatic cross-selling of sides, drinks, and desserts increases your average bill – without additional effort from your team."
+		"noHardware": {
+			"title": "No Hardware",
+			"description": "Works on your existing smartphone or tablet. No card reader, no terminal, no new POS system."
 		},
-		"setup": {
-			"title": "Quick Setup",
-			"description": "Your online ordering system is ready in under 5 minutes. No technical knowledge required – just use it and save time at the counter."
-		},
-		"multilingual": {
-			"title": "Multilingual",
-			"description": "Your menu automatically in multiple languages. Reach more customers through automatic translations."
-		},
-		"mobile": {
-			"title": "Mobile Optimized",
-			"description": "Perfect display on all devices. Your guests order calmly at the table via smartphone – this reduces wait times and relieves your service team."
+		"standalone": {
+			"title": "Works standalone",
+			"description": "No additional system needed. Menuvo works independently or alongside your existing POS system."
 		},
 		"gdpr": {
 			"title": "GDPR Compliant",
-			"description": "All data is hosted in Germany. Fully GDPR compliant and secure."
+			"description": "Hosted in Germany. Your customer data belongs to you, not a platform."
 		}
 	},
 	"pricing": {
-		"title": "Transparent Pricing",
-		"subtitle": "Reduce staffing costs at the counter and phone – and increase your revenue with every online order.",
-		"recommended": "Recommended",
-		"ctaStart": "Start Free",
-		"ctaUpgrade": "Get Started",
-		"starter": {
-			"name": "Starter",
-			"description": "30 days free trial",
-			"price": "0",
-			"period": "/month",
+		"title": "Simple. Transparent. Fair.",
+		"subtitle": "No monthly fees. You only pay when you earn.",
+		"plan": {
+			"name": "Menuvo",
+			"description": "Everything included",
+			"monthlyFee": "€0",
+			"monthlyLabel": "monthly",
+			"transactionFee": "2.9%",
+			"transactionLabel": "per order",
 			"features": [
 				"Unlimited orders",
-				"Digital menu",
-				"QR code for table ordering",
-				"Mobile optimized",
+				"Digital menu with QR code",
+				"AI menu import from photo/PDF",
+				"Kitchen display",
+				"Order management",
+				"Customer notifications",
+				"Analytics & reports",
 				"Email support"
 			]
 		},
-		"professional": {
-			"name": "Professional",
-			"description": "For professional restaurants",
-			"price": "29",
-			"period": "/month",
-			"features": [
-				"Everything from Starter",
-				"Custom domain",
-				"Detailed analytics",
-				"Priority support",
-				"Multiple locations",
-				"Customizable design"
-			]
+		"ctaButton": "Start Free Now",
+		"fees": {
+			"title": "All fees at a glance",
+			"menuvo": {
+				"label": "Menuvo fee",
+				"value": "2.9%",
+				"description": "Ordering system, menu, kitchen display, support"
+			},
+			"mollie": {
+				"label": "Payment fee (Mollie)",
+				"value": "~1.8% + €0.25",
+				"description": "For card payment, Apple Pay, Google Pay"
+			},
+			"paypal": {
+				"label": "PayPal (optional)",
+				"value": "2.49% + €0.35",
+				"description": "If customer pays with PayPal"
+			},
+			"total": {
+				"label": "Total per order",
+				"value": "approx. 5%",
+				"description": "For card payment – much less than delivery platforms"
+			}
 		},
-		"max": {
-			"name": "Max",
-			"description": "With AI Features",
-			"price": "49",
-			"period": "/month",
-			"features": [
-				"Everything from Professional",
-				"AI menu optimization",
-				"Automatic translations",
-				"Smart recommendations",
-				"Personal account manager",
-				"API access"
-			]
-		}
-	},
-	"comparison": {
-		"title": "Menuvo vs. Lieferando vs. Wolt",
-		"feature": "Feature",
-		"menuvo": "Menuvo",
-		"lieferando": "Lieferando",
-		"wolt": "Wolt",
-		"commission": "Commission per Order*",
-		"commissionMenuvo": "0% / No Commission",
-		"commissionLieferando": "Commission Model",
-		"commissionWolt": "Commission Model",
-		"monthly": "Monthly Platform Costs*",
-		"monthlyMenuvo": "Fixed SaaS Fee",
-		"monthlyLieferando": "Dependent on Revenue",
-		"monthlyWolt": "Dependent on Revenue",
-		"domain": "Custom Domain",
-		"data": "Customer Data Belongs to You",
-		"yes": "✓",
-		"no": "✗",
-		"note": "*Starter plan: 30 days free during the trial period. After that, you can switch to a paid monthly plan or cancel at any time.",
-		"provisionNote": "*Classic delivery platforms typically charge percentage-based commissions on order revenue. Actual costs depend on revenue, delivery area, and individual contracts."
+		"example": {
+			"title": "Example: €50 order paid by card",
+			"rows": [
+				{ "label": "Order value", "value": "€50.00" },
+				{ "label": "Menuvo (2.9%)", "value": "−€1.45" },
+				{ "label": "Mollie card (1.8% + €0.25)", "value": "−€1.15" },
+				{ "label": "You receive", "value": "€47.40", "highlight": true }
+			],
+			"comparison": "With delivery platforms: much less",
+			"savings": "With Menuvo you keep more"
+		},
+		"note": "All fees are deducted automatically. You receive the net amount directly to your account."
 	},
 	"faq": {
-		"title": "Frequently Asked Questions",
-		"subtitle": "Everything you need to know about Menuvo",
+		"title": "Common Questions",
+		"subtitle": "Everything you need to know",
 		"items": [
 			{
-				"question": "How quickly can I start using Menuvo?",
-				"answer": "You can start in under 5 minutes! Register, upload your menu (as PDF or photo), and our AI assistant automatically creates your digital menu. Then you can immediately receive orders."
+				"question": "What does Menuvo cost?",
+				"answer": "No monthly fees. You only pay 2.9% per order. Plus normal payment fees (approx. 1.8% + €0.25 for card payments). For a €50 order, that's about €2.60 total – you keep €47.40."
 			},
 			{
-				"question": "How does the AI menu assistant work?",
-				"answer": "Simply upload a photo or PDF of your current menu. Our AI automatically recognizes dishes, prices, and descriptions and creates your digital menu from them. You can adjust and edit everything afterwards."
+				"question": "Do I need a new POS system?",
+				"answer": "No. Menuvo works standalone – you just need a smartphone or tablet to receive orders. It also works alongside your existing POS system."
 			},
 			{
-				"question": "Are there really no commissions?",
-				"answer": "No, absolutely no commissions! Unlike Lieferando (13-30% commission) or Wolt (15-30% commission), you keep 100% of your revenue with Menuvo. You only pay a transparent monthly fee – the Starter plan is completely free."
+				"question": "How fast can I go live?",
+				"answer": "In 5 minutes. Upload a photo of your menu, our AI creates the digital menu, and you can start receiving orders immediately."
 			},
 			{
-				"question": "Does Menuvo save time for my team?",
-				"answer": "Yes. Guests order themselves via smartphone – no calls, no checkout queues. Your service or counter staff has more time for what matters: preparing food, serving guests, and maintaining quality, instead of taking orders."
+				"question": "Do I need hardware?",
+				"answer": "No. No card reader, no terminal. Customers pay with their smartphone (card, Apple Pay, Google Pay). You see orders on your existing device."
 			},
 			{
-				"question": "How does Menuvo help me make more revenue?",
-				"answer": "Your digital menu automatically suggests matching sides, drinks, and desserts. This makes cross-selling standard – without any additional effort from your team. Many small additional sales per order quickly add up to more monthly revenue."
+				"question": "Who is Menuvo for?",
+				"answer": "Restaurants, cafés, food trucks, takeaways, pop-ups – anyone who wants to offer QR ordering without buying an expensive POS system or paying high commissions."
 			},
 			{
-				"question": "Do I need technical knowledge?",
-				"answer": "Not at all! Menuvo is specifically developed for restaurant owners who have no technical knowledge. Everything runs through an intuitive interface – if you can use WhatsApp, you can use Menuvo."
+				"question": "How does payment work?",
+				"answer": "Customers pay directly when ordering with card, Apple Pay, Google Pay or PayPal. The money goes to your account. We use Mollie for payment processing."
 			},
 			{
-				"question": "How do customers access my ordering system?",
-				"answer": "You receive a QR code that you can put on your tables or display in your restaurant. Customers scan the code with their smartphone and can order immediately – without downloading an app."
+				"question": "Can I cancel anytime?",
+				"answer": "Yes, anytime. No minimum contract, no notice period. If you have no orders, you pay nothing."
 			},
 			{
 				"question": "Is Menuvo GDPR compliant?",
-				"answer": "Yes, 100%! All data is hosted in Germany and subject to German data protection law. We are fully GDPR compliant and your customer data belongs exclusively to you."
+				"answer": "Yes. All data is hosted in Germany. Your customer data belongs exclusively to you."
 			},
 			{
-				"question": "Can I use Menuvo for multiple locations?",
-				"answer": "Yes! With the Professional plan, you can manage multiple locations. Each location has its own menu, prices, and order management – all centrally through one dashboard."
-			},
-			{
-				"question": "How does support work?",
-				"answer": "Starter plan: Email support within 24 hours. Professional plan: Priority support with response within 4 hours. Max plan: Personal account manager and direct phone support."
+				"question": "What happens with my customer data?",
+				"answer": "It belongs to you – not us, not a platform. You can use it for marketing, nurture regulars and build your own customer relationships."
 			}
 		]
 	},
 	"footer": {
-		"tagline": "Digital orders for your restaurant - 100% of your revenue, no commissions",
+		"tagline": "QR ordering without a new POS system. €0 monthly, 2.9% per order.",
 		"product": "Product",
 		"company": "Company",
 		"legal": "Legal",

@@ -63,7 +63,7 @@ interface OptionGroupDialogProps {
 		aggregateMinQuantity: number | null;
 		aggregateMaxQuantity: number | null;
 		choices: Array<{
-			id?: number;
+			id?: string;
 			name: string;
 			priceModifier: number;
 			isDefault: boolean;
@@ -99,7 +99,7 @@ export function OptionGroupDialog({
 			aggregateMinQuantity: "",
 			aggregateMaxQuantity: "",
 			choices: [] as Array<{
-				id?: number;
+				id?: string;
 				name: string;
 				priceModifier: string;
 				isDefault: boolean;
@@ -768,7 +768,7 @@ export type OptionGroupFormValues = {
 	aggregateMinQuantity: string;
 	aggregateMaxQuantity: string;
 	choices: Array<{
-		id?: number;
+		id?: string;
 		name: string;
 		priceModifier: string;
 		isDefault: boolean;

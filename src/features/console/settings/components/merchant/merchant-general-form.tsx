@@ -20,7 +20,7 @@ import { merchantQueries, useUpdateMerchantGeneral } from "../../queries.ts";
 import { merchantGeneralSchema } from "../../schemas";
 
 interface MerchantGeneralFormProps {
-	merchantId: number;
+	merchantId: string;
 }
 
 export function MerchantGeneralForm({ merchantId }: MerchantGeneralFormProps) {

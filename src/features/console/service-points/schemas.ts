@@ -12,7 +12,7 @@ const codePattern = /^[a-z0-9-]+$/;
  * Used by server functions with storeId from context.
  */
 export const createServicePointSchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 	code: z
 		.string()
 		.min(1, "Code is required")
@@ -76,7 +76,7 @@ export const servicePointFormSchema = z.object({
  */
 export const batchCreateSchema = z
 	.object({
-		storeId: z.number().int().positive(),
+		storeId: z.string().uuid(),
 		prefix: z
 			.string()
 			.min(1, "Prefix is required")
@@ -98,7 +98,7 @@ export const batchCreateSchema = z
  * Schema for toggling all service points in a zone.
  */
 export const toggleZoneSchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 	zone: z.string().min(1).max(100),
 	isActive: z.boolean(),
 });

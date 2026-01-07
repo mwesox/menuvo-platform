@@ -12,7 +12,7 @@ import { formToTranslations } from "@/features/console/menu/schemas";
 type OptionGroupWithChoices = OptionGroup & { choices: OptionChoice[] };
 
 interface OptionGroupDialogWrapperProps {
-	storeId: number;
+	storeId: string;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	optionGroup: OptionGroupWithChoices | null;
@@ -37,7 +37,7 @@ export function OptionGroupDialogWrapper({
 		aggregateMinQuantity: number | null;
 		aggregateMaxQuantity: number | null;
 		choices: Array<{
-			id?: number;
+			id?: string;
 			name: string;
 			priceModifier: number;
 			isDefault: boolean;

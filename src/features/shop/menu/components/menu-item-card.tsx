@@ -10,7 +10,7 @@ const routeApi = getRouteApi("/$slug/");
 
 interface MenuItemCardProps {
 	item: {
-		id: number;
+		id: string;
 		name: string;
 		description: string | null;
 		price: number;

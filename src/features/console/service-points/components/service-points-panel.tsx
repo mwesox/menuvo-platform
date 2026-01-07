@@ -57,7 +57,7 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 	const [qrServicePoint, setQrServicePoint] = useState<ServicePoint | null>(
 		null,
 	);
-	const [deleteId, setDeleteId] = useState<number | null>(null);
+	const [deleteId, setDeleteId] = useState<string | null>(null);
 
 	const handleEdit = (sp: ServicePoint) => {
 		setEditingServicePoint(sp);
@@ -67,11 +67,11 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 		setQrServicePoint(sp);
 	};
 
-	const handleToggleActive = (id: number, isActive: boolean) => {
+	const handleToggleActive = (id: string, isActive: boolean) => {
 		toggleMutation.mutate({ id, isActive });
 	};
 
-	const handleDelete = (id: number) => {
+	const handleDelete = (id: string) => {
 		setDeleteId(id);
 	};
 

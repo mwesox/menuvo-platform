@@ -24,6 +24,7 @@ import {
 	ServicePointsPanel,
 	servicePointQueries,
 } from "@/features/console/service-points";
+import { ShopUrlDisplay } from "@/features/console/stores/components/shop-url-display";
 import { StoreDetailSkeleton } from "@/features/console/stores/components/skeletons";
 import { StoreClosuresForm } from "@/features/console/stores/components/store-closures-form";
 import { StoreForm } from "@/features/console/stores/components/store-form";
@@ -47,7 +48,7 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/console/stores/$storeId")({
 	validateSearch: searchSchema,
 	loader: async ({ context, params }) => {
-		const storeId = Number.parseInt(params.storeId, 10);
+		const storeId = params.storeId;
 		// Load all tab data upfront - cached for 5 min via staleTime
 		await Promise.all([
 			context.queryClient.ensureQueryData(storeQueries.detail(storeId)),
@@ -67,8 +68,7 @@ function EditStorePage() {
 	const navigate = useNavigate();
 	const { storeId } = Route.useParams();
 	const { tab = "details" } = Route.useSearch();
-	const storeIdNum = Number.parseInt(storeId, 10);
-	const { data: store } = useSuspenseQuery(storeQueries.detail(storeIdNum));
+	const { data: store } = useSuspenseQuery(storeQueries.detail(storeId));
 
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const toggleActiveMutation = useToggleStoreActive();
@@ -83,11 +83,11 @@ function EditStorePage() {
 	};
 
 	const handleToggleActive = (checked: boolean) => {
-		toggleActiveMutation.mutate({ storeId: storeIdNum, isActive: checked });
+		toggleActiveMutation.mutate({ storeId, isActive: checked });
 	};
 
 	const handleDelete = () => {
-		deleteMutation.mutate(storeIdNum, {
+		deleteMutation.mutate(storeId, {
 			onSuccess: () => {
 				navigate({ to: "/console/stores" });
 			},
@@ -132,9 +132,11 @@ function EditStorePage() {
 							/>
 						</div>
 
+						<ShopUrlDisplay slug={store.slug} />
+
 						<StoreForm store={store} merchantId={store.merchantId} />
 						<StoreImageFields
-							storeId={storeIdNum}
+							storeId={storeId}
 							merchantId={store.merchantId}
 							logoUrl={store.logoUrl}
 						/>
@@ -166,8 +168,8 @@ function EditStorePage() {
 						</Card>
 					</>
 				)}
-				{tab === "hours" && <StoreHoursForm storeId={storeIdNum} />}
-				{tab === "closures" && <StoreClosuresForm storeId={storeIdNum} />}
+				{tab === "hours" && <StoreHoursForm storeId={storeId} />}
+				{tab === "closures" && <StoreClosuresForm storeId={storeId} />}
 				{tab === "qr-codes" && (
 					<Suspense
 						fallback={<div className="py-8 text-center">Loading...</div>}

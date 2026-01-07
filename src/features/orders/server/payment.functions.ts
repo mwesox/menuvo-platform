@@ -1,3 +1,5 @@
+"use server";
+
 /**
  * Payment server functions for order payments.
  *
@@ -44,7 +46,7 @@ import {
 // ============================================================================
 
 const createPaymentSchema = z.object({
-	orderId: z.number().int().positive(),
+	orderId: z.string().uuid(),
 	returnUrl: z.string().url(),
 });
 
@@ -53,7 +55,7 @@ const getPaymentStatusSchema = z.object({
 });
 
 const cancelPaymentSchema = z.object({
-	orderId: z.number().int().positive(),
+	orderId: z.string().uuid(),
 });
 
 // ============================================================================
@@ -68,7 +70,7 @@ export type CancelPaymentInput = z.infer<typeof cancelPaymentSchema>;
 // HELPER FUNCTIONS
 // ============================================================================
 
-async function findOrderWithPaymentDetails(orderId: number) {
+async function findOrderWithPaymentDetails(orderId: string) {
 	try {
 		const order = await db.query.orders.findFirst({
 			where: eq(orders.id, orderId),
@@ -108,7 +110,7 @@ async function findOrderWithPaymentDetails(orderId: number) {
 	}
 }
 
-async function findOrderById(orderId: number) {
+async function findOrderById(orderId: string) {
 	try {
 		const order = await db.query.orders.findFirst({
 			where: eq(orders.id, orderId),
@@ -221,9 +223,9 @@ export const createPayment = createServerFn({ method: "POST" })
 					webhookUrl,
 					profileId: merchant.mollieProfileId,
 					metadata: {
-						orderId: String(order.id),
-						storeId: String(order.storeId),
-						merchantId: String(merchant.id),
+						orderId: order.id,
+						storeId: order.storeId,
+						merchantId: merchant.id,
 					},
 					applicationFee: {
 						amount: formatPaymentAmount(applicationFeeAmount, currency),

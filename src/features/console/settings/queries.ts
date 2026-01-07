@@ -31,19 +31,19 @@ import {
 // Query keys
 export const merchantKeys = {
 	all: ["merchants"] as const,
-	detail: (merchantId: number) => ["merchants", merchantId] as const,
-	subscription: (merchantId: number) =>
+	detail: (merchantId: string) => ["merchants", merchantId] as const,
+	subscription: (merchantId: string) =>
 		["merchants", merchantId, "subscription"] as const,
-	payment: (merchantId: number) =>
+	payment: (merchantId: string) =>
 		["merchants", merchantId, "payment"] as const,
-	molliePayment: (merchantId: number) =>
+	molliePayment: (merchantId: string) =>
 		["merchants", merchantId, "mollie-payment"] as const,
 };
 
 // Query options factories
 export const merchantQueries = {
 	// merchantId is obtained from auth context on server
-	detail: (merchantId: number) =>
+	detail: (merchantId: string) =>
 		queryOptions({
 			queryKey: merchantKeys.detail(merchantId),
 			queryFn: () => getMerchant(),
@@ -52,7 +52,7 @@ export const merchantQueries = {
 
 // merchantId is obtained from auth context on server
 export const subscriptionQueries = {
-	detail: (merchantId: number) =>
+	detail: (merchantId: string) =>
 		queryOptions({
 			queryKey: merchantKeys.subscription(merchantId),
 			queryFn: () => getSubscriptionDetails(),
@@ -61,7 +61,7 @@ export const subscriptionQueries = {
 
 // merchantId is obtained from auth context on server
 export const paymentQueries = {
-	status: (merchantId: number) =>
+	status: (merchantId: string) =>
 		queryOptions({
 			queryKey: merchantKeys.payment(merchantId),
 			queryFn: () => getPaymentStatus(),
@@ -70,7 +70,7 @@ export const paymentQueries = {
 
 // Mollie payment queries
 export const molliePaymentQueries = {
-	status: (merchantId: number) =>
+	status: (merchantId: string) =>
 		queryOptions({
 			queryKey: merchantKeys.molliePayment(merchantId),
 			queryFn: () => getMolliePaymentStatus(),
@@ -84,7 +84,7 @@ export function useUpdateMerchantGeneral() {
 
 	return useMutation({
 		// merchantId is for cache invalidation, server gets it from auth context
-		mutationFn: (input: MerchantGeneralInput & { merchantId: number }) =>
+		mutationFn: (input: MerchantGeneralInput & { merchantId: string }) =>
 			updateMerchantGeneral({ data: input }),
 		onSuccess: (updatedMerchant, variables) => {
 			queryClient.setQueryData(
@@ -125,7 +125,7 @@ export function useCancelSubscription() {
 
 	return useMutation({
 		// merchantId is for cache invalidation, server gets it from auth context
-		mutationFn: (input: { merchantId: number; immediately?: boolean }) =>
+		mutationFn: (input: { merchantId: string; immediately?: boolean }) =>
 			cancelMerchantSubscription({
 				data: { immediately: input.immediately ?? false },
 			}),
@@ -150,7 +150,7 @@ export function useResumeSubscription() {
 
 	return useMutation({
 		// merchantId is for cache invalidation, server gets it from auth context
-		mutationFn: (_input: { merchantId: number }) =>
+		mutationFn: (_input: { merchantId: string }) =>
 			resumeMerchantSubscription(),
 		onSuccess: (_, variables) => {
 			queryClient.invalidateQueries({
@@ -172,7 +172,7 @@ export function useOpenBillingPortal() {
 
 	return useMutation({
 		// merchantId is for consistency, server gets it from auth context
-		mutationFn: (_input: { merchantId: number }) =>
+		mutationFn: (_input: { merchantId: string }) =>
 			createMerchantBillingPortal(),
 		onSuccess: (data) => {
 			if (data.url) {
@@ -192,7 +192,7 @@ export function useSetupPaymentAccount() {
 
 	return useMutation({
 		// merchantId is for cache invalidation, server gets it from auth context
-		mutationFn: (_input: { merchantId: number }) => setupPaymentAccount(),
+		mutationFn: (_input: { merchantId: string }) => setupPaymentAccount(),
 		onSuccess: (_, variables) => {
 			queryClient.invalidateQueries({
 				queryKey: merchantKeys.payment(variables.merchantId),
@@ -213,7 +213,7 @@ export function useCreateOnboardingLink() {
 
 	return useMutation({
 		// merchantId is for consistency, server gets it from auth context
-		mutationFn: (_input: { merchantId: number }) =>
+		mutationFn: (_input: { merchantId: string }) =>
 			createPaymentOnboardingLink(),
 		onSuccess: (data) => {
 			if (data.url) {
@@ -232,7 +232,7 @@ export function useRefreshPaymentStatus() {
 
 	return useMutation({
 		// merchantId is for cache invalidation, server gets it from auth context
-		mutationFn: (_input: { merchantId: number }) => refreshPaymentStatus(),
+		mutationFn: (_input: { merchantId: string }) => refreshPaymentStatus(),
 		onSuccess: (_, variables) => {
 			queryClient.invalidateQueries({
 				queryKey: merchantKeys.payment(variables.merchantId),
@@ -258,7 +258,7 @@ export function useSetupMolliePaymentAccount() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (_input: { merchantId: number }) => setupMolliePaymentAccount(),
+		mutationFn: (_input: { merchantId: string }) => setupMolliePaymentAccount(),
 		onSuccess: (data, variables) => {
 			queryClient.invalidateQueries({
 				queryKey: merchantKeys.molliePayment(variables.merchantId),
@@ -290,7 +290,7 @@ export function useRefreshMolliePaymentStatus() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (_input: { merchantId: number }) =>
+		mutationFn: (_input: { merchantId: string }) =>
 			refreshMolliePaymentStatus(),
 		onSuccess: (_, variables) => {
 			queryClient.invalidateQueries({

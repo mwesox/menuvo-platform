@@ -13,7 +13,7 @@ import { ServicePointForm } from "./service-point-form.tsx";
 interface ServicePointDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	storeId: number;
+	storeId: string;
 	servicePoint?: ServicePoint;
 }
 

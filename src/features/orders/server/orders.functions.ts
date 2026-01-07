@@ -1,3 +1,5 @@
+"use server";
+
 /**
  * Server functions for order management.
  *
@@ -9,6 +11,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { and, desc, eq, gte, ilike, inArray, lte, or } from "drizzle-orm";
 import { db } from "@/db";
 import { orderItemOptions, orderItems, orders } from "@/db/schema";
+import { withAuth } from "@/features/console/auth/server/auth-middleware";
+import { requireStoreOwnership } from "@/features/console/auth/server/ownership";
 import { DatabaseError, NotFoundError } from "@/lib/errors";
 import { ordersLogger } from "@/lib/logger";
 import {
@@ -31,17 +35,18 @@ import {
 // HELPERS
 // ============================================================================
 
-async function findOrderById(orderId: number) {
+async function requireOrderOwnership(orderId: string, merchantId: string) {
 	const order = await db.query.orders.findFirst({
 		where: eq(orders.id, orderId),
+		with: { store: { columns: { merchantId: true } } },
 	});
-	if (!order) {
+	if (!order || order.store.merchantId !== merchantId) {
 		throw new NotFoundError("Order", orderId);
 	}
 	return order;
 }
 
-async function findOrderWithDetails(orderId: number) {
+async function findOrderWithDetails(orderId: string) {
 	const order = await db.query.orders.findFirst({
 		where: eq(orders.id, orderId),
 		with: {
@@ -179,9 +184,14 @@ export const getOrder = createServerFn({ method: "GET" })
  * Get orders for a store with optional filters
  */
 export const getOrdersByStore = createServerFn({ method: "GET" })
+	.middleware([withAuth])
 	.inputValidator(getOrdersByStoreSchema)
-	.handler(async ({ data }) => {
-		const conditions = [eq(orders.storeId, data.storeId)];
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
+		const conditions = [eq(orders.storeId, store.id)];
 
 		if (data.status) {
 			conditions.push(eq(orders.status, data.status));
@@ -230,11 +240,16 @@ export const getOrdersByStore = createServerFn({ method: "GET" })
  * Get orders for kitchen monitor (only paid orders in active states)
  */
 export const getKitchenOrders = createServerFn({ method: "GET" })
+	.middleware([withAuth])
 	.inputValidator(getKitchenOrdersSchema)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
 		return db.query.orders.findMany({
 			where: and(
-				eq(orders.storeId, data.storeId),
+				eq(orders.storeId, store.id),
 				inArray(orders.status, ["confirmed", "preparing", "ready"]),
 				eq(orders.paymentStatus, "paid"),
 			),
@@ -261,13 +276,18 @@ export const getKitchenOrders = createServerFn({ method: "GET" })
  * Get completed orders for kitchen Done archive (last 2 hours)
  */
 export const getKitchenDoneOrders = createServerFn({ method: "GET" })
+	.middleware([withAuth])
 	.inputValidator(getKitchenOrdersSchema)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		const store = await requireStoreOwnership(
+			data.storeId,
+			context.auth.merchantId,
+		);
 		const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
 
 		return db.query.orders.findMany({
 			where: and(
-				eq(orders.storeId, data.storeId),
+				eq(orders.storeId, store.id),
 				eq(orders.status, "completed"),
 				eq(orders.paymentStatus, "paid"),
 				gte(orders.completedAt, twoHoursAgo),
@@ -299,9 +319,13 @@ export const getKitchenDoneOrders = createServerFn({ method: "GET" })
  * Update order status with transition validation
  */
 export const updateOrderStatus = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(updateOrderStatusSchema)
-	.handler(async ({ data }) => {
-		const order = await findOrderById(data.orderId);
+	.handler(async ({ context, data }) => {
+		const order = await requireOrderOwnership(
+			data.orderId,
+			context.auth.merchantId,
+		);
 
 		// Validate transition
 		if (!canTransitionTo(order.status, data.status)) {
@@ -376,8 +400,11 @@ export const updatePaymentStatus = createServerFn({ method: "POST" })
  * Add merchant notes to an order
  */
 export const addMerchantNotes = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(addMerchantNotesSchema)
-	.handler(async ({ data }) => {
+	.handler(async ({ context, data }) => {
+		await requireOrderOwnership(data.orderId, context.auth.merchantId);
+
 		const [updated] = await db
 			.update(orders)
 			.set({ merchantNotes: data.notes })
@@ -390,9 +417,13 @@ export const addMerchantNotes = createServerFn({ method: "POST" })
  * Cancel an order
  */
 export const cancelOrder = createServerFn({ method: "POST" })
+	.middleware([withAuth])
 	.inputValidator(cancelOrderSchema)
-	.handler(async ({ data }) => {
-		const order = await findOrderById(data.orderId);
+	.handler(async ({ context, data }) => {
+		const order = await requireOrderOwnership(
+			data.orderId,
+			context.auth.merchantId,
+		);
 
 		// Validate order can be cancelled
 		if (order.status === "completed" || order.status === "cancelled") {

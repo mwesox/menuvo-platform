@@ -11,7 +11,7 @@ import {
 } from "../../shared/components/ui";
 
 interface OrderConfirmationPageProps {
-	orderId: number;
+	orderId: string;
 	storeSlug: string;
 }
 

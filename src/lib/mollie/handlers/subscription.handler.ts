@@ -28,7 +28,7 @@ interface MollieSubscription {
  */
 async function findMerchantByMollieCustomerId(
 	customerId: string,
-): Promise<{ id: number } | null> {
+): Promise<{ id: string } | null> {
 	const result = await db
 		.select({ id: merchants.id })
 		.from(merchants)
@@ -42,7 +42,7 @@ async function findMerchantByMollieCustomerId(
  * Update merchant's Mollie subscription fields.
  */
 async function updateMerchantSubscription(
-	merchantId: number,
+	merchantId: string,
 	subscriptionId: string,
 	status: MollieSubscriptionStatus,
 ): Promise<void> {

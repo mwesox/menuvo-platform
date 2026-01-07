@@ -15,6 +15,7 @@
 		"contactSettings": "Kontaktinformationen und regionale Einstellungen.",
 		"storeImages": "Laden Sie Bilder für Ihre Filiale hoch, die im Shop angezeigt werden.",
 		"storeStatus": "Wenn inaktiv, ist diese Filiale für Kunden nicht sichtbar.",
+		"shopUrl": "Teile diesen Link mit deinen Gästen.",
 		"deleteStore": "Diese Filiale und alle zugehörigen Daten dauerhaft löschen. Diese Aktion kann nicht rückgängig gemacht werden."
 	},
 	"sections": {
@@ -39,6 +40,7 @@
 		"contactInfo": "Kontaktinformationen",
 		"operatingHours": "Öffnungszeiten",
 		"storeStatus": "Filialstatus",
+		"shopUrl": "Shop-URL",
 		"noAddressConfigured": "Keine Adresse konfiguriert",
 		"manageStore": "Filiale verwalten",
 		"deleteStore": "Filiale löschen",
@@ -57,5 +59,12 @@
 	"dialogs": {
 		"deleteTitle": "Filiale löschen",
 		"deleteDescription": "Sind Sie sicher, dass Sie diese Filiale löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden. Alle Kategorien und Menüpunkte in dieser Filiale werden ebenfalls gelöscht."
+	},
+	"actions": {
+		"copyUrl": "URL kopieren",
+		"openShop": "Shop öffnen"
+	},
+	"toast": {
+		"urlCopied": "URL in Zwischenablage kopiert"
 	}
 }

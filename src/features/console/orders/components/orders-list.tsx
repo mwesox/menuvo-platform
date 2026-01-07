@@ -25,12 +25,12 @@ import { ExportOrdersButton } from "./export-orders-button";
 import { OrderListItem } from "./order-list-item";
 
 interface OrdersListProps {
-	storeId: number;
-	selectedOrderId?: number;
+	storeId: string;
+	selectedOrderId?: string;
 	statusFilter?: OrderStatus;
 	searchFilter?: string;
 	daysFilter: DateRangePreset;
-	onSelectOrder: (orderId: number) => void;
+	onSelectOrder: (orderId: string) => void;
 	onStatusChange: (status: OrderStatus | undefined) => void;
 	onSearchChange: (search: string | undefined) => void;
 	onDaysChange: (days: DateRangePreset) => void;

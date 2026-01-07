@@ -7,7 +7,7 @@ import {
 } from "../../constants";
 
 interface Category {
-	id: number;
+	id: string;
 }
 
 interface UseCategoryScrollOptions {
@@ -15,12 +15,12 @@ interface UseCategoryScrollOptions {
 }
 
 interface UseCategoryScrollReturn {
-	activeCategoryId: number | null;
-	categoryRefs: React.MutableRefObject<Map<number, HTMLDivElement>>;
+	activeCategoryId: string | null;
+	categoryRefs: React.MutableRefObject<Map<string, HTMLDivElement>>;
 	setCategoryRef: (
 		categoryId: React.Key | null | undefined,
 	) => (el: HTMLDivElement | null) => void;
-	handleCategoryClick: (categoryId: number) => void;
+	handleCategoryClick: (categoryId: string) => void;
 }
 
 /**
@@ -31,13 +31,13 @@ interface UseCategoryScrollReturn {
 export function useCategoryScroll({
 	categories,
 }: UseCategoryScrollOptions): UseCategoryScrollReturn {
-	const [activeCategoryId, setActiveCategoryId] = useState<number | null>(
+	const [activeCategoryId, setActiveCategoryId] = useState<string | null>(
 		categories[0]?.id ?? null,
 	);
-	const categoryRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+	const categoryRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
 	// Handle category click - scroll to section
-	const handleCategoryClick = useCallback((categoryId: number) => {
+	const handleCategoryClick = useCallback((categoryId: string) => {
 		const element = categoryRefs.current.get(categoryId);
 		if (element) {
 			const elementPosition = element.getBoundingClientRect().top;
@@ -54,7 +54,7 @@ export function useCategoryScroll({
 	const setCategoryRef = useCallback(
 		(categoryId: React.Key | null | undefined) =>
 			(el: HTMLDivElement | null) => {
-				if (typeof categoryId !== "number") return;
+				if (typeof categoryId !== "string") return;
 				if (el) {
 					categoryRefs.current.set(categoryId, el);
 				} else {
@@ -70,10 +70,8 @@ export function useCategoryScroll({
 			(entries) => {
 				for (const entry of entries) {
 					if (entry.isIntersecting) {
-						const categoryId = Number(
-							entry.target.getAttribute("data-category-id"),
-						);
-						if (!Number.isNaN(categoryId)) {
+						const categoryId = entry.target.getAttribute("data-category-id");
+						if (categoryId) {
 							setActiveCategoryId(categoryId);
 						}
 					}

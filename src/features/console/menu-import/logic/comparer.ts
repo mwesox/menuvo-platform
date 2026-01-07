@@ -93,11 +93,11 @@ function determineAction(score: number, hasChanges: boolean): DiffAction {
  */
 export interface ExistingMenuData {
 	categories: {
-		id: number;
+		id: string;
 		name: string;
 		description?: string | null;
 		items: {
-			id: number;
+			id: string;
 			name: string;
 			description?: string | null;
 			price: number;
@@ -105,7 +105,7 @@ export interface ExistingMenuData {
 		}[];
 	}[];
 	optionGroups: {
-		id: number;
+		id: string;
 		name: string;
 		description?: string | null;
 		type: string;

@@ -17,7 +17,7 @@ import {
 } from "../utils/csv-export";
 
 interface ExportOrdersButtonProps {
-	storeId: number;
+	storeId: string;
 	statusFilter?: OrderStatus;
 	searchFilter?: string;
 	fromDate?: string;

@@ -83,7 +83,7 @@ export type ChoiceTranslation = z.infer<typeof choiceTranslationSchema>;
  * Update translations for a category.
  */
 export const updateCategoryTranslationsSchema = z.object({
-	categoryId: z.number().int().positive(),
+	categoryId: z.string().uuid(),
 	translations: entityTranslationSchema,
 });
 export type UpdateCategoryTranslationsInput = z.infer<
@@ -94,7 +94,7 @@ export type UpdateCategoryTranslationsInput = z.infer<
  * Update translations for an item.
  */
 export const updateItemTranslationsSchema = z.object({
-	itemId: z.number().int().positive(),
+	itemId: z.string().uuid(),
 	translations: entityTranslationSchema,
 });
 export type UpdateItemTranslationsInput = z.infer<
@@ -105,7 +105,7 @@ export type UpdateItemTranslationsInput = z.infer<
  * Update translations for an option group.
  */
 export const updateOptionGroupTranslationsSchema = z.object({
-	optionGroupId: z.number().int().positive(),
+	optionGroupId: z.string().uuid(),
 	translations: entityTranslationSchema,
 });
 export type UpdateOptionGroupTranslationsInput = z.infer<
@@ -116,7 +116,7 @@ export type UpdateOptionGroupTranslationsInput = z.infer<
  * Update translations for an option choice.
  */
 export const updateOptionChoiceTranslationsSchema = z.object({
-	optionChoiceId: z.number().int().positive(),
+	optionChoiceId: z.string().uuid(),
 	translations: choiceTranslationSchema,
 });
 export type UpdateOptionChoiceTranslationsInput = z.infer<

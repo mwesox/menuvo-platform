@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { OptionGroup } from "./option-group";
 
 const mockSingleSelectGroup = {
-	id: 1,
+	id: "grp-1",
 	name: "Size",
 	type: "single_select" as const,
 	isRequired: true,
@@ -15,7 +15,7 @@ const mockSingleSelectGroup = {
 };
 
 const mockMultiSelectGroup = {
-	id: 2,
+	id: "grp-2",
 	name: "Toppings",
 	type: "multi_select" as const,
 	isRequired: false,
@@ -28,7 +28,7 @@ const mockMultiSelectGroup = {
 
 const mockChoices = [
 	{
-		id: 1,
+		id: "choice-1",
 		name: "Small",
 		priceModifier: 0,
 		displayOrder: 1,
@@ -38,7 +38,7 @@ const mockChoices = [
 		maxQuantity: null,
 	},
 	{
-		id: 2,
+		id: "choice-2",
 		name: "Medium",
 		priceModifier: 200,
 		displayOrder: 2,
@@ -48,7 +48,7 @@ const mockChoices = [
 		maxQuantity: null,
 	},
 	{
-		id: 3,
+		id: "choice-3",
 		name: "Large",
 		priceModifier: 400,
 		displayOrder: 3,
@@ -61,7 +61,7 @@ const mockChoices = [
 
 const mockToppingChoices = [
 	{
-		id: 4,
+		id: "choice-4",
 		name: "Extra Cheese",
 		priceModifier: 150,
 		displayOrder: 1,
@@ -71,7 +71,7 @@ const mockToppingChoices = [
 		maxQuantity: null,
 	},
 	{
-		id: 5,
+		id: "choice-5",
 		name: "Pepperoni",
 		priceModifier: 200,
 		displayOrder: 2,
@@ -81,7 +81,7 @@ const mockToppingChoices = [
 		maxQuantity: null,
 	},
 	{
-		id: 6,
+		id: "choice-6",
 		name: "Mushrooms",
 		priceModifier: 100,
 		displayOrder: 3,
@@ -99,7 +99,7 @@ describe("OptionGroup", () => {
 				<OptionGroup
 					group={mockSingleSelectGroup}
 					choices={mockChoices}
-					selectedChoiceIds={[1]}
+					selectedChoiceIds={["choice-1"]}
 					quantitySelections={new Map()}
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
@@ -114,7 +114,7 @@ describe("OptionGroup", () => {
 				<OptionGroup
 					group={mockSingleSelectGroup}
 					choices={mockChoices}
-					selectedChoiceIds={[1]}
+					selectedChoiceIds={["choice-1"]}
 					quantitySelections={new Map()}
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
@@ -131,7 +131,7 @@ describe("OptionGroup", () => {
 				<OptionGroup
 					group={mockSingleSelectGroup}
 					choices={mockChoices}
-					selectedChoiceIds={[1]}
+					selectedChoiceIds={["choice-1"]}
 					quantitySelections={new Map()}
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
@@ -147,7 +147,7 @@ describe("OptionGroup", () => {
 				<OptionGroup
 					group={mockSingleSelectGroup}
 					choices={mockChoices}
-					selectedChoiceIds={[2]} // Medium selected
+					selectedChoiceIds={["choice-2"]} // Medium selected
 					quantitySelections={new Map()}
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
@@ -165,7 +165,7 @@ describe("OptionGroup", () => {
 				<OptionGroup
 					group={mockSingleSelectGroup}
 					choices={mockChoices}
-					selectedChoiceIds={[1]}
+					selectedChoiceIds={["choice-1"]}
 					quantitySelections={new Map()}
 					onSelectionChange={onSelectionChange}
 					onQuantityChange={vi.fn()}
@@ -175,7 +175,7 @@ describe("OptionGroup", () => {
 			const largeRadio = screen.getByRole("radio", { name: /large/i });
 			fireEvent.click(largeRadio);
 
-			expect(onSelectionChange).toHaveBeenCalledWith([3]);
+			expect(onSelectionChange).toHaveBeenCalledWith(["choice-3"]);
 		});
 
 		it("shows Required badge for required groups", () => {
@@ -183,7 +183,7 @@ describe("OptionGroup", () => {
 				<OptionGroup
 					group={mockSingleSelectGroup}
 					choices={mockChoices}
-					selectedChoiceIds={[1]}
+					selectedChoiceIds={["choice-1"]}
 					quantitySelections={new Map()}
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
@@ -198,7 +198,7 @@ describe("OptionGroup", () => {
 				<OptionGroup
 					group={mockSingleSelectGroup}
 					choices={mockChoices}
-					selectedChoiceIds={[1]}
+					selectedChoiceIds={["choice-1"]}
 					quantitySelections={new Map()}
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
@@ -233,7 +233,7 @@ describe("OptionGroup", () => {
 				<OptionGroup
 					group={mockMultiSelectGroup}
 					choices={mockToppingChoices}
-					selectedChoiceIds={[4, 5]} // Cheese and Pepperoni selected
+					selectedChoiceIds={["choice-4", "choice-5"]} // Cheese and Pepperoni selected
 					quantitySelections={new Map()}
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
@@ -262,7 +262,7 @@ describe("OptionGroup", () => {
 				<OptionGroup
 					group={mockMultiSelectGroup}
 					choices={mockToppingChoices}
-					selectedChoiceIds={[4]} // Cheese already selected
+					selectedChoiceIds={["choice-4"]} // Cheese already selected
 					quantitySelections={new Map()}
 					onSelectionChange={onSelectionChange}
 					onQuantityChange={vi.fn()}
@@ -274,7 +274,7 @@ describe("OptionGroup", () => {
 			});
 			fireEvent.click(pepperoniCheckbox);
 
-			expect(onSelectionChange).toHaveBeenCalledWith([4, 5]);
+			expect(onSelectionChange).toHaveBeenCalledWith(["choice-4", "choice-5"]);
 		});
 
 		it("calls onSelectionChange with removed choice when unchecking", () => {
@@ -284,7 +284,7 @@ describe("OptionGroup", () => {
 				<OptionGroup
 					group={mockMultiSelectGroup}
 					choices={mockToppingChoices}
-					selectedChoiceIds={[4, 5]} // Cheese and Pepperoni selected
+					selectedChoiceIds={["choice-4", "choice-5"]} // Cheese and Pepperoni selected
 					quantitySelections={new Map()}
 					onSelectionChange={onSelectionChange}
 					onQuantityChange={vi.fn()}
@@ -296,7 +296,7 @@ describe("OptionGroup", () => {
 			});
 			fireEvent.click(cheeseCheckbox);
 
-			expect(onSelectionChange).toHaveBeenCalledWith([5]);
+			expect(onSelectionChange).toHaveBeenCalledWith(["choice-5"]);
 		});
 
 		it("shows helper text for multi select constraints", () => {
@@ -317,7 +317,7 @@ describe("OptionGroup", () => {
 
 	describe("Quantity Select", () => {
 		const mockQuantityGroup = {
-			id: 3,
+			id: "grp-3",
 			name: "Pick Your Donuts",
 			type: "quantity_select" as const,
 			isRequired: true,
@@ -330,7 +330,7 @@ describe("OptionGroup", () => {
 
 		const mockDonutChoices = [
 			{
-				id: 7,
+				id: "choice-7",
 				name: "Glazed",
 				priceModifier: 100,
 				displayOrder: 1,
@@ -340,7 +340,7 @@ describe("OptionGroup", () => {
 				maxQuantity: 3,
 			},
 			{
-				id: 8,
+				id: "choice-8",
 				name: "Chocolate",
 				priceModifier: 150,
 				displayOrder: 2,
@@ -402,7 +402,7 @@ describe("OptionGroup", () => {
 			});
 			fireEvent.click(increaseButtons[0]);
 
-			expect(onQuantityChange).toHaveBeenCalledWith(7, 1);
+			expect(onQuantityChange).toHaveBeenCalledWith("choice-7", 1);
 		});
 	});
 });

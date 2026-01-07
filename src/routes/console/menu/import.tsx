@@ -4,7 +4,7 @@ import { ImportWizard } from "@/features/console/menu-import/components/import-w
 import { storeQueries } from "@/features/console/stores/queries";
 
 const searchSchema = z.object({
-	storeId: z.number().optional(),
+	storeId: z.string().optional(),
 });
 
 export const Route = createFileRoute("/console/menu/import")({

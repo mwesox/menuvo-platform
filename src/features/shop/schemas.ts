@@ -21,7 +21,7 @@ export type OptionGroupType = z.infer<typeof optionGroupTypeSchema>;
  * Now includes isDefault, minQuantity, maxQuantity, isAvailable from DB.
  */
 export const menuItemChoiceSchema = z.object({
-	id: z.number(),
+	id: z.string(),
 	name: z.string(),
 	priceModifier: z.number(),
 	displayOrder: z.number(),
@@ -47,7 +47,7 @@ export type MenuItemChoiceWithDefault = z.infer<
  * Now includes type, numFreeOptions, and aggregate quantity constraints.
  */
 export const menuItemOptionGroupSchema = z.object({
-	id: z.number(),
+	id: z.string(),
 	name: z.string(),
 	description: z.string().nullable(),
 	type: optionGroupTypeSchema,
@@ -76,7 +76,7 @@ export type MenuItemOptionGroupWithDefaults = z.infer<
  * Schema for menu item as returned from API.
  */
 export const menuItemSchema = z.object({
-	id: z.number(),
+	id: z.string(),
 	name: z.string(),
 	kitchenName: z.string().nullable(),
 	description: z.string().nullable(),
@@ -107,7 +107,7 @@ export type MenuItemWithDefaults = z.infer<typeof menuItemWithDefaultsSchema>;
  * Used for initial menu browsing - options loaded on demand when opening item drawer.
  */
 export const menuItemLightSchema = z.object({
-	id: z.number(),
+	id: z.string(),
 	name: z.string(),
 	kitchenName: z.string().nullable(),
 	description: z.string().nullable(),
@@ -124,7 +124,7 @@ export type MenuItemLight = z.infer<typeof menuItemLightSchema>;
  * Schema for item options input.
  */
 export const itemOptionsInputSchema = z.object({
-	itemId: z.number(),
+	itemId: z.string(),
 	storeSlug: z.string().min(1),
 });
 

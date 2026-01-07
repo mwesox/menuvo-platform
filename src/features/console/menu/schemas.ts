@@ -22,7 +22,7 @@ export const entityTranslationsSchema = z.record(
 // ============================================================================
 
 export const createCategorySchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 	translations: entityTranslationsSchema.refine(
 		(t) => Object.values(t).some((v) => v.name && v.name.length >= 2),
 		"validation:categoryMultilang.required",
@@ -54,8 +54,8 @@ export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 // ============================================================================
 
 export const createItemSchema = z.object({
-	categoryId: z.number().int().positive(),
-	storeId: z.number().int().positive(),
+	categoryId: z.string().uuid(),
+	storeId: z.string().uuid(),
 	translations: entityTranslationsSchema.refine(
 		(t) => Object.values(t).some((v) => v.name && v.name.length >= 2),
 		"validation:itemMultilang.required",
@@ -75,7 +75,7 @@ export const updateItemSchema = z.object({
 	kitchenName: z.string().max(50).optional().or(z.literal("")),
 	displayOrder: z.number().int().min(0).optional(),
 	isAvailable: z.boolean().optional(),
-	categoryId: z.number().int().positive().optional(),
+	categoryId: z.string().uuid().optional(),
 });
 
 // Client-side item form schema (for a specific language, with price as string)

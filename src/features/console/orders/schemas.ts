@@ -10,7 +10,7 @@ import { orderStatuses } from "@/features/orders";
  * Max 1000 orders for performance
  */
 export const exportOrdersSchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 	status: z.enum(orderStatuses).optional(),
 	fromDate: z.string().optional(),
 	toDate: z.string().optional(),
@@ -23,7 +23,7 @@ export type ExportOrdersInput = z.infer<typeof exportOrdersSchema>;
  * Flat response type for CSV export - uses names instead of IDs
  */
 export interface ExportOrderRow {
-	orderId: number;
+	orderId: string;
 	date: string;
 	storeName: string;
 	customerName: string;

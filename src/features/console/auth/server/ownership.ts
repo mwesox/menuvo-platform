@@ -8,30 +8,55 @@ import {
 	stores,
 } from "@/db/schema";
 
+/**
+ * Ownership helpers for entities that need related data (e.g., translations).
+ * These are kept separate from auth-middleware.ts to avoid db imports leaking
+ * to client bundle when middleware is imported.
+ */
+
 // ============================================================================
-// STORE OWNERSHIP
+// SIMPLE STORE OWNERSHIP VALIDATION
 // ============================================================================
 
 /**
- * Validates that a store belongs to the given merchant.
+ * Helper to validate store ownership.
+ * Use in server function handlers after withAuth middleware.
+ *
+ * Usage:
+ * ```ts
+ * export const getCategories = createServerFn({ method: "GET" })
+ *   .middleware([withAuth])
+ *   .inputValidator(z.object({ storeId: z.string().uuid() }))
+ *   .handler(async ({ context, data }) => {
+ *     const store = await requireStoreOwnership(data.storeId, context.auth.merchantId);
+ *     // ...
+ *   });
+ * ```
  */
-export async function validateStoreOwnership(
-	storeId: number,
-	merchantId: number,
-): Promise<boolean> {
+export async function requireStoreOwnership(
+	storeId: string,
+	merchantId: string,
+) {
 	const store = await db.query.stores.findFirst({
 		where: and(eq(stores.id, storeId), eq(stores.merchantId, merchantId)),
-		columns: { id: true },
 	});
-	return !!store;
+	if (!store) {
+		throw new Error("Store not found or access denied");
+	}
+	return store;
 }
+
+// ============================================================================
+// STORE WITH OWNERSHIP DATA
+// ============================================================================
 
 /**
  * Gets a store if it belongs to the merchant, including merchant data.
+ * Returns store with merchant data for translations support.
  */
 export async function getStoreWithMerchant(
-	storeId: number,
-	merchantId: number,
+	storeId: string,
+	merchantId: string,
 ) {
 	return db.query.stores.findFirst({
 		where: and(eq(stores.id, storeId), eq(stores.merchantId, merchantId)),
@@ -44,33 +69,16 @@ export async function getStoreWithMerchant(
 }
 
 // ============================================================================
-// CATEGORY OWNERSHIP
+// CATEGORY WITH OWNERSHIP DATA
 // ============================================================================
 
 /**
- * Validates that a category belongs to the given merchant (via store).
- */
-export async function validateCategoryOwnership(
-	categoryId: number,
-	merchantId: number,
-): Promise<boolean> {
-	const category = await db.query.categories.findFirst({
-		where: eq(categories.id, categoryId),
-		with: {
-			store: {
-				columns: { merchantId: true },
-			},
-		},
-	});
-	return category?.store.merchantId === merchantId;
-}
-
-/**
  * Gets a category if it belongs to the merchant (via store).
+ * Returns category with store and merchant data for translations support.
  */
 export async function getCategoryWithOwnership(
-	categoryId: number,
-	merchantId: number,
+	categoryId: string,
+	merchantId: string,
 ) {
 	const category = await db.query.categories.findFirst({
 		where: eq(categories.id, categoryId),
@@ -94,31 +102,14 @@ export async function getCategoryWithOwnership(
 }
 
 // ============================================================================
-// ITEM OWNERSHIP
+// ITEM WITH OWNERSHIP DATA
 // ============================================================================
 
 /**
- * Validates that an item belongs to the given merchant (via store).
- */
-export async function validateItemOwnership(
-	itemId: number,
-	merchantId: number,
-): Promise<boolean> {
-	const item = await db.query.items.findFirst({
-		where: eq(items.id, itemId),
-		with: {
-			store: {
-				columns: { merchantId: true },
-			},
-		},
-	});
-	return item?.store.merchantId === merchantId;
-}
-
-/**
  * Gets an item if it belongs to the merchant (via store).
+ * Returns item with store and merchant data for translations support.
  */
-export async function getItemWithOwnership(itemId: number, merchantId: number) {
+export async function getItemWithOwnership(itemId: string, merchantId: string) {
 	const item = await db.query.items.findFirst({
 		where: eq(items.id, itemId),
 		with: {
@@ -141,33 +132,16 @@ export async function getItemWithOwnership(itemId: number, merchantId: number) {
 }
 
 // ============================================================================
-// OPTION GROUP OWNERSHIP
+// OPTION GROUP WITH OWNERSHIP DATA
 // ============================================================================
 
 /**
- * Validates that an option group belongs to the given merchant (via store).
- */
-export async function validateOptionGroupOwnership(
-	optionGroupId: number,
-	merchantId: number,
-): Promise<boolean> {
-	const optionGroup = await db.query.optionGroups.findFirst({
-		where: eq(optionGroups.id, optionGroupId),
-		with: {
-			store: {
-				columns: { merchantId: true },
-			},
-		},
-	});
-	return optionGroup?.store.merchantId === merchantId;
-}
-
-/**
  * Gets an option group if it belongs to the merchant (via store).
+ * Returns option group with store and merchant data for translations support.
  */
 export async function getOptionGroupWithOwnership(
-	optionGroupId: number,
-	merchantId: number,
+	optionGroupId: string,
+	merchantId: string,
 ) {
 	const optionGroup = await db.query.optionGroups.findFirst({
 		where: eq(optionGroups.id, optionGroupId),
@@ -191,37 +165,16 @@ export async function getOptionGroupWithOwnership(
 }
 
 // ============================================================================
-// OPTION CHOICE OWNERSHIP
+// OPTION CHOICE WITH OWNERSHIP DATA
 // ============================================================================
 
 /**
- * Validates that an option choice belongs to the given merchant (via option group -> store).
- */
-export async function validateOptionChoiceOwnership(
-	optionChoiceId: number,
-	merchantId: number,
-): Promise<boolean> {
-	const optionChoice = await db.query.optionChoices.findFirst({
-		where: eq(optionChoices.id, optionChoiceId),
-		with: {
-			optGroup: {
-				with: {
-					store: {
-						columns: { merchantId: true },
-					},
-				},
-			},
-		},
-	});
-	return optionChoice?.optGroup.store.merchantId === merchantId;
-}
-
-/**
  * Gets an option choice if it belongs to the merchant (via option group -> store).
+ * Returns option choice with store and merchant data for translations support.
  */
 export async function getOptionChoiceWithOwnership(
-	optionChoiceId: number,
-	merchantId: number,
+	optionChoiceId: string,
+	merchantId: string,
 ) {
 	const optionChoice = await db.query.optionChoices.findFirst({
 		where: eq(optionChoices.id, optionChoiceId),

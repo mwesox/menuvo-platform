@@ -12,7 +12,7 @@ import { formatPriceModifier } from "../../utils";
 
 interface OptionGroupProps {
 	group: {
-		id: number;
+		id: string;
 		name: string;
 		type: OptionGroupType;
 		isRequired: boolean;
@@ -24,11 +24,11 @@ interface OptionGroupProps {
 	};
 	choices: MenuItemChoice[];
 	/** For single/multi select: array of selected choice IDs */
-	selectedChoiceIds: number[];
+	selectedChoiceIds: string[];
 	/** For quantity select: map of choiceId -> quantity */
-	quantitySelections: Map<number, number>;
-	onSelectionChange: (choiceIds: number[]) => void;
-	onQuantityChange: (choiceId: number, quantity: number) => void;
+	quantitySelections: Map<string, number>;
+	onSelectionChange: (choiceIds: string[]) => void;
+	onQuantityChange: (choiceId: string, quantity: number) => void;
 }
 
 // ============================================================================
@@ -109,8 +109,8 @@ function getHelperText(
 interface SingleSelectProps {
 	group: OptionGroupProps["group"];
 	choices: MenuItemChoice[];
-	selectedId: number | null;
-	onSelect: (choiceId: number) => void;
+	selectedId: string | null;
+	onSelect: (choiceId: string) => void;
 }
 
 function SingleSelectGroup({
@@ -201,8 +201,8 @@ function SingleSelectGroup({
 interface MultiSelectProps {
 	group: OptionGroupProps["group"];
 	choices: MenuItemChoice[];
-	selectedIds: number[];
-	onToggle: (choiceId: number, checked: boolean) => void;
+	selectedIds: string[];
+	onToggle: (choiceId: string, checked: boolean) => void;
 }
 
 function MultiSelectGroup({
@@ -300,8 +300,8 @@ function MultiSelectGroup({
 interface QuantitySelectProps {
 	group: OptionGroupProps["group"];
 	choices: MenuItemChoice[];
-	quantities: Map<number, number>;
-	onQuantityChange: (choiceId: number, quantity: number) => void;
+	quantities: Map<string, number>;
+	onQuantityChange: (choiceId: string, quantity: number) => void;
 }
 
 function QuantitySelectGroup({
@@ -473,11 +473,11 @@ export function OptionGroup({
 		t,
 	);
 
-	const handleRadioChange = (choiceId: number) => {
+	const handleRadioChange = (choiceId: string) => {
 		onSelectionChange([choiceId]);
 	};
 
-	const handleCheckboxChange = (choiceId: number, checked: boolean) => {
+	const handleCheckboxChange = (choiceId: string, checked: boolean) => {
 		if (checked) {
 			if (
 				group.maxSelections !== null &&

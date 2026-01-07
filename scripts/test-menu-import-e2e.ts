@@ -40,11 +40,11 @@ const DEFAULT_MODEL: ModelConfig = {
 const MOCK_EXISTING_MENU = {
 	categories: [
 		{
-			id: 1,
+			id: "cat-1",
 			name: "Vorspeisen",
 			description: "Starters",
 			items: [
-				{ id: 1, name: "Bruschetta", description: "Mit Tomaten", price: 599, allergens: ["gluten"] },
+				{ id: "item-1", name: "Bruschetta", description: "Mit Tomaten", price: 599, allergens: ["gluten"] },
 			],
 		},
 	],

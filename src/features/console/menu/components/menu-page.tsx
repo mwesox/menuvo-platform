@@ -68,13 +68,13 @@ type TabValue = (typeof tabSchema)[number];
 
 interface MenuPageProps {
 	search: {
-		storeId?: number;
+		storeId?: string;
 		tab?: TabValue;
-		selected?: number;
+		selected?: string;
 	};
 	loaderData: {
-		stores: Array<{ id: number; name: string }>;
-		autoSelectedStoreId: number | undefined;
+		stores: Array<{ id: string; name: string }>;
+		autoSelectedStoreId: string | undefined;
 	};
 }
 
@@ -129,9 +129,9 @@ export function MenuPage({ search, loaderData }: MenuPageProps) {
 
 // Separate component for the main content - avoids conditional hooks issue
 interface MenuPageContentProps {
-	storeId: number;
+	storeId: string;
 	tab: TabValue;
-	selected?: number;
+	selected?: string;
 }
 
 function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
@@ -157,7 +157,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 	const filteredItems =
 		categoryFilter === "all"
 			? items
-			: items.filter((item) => item.categoryId === Number(categoryFilter));
+			: items.filter((item) => item.categoryId === categoryFilter);
 
 	// Mutations
 	const deleteCategoryMutation = useDeleteCategory(storeId);
@@ -175,7 +175,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 		});
 	};
 
-	const handleSelect = (id: number) => {
+	const handleSelect = (id: string) => {
 		navigate({
 			to: "/console/menu",
 			search: { storeId, tab, selected: id },
@@ -296,7 +296,7 @@ function MenuPageContent({ storeId, tab, selected }: MenuPageContentProps) {
 											{t("filters.allCategories")}
 										</SelectItem>
 										{categories.map((category) => (
-											<SelectItem key={category.id} value={String(category.id)}>
+											<SelectItem key={category.id} value={category.id}>
 												{getDisplayName(category.translations, language)}
 											</SelectItem>
 										))}

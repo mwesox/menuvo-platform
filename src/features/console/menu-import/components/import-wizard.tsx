@@ -18,7 +18,7 @@ import { ProcessingProgress } from "./processing-progress";
 type WizardStep = "upload" | "processing" | "review";
 
 interface ImportWizardProps {
-	storeId: number;
+	storeId: string;
 	onClose: () => void;
 }
 
@@ -26,7 +26,7 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 	const { t } = useTranslation("menu");
 	const [step, setStep] = useState<WizardStep>("upload");
 	const [file, setFile] = useState<File | null>(null);
-	const [jobId, setJobId] = useState<number | null>(null);
+	const [jobId, setJobId] = useState<string | null>(null);
 	const [uploadError, setUploadError] = useState<string | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());

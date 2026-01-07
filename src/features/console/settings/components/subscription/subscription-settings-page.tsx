@@ -7,7 +7,7 @@ import { SubscriptionPlanSelector } from "../merchant/subscription-plan-selector
 import { SubscriptionStatusCard } from "../merchant/subscription-status-card";
 
 interface SubscriptionSettingsPageProps {
-	merchantId: number;
+	merchantId: string;
 }
 
 export function SubscriptionSettingsPage({

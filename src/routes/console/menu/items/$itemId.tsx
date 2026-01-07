@@ -16,7 +16,7 @@ import { storeQueries } from "@/features/console/stores/queries";
 
 export const Route = createFileRoute("/console/menu/items/$itemId")({
 	loader: async ({ context, params }) => {
-		const itemId = Number.parseInt(params.itemId, 10);
+		const itemId = params.itemId;
 		const [item, itemOptions] = await Promise.all([
 			context.queryClient.ensureQueryData(itemQueries.detail(itemId)),
 			context.queryClient.ensureQueryData(itemOptionQueries.byItem(itemId)),
@@ -40,8 +40,7 @@ export const Route = createFileRoute("/console/menu/items/$itemId")({
 function EditItemPage() {
 	const { itemId } = Route.useParams();
 	const { initialOptionGroupIds } = Route.useLoaderData();
-	const itemIdNum = Number.parseInt(itemId, 10);
-	const { data: item } = useSuspenseQuery(itemQueries.detail(itemIdNum));
+	const { data: item } = useSuspenseQuery(itemQueries.detail(itemId));
 	const { data: store } = useSuspenseQuery(storeQueries.detail(item.storeId));
 	const { data: categories = [] } = useSuspenseQuery(
 		categoryQueries.byStore(item.storeId),
@@ -66,7 +65,7 @@ function EditItemPageContent({
 	item: Item;
 	store: Store;
 	categories: CategoryWithItems[];
-	initialOptionGroupIds: number[];
+	initialOptionGroupIds: string[];
 }) {
 	const { t } = useTranslation("menu");
 	const displayName = useEntityDisplayName(item.translations);

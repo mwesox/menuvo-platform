@@ -6,10 +6,10 @@ import {
 	integer,
 	jsonb,
 	pgTable,
-	serial,
 	text,
 	timestamp,
 	unique,
+	uuid,
 	varchar,
 } from "drizzle-orm/pg-core";
 
@@ -208,7 +208,7 @@ export type OrderType = (typeof orderTypes)[number];
 // ============================================================================
 
 export const merchants = pgTable("merchants", {
-	id: serial().primaryKey(),
+	id: uuid().primaryKey().defaultRandom(),
 	name: varchar({ length: 255 }).notNull(),
 	ownerName: varchar("owner_name", { length: 255 }).notNull(),
 	email: varchar({ length: 255 }).notNull().unique(),
@@ -286,8 +286,8 @@ export const merchantsRelations = relations(merchants, ({ many }) => ({
 // ============================================================================
 
 export const stores = pgTable("stores", {
-	id: serial().primaryKey(),
-	merchantId: integer("merchant_id")
+	id: uuid().primaryKey().defaultRandom(),
+	merchantId: uuid("merchant_id")
 		.notNull()
 		.references(() => merchants.id, { onDelete: "cascade" }),
 	name: varchar({ length: 255 }).notNull(),
@@ -347,8 +347,8 @@ export type DayOfWeek = (typeof daysOfWeek)[number];
 export const storeHours = pgTable(
 	"store_hours",
 	{
-		id: serial().primaryKey(),
-		storeId: integer("store_id")
+		id: uuid().primaryKey().defaultRandom(),
+		storeId: uuid("store_id")
 			.notNull()
 			.references(() => stores.id, { onDelete: "cascade" }),
 		dayOfWeek: text("day_of_week", { enum: daysOfWeek }).notNull(),
@@ -379,8 +379,8 @@ export const storeHoursRelations = relations(storeHours, ({ one }) => ({
 export const storeClosures = pgTable(
 	"store_closures",
 	{
-		id: serial().primaryKey(),
-		storeId: integer("store_id")
+		id: uuid().primaryKey().defaultRandom(),
+		storeId: uuid("store_id")
 			.notNull()
 			.references(() => stores.id, { onDelete: "cascade" }),
 		startDate: varchar("start_date", { length: 10 }).notNull(), // YYYY-MM-DD
@@ -408,8 +408,8 @@ export const storeClosuresRelations = relations(storeClosures, ({ one }) => ({
 // ============================================================================
 
 export const categories = pgTable("categories", {
-	id: serial().primaryKey(),
-	storeId: integer("store_id")
+	id: uuid().primaryKey().defaultRandom(),
+	storeId: uuid("store_id")
 		.notNull()
 		.references(() => stores.id, { onDelete: "cascade" }),
 	displayOrder: integer("display_order").notNull().default(0),
@@ -440,11 +440,11 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
 // ============================================================================
 
 export const items = pgTable("items", {
-	id: serial().primaryKey(),
-	categoryId: integer("category_id")
+	id: uuid().primaryKey().defaultRandom(),
+	categoryId: uuid("category_id")
 		.notNull()
 		.references(() => categories.id, { onDelete: "cascade" }),
-	storeId: integer("store_id")
+	storeId: uuid("store_id")
 		.notNull()
 		.references(() => stores.id, { onDelete: "cascade" }),
 	price: integer().notNull(), // Price in cents
@@ -501,8 +501,8 @@ export type OptionGroupType = (typeof optionGroupTypes)[number];
 // ============================================================================
 
 export const optionGroups = pgTable("option_groups", {
-	id: serial().primaryKey(),
-	storeId: integer("store_id")
+	id: uuid().primaryKey().defaultRandom(),
+	storeId: uuid("store_id")
 		.notNull()
 		.references(() => stores.id, { onDelete: "cascade" }),
 	// Option group type (determines UI rendering)
@@ -549,8 +549,8 @@ export const optionGroupsRelations = relations(
 // ============================================================================
 
 export const optionChoices = pgTable("option_choices", {
-	id: serial().primaryKey(),
-	optionGroupId: integer("option_group_id")
+	id: uuid().primaryKey().defaultRandom(),
+	optionGroupId: uuid("option_group_id")
 		.notNull()
 		.references(() => optionGroups.id, { onDelete: "cascade" }),
 	priceModifier: integer("price_modifier").notNull().default(0), // In cents, can be positive/negative
@@ -586,11 +586,11 @@ export const optionChoicesRelations = relations(optionChoices, ({ one }) => ({
 // ============================================================================
 
 export const itemOptionGroups = pgTable("item_option_groups", {
-	id: serial().primaryKey(),
-	itemId: integer("item_id")
+	id: uuid().primaryKey().defaultRandom(),
+	itemId: uuid("item_id")
 		.notNull()
 		.references(() => items.id, { onDelete: "cascade" }),
-	optionGroupId: integer("option_group_id")
+	optionGroupId: uuid("option_group_id")
 		.notNull()
 		.references(() => optionGroups.id, { onDelete: "cascade" }),
 	displayOrder: integer("display_order").notNull().default(0),
@@ -692,7 +692,7 @@ export const mollieEvents = pgTable(
 		// Resource type (e.g., "payment", "subscription", "refund")
 		resourceType: text("resource_type").notNull(),
 		// Merchant ID for this event (from payment metadata or context)
-		merchantId: integer("merchant_id").references(() => merchants.id),
+		merchantId: uuid("merchant_id").references(() => merchants.id),
 		// When we received the webhook
 		receivedAt: timestamp("received_at").defaultNow().notNull(),
 		// When we finished processing (null if pending)
@@ -741,8 +741,8 @@ export type ImageType = (typeof imageType)[number];
 export const images = pgTable(
 	"images",
 	{
-		id: serial().primaryKey(),
-		merchantId: integer("merchant_id")
+		id: uuid().primaryKey().defaultRandom(),
+		merchantId: uuid("merchant_id")
 			.notNull()
 			.references(() => merchants.id, { onDelete: "cascade" }),
 		type: text("type", { enum: imageType }).notNull(),
@@ -806,8 +806,8 @@ export type MenuImportStatus = (typeof menuImportStatus)[number];
 export const menuImportJobs = pgTable(
 	"menu_import_jobs",
 	{
-		id: serial().primaryKey(),
-		storeId: integer("store_id")
+		id: uuid().primaryKey().defaultRandom(),
+		storeId: uuid("store_id")
 			.notNull()
 			.references(() => stores.id, { onDelete: "cascade" }),
 
@@ -856,8 +856,8 @@ export const menuImportJobsRelations = relations(menuImportJobs, ({ one }) => ({
 export const servicePoints = pgTable(
 	"service_points",
 	{
-		id: serial().primaryKey(),
-		storeId: integer("store_id")
+		id: uuid().primaryKey().defaultRandom(),
+		storeId: uuid("store_id")
 			.notNull()
 			.references(() => stores.id, { onDelete: "cascade" }),
 		// URL-safe identifier (e.g., "table-5", "bar-counter")
@@ -906,8 +906,8 @@ export const servicePointsRelations = relations(servicePoints, ({ one }) => ({
 export const orders = pgTable(
 	"orders",
 	{
-		id: serial().primaryKey(),
-		storeId: integer("store_id")
+		id: uuid().primaryKey().defaultRandom(),
+		storeId: uuid("store_id")
 			.notNull()
 			.references(() => stores.id),
 
@@ -923,9 +923,7 @@ export const orders = pgTable(
 			.default("awaiting_payment"),
 
 		// Service point (table, counter, etc.) - optional
-		servicePointId: integer("service_point_id").references(
-			() => servicePoints.id,
-		),
+		servicePointId: uuid("service_point_id").references(() => servicePoints.id),
 
 		// Pricing (all in cents)
 		subtotal: integer().notNull(), // Sum of item totals
@@ -990,13 +988,13 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
 export const orderItems = pgTable(
 	"order_items",
 	{
-		id: serial().primaryKey(),
-		orderId: integer("order_id")
+		id: uuid().primaryKey().defaultRandom(),
+		orderId: uuid("order_id")
 			.notNull()
 			.references(() => orders.id, { onDelete: "cascade" }),
 
 		// Item reference (for analytics, can be null if item deleted)
-		itemId: integer("item_id").references(() => items.id, {
+		itemId: uuid("item_id").references(() => items.id, {
 			onDelete: "set null",
 		}),
 
@@ -1031,17 +1029,16 @@ export const orderItemsRelations = relations(orderItems, ({ one, many }) => ({
 export const orderItemOptions = pgTable(
 	"order_item_options",
 	{
-		id: serial().primaryKey(),
-		orderItemId: integer("order_item_id")
+		id: uuid().primaryKey().defaultRandom(),
+		orderItemId: uuid("order_item_id")
 			.notNull()
 			.references(() => orderItems.id, { onDelete: "cascade" }),
 
 		// Option references (for analytics, can be null if deleted)
-		optionGroupId: integer("option_group_id").references(
-			() => optionGroups.id,
-			{ onDelete: "set null" },
-		),
-		optionChoiceId: integer("option_choice_id").references(
+		optionGroupId: uuid("option_group_id").references(() => optionGroups.id, {
+			onDelete: "set null",
+		}),
+		optionChoiceId: uuid("option_choice_id").references(
 			() => optionChoices.id,
 			{ onDelete: "set null" },
 		),

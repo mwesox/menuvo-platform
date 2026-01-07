@@ -58,9 +58,9 @@ export function formatPriceModifier(cents: number, currency = "EUR"): string {
  * Selected option structure for cart items.
  */
 interface SelectedOption {
-	groupId: number;
+	groupId: string;
 	groupName: string;
-	choices: { id: number; name: string; price: number }[];
+	choices: { id: string; name: string; price: number }[];
 }
 
 /**
@@ -71,13 +71,13 @@ interface SelectedOption {
  * @returns A unique string ID for the cart item
  */
 export function generateCartItemId(
-	itemId: number,
+	itemId: string,
 	options: SelectedOption[],
 ): string {
 	// Extract all choice IDs, sort them, and join with the item ID
 	const choiceIds = options
 		.flatMap((opt) => opt.choices.map((c) => c.id))
-		.sort((a, b) => a - b);
+		.sort();
 
 	// Create a simple hash from itemId and sorted choice IDs
 	const hashInput = `${itemId}:${choiceIds.join(",")}`;

@@ -8,7 +8,7 @@ import {
 import { formToTranslations } from "@/features/console/menu/schemas";
 
 interface CategoryDialogWrapperProps {
-	storeId: number;
+	storeId: string;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	category: Category | null;

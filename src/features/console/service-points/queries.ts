@@ -30,9 +30,9 @@ import {
 
 export const servicePointKeys = {
 	all: ["servicePoints"] as const,
-	list: (storeId: number) => ["servicePoints", "list", storeId] as const,
-	detail: (id: number) => ["servicePoints", "detail", id] as const,
-	zones: (storeId: number) => ["servicePoints", "zones", storeId] as const,
+	list: (storeId: string) => ["servicePoints", "list", storeId] as const,
+	detail: (id: string) => ["servicePoints", "detail", id] as const,
+	zones: (storeId: string) => ["servicePoints", "zones", storeId] as const,
 };
 
 // ============================================================================
@@ -40,21 +40,21 @@ export const servicePointKeys = {
 // ============================================================================
 
 export const servicePointQueries = {
-	list: (storeId: number) =>
+	list: (storeId: string) =>
 		queryOptions({
 			queryKey: servicePointKeys.list(storeId),
 			queryFn: () => getServicePoints({ data: { storeId } }),
 			staleTime: minutes(5),
 		}),
 
-	detail: (id: number) =>
+	detail: (id: string) =>
 		queryOptions({
 			queryKey: servicePointKeys.detail(id),
 			queryFn: () => getServicePoint({ data: { id } }),
 			staleTime: minutes(5),
 		}),
 
-	zones: (storeId: number) =>
+	zones: (storeId: string) =>
 		queryOptions({
 			queryKey: servicePointKeys.zones(storeId),
 			queryFn: () => getServicePointZones({ data: { storeId } }),
@@ -66,7 +66,7 @@ export const servicePointQueries = {
 // MUTATION HOOKS
 // ============================================================================
 
-export function useCreateServicePoint(storeId: number) {
+export function useCreateServicePoint(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -88,12 +88,12 @@ export function useCreateServicePoint(storeId: number) {
 	});
 }
 
-export function useUpdateServicePoint(storeId: number) {
+export function useUpdateServicePoint(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (input: UpdateServicePointInput & { id: number }) =>
+		mutationFn: (input: UpdateServicePointInput & { id: string }) =>
 			updateServicePoint({ data: input }),
 		onSuccess: (updated) => {
 			queryClient.setQueryData(servicePointKeys.detail(updated.id), updated);
@@ -111,12 +111,12 @@ export function useUpdateServicePoint(storeId: number) {
 	});
 }
 
-export function useToggleServicePointActive(storeId: number) {
+export function useToggleServicePointActive(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
+		mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
 			toggleServicePointActive({ data: { id, isActive } }),
 		onSuccess: (servicePoint) => {
 			queryClient.invalidateQueries({
@@ -134,12 +134,12 @@ export function useToggleServicePointActive(storeId: number) {
 	});
 }
 
-export function useDeleteServicePoint(storeId: number) {
+export function useDeleteServicePoint(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (id: number) => deleteServicePoint({ data: { id } }),
+		mutationFn: (id: string) => deleteServicePoint({ data: { id } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: servicePointKeys.list(storeId),
@@ -152,7 +152,7 @@ export function useDeleteServicePoint(storeId: number) {
 	});
 }
 
-export function useBatchCreateServicePoints(storeId: number) {
+export function useBatchCreateServicePoints(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -176,7 +176,7 @@ export function useBatchCreateServicePoints(storeId: number) {
 	});
 }
 
-export function useToggleZoneActive(storeId: number) {
+export function useToggleZoneActive(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 

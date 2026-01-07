@@ -13,8 +13,8 @@ import { vi } from "vitest";
  * Set this in beforeAll/beforeEach to mock authenticated merchant.
  */
 export const testAuth: {
-	merchantId: number | null;
-	merchant: { id: number; name: string; supportedLanguages: string[] } | null;
+	merchantId: string | null;
+	merchant: { id: string; name: string; supportedLanguages: string[] } | null;
 } = {
 	merchantId: null,
 	merchant: null,
@@ -24,8 +24,8 @@ export const testAuth: {
  * Helper to set test auth context.
  */
 export function setTestAuth(auth: {
-	merchantId: number;
-	merchant: { id: number; name: string; supportedLanguages?: string[] };
+	merchantId: string;
+	merchant: { id: string; name: string; supportedLanguages?: string[] };
 }) {
 	testAuth.merchantId = auth.merchantId;
 	testAuth.merchant = {
@@ -140,9 +140,18 @@ vi.mock("@tanstack/react-start", () => ({
 
 		return builder;
 	},
-	createMiddleware: () => ({
-		server: (
-			fn: (ctx: { next: (opts?: unknown) => unknown }) => Promise<unknown>,
-		) => fn,
-	}),
+	createMiddleware: () => {
+		const builder: {
+			middleware: (mws: unknown[]) => typeof builder;
+			server: (
+				fn: (ctx: { next: (opts?: unknown) => unknown }) => Promise<unknown>,
+			) => unknown;
+		} = {
+			middleware: () => builder,
+			server: (
+				fn: (ctx: { next: (opts?: unknown) => unknown }) => Promise<unknown>,
+			) => fn,
+		};
+		return builder;
+	},
 }));

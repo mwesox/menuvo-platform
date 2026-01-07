@@ -12,10 +12,10 @@ import {
 import { type CategoryWithItems, ItemForm } from "./item-form";
 
 interface NewItemPageProps {
-	storeId: number;
-	initialCategoryId: number | null;
+	storeId: string;
+	initialCategoryId: string | null;
 	categories: CategoryWithItems[];
-	merchantId: number;
+	merchantId: string;
 }
 
 export function NewItemPage({

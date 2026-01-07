@@ -13,11 +13,11 @@ import type { AllowedFileType } from "../schemas";
  * Only import from server contexts (API routes, workers).
  */
 export async function createImportJob(params: {
-	storeId: number;
+	storeId: string;
 	filename: string;
 	fileType: AllowedFileType;
 	fileKey: string;
-}): Promise<{ jobId: number }> {
+}): Promise<{ jobId: string }> {
 	const { storeId, filename, fileType, fileKey } = params;
 
 	// Create job record
@@ -40,7 +40,7 @@ export async function createImportJob(params: {
  * NOTE: This is a server-only helper, NOT a createServerFn.
  * Only import from server contexts (API routes, workers).
  */
-export async function getExistingMenuData(storeId: number) {
+export async function getExistingMenuData(storeId: string) {
 	const existingCategories = await db.query.categories.findMany({
 		where: eq(categories.storeId, storeId),
 		orderBy: [asc(categories.displayOrder)],

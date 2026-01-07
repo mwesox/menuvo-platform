@@ -16,8 +16,8 @@ import { cn } from "@/lib/utils.ts";
 
 interface ItemCardProps {
 	item: Item;
-	onToggleAvailable: (itemId: number, isAvailable: boolean) => void;
-	onDelete: (itemId: number) => void;
+	onToggleAvailable: (itemId: string, isAvailable: boolean) => void;
+	onDelete: (itemId: string) => void;
 }
 
 function formatPrice(cents: number, currency = "EUR"): string {

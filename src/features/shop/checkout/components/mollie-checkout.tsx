@@ -6,7 +6,7 @@ import { ShopButton, ShopCard, ShopHeading } from "../../shared/components/ui";
 import { useCreatePayment } from "../queries";
 
 interface MollieCheckoutProps {
-	orderId: number;
+	orderId: string;
 	storeSlug: string;
 }
 

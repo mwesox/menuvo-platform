@@ -18,18 +18,18 @@ import { OrderCard } from "./order-card";
 interface KanbanColumnProps {
 	id: KanbanColumnId;
 	orders: (OrderWithItems & {
-		servicePoint?: { id: number; name: string; code: string } | null;
+		servicePoint?: { id: string; name: string; code: string } | null;
 	})[];
-	storeId: number;
+	storeId: string;
 	/** Check if drop from source to this column is valid */
 	canDrop: (
 		sourceColumn: KanbanColumnId,
 		targetColumn: KanbanColumnId,
 	) => boolean;
 	/** Callback when "Next" button is clicked on an order */
-	onNext?: (orderId: number) => void;
+	onNext?: (orderId: string) => void;
 	/** ID of the last moved order for visual highlighting */
-	lastMovedOrderId?: number | null;
+	lastMovedOrderId?: string | null;
 	className?: string;
 }
 

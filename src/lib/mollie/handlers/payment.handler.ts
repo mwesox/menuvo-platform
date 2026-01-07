@@ -37,7 +37,7 @@ async function handleSubscriptionFirstPayment(
 	metadata: SubscriptionPaymentMetadata,
 	payload: Record<string, unknown>,
 ): Promise<void> {
-	const merchantId = metadata.merchantId ? Number(metadata.merchantId) : null;
+	const merchantId = metadata.merchantId ?? null;
 	const plan = metadata.plan;
 
 	if (!merchantId || !plan) {
@@ -101,7 +101,7 @@ async function handleSubscriptionFirstPayment(
 			description: `Menuvo ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan`,
 			webhookUrl: `${serverUrl}/webhooks/mollie`,
 			metadata: {
-				merchantId: String(merchantId),
+				merchantId,
 				plan,
 			},
 		});
@@ -179,7 +179,7 @@ registerMollieHandler(
 		}
 
 		// Otherwise, treat as an order payment
-		const orderId = metadata.orderId ? Number(metadata.orderId) : null;
+		const orderId = metadata.orderId ?? null;
 
 		mollieLogger.info(
 			{
@@ -222,7 +222,7 @@ registerMollieHandler(
 	"payment.failed",
 	async (_eventType, resourceId, payload) => {
 		const metadata = (payload.metadata ?? {}) as PaymentMetadata;
-		const orderId = metadata.orderId ? Number(metadata.orderId) : null;
+		const orderId = metadata.orderId ?? null;
 
 		mollieLogger.info(
 			{
@@ -265,7 +265,7 @@ registerMollieHandler(
 	"payment.expired",
 	async (_eventType, resourceId, payload) => {
 		const metadata = (payload.metadata ?? {}) as PaymentMetadata;
-		const orderId = metadata.orderId ? Number(metadata.orderId) : null;
+		const orderId = metadata.orderId ?? null;
 
 		mollieLogger.info(
 			{
@@ -309,7 +309,7 @@ registerMollieHandler(
 	"payment.canceled",
 	async (_eventType, resourceId, payload) => {
 		const metadata = (payload.metadata ?? {}) as PaymentMetadata;
-		const orderId = metadata.orderId ? Number(metadata.orderId) : null;
+		const orderId = metadata.orderId ?? null;
 
 		mollieLogger.info(
 			{
