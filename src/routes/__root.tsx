@@ -60,8 +60,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		// Select CSS bundle and title based on route
 		let cssHref: string;
 		let title: string;
-		const isDiscoveryRoute =
-			!isConsoleRoute && !isBusinessRoute && !isStoreRoute;
 
 		if (isConsoleRoute) {
 			cssHref = consoleCss;
@@ -79,15 +77,20 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			title = "Menuvo";
 		}
 
-		// Build links array - preload shop CSS on discovery for smoother transitions
-		const links: Array<{ rel: string; href: string; as?: string }> = [
+		// Only load the active theme's CSS bundle
+		const links: Array<{ rel: string; href: string }> = [
 			{ rel: "stylesheet", href: cssHref },
 		];
 
-		// Preload shop CSS when on discovery page to prevent flicker on navigation
-		if (isDiscoveryRoute) {
-			links.push({ rel: "preload", href: shopCss, as: "style" });
-		}
+		// Inline critical CSS to prevent flash of unstyled content
+		// Sets background/foreground immediately before full CSS loads
+		const criticalCss = isConsoleRoute
+			? `:root{--background:oklch(0.985 0.002 90);--foreground:oklch(0.205 0.02 240)}body{background:var(--background);color:var(--foreground)}`
+			: isBusinessRoute
+				? `:root{--background:oklch(0.985 0.008 85);--foreground:oklch(0.18 0.02 60)}body{background:var(--background);color:var(--foreground)}`
+				: isStoreRoute
+					? `:root{--background:oklch(0.985 0.005 60);--foreground:oklch(0.25 0.02 60)}body{background:var(--background);color:var(--foreground)}`
+					: `:root{--background:oklch(0.985 0.008 85);--foreground:oklch(0.18 0.02 60)}body{background:var(--background);color:var(--foreground)}`;
 
 		return {
 			meta: [
@@ -103,6 +106,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				},
 			],
 			links,
+			styles: [{ children: criticalCss }],
 		};
 	},
 

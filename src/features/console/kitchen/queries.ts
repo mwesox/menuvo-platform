@@ -26,7 +26,7 @@ import { useMutationQueue } from "./stores/mutation-queue";
  * - No success toast (column movement provides visual feedback)
  * - Includes kitchenDone cache invalidation
  */
-export function useKitchenUpdateOrderStatus(storeId: number) {
+export function useKitchenUpdateOrderStatus(storeId: string) {
 	const { t } = useTranslation("console-kitchen");
 	const queryClient = useQueryClient();
 	const { isOnline } = useConnectionStatus();
@@ -37,7 +37,7 @@ export function useKitchenUpdateOrderStatus(storeId: number) {
 			orderId,
 			status,
 		}: {
-			orderId: number;
+			orderId: string;
 			status: OrderStatus;
 		}) => {
 			return updateOrderStatus({ data: { orderId, status } });

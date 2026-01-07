@@ -33,9 +33,9 @@ import {
 export const storeKeys = {
 	all: ["stores"] as const,
 	cities: ["stores", "cities"] as const,
-	detail: (storeId: number) => ["stores", storeId] as const,
-	hours: (storeId: number) => ["stores", storeId, "hours"] as const,
-	closures: (storeId: number) => ["stores", storeId, "closures"] as const,
+	detail: (storeId: string) => ["stores", storeId] as const,
+	hours: (storeId: string) => ["stores", storeId, "hours"] as const,
+	closures: (storeId: string) => ["stores", storeId, "closures"] as const,
 };
 
 // Query options factories - server handles auth, no merchantId needed
@@ -52,7 +52,7 @@ export const storeQueries = {
 			queryFn: () => getStoreCities(),
 		}),
 
-	detail: (storeId: number) =>
+	detail: (storeId: string) =>
 		queryOptions({
 			queryKey: storeKeys.detail(storeId),
 			queryFn: () => getStore({ data: { storeId } }),
@@ -82,7 +82,7 @@ export function useUpdateStore() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (input: UpdateStoreInput & { storeId: number }) =>
+		mutationFn: (input: UpdateStoreInput & { storeId: string }) =>
 			updateStore({ data: input }),
 		onSuccess: (updatedStore) => {
 			queryClient.setQueryData(storeKeys.detail(updatedStore.id), updatedStore);
@@ -104,7 +104,7 @@ export function useToggleStoreActive() {
 			storeId,
 			isActive,
 		}: {
-			storeId: number;
+			storeId: string;
 			isActive: boolean;
 		}) => toggleStoreActive({ data: { storeId, isActive } }),
 		onSuccess: (store) => {
@@ -126,7 +126,7 @@ export function useDeleteStore() {
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (storeId: number) => deleteStore({ data: { storeId } }),
+		mutationFn: (storeId: string) => deleteStore({ data: { storeId } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: storeKeys.all });
 			toast.success(t("success.storeDeleted"));
@@ -142,7 +142,7 @@ export function useDeleteStore() {
 // ============================================================================
 
 export const storeHoursQueries = {
-	list: (storeId: number) =>
+	list: (storeId: string) =>
 		queryOptions({
 			queryKey: storeKeys.hours(storeId),
 			queryFn: () => getStoreHours({ data: { storeId } }),
@@ -173,7 +173,7 @@ export function useSaveStoreHours() {
 // ============================================================================
 
 export const storeClosuresQueries = {
-	list: (storeId: number) =>
+	list: (storeId: string) =>
 		queryOptions({
 			queryKey: storeKeys.closures(storeId),
 			queryFn: () => getStoreClosures({ data: { storeId } }),
@@ -200,7 +200,7 @@ export function useCreateStoreClosure() {
 	});
 }
 
-export function useUpdateStoreClosure(storeId: number) {
+export function useUpdateStoreClosure(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -219,12 +219,12 @@ export function useUpdateStoreClosure(storeId: number) {
 	});
 }
 
-export function useDeleteStoreClosure(storeId: number) {
+export function useDeleteStoreClosure(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (id: number) => deleteStoreClosure({ data: { id } }),
+		mutationFn: (id: string) => deleteStoreClosure({ data: { id } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: storeKeys.closures(storeId),

@@ -21,17 +21,18 @@ import { cn } from "@/lib/utils";
 import { useAudioPermission } from "../hooks/use-audio-permission";
 import { useKitchenBoard } from "../hooks/use-kitchen-board";
 import { useOrderNotifications } from "../hooks/use-order-notifications";
+import { useScreenWakeLock } from "../hooks/use-screen-wake-lock";
 import { AudioControl } from "./audio-control";
 import { ConnectionStatus } from "./connection-status";
 import { KanbanBoard } from "./kanban-board";
 
 interface KitchenPageProps {
 	search: {
-		storeId?: number;
+		storeId?: string;
 	};
 	loaderData: {
 		stores: StoreType[];
-		autoSelectedStoreId?: number;
+		autoSelectedStoreId?: string;
 	};
 }
 
@@ -48,22 +49,22 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 	const handleStoreChange = (newStoreId: string) => {
 		navigate({
 			to: "/console/kitchen",
-			search: { ...search, storeId: Number(newStoreId) },
+			search: { ...search, storeId: newStoreId },
 		});
 	};
 
 	// Fetch orders (only if store selected - early return below handles no storeId case)
 	const { data: activeOrders = [] } = useSuspenseQuery(
-		orderQueries.kitchen(storeId ?? 0),
+		orderQueries.kitchen(storeId ?? ""),
 	);
 
 	const { data: doneOrders = [] } = useSuspenseQuery(
-		orderQueries.kitchenDone(storeId ?? 0),
+		orderQueries.kitchenDone(storeId ?? ""),
 	);
 
 	// Initialize board state
 	const { columns, moveCard, moveToNext, canDrop, lastMovedOrderId } =
-		useKitchenBoard(storeId ?? 0, activeOrders, doneOrders);
+		useKitchenBoard(storeId ?? "", activeOrders, doneOrders);
 
 	// Initialize notifications and get audio control functions
 	// Pass ALL orders (active + done) so we track all IDs and don't alert when moving from done
@@ -73,6 +74,9 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 
 	// Set up audio permission and alert dismissal effects
 	useAudioPermission({ requestPermission, alertActive, dismissAlert });
+
+	// Keep screen awake to prevent tablet from sleeping
+	useScreenWakeLock();
 
 	// No stores available
 	if (stores.length === 0) {
@@ -153,7 +157,7 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 				<div className="flex-1 overflow-hidden p-4">
 					<KanbanBoard
 						columns={columns}
-						storeId={storeId}
+						storeId={storeId!}
 						moveCard={moveCard}
 						moveToNext={moveToNext}
 						canDrop={canDrop}

@@ -11,7 +11,7 @@ import {
 import { useSetupMolliePaymentAccount } from "../../queries";
 
 interface MollieSetupCardProps {
-	merchantId: number;
+	merchantId: string;
 }
 
 /**

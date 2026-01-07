@@ -31,26 +31,26 @@ import {
 // Query keys
 export const menuKeys = {
 	categories: {
-		byStore: (storeId: number) => ["categories", "store", storeId] as const,
-		detail: (categoryId: number) =>
+		byStore: (storeId: string) => ["categories", "store", storeId] as const,
+		detail: (categoryId: string) =>
 			["categories", "detail", categoryId] as const,
 	},
 	items: {
-		byStore: (storeId: number) => ["items", "store", storeId] as const,
-		detail: (itemId: number) => ["items", itemId] as const,
+		byStore: (storeId: string) => ["items", "store", storeId] as const,
+		detail: (itemId: string) => ["items", itemId] as const,
 	},
 };
 
 // Category query options factories
 export const categoryQueries = {
-	byStore: (storeId: number) =>
+	byStore: (storeId: string) =>
 		queryOptions({
 			queryKey: menuKeys.categories.byStore(storeId),
 			queryFn: () => getCategories({ data: { storeId } }),
 			enabled: !!storeId,
 		}),
 
-	detail: (categoryId: number) =>
+	detail: (categoryId: string) =>
 		queryOptions({
 			queryKey: menuKeys.categories.detail(categoryId),
 			queryFn: () => getCategory({ data: { categoryId } }),
@@ -59,14 +59,14 @@ export const categoryQueries = {
 
 // Item query options factories
 export const itemQueries = {
-	byStore: (storeId: number) =>
+	byStore: (storeId: string) =>
 		queryOptions({
 			queryKey: menuKeys.items.byStore(storeId),
 			queryFn: () => getItemsByStore({ data: { storeId } }),
 			enabled: !!storeId,
 		}),
 
-	detail: (itemId: number) =>
+	detail: (itemId: string) =>
 		queryOptions({
 			queryKey: menuKeys.items.detail(itemId),
 			queryFn: () => getItem({ data: { itemId } }),
@@ -74,7 +74,7 @@ export const itemQueries = {
 };
 
 // Category mutation hooks
-export function useCreateCategory(storeId: number) {
+export function useCreateCategory(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -93,7 +93,7 @@ export function useCreateCategory(storeId: number) {
 	});
 }
 
-export function useUpdateCategory(storeId: number) {
+export function useUpdateCategory(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -101,7 +101,7 @@ export function useUpdateCategory(storeId: number) {
 		mutationFn: ({
 			categoryId,
 			...data
-		}: UpdateCategoryInput & { categoryId: number }) =>
+		}: UpdateCategoryInput & { categoryId: string }) =>
 			updateCategory({ data: { categoryId, ...data } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -115,7 +115,7 @@ export function useUpdateCategory(storeId: number) {
 	});
 }
 
-export function useToggleCategoryActive(storeId: number) {
+export function useToggleCategoryActive(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -124,7 +124,7 @@ export function useToggleCategoryActive(storeId: number) {
 			categoryId,
 			isActive,
 		}: {
-			categoryId: number;
+			categoryId: string;
 			isActive: boolean;
 		}) => toggleCategoryActive({ data: { categoryId, isActive } }),
 		onSuccess: (category) => {
@@ -143,12 +143,12 @@ export function useToggleCategoryActive(storeId: number) {
 	});
 }
 
-export function useDeleteCategory(storeId: number) {
+export function useDeleteCategory(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (categoryId: number) =>
+		mutationFn: (categoryId: string) =>
 			deleteCategory({ data: { categoryId } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -163,7 +163,7 @@ export function useDeleteCategory(storeId: number) {
 }
 
 // Item mutation hooks
-export function useCreateItem(storeId: number, categoryId: number) {
+export function useCreateItem(storeId: string, categoryId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -186,12 +186,12 @@ export function useCreateItem(storeId: number, categoryId: number) {
 	});
 }
 
-export function useUpdateItem(storeId: number, categoryId: number) {
+export function useUpdateItem(storeId: string, categoryId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: ({ itemId, ...data }: UpdateItemInput & { itemId: number }) =>
+		mutationFn: ({ itemId, ...data }: UpdateItemInput & { itemId: string }) =>
 			updateItem({ data: { itemId, ...data } }),
 		onSuccess: (updatedItem) => {
 			queryClient.setQueryData(
@@ -212,7 +212,7 @@ export function useUpdateItem(storeId: number, categoryId: number) {
 	});
 }
 
-export function useToggleItemAvailable(storeId: number, categoryId: number) {
+export function useToggleItemAvailable(storeId: string, categoryId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -221,7 +221,7 @@ export function useToggleItemAvailable(storeId: number, categoryId: number) {
 			itemId,
 			isAvailable,
 		}: {
-			itemId: number;
+			itemId: string;
 			isAvailable: boolean;
 		}) => toggleItemAvailable({ data: { itemId, isAvailable } }),
 		onSuccess: (item) => {
@@ -243,12 +243,12 @@ export function useToggleItemAvailable(storeId: number, categoryId: number) {
 	});
 }
 
-export function useDeleteItem(storeId: number, categoryId: number) {
+export function useDeleteItem(storeId: string, categoryId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (itemId: number) => deleteItem({ data: { itemId } }),
+		mutationFn: (itemId: string) => deleteItem({ data: { itemId } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: menuKeys.items.byStore(storeId),
@@ -265,7 +265,7 @@ export function useDeleteItem(storeId: number, categoryId: number) {
 }
 
 // Item mutation hooks (store-level)
-export function useToggleItemAvailableByStore(storeId: number) {
+export function useToggleItemAvailableByStore(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -274,7 +274,7 @@ export function useToggleItemAvailableByStore(storeId: number) {
 			itemId,
 			isAvailable,
 		}: {
-			itemId: number;
+			itemId: string;
 			isAvailable: boolean;
 		}) => toggleItemAvailable({ data: { itemId, isAvailable } }),
 		onSuccess: (item) => {
@@ -293,12 +293,12 @@ export function useToggleItemAvailableByStore(storeId: number) {
 	});
 }
 
-export function useDeleteItemByStore(storeId: number) {
+export function useDeleteItemByStore(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (itemId: number) => deleteItem({ data: { itemId } }),
+		mutationFn: (itemId: string) => deleteItem({ data: { itemId } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
 				queryKey: menuKeys.items.byStore(storeId),

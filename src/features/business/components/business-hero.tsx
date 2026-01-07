@@ -30,6 +30,19 @@ export function BusinessHero() {
 			<div className="container relative z-10 mx-auto max-w-6xl px-4 md:px-6">
 				<div className="grid items-start gap-8 rounded-2xl border border-gray-200/50 bg-white/90 p-8 shadow-xl backdrop-blur-sm md:p-12 lg:grid-cols-3 lg:gap-14">
 					<div className="flex flex-col space-y-5 lg:col-span-2">
+						{/* Badge */}
+						<div
+							className="transition-all duration-600 ease-out"
+							style={{
+								opacity: animated ? 1 : 0,
+								transform: animated ? "translateY(0)" : "translateY(10px)",
+							}}
+						>
+							<span className="inline-block rounded-full bg-brand-red/10 px-4 py-1.5 font-semibold text-brand-red text-sm">
+								{t("hero.badge")}
+							</span>
+						</div>
+
 						<h1
 							className="text-pretty font-bold text-4xl text-gray-900 tracking-tight transition-all duration-800 ease-out md:text-5xl lg:text-6xl"
 							style={{
@@ -91,15 +104,15 @@ export function BusinessHero() {
 						>
 							<div className="flex items-center gap-2">
 								<Check className="size-4 text-brand-red" strokeWidth={2.5} />
-								<span className="font-medium">{t("trust.noSetupFee")}</span>
+								<span className="font-medium">{t("trust.noMonthlyFee")}</span>
 							</div>
 							<div className="flex items-center gap-2">
 								<Check className="size-4 text-brand-red" strokeWidth={2.5} />
-								<span className="font-medium">{t("trust.gdpr")}</span>
+								<span className="font-medium">{t("trust.payPerOrder")}</span>
 							</div>
 							<div className="flex items-center gap-2">
 								<Check className="size-4 text-brand-red" strokeWidth={2.5} />
-								<span className="font-medium">{t("trust.hostedDe")}</span>
+								<span className="font-medium">{t("trust.noHardware")}</span>
 							</div>
 						</div>
 					</div>

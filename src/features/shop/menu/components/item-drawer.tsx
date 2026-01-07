@@ -23,7 +23,7 @@ interface ItemDrawerProps {
 	item: MenuItemLight | null;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	storeId: number;
+	storeId: string;
 	storeSlug: string;
 	isOpen: boolean;
 }
@@ -34,8 +34,8 @@ interface ItemDrawerProps {
  */
 function calculateGroupPrice(
 	group: MenuItemOptionGroup,
-	selectedChoiceIds: number[],
-	quantitySelections: Map<number, number>,
+	selectedChoiceIds: string[],
+	quantitySelections: Map<string, number>,
 ): number {
 	// For quantity_select groups
 	if (group.type === "quantity_select") {
@@ -79,8 +79,8 @@ function calculateGroupPrice(
  */
 function buildInitialSelections(
 	optionGroups: MenuItemOptionGroup[],
-): Map<number, number[]> {
-	const defaults = new Map<number, number[]>();
+): Map<string, string[]> {
+	const defaults = new Map<string, string[]>();
 
 	for (const group of optionGroups) {
 		if (group.type === "quantity_select") {
@@ -119,12 +119,12 @@ function buildInitialSelections(
  */
 function buildInitialQuantities(
 	optionGroups: MenuItemOptionGroup[],
-): Map<number, Map<number, number>> {
-	const quantities = new Map<number, Map<number, number>>();
+): Map<string, Map<string, number>> {
+	const quantities = new Map<string, Map<string, number>>();
 
 	for (const group of optionGroups) {
 		if (group.type === "quantity_select") {
-			const groupQuantities = new Map<number, number>();
+			const groupQuantities = new Map<string, number>();
 			for (const choice of group.choices) {
 				// If choice has isDefault, set initial quantity to minQuantity or 1
 				if (choice.isDefault && choice.isAvailable) {
@@ -151,17 +151,17 @@ export function ItemDrawer({
 	const { t } = useTranslation("shop");
 	const addItem = useCartStore((s) => s.addItem);
 	const [quantity, setQuantity] = useState(1);
-	const [selectedOptions, setSelectedOptions] = useState<Map<number, number[]>>(
+	const [selectedOptions, setSelectedOptions] = useState<Map<string, string[]>>(
 		new Map(),
 	);
 	const [quantitySelections, setQuantitySelections] = useState<
-		Map<number, Map<number, number>>
+		Map<string, Map<string, number>>
 	>(new Map());
 
 	// Fetch option groups on demand (only when drawer is open AND item has options)
 	const shouldFetchOptions = open && item?.hasOptionGroups && item?.id;
 	const { data: optionsData, isLoading: isLoadingOptions } = useQuery({
-		...shopQueries.itemOptions(item?.id ?? 0, storeSlug),
+		...shopQueries.itemOptions(item?.id ?? "", storeSlug),
 		enabled: !!shouldFetchOptions,
 	});
 
@@ -252,7 +252,7 @@ export function ItemDrawer({
 				// For quantity select, convert quantities to choices with quantity
 				const quantities = quantitySelections.get(group.id) ?? new Map();
 				const choices: {
-					id: number;
+					id: string;
 					name: string;
 					price: number;
 					quantity: number;
@@ -313,13 +313,13 @@ export function ItemDrawer({
 		onOpenChange(false);
 	};
 
-	const handleOptionChange = (groupId: number, choiceIds: number[]) => {
+	const handleOptionChange = (groupId: string, choiceIds: string[]) => {
 		setSelectedOptions((prev) => new Map(prev).set(groupId, choiceIds));
 	};
 
 	const handleQuantityChange = (
-		groupId: number,
-		choiceId: number,
+		groupId: string,
+		choiceId: string,
 		qty: number,
 	) => {
 		setQuantitySelections((prev) => {
@@ -340,16 +340,16 @@ export function ItemDrawer({
 	return (
 		<Drawer open={open} onOpenChange={onOpenChange}>
 			<DrawerContent
-				className="max-h-[85dvh] overflow-hidden md:mx-auto md:max-w-lg md:rounded-t-(--radius)"
+				className="max-h-[90dvh] min-h-[75dvh] overflow-hidden md:mx-auto md:max-w-lg md:rounded-t-(--radius)"
 				hideHandle
 			>
 				{/* Handle */}
-				<div className="mx-auto mt-4 mb-4 h-1 w-10 shrink-0 rounded-full bg-border" />
+				<div className="mx-auto mt-4 mb-2 h-1 w-10 shrink-0 rounded-full bg-border" />
 				{/* Scrollable content */}
-				<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+				<div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
 					{/* Hero image - full width, edge to edge */}
 					{item.imageUrl && (
-						<div className="relative h-48 overflow-hidden md:h-56">
+						<div className="relative h-56 overflow-hidden md:h-64">
 							<img
 								src={item.imageUrl}
 								alt={item.name}
@@ -363,7 +363,7 @@ export function ItemDrawer({
 					<div
 						className={cn(
 							"fade-in-0 slide-in-from-bottom-2 relative animate-in px-6 pb-4 duration-300",
-							item.imageUrl ? "-mt-8" : "pt-2",
+							item.imageUrl ? "-mt-8" : "pt-8",
 						)}
 					>
 						{/* Title */}
@@ -428,6 +428,9 @@ export function ItemDrawer({
 							</div>
 						)}
 					</div>
+
+					{/* Spacer - pushes footer down when content is minimal */}
+					<div className="min-h-8 flex-1" />
 				</div>
 
 				{/* Sticky footer with shadow */}

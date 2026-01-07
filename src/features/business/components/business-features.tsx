@@ -1,29 +1,29 @@
 import {
 	Bot,
-	Clock,
-	DollarSign,
-	Globe,
+	ChefHat,
+	MonitorSmartphone,
 	Shield,
-	Smartphone,
+	ShoppingCart,
+	Unplug,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const featureIcons = {
+	ordering: ShoppingCart,
+	kitchen: ChefHat,
 	aiMenu: Bot,
-	revenue: DollarSign,
-	setup: Clock,
-	multilingual: Globe,
-	mobile: Smartphone,
+	noHardware: MonitorSmartphone,
+	standalone: Unplug,
 	gdpr: Shield,
 } as const;
 
 const featureKeys = [
+	"ordering",
+	"kitchen",
 	"aiMenu",
-	"revenue",
-	"setup",
-	"multilingual",
-	"mobile",
+	"noHardware",
+	"standalone",
 	"gdpr",
 ] as const;
 

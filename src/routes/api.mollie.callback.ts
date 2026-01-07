@@ -2,36 +2,43 @@
  * Mollie OAuth Callback API Route
  *
  * Handles the OAuth callback from Mollie after merchant authorization.
- * This is an API route (not a page route) so it's purely server-side
- * and can safely use Node.js APIs like Buffer.
+ * NOTE: Server-only imports are dynamically imported inside handler
+ * to prevent bundling in client via routeTree.gen.ts.
  */
 import { createFileRoute } from "@tanstack/react-router";
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { merchants } from "@/db/schema";
-import { mollieLogger } from "@/lib/logger";
-import {
-	createMollieClientWithToken,
-	enableDefaultPaymentMethods,
-	exchangeCodeForTokens,
-	getOnboardingStatus,
-	storeMerchantTokens,
-} from "@/lib/mollie";
-
-function redirectTo(path: string, requestUrl: string): Response {
-	const origin = new URL(requestUrl).origin;
-	const url = `${origin}${path}`;
-	mollieLogger.info({ redirectUrl: url }, "Redirecting");
-	return new Response(null, {
-		status: 302,
-		headers: { Location: url, "Content-Length": "0" },
-	});
-}
 
 export const Route = createFileRoute("/api/mollie/callback")({
 	server: {
 		handlers: {
 			GET: async ({ request }) => {
+				// Dynamic imports to prevent client bundling
+				const [{ eq }, { db }, { merchants }, { mollieLogger }, mollie] =
+					await Promise.all([
+						import("drizzle-orm"),
+						import("@/db"),
+						import("@/db/schema"),
+						import("@/lib/logger"),
+						import("@/lib/mollie"),
+					]);
+
+				const {
+					createMollieClientWithToken,
+					enableDefaultPaymentMethods,
+					exchangeCodeForTokens,
+					getOnboardingStatus,
+					storeMerchantTokens,
+				} = mollie;
+
+				function redirectTo(path: string, requestUrl: string): Response {
+					const origin = new URL(requestUrl).origin;
+					const url = `${origin}${path}`;
+					mollieLogger.info({ redirectUrl: url }, "Redirecting");
+					return new Response(null, {
+						status: 302,
+						headers: { Location: url, "Content-Length": "0" },
+					});
+				}
+
 				mollieLogger.info({ url: request.url }, "Mollie callback route hit");
 
 				try {
@@ -66,13 +73,15 @@ export const Route = createFileRoute("/api/mollie/callback")({
 					}
 
 					// Parse merchantId from state (base64url encoded)
-					let merchantId: number;
+					let merchantId: string;
 					try {
-						const decoded = Buffer.from(state, "base64url").toString();
+						// Convert base64url to standard base64, then decode
+						const base64 = state.replace(/-/g, "+").replace(/_/g, "/");
+						const decoded = atob(base64);
 						const stateData = JSON.parse(decoded);
 						merchantId = stateData.merchantId;
 
-						if (!merchantId || typeof merchantId !== "number") {
+						if (!merchantId || typeof merchantId !== "string") {
 							throw new Error("Invalid merchantId in state");
 						}
 					} catch (err) {

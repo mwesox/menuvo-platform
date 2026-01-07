@@ -27,7 +27,7 @@ registerV1Handler("checkout.session.completed", async (event) => {
 	);
 
 	// Update order payment status if this is an order payment
-	const orderId = Number(session.metadata?.orderId);
+	const orderId = session.metadata?.orderId;
 	if (orderId) {
 		await updatePaymentStatus({
 			data: {
@@ -60,7 +60,7 @@ registerV1Handler("checkout.session.expired", async (event) => {
 	stripeLogger.info({ sessionId: session.id }, "Checkout session expired");
 
 	// Cancel the order if this is an order payment
-	const orderId = Number(session.metadata?.orderId);
+	const orderId = session.metadata?.orderId;
 	if (orderId) {
 		await updatePaymentStatus({
 			data: {

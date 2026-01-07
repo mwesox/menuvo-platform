@@ -30,7 +30,7 @@ export type UpdatePaymentStatusInput = {
  */
 async function findMerchantByPaymentAccountId(
 	paymentAccountId: string,
-): Promise<{ id: number } | null> {
+): Promise<{ id: string } | null> {
 	const result = await db
 		.select({ id: merchants.id })
 		.from(merchants)
@@ -50,7 +50,7 @@ async function findMerchantByPaymentAccountId(
  */
 export async function updateMerchantPaymentStatus(
 	input: UpdatePaymentStatusInput,
-): Promise<number | null> {
+): Promise<string | null> {
 	// Find merchant by Stripe account ID
 	const merchant = await findMerchantByPaymentAccountId(input.paymentAccountId);
 	if (!merchant) {

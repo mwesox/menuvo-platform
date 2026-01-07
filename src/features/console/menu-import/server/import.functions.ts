@@ -1,3 +1,5 @@
+"use server";
+
 import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -72,7 +74,7 @@ export const applyImportChanges = createServerFn({ method: "POST" })
 			const catKey = `category:${catComp.extracted.name}`;
 			if (!selectionMap.has(catKey)) continue;
 
-			let categoryId: number;
+			let categoryId: string;
 
 			if (catComp.action === "create") {
 				// Create new category

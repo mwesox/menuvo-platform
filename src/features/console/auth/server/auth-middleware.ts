@@ -1,3 +1,5 @@
+"use server";
+
 import { createMiddleware } from "@tanstack/react-start";
 import { type AuthContext, getAuthContext } from "./auth-context";
 
@@ -8,7 +10,7 @@ import { type AuthContext, getAuthContext } from "./auth-context";
  * ```ts
  * export const myServerFn = createServerFn({ method: "POST" })
  *   .middleware([withAuth])
- *   .validator(mySchema)
+ *   .inputValidator(mySchema)
  *   .handler(async ({ context, data }) => {
  *     const { merchantId } = context.auth;
  *     // ...

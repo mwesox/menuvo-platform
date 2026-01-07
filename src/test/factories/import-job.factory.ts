@@ -9,7 +9,7 @@ import { uniqueId } from "../utils/test-id";
 
 export interface ImportJobFactoryOptions {
 	testRunId: string;
-	storeId: number;
+	storeId: string;
 	fileType?: "csv" | "xlsx" | "json" | "md" | "txt";
 	status?: MenuImportStatus;
 	originalFilename?: string;

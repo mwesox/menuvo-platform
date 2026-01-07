@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHeader } from "@tanstack/react-start/server";
 import {
 	DEFAULT_LANGUAGE,
 	SUPPORTED_LANGUAGES,
@@ -8,6 +7,9 @@ import {
 
 export const detectLanguageFromRequest = createServerFn().handler(
 	async (): Promise<SupportedLanguage> => {
+		// Dynamic import to avoid bundling server-only code in client
+		const { getRequestHeader } = await import("@tanstack/react-start/server");
+
 		try {
 			// During prerendering, getRequestHeader may not be available
 			let acceptLanguage: string | null | undefined;

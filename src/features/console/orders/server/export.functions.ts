@@ -1,3 +1,5 @@
+"use server";
+
 /**
  * Server functions for order export.
  */

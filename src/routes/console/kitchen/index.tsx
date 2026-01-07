@@ -13,7 +13,7 @@ import { storeQueries } from "@/features/console/stores/queries";
 import { orderQueries } from "@/features/orders/queries";
 
 const searchSchema = z.object({
-	storeId: z.coerce.number().optional(),
+	storeId: z.string().optional(),
 });
 
 export const Route = createFileRoute("/console/kitchen/")({

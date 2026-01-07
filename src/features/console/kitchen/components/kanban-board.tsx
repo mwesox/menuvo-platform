@@ -16,23 +16,23 @@ import { KANBAN_COLUMNS, type KanbanColumnId } from "../constants";
 import { KanbanColumn } from "./kanban-column";
 
 type OrderWithServicePoint = OrderWithItems & {
-	servicePoint?: { id: number; name: string; code: string } | null;
+	servicePoint?: { id: string; name: string; code: string } | null;
 };
 
 interface KanbanBoardProps {
 	columns: Record<KanbanColumnId, OrderWithServicePoint[]>;
-	storeId: number;
+	storeId: string;
 	/** Move order to specific column */
-	moveCard: (orderId: number, targetColumn: KanbanColumnId) => void;
+	moveCard: (orderId: string, targetColumn: KanbanColumnId) => void;
 	/** Move order to next column */
-	moveToNext: (orderId: number) => void;
+	moveToNext: (orderId: string) => void;
 	/** Check if drop is valid */
 	canDrop: (
 		sourceColumn: KanbanColumnId,
 		targetColumn: KanbanColumnId,
 	) => boolean;
 	/** ID of the last moved order for visual highlighting */
-	lastMovedOrderId?: number | null;
+	lastMovedOrderId?: string | null;
 }
 
 export function KanbanBoard({
@@ -51,7 +51,7 @@ export function KanbanBoard({
 				const destination = location.current.dropTargets[0];
 				if (!destination) return;
 
-				const orderId = source.data.orderId as number;
+				const orderId = source.data.orderId as string;
 				const targetColumn = destination.data.columnId as KanbanColumnId;
 
 				moveCard(orderId, targetColumn);

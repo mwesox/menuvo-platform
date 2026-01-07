@@ -31,7 +31,7 @@ interface MollieStatusCardProps {
 		mollieCanReceivePayments: boolean | null;
 		mollieCanReceiveSettlements: boolean | null;
 	};
-	merchantId: number;
+	merchantId: string;
 }
 
 /**

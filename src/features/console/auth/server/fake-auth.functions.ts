@@ -1,9 +1,10 @@
+"use server";
+
 /**
  * Fake auth system for development/testing.
  * Stores merchantId in a cookie - easy to replace with real session auth later.
  */
 import { createServerFn } from "@tanstack/react-start";
-import { getRequestHeader, setCookie } from "@tanstack/react-start/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
@@ -11,7 +12,7 @@ import { merchants } from "@/db/schema";
 
 const MERCHANT_ID_COOKIE = "menuvo_merchant_id";
 
-const loginAsMerchantSchema = z.object({ merchantId: z.number() });
+const loginAsMerchantSchema = z.object({ merchantId: z.string().uuid() });
 
 /**
  * Parse merchantId from cookie header.
@@ -22,7 +23,10 @@ const loginAsMerchantSchema = z.object({ merchantId: z.number() });
  */
 export const getMerchantIdFromCookie = createServerFn({
 	method: "GET",
-}).handler(async (): Promise<number | null> => {
+}).handler(async (): Promise<string | null> => {
+	// Dynamic import to avoid bundling server-only code in client
+	const { getRequestHeader } = await import("@tanstack/react-start/server");
+
 	try {
 		const cookieHeader = getRequestHeader("cookie");
 		if (!cookieHeader) return null;
@@ -37,8 +41,10 @@ export const getMerchantIdFromCookie = createServerFn({
 		const merchantIdStr = cookies[MERCHANT_ID_COOKIE];
 		if (!merchantIdStr) return null;
 
-		const merchantId = Number.parseInt(merchantIdStr, 10);
-		return Number.isNaN(merchantId) ? null : merchantId;
+		// Validate UUID format
+		const uuidRegex =
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+		return uuidRegex.test(merchantIdStr) ? merchantIdStr : null;
 	} catch {
 		return null;
 	}
@@ -73,6 +79,9 @@ export const getAllMerchants = createServerFn().handler(async () => {
 export const loginAsMerchant = createServerFn({ method: "POST" })
 	.inputValidator(loginAsMerchantSchema)
 	.handler(async ({ data }) => {
+		// Dynamic import to avoid bundling server-only code in client
+		const { setCookie } = await import("@tanstack/react-start/server");
+
 		// Verify merchant exists
 		const merchant = await db.query.merchants.findFirst({
 			where: eq(merchants.id, data.merchantId),
@@ -83,10 +92,13 @@ export const loginAsMerchant = createServerFn({ method: "POST" })
 		}
 
 		// Set cookie (30 days expiry)
+		// Note: sameSite only set in production - Safari requires Secure flag with SameSite=lax
+		// and localhost runs over HTTP, causing cookie not to be sent on subsequent requests
+		const isProduction = process.env.NODE_ENV === "production";
 		setCookie(MERCHANT_ID_COOKIE, String(data.merchantId), {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "lax",
+			secure: isProduction,
+			...(isProduction && { sameSite: "lax" }),
 			maxAge: 60 * 60 * 24 * 30, // 30 days
 			path: "/",
 		});

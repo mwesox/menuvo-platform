@@ -1,8 +1,10 @@
+"use server";
+
+import slugify from "@sindresorhus/slugify";
 import { createServerFn } from "@tanstack/react-start";
 import { db } from "@/db";
 import { merchants, stores } from "@/db/schema.ts";
 import { loginAsMerchant } from "@/features/console/auth/server/fake-auth.functions";
-import { generateSlug } from "@/lib/slug";
 import { onboardingSchema } from "../schemas.ts";
 
 export const onboardMerchant = createServerFn({ method: "POST" })
@@ -30,7 +32,7 @@ export const onboardMerchant = createServerFn({ method: "POST" })
 				.returning();
 
 			// Generate unique slug
-			const baseSlug = generateSlug(data.store.name);
+			const baseSlug = slugify(data.store.name);
 			let slug = baseSlug;
 			let counter = 1;
 

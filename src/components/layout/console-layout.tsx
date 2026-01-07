@@ -13,7 +13,7 @@ import { AppSidebar } from "./sidebar";
 
 function ConsoleHeaderWrapper() {
 	const navigate = useNavigate();
-	const search = useSearch({ strict: false }) as { storeId?: number };
+	const search = useSearch({ strict: false }) as { storeId?: string };
 	const { data: stores } = useSuspenseQuery(storeQueries.list());
 
 	// Auto-select first store if only one exists
@@ -21,7 +21,7 @@ function ConsoleHeaderWrapper() {
 		search.storeId ?? (stores.length === 1 ? stores[0].id : undefined);
 
 	const selectStore = useCallback(
-		(storeId: number) => {
+		(storeId: string) => {
 			// Navigate to menu page with the selected store
 			// This is the primary use case for store selection
 			navigate({

@@ -18,15 +18,15 @@ import { OrdersList } from "./orders-list";
 
 interface OrdersPageProps {
 	search: {
-		storeId?: number;
-		selected?: number;
+		storeId?: string;
+		selected?: string;
 		status?: OrderStatus;
 		search?: string;
 		days: DateRangePreset;
 	};
 	loaderData: {
 		stores: StoreType[];
-		autoSelectedStoreId?: number;
+		autoSelectedStoreId?: string;
 	};
 }
 
@@ -41,14 +41,14 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 		navigate({
 			to: "/console/orders",
 			search: {
-				storeId: Number(storeId),
+				storeId,
 				status: search.status,
 				search: search.search,
 			},
 		});
 	};
 
-	const handleSelectOrder = (orderId: number) => {
+	const handleSelectOrder = (orderId: string) => {
 		navigate({
 			to: "/console/orders",
 			search: { ...search, selected: orderId },

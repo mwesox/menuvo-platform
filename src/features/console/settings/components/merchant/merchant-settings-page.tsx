@@ -10,7 +10,7 @@ type TabValue = "general" | "language";
 
 interface MerchantSettingsPageProps {
 	search: { tab?: TabValue };
-	merchantId: number;
+	merchantId: string;
 }
 
 export function MerchantSettingsPage({

@@ -10,7 +10,7 @@ export interface CartItem {
 	/** Unique ID: itemId + options hash */
 	id: string;
 	/** Menu item ID */
-	itemId: number;
+	itemId: string;
 	/** Item name */
 	name: string;
 	/** Short name for kitchen display (optional) */
@@ -23,14 +23,14 @@ export interface CartItem {
 	quantity: number;
 	/** Selected options for this item */
 	selectedOptions: {
-		groupId: number;
+		groupId: string;
 		groupName: string;
-		choices: { id: number; name: string; price: number }[];
+		choices: { id: string; name: string; price: number; quantity?: number }[];
 	}[];
 	/** Total price in cents: (basePrice + option modifiers) * quantity */
 	totalPrice: number;
 	/** Store ID this item belongs to */
-	storeId: number;
+	storeId: string;
 	/** Store slug this item belongs to */
 	storeSlug: string;
 }
@@ -204,7 +204,7 @@ export const useCartStore = create<CartStore>()(
 				const validItems = (persisted.items ?? []).filter((item) => {
 					const isValid =
 						typeof item.id === "string" &&
-						typeof item.itemId === "number" &&
+						typeof item.itemId === "string" &&
 						typeof item.name === "string" &&
 						item.name.length > 0 &&
 						typeof item.basePrice === "number" &&

@@ -17,8 +17,8 @@ import { orderStatuses, orderTypes, paymentStatuses } from "./constants";
  * Schema for order item option input
  */
 export const orderItemOptionInputSchema = z.object({
-	optionGroupId: z.number().int().positive(),
-	optionChoiceId: z.number().int().positive(),
+	optionGroupId: z.string().uuid(),
+	optionChoiceId: z.string().uuid(),
 	groupName: z.string().min(1).max(200),
 	choiceName: z.string().min(1).max(200),
 	quantity: z.number().int().min(1),
@@ -29,7 +29,7 @@ export const orderItemOptionInputSchema = z.object({
  * Schema for order item input
  */
 export const orderItemInputSchema = z.object({
-	itemId: z.number().int().positive(),
+	itemId: z.string().uuid(),
 	name: z.string().min(1).max(200),
 	kitchenName: z.string().max(50).nullish(),
 	description: z.string().optional(),
@@ -44,12 +44,12 @@ export const orderItemInputSchema = z.object({
  * Schema for creating an order
  */
 export const createOrderSchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 	items: z
 		.array(orderItemInputSchema)
 		.min(1, "Order must have at least one item"),
 	orderType: z.enum(orderTypes),
-	servicePointId: z.number().int().positive().optional(),
+	servicePointId: z.string().uuid().optional(),
 	customerName: z.string().max(100).optional(),
 	customerEmail: z.string().email().max(255).optional().or(z.literal("")),
 	customerPhone: z.string().max(50).optional(),
@@ -65,7 +65,7 @@ export const createOrderSchema = z.object({
  * Schema for updating order status
  */
 export const updateOrderStatusSchema = z.object({
-	orderId: z.number().int().positive(),
+	orderId: z.string().uuid(),
 	status: z.enum(orderStatuses),
 });
 
@@ -73,7 +73,7 @@ export const updateOrderStatusSchema = z.object({
  * Schema for updating payment status
  */
 export const updatePaymentStatusSchema = z.object({
-	orderId: z.number().int().positive(),
+	orderId: z.string().uuid(),
 	paymentStatus: z.enum(paymentStatuses),
 	stripeCheckoutSessionId: z.string().optional(),
 	stripePaymentIntentId: z.string().optional(),
@@ -83,7 +83,7 @@ export const updatePaymentStatusSchema = z.object({
  * Schema for adding merchant notes
  */
 export const addMerchantNotesSchema = z.object({
-	orderId: z.number().int().positive(),
+	orderId: z.string().uuid(),
 	notes: z.string().max(1000),
 });
 
@@ -91,7 +91,7 @@ export const addMerchantNotesSchema = z.object({
  * Schema for cancelling an order
  */
 export const cancelOrderSchema = z.object({
-	orderId: z.number().int().positive(),
+	orderId: z.string().uuid(),
 	reason: z.string().max(500).optional(),
 });
 
@@ -99,7 +99,7 @@ export const cancelOrderSchema = z.object({
  * Schema for getting orders by store
  */
 export const getOrdersByStoreSchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 	status: z.enum(orderStatuses).optional(),
 	paymentStatus: z.enum(paymentStatuses).optional(),
 	orderType: z.enum(orderTypes).optional(),
@@ -114,14 +114,14 @@ export const getOrdersByStoreSchema = z.object({
  * Schema for getting kitchen orders (simplified)
  */
 export const getKitchenOrdersSchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 });
 
 /**
  * Schema for getting a single order
  */
 export const getOrderSchema = z.object({
-	orderId: z.number().int().positive(),
+	orderId: z.string().uuid(),
 });
 
 // ============================================================================

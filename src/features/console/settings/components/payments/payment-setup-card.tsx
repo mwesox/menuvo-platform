@@ -11,7 +11,7 @@ import {
 import { useSetupPaymentAccount } from "../../queries";
 
 interface PaymentSetupCardProps {
-	merchantId: number;
+	merchantId: string;
 }
 
 export function PaymentSetupCard({ merchantId }: PaymentSetupCardProps) {

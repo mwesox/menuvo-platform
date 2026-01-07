@@ -41,7 +41,7 @@ export const shopKeys = {
 	/**
 	 * Key for item options (detail load on demand).
 	 */
-	itemOptions: (itemId: number) =>
+	itemOptions: (itemId: string) =>
 		[...shopKeys.all, "itemOptions", itemId] as const,
 };
 
@@ -89,7 +89,7 @@ export const shopQueries = {
 	 * Query options for fetching item options (detail load).
 	 * Called when opening item drawer for items with option groups.
 	 */
-	itemOptions: (itemId: number, storeSlug: string) =>
+	itemOptions: (itemId: string, storeSlug: string) =>
 		queryOptions({
 			queryKey: shopKeys.itemOptions(itemId),
 			queryFn: () => getItemOptions({ data: { itemId, storeSlug } }),

@@ -26,11 +26,11 @@ import { TranslationFilters } from "./translation-filters";
 import { TranslationListItem } from "./translation-list-item";
 
 interface TranslationsTabProps {
-	storeId: number;
+	storeId: string;
 }
 
 interface TranslatableEntity {
-	id: number;
+	id: string;
 	name: string;
 	description?: string | null;
 	entityType: EntityType;
@@ -56,7 +56,7 @@ export function TranslationsTab({ storeId }: TranslationsTabProps) {
 	// Selection state
 	const [selectedEntity, setSelectedEntity] = useState<{
 		type: EntityType;
-		id: number;
+		id: string;
 	} | null>(null);
 
 	// Fetch translation status (merchantId obtained from auth context on server)
@@ -207,7 +207,7 @@ export function TranslationsTab({ storeId }: TranslationsTabProps) {
 	}, [allEntities]);
 
 	// Handle selection
-	const handleSelect = (entityType: EntityType, id: number) => {
+	const handleSelect = (entityType: EntityType, id: string) => {
 		setSelectedEntity({ type: entityType, id });
 	};
 

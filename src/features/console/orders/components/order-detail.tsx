@@ -12,7 +12,7 @@ import {
 import { formatPrice } from "@/features/orders/logic/order-pricing";
 
 interface OrderDetailProps {
-	orderId: number;
+	orderId: string;
 }
 
 const statusVariants: Record<

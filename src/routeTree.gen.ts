@@ -40,10 +40,17 @@ import { Route as ConsoleMenuImportRouteImport } from './routes/console/menu/imp
 import { Route as AuthMerchantLoginRouteImport } from './routes/auth/merchant/login'
 import { Route as ApiMollieCallbackRouteImport } from './routes/api.mollie.callback'
 import { Route as ApiMenuImportUploadRouteImport } from './routes/api.menu-import.upload'
+import { Route as ApiImagesUploadRouteImport } from './routes/api.images.upload'
 import { Route as SlugOrderOrderIdRouteImport } from './routes/$slug/order/$orderId'
 import { Route as SlugCheckoutReturnRouteImport } from './routes/$slug/checkout/return'
-import { Route as ConsoleMenuItemsNewRouteImport } from './routes/console/menu/items/new'
-import { Route as ConsoleMenuItemsItemIdRouteImport } from './routes/console/menu/items/$itemId'
+import { Route as ConsoleMenuOptionsIndexRouteImport } from './routes/console/menu/options/index'
+import { Route as ConsoleMenuOptionsNewRouteImport } from './routes/console/menu/options/new'
+import { Route as ConsoleMenuOptionsOptionGroupIdRouteImport } from './routes/console/menu/options/$optionGroupId'
+import { Route as ConsoleMenuCategoriesNewRouteImport } from './routes/console/menu/categories/new'
+import { Route as ConsoleMenuCategoriesCategoryIdIndexRouteImport } from './routes/console/menu/categories/$categoryId/index'
+import { Route as ConsoleMenuCategoriesCategoryIdEditRouteImport } from './routes/console/menu/categories/$categoryId/edit'
+import { Route as ConsoleMenuCategoriesCategoryIdItemsNewRouteImport } from './routes/console/menu/categories/$categoryId/items/new'
+import { Route as ConsoleMenuCategoriesCategoryIdItemsItemIdRouteImport } from './routes/console/menu/categories/$categoryId/items/$itemId'
 
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
@@ -201,6 +208,11 @@ const ApiMenuImportUploadRoute = ApiMenuImportUploadRouteImport.update({
   path: '/api/menu-import/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiImagesUploadRoute = ApiImagesUploadRouteImport.update({
+  id: '/api/images/upload',
+  path: '/api/images/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SlugOrderOrderIdRoute = SlugOrderOrderIdRouteImport.update({
   id: '/order/$orderId',
   path: '/order/$orderId',
@@ -211,16 +223,52 @@ const SlugCheckoutReturnRoute = SlugCheckoutReturnRouteImport.update({
   path: '/checkout/return',
   getParentRoute: () => SlugRouteRoute,
 } as any)
-const ConsoleMenuItemsNewRoute = ConsoleMenuItemsNewRouteImport.update({
-  id: '/menu/items/new',
-  path: '/menu/items/new',
+const ConsoleMenuOptionsIndexRoute = ConsoleMenuOptionsIndexRouteImport.update({
+  id: '/menu/options/',
+  path: '/menu/options/',
   getParentRoute: () => ConsoleRouteRoute,
 } as any)
-const ConsoleMenuItemsItemIdRoute = ConsoleMenuItemsItemIdRouteImport.update({
-  id: '/menu/items/$itemId',
-  path: '/menu/items/$itemId',
+const ConsoleMenuOptionsNewRoute = ConsoleMenuOptionsNewRouteImport.update({
+  id: '/menu/options/new',
+  path: '/menu/options/new',
   getParentRoute: () => ConsoleRouteRoute,
 } as any)
+const ConsoleMenuOptionsOptionGroupIdRoute =
+  ConsoleMenuOptionsOptionGroupIdRouteImport.update({
+    id: '/menu/options/$optionGroupId',
+    path: '/menu/options/$optionGroupId',
+    getParentRoute: () => ConsoleRouteRoute,
+  } as any)
+const ConsoleMenuCategoriesNewRoute =
+  ConsoleMenuCategoriesNewRouteImport.update({
+    id: '/menu/categories/new',
+    path: '/menu/categories/new',
+    getParentRoute: () => ConsoleRouteRoute,
+  } as any)
+const ConsoleMenuCategoriesCategoryIdIndexRoute =
+  ConsoleMenuCategoriesCategoryIdIndexRouteImport.update({
+    id: '/menu/categories/$categoryId/',
+    path: '/menu/categories/$categoryId/',
+    getParentRoute: () => ConsoleRouteRoute,
+  } as any)
+const ConsoleMenuCategoriesCategoryIdEditRoute =
+  ConsoleMenuCategoriesCategoryIdEditRouteImport.update({
+    id: '/menu/categories/$categoryId/edit',
+    path: '/menu/categories/$categoryId/edit',
+    getParentRoute: () => ConsoleRouteRoute,
+  } as any)
+const ConsoleMenuCategoriesCategoryIdItemsNewRoute =
+  ConsoleMenuCategoriesCategoryIdItemsNewRouteImport.update({
+    id: '/menu/categories/$categoryId/items/new',
+    path: '/menu/categories/$categoryId/items/new',
+    getParentRoute: () => ConsoleRouteRoute,
+  } as any)
+const ConsoleMenuCategoriesCategoryIdItemsItemIdRoute =
+  ConsoleMenuCategoriesCategoryIdItemsItemIdRouteImport.update({
+    id: '/menu/categories/$categoryId/items/$itemId',
+    path: '/menu/categories/$categoryId/items/$itemId',
+    getParentRoute: () => ConsoleRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -240,6 +288,7 @@ export interface FileRoutesByFullPath {
   '/console/': typeof ConsoleIndexRoute
   '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
   '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
+  '/api/images/upload': typeof ApiImagesUploadRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/mollie/callback': typeof ApiMollieCallbackRoute
   '/auth/merchant/login': typeof AuthMerchantLoginRoute
@@ -256,8 +305,14 @@ export interface FileRoutesByFullPath {
   '/console/orders': typeof ConsoleOrdersIndexRoute
   '/console/settings': typeof ConsoleSettingsIndexRoute
   '/console/stores': typeof ConsoleStoresIndexRoute
-  '/console/menu/items/$itemId': typeof ConsoleMenuItemsItemIdRoute
-  '/console/menu/items/new': typeof ConsoleMenuItemsNewRoute
+  '/console/menu/categories/new': typeof ConsoleMenuCategoriesNewRoute
+  '/console/menu/options/$optionGroupId': typeof ConsoleMenuOptionsOptionGroupIdRoute
+  '/console/menu/options/new': typeof ConsoleMenuOptionsNewRoute
+  '/console/menu/options': typeof ConsoleMenuOptionsIndexRoute
+  '/console/menu/categories/$categoryId/edit': typeof ConsoleMenuCategoriesCategoryIdEditRoute
+  '/console/menu/categories/$categoryId': typeof ConsoleMenuCategoriesCategoryIdIndexRoute
+  '/console/menu/categories/$categoryId/items/$itemId': typeof ConsoleMenuCategoriesCategoryIdItemsItemIdRoute
+  '/console/menu/categories/$categoryId/items/new': typeof ConsoleMenuCategoriesCategoryIdItemsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -274,6 +329,7 @@ export interface FileRoutesByTo {
   '/console': typeof ConsoleIndexRoute
   '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
   '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
+  '/api/images/upload': typeof ApiImagesUploadRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/mollie/callback': typeof ApiMollieCallbackRoute
   '/auth/merchant/login': typeof AuthMerchantLoginRoute
@@ -290,8 +346,14 @@ export interface FileRoutesByTo {
   '/console/orders': typeof ConsoleOrdersIndexRoute
   '/console/settings': typeof ConsoleSettingsIndexRoute
   '/console/stores': typeof ConsoleStoresIndexRoute
-  '/console/menu/items/$itemId': typeof ConsoleMenuItemsItemIdRoute
-  '/console/menu/items/new': typeof ConsoleMenuItemsNewRoute
+  '/console/menu/categories/new': typeof ConsoleMenuCategoriesNewRoute
+  '/console/menu/options/$optionGroupId': typeof ConsoleMenuOptionsOptionGroupIdRoute
+  '/console/menu/options/new': typeof ConsoleMenuOptionsNewRoute
+  '/console/menu/options': typeof ConsoleMenuOptionsIndexRoute
+  '/console/menu/categories/$categoryId/edit': typeof ConsoleMenuCategoriesCategoryIdEditRoute
+  '/console/menu/categories/$categoryId': typeof ConsoleMenuCategoriesCategoryIdIndexRoute
+  '/console/menu/categories/$categoryId/items/$itemId': typeof ConsoleMenuCategoriesCategoryIdItemsItemIdRoute
+  '/console/menu/categories/$categoryId/items/new': typeof ConsoleMenuCategoriesCategoryIdItemsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -312,6 +374,7 @@ export interface FileRoutesById {
   '/console/': typeof ConsoleIndexRoute
   '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
   '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
+  '/api/images/upload': typeof ApiImagesUploadRoute
   '/api/menu-import/upload': typeof ApiMenuImportUploadRoute
   '/api/mollie/callback': typeof ApiMollieCallbackRoute
   '/auth/merchant/login': typeof AuthMerchantLoginRoute
@@ -328,8 +391,14 @@ export interface FileRoutesById {
   '/console/orders/': typeof ConsoleOrdersIndexRoute
   '/console/settings/': typeof ConsoleSettingsIndexRoute
   '/console/stores/': typeof ConsoleStoresIndexRoute
-  '/console/menu/items/$itemId': typeof ConsoleMenuItemsItemIdRoute
-  '/console/menu/items/new': typeof ConsoleMenuItemsNewRoute
+  '/console/menu/categories/new': typeof ConsoleMenuCategoriesNewRoute
+  '/console/menu/options/$optionGroupId': typeof ConsoleMenuOptionsOptionGroupIdRoute
+  '/console/menu/options/new': typeof ConsoleMenuOptionsNewRoute
+  '/console/menu/options/': typeof ConsoleMenuOptionsIndexRoute
+  '/console/menu/categories/$categoryId/edit': typeof ConsoleMenuCategoriesCategoryIdEditRoute
+  '/console/menu/categories/$categoryId/': typeof ConsoleMenuCategoriesCategoryIdIndexRoute
+  '/console/menu/categories/$categoryId/items/$itemId': typeof ConsoleMenuCategoriesCategoryIdItemsItemIdRoute
+  '/console/menu/categories/$categoryId/items/new': typeof ConsoleMenuCategoriesCategoryIdItemsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -351,6 +420,7 @@ export interface FileRouteTypes {
     | '/console/'
     | '/$slug/checkout/return'
     | '/$slug/order/$orderId'
+    | '/api/images/upload'
     | '/api/menu-import/upload'
     | '/api/mollie/callback'
     | '/auth/merchant/login'
@@ -367,8 +437,14 @@ export interface FileRouteTypes {
     | '/console/orders'
     | '/console/settings'
     | '/console/stores'
-    | '/console/menu/items/$itemId'
-    | '/console/menu/items/new'
+    | '/console/menu/categories/new'
+    | '/console/menu/options/$optionGroupId'
+    | '/console/menu/options/new'
+    | '/console/menu/options'
+    | '/console/menu/categories/$categoryId/edit'
+    | '/console/menu/categories/$categoryId'
+    | '/console/menu/categories/$categoryId/items/$itemId'
+    | '/console/menu/categories/$categoryId/items/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -385,6 +461,7 @@ export interface FileRouteTypes {
     | '/console'
     | '/$slug/checkout/return'
     | '/$slug/order/$orderId'
+    | '/api/images/upload'
     | '/api/menu-import/upload'
     | '/api/mollie/callback'
     | '/auth/merchant/login'
@@ -401,8 +478,14 @@ export interface FileRouteTypes {
     | '/console/orders'
     | '/console/settings'
     | '/console/stores'
-    | '/console/menu/items/$itemId'
-    | '/console/menu/items/new'
+    | '/console/menu/categories/new'
+    | '/console/menu/options/$optionGroupId'
+    | '/console/menu/options/new'
+    | '/console/menu/options'
+    | '/console/menu/categories/$categoryId/edit'
+    | '/console/menu/categories/$categoryId'
+    | '/console/menu/categories/$categoryId/items/$itemId'
+    | '/console/menu/categories/$categoryId/items/new'
   id:
     | '__root__'
     | '/'
@@ -422,6 +505,7 @@ export interface FileRouteTypes {
     | '/console/'
     | '/$slug/checkout/return'
     | '/$slug/order/$orderId'
+    | '/api/images/upload'
     | '/api/menu-import/upload'
     | '/api/mollie/callback'
     | '/auth/merchant/login'
@@ -438,8 +522,14 @@ export interface FileRouteTypes {
     | '/console/orders/'
     | '/console/settings/'
     | '/console/stores/'
-    | '/console/menu/items/$itemId'
-    | '/console/menu/items/new'
+    | '/console/menu/categories/new'
+    | '/console/menu/options/$optionGroupId'
+    | '/console/menu/options/new'
+    | '/console/menu/options/'
+    | '/console/menu/categories/$categoryId/edit'
+    | '/console/menu/categories/$categoryId/'
+    | '/console/menu/categories/$categoryId/items/$itemId'
+    | '/console/menu/categories/$categoryId/items/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -455,6 +545,7 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   QShortCodeRoute: typeof QShortCodeRoute
+  ApiImagesUploadRoute: typeof ApiImagesUploadRoute
   ApiMenuImportUploadRoute: typeof ApiMenuImportUploadRoute
   ApiMollieCallbackRoute: typeof ApiMollieCallbackRoute
   AuthMerchantLoginRoute: typeof AuthMerchantLoginRoute
@@ -679,6 +770,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMenuImportUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/images/upload': {
+      id: '/api/images/upload'
+      path: '/api/images/upload'
+      fullPath: '/api/images/upload'
+      preLoaderRoute: typeof ApiImagesUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$slug/order/$orderId': {
       id: '/$slug/order/$orderId'
       path: '/order/$orderId'
@@ -693,18 +791,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlugCheckoutReturnRouteImport
       parentRoute: typeof SlugRouteRoute
     }
-    '/console/menu/items/new': {
-      id: '/console/menu/items/new'
-      path: '/menu/items/new'
-      fullPath: '/console/menu/items/new'
-      preLoaderRoute: typeof ConsoleMenuItemsNewRouteImport
+    '/console/menu/options/': {
+      id: '/console/menu/options/'
+      path: '/menu/options'
+      fullPath: '/console/menu/options'
+      preLoaderRoute: typeof ConsoleMenuOptionsIndexRouteImport
       parentRoute: typeof ConsoleRouteRoute
     }
-    '/console/menu/items/$itemId': {
-      id: '/console/menu/items/$itemId'
-      path: '/menu/items/$itemId'
-      fullPath: '/console/menu/items/$itemId'
-      preLoaderRoute: typeof ConsoleMenuItemsItemIdRouteImport
+    '/console/menu/options/new': {
+      id: '/console/menu/options/new'
+      path: '/menu/options/new'
+      fullPath: '/console/menu/options/new'
+      preLoaderRoute: typeof ConsoleMenuOptionsNewRouteImport
+      parentRoute: typeof ConsoleRouteRoute
+    }
+    '/console/menu/options/$optionGroupId': {
+      id: '/console/menu/options/$optionGroupId'
+      path: '/menu/options/$optionGroupId'
+      fullPath: '/console/menu/options/$optionGroupId'
+      preLoaderRoute: typeof ConsoleMenuOptionsOptionGroupIdRouteImport
+      parentRoute: typeof ConsoleRouteRoute
+    }
+    '/console/menu/categories/new': {
+      id: '/console/menu/categories/new'
+      path: '/menu/categories/new'
+      fullPath: '/console/menu/categories/new'
+      preLoaderRoute: typeof ConsoleMenuCategoriesNewRouteImport
+      parentRoute: typeof ConsoleRouteRoute
+    }
+    '/console/menu/categories/$categoryId/': {
+      id: '/console/menu/categories/$categoryId/'
+      path: '/menu/categories/$categoryId'
+      fullPath: '/console/menu/categories/$categoryId'
+      preLoaderRoute: typeof ConsoleMenuCategoriesCategoryIdIndexRouteImport
+      parentRoute: typeof ConsoleRouteRoute
+    }
+    '/console/menu/categories/$categoryId/edit': {
+      id: '/console/menu/categories/$categoryId/edit'
+      path: '/menu/categories/$categoryId/edit'
+      fullPath: '/console/menu/categories/$categoryId/edit'
+      preLoaderRoute: typeof ConsoleMenuCategoriesCategoryIdEditRouteImport
+      parentRoute: typeof ConsoleRouteRoute
+    }
+    '/console/menu/categories/$categoryId/items/new': {
+      id: '/console/menu/categories/$categoryId/items/new'
+      path: '/menu/categories/$categoryId/items/new'
+      fullPath: '/console/menu/categories/$categoryId/items/new'
+      preLoaderRoute: typeof ConsoleMenuCategoriesCategoryIdItemsNewRouteImport
+      parentRoute: typeof ConsoleRouteRoute
+    }
+    '/console/menu/categories/$categoryId/items/$itemId': {
+      id: '/console/menu/categories/$categoryId/items/$itemId'
+      path: '/menu/categories/$categoryId/items/$itemId'
+      fullPath: '/console/menu/categories/$categoryId/items/$itemId'
+      preLoaderRoute: typeof ConsoleMenuCategoriesCategoryIdItemsItemIdRouteImport
       parentRoute: typeof ConsoleRouteRoute
     }
   }
@@ -754,8 +894,14 @@ interface ConsoleRouteRouteChildren {
   ConsoleOrdersIndexRoute: typeof ConsoleOrdersIndexRoute
   ConsoleSettingsIndexRoute: typeof ConsoleSettingsIndexRoute
   ConsoleStoresIndexRoute: typeof ConsoleStoresIndexRoute
-  ConsoleMenuItemsItemIdRoute: typeof ConsoleMenuItemsItemIdRoute
-  ConsoleMenuItemsNewRoute: typeof ConsoleMenuItemsNewRoute
+  ConsoleMenuCategoriesNewRoute: typeof ConsoleMenuCategoriesNewRoute
+  ConsoleMenuOptionsOptionGroupIdRoute: typeof ConsoleMenuOptionsOptionGroupIdRoute
+  ConsoleMenuOptionsNewRoute: typeof ConsoleMenuOptionsNewRoute
+  ConsoleMenuOptionsIndexRoute: typeof ConsoleMenuOptionsIndexRoute
+  ConsoleMenuCategoriesCategoryIdEditRoute: typeof ConsoleMenuCategoriesCategoryIdEditRoute
+  ConsoleMenuCategoriesCategoryIdIndexRoute: typeof ConsoleMenuCategoriesCategoryIdIndexRoute
+  ConsoleMenuCategoriesCategoryIdItemsItemIdRoute: typeof ConsoleMenuCategoriesCategoryIdItemsItemIdRoute
+  ConsoleMenuCategoriesCategoryIdItemsNewRoute: typeof ConsoleMenuCategoriesCategoryIdItemsNewRoute
 }
 
 const ConsoleRouteRouteChildren: ConsoleRouteRouteChildren = {
@@ -772,8 +918,18 @@ const ConsoleRouteRouteChildren: ConsoleRouteRouteChildren = {
   ConsoleOrdersIndexRoute: ConsoleOrdersIndexRoute,
   ConsoleSettingsIndexRoute: ConsoleSettingsIndexRoute,
   ConsoleStoresIndexRoute: ConsoleStoresIndexRoute,
-  ConsoleMenuItemsItemIdRoute: ConsoleMenuItemsItemIdRoute,
-  ConsoleMenuItemsNewRoute: ConsoleMenuItemsNewRoute,
+  ConsoleMenuCategoriesNewRoute: ConsoleMenuCategoriesNewRoute,
+  ConsoleMenuOptionsOptionGroupIdRoute: ConsoleMenuOptionsOptionGroupIdRoute,
+  ConsoleMenuOptionsNewRoute: ConsoleMenuOptionsNewRoute,
+  ConsoleMenuOptionsIndexRoute: ConsoleMenuOptionsIndexRoute,
+  ConsoleMenuCategoriesCategoryIdEditRoute:
+    ConsoleMenuCategoriesCategoryIdEditRoute,
+  ConsoleMenuCategoriesCategoryIdIndexRoute:
+    ConsoleMenuCategoriesCategoryIdIndexRoute,
+  ConsoleMenuCategoriesCategoryIdItemsItemIdRoute:
+    ConsoleMenuCategoriesCategoryIdItemsItemIdRoute,
+  ConsoleMenuCategoriesCategoryIdItemsNewRoute:
+    ConsoleMenuCategoriesCategoryIdItemsNewRoute,
 }
 
 const ConsoleRouteRouteWithChildren = ConsoleRouteRoute._addFileChildren(
@@ -793,6 +949,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   QShortCodeRoute: QShortCodeRoute,
+  ApiImagesUploadRoute: ApiImagesUploadRoute,
   ApiMenuImportUploadRoute: ApiMenuImportUploadRoute,
   ApiMollieCallbackRoute: ApiMollieCallbackRoute,
   AuthMerchantLoginRoute: AuthMerchantLoginRoute,

@@ -17,6 +17,7 @@ import {
 	createTestStore,
 	testDb,
 } from "@/test/factories";
+import { clearTestAuth, setTestAuth } from "@/test/setup";
 import {
 	batchCreateServicePoints,
 	createServicePoint,
@@ -31,17 +32,24 @@ import {
 
 describe("service-points.functions", () => {
 	const testRunId = createTestRunId();
-	let merchantId: number;
-	let storeId: number;
+	let merchantId: string;
+	let storeId: string;
 
 	beforeAll(async () => {
 		const merchant = await createTestMerchant({ testRunId });
 		merchantId = merchant.id;
 		const store = await createTestStore({ testRunId, merchantId });
 		storeId = store.id;
+
+		// Set up auth context for server functions
+		setTestAuth({
+			merchantId: merchant.id,
+			merchant: { id: merchant.id, name: merchant.name },
+		});
 	});
 
 	afterAll(async () => {
+		clearTestAuth();
 		await cleanupTestData(testRunId);
 		await closeTestDb();
 	});
@@ -60,7 +68,7 @@ describe("service-points.functions", () => {
 			});
 
 			expect(result).toBeDefined();
-			expect(result.id).toBeGreaterThan(0);
+			expect(typeof result.id).toBe("string");
 			expect(result.name).toBe("Test Table");
 			expect(result.code).toBe(code);
 			expect(result.zone).toBe("Indoor");
@@ -94,9 +102,9 @@ describe("service-points.functions", () => {
 		});
 
 		it("should throw for non-existent service point", async () => {
-			await expect(getServicePoint({ data: { id: 999999 } })).rejects.toThrow(
-				"not found",
-			);
+			await expect(
+				getServicePoint({ data: { id: crypto.randomUUID() } }),
+			).rejects.toThrow("not found");
 		});
 	});
 

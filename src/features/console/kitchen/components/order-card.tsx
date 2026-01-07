@@ -26,13 +26,13 @@ import { OrderCardKitchen } from "./order-card-kitchen";
 
 interface OrderCardProps {
 	order: OrderWithItems & {
-		servicePoint?: { id: number; name: string; code: string } | null;
+		servicePoint?: { id: string; name: string; code: string } | null;
 	};
-	storeId: number;
+	storeId: string;
 	/** Column this card is in (passed to drag data for drop validation) */
 	columnId: KanbanColumnId;
 	/** Callback when "Next" button is clicked */
-	onNext?: (orderId: number) => void;
+	onNext?: (orderId: string) => void;
 	/** Whether this card was the last one moved (for visual highlighting) */
 	isLastMoved?: boolean;
 	className?: string;

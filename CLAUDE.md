@@ -20,6 +20,7 @@ This file is a quick reference. The docs are the source of truth.
   - Only infrastructure uses subdomains: `status.menuvo.app`, `monitor.menuvo.app`
 - Use ShadCN MCP server to review latest docs and APIs and docs about ShadCN Components and the framework.
 - Never do git reset commands !!! NEVER !!!
+- **Middleware files must not have db imports** - Keep `createMiddleware()` in files without `@/db` imports to prevent server code leaking to client bundle (TanStack Start bug).
 
 ## Subagent Instructions
 
@@ -126,6 +127,24 @@ CSS files:
 - `src/styles/themes/shop.css`
 - `src/styles/themes/console.css`
 
+### Radius (shadcn-compatible)
+
+Theme-aware radius system. Each theme sets `--radius` in its CSS file, all classes scale from it via `@theme inline` in core.css.
+
+| Class | Formula | Shop (6px) | Console (8px) | Discovery (12px) |
+|-------|---------|------------|---------------|------------------|
+| `rounded-sm` | base - 4px | 2px | 4px | 8px |
+| `rounded-md` | base - 2px | 4px | 6px | 10px |
+| `rounded-lg` | base | 6px | 8px | 12px |
+| `rounded-xl` | base + 4px | 10px | 12px | 16px |
+| `rounded-2xl` | base + 8px | 14px | 16px | 20px |
+| `rounded-3xl` | base + 12px | 18px | 20px | 24px |
+
+**Rules:**
+- Use `rounded-{sm|md|lg|xl|2xl|3xl}` - themed
+- Use `rounded-full` - always 50%
+- Never use `rounded-[Npx]` or hardcoded pixel values
+
 ---
 
 ## Adding Shadcn Components
@@ -149,3 +168,15 @@ bunx --bun shadcn@latest add <component>
 | Build UI component | `features/{f}/components/` |
 | Persist client state | `features/{f}/stores/*.ts` |
 | Wire up a page | `src/routes/` (thin wiring only) |
+
+---
+
+## Environment Variables
+
+| File | Purpose |
+|------|---------|
+| `.env.local` | Local dev (git-ignored) |
+| `.env.production` | Non-secret prod configs (committed) |
+| GitHub Secrets | All secrets |
+
+Validate new vars in `src/env.ts`.

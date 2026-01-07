@@ -17,6 +17,7 @@ import {
 	createTestStore,
 	testDb,
 } from "@/test/factories";
+import { clearTestAuth, setTestAuth } from "@/test/setup";
 import {
 	createCategory,
 	deleteCategory,
@@ -28,8 +29,8 @@ import {
 
 describe("categories.functions", () => {
 	const testRunId = createTestRunId();
-	let merchantId: number;
-	let storeId: number;
+	let merchantId: string;
+	let storeId: string;
 
 	beforeAll(async () => {
 		const merchant = await createTestMerchant({ testRunId });
@@ -37,9 +38,16 @@ describe("categories.functions", () => {
 
 		const store = await createTestStore({ testRunId, merchantId });
 		storeId = store.id;
+
+		// Set up auth context for server functions
+		setTestAuth({
+			merchantId: merchant.id,
+			merchant: { id: merchant.id, name: merchant.name },
+		});
 	});
 
 	afterAll(async () => {
+		clearTestAuth();
 		await cleanupTestData(testRunId);
 		await closeTestDb();
 	});
@@ -63,7 +71,7 @@ describe("categories.functions", () => {
 			});
 
 			expect(result).toBeDefined();
-			expect(result.id).toBeGreaterThan(0);
+			expect(typeof result.id).toBe("string");
 			expect(result.storeId).toBe(storeId);
 			expect(result.translations.de?.name).toContain("Vorspeisen");
 			expect(result.translations.en?.name).toContain("Starters");
@@ -102,7 +110,7 @@ describe("categories.functions", () => {
 
 		it("should throw for non-existent category", async () => {
 			await expect(
-				getCategory({ data: { categoryId: 999999 } }),
+				getCategory({ data: { categoryId: crypto.randomUUID() } }),
 			).rejects.toThrow("Category not found");
 		});
 	});

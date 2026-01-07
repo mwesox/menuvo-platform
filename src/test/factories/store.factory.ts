@@ -8,7 +8,7 @@ import { uniqueId, uniqueSlug } from "../utils/test-id";
 
 export interface StoreFactoryOptions {
 	testRunId: string;
-	merchantId: number;
+	merchantId: string;
 	name?: string;
 	isActive?: boolean;
 	currency?: string;

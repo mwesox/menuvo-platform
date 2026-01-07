@@ -1,9 +1,5 @@
 import type { Image, ImageType } from "@/db/schema.ts";
 
-// Worker URL for direct communication (bypasses Vite proxy FormData issues)
-// Set VITE_WORKER_URL=http://localhost:3001 in dev, leave unset in prod
-const WORKER_URL = import.meta.env.VITE_WORKER_URL ?? "";
-
 /**
  * Upload an image using binary FormData (no base64 encoding).
  *
@@ -12,7 +8,7 @@ const WORKER_URL = import.meta.env.VITE_WORKER_URL ?? "";
  */
 export async function uploadImageBinary(
 	blob: Blob,
-	merchantId: number,
+	merchantId: string,
 	type: ImageType,
 	filename?: string,
 ): Promise<Image> {
@@ -22,9 +18,9 @@ export async function uploadImageBinary(
 	formData.append("type", type);
 	formData.append("filename", filename || "image.jpg");
 
-	const response = await fetch(`${WORKER_URL}/api/images/upload`, {
+	const response = await fetch("/api/images/upload", {
 		method: "POST",
-		body: formData, // Browser sets Content-Type: multipart/form-data automatically
+		body: formData,
 	});
 
 	if (!response.ok) {

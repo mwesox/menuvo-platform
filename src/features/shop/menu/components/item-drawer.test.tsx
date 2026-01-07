@@ -46,7 +46,7 @@ const createWrapper = () => {
 
 // Create minimal mock item for testing (MenuItemLight - options fetched on-demand)
 const mockItem: MenuItemLight = {
-	id: 1,
+	id: "item-1",
 	name: "Margherita Pizza",
 	kitchenName: null,
 	description: "Fresh tomato sauce, mozzarella, and basil",
@@ -59,7 +59,7 @@ const mockItem: MenuItemLight = {
 
 // Simple item without options
 const mockSimpleItem: MenuItemLight = {
-	id: 2,
+	id: "item-2",
 	name: "Garlic Bread",
 	kitchenName: null,
 	description: "Freshly baked with garlic butter",
@@ -77,7 +77,7 @@ describe("ItemDrawer", () => {
 				item={null}
 				open={true}
 				onOpenChange={vi.fn()}
-				storeId={1}
+				storeId="store-1"
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
@@ -94,7 +94,7 @@ describe("ItemDrawer", () => {
 				item={mockItem}
 				open={true}
 				onOpenChange={vi.fn()}
-				storeId={1}
+				storeId="store-1"
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
@@ -111,7 +111,7 @@ describe("ItemDrawer", () => {
 				item={mockItem}
 				open={true}
 				onOpenChange={vi.fn()}
-				storeId={1}
+				storeId="store-1"
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
@@ -129,7 +129,7 @@ describe("ItemDrawer", () => {
 				item={mockItem}
 				open={true}
 				onOpenChange={vi.fn()}
-				storeId={1}
+				storeId="store-1"
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
@@ -147,7 +147,7 @@ describe("ItemDrawer", () => {
 				item={mockSimpleItem}
 				open={true}
 				onOpenChange={vi.fn()}
-				storeId={1}
+				storeId="store-1"
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
@@ -166,7 +166,7 @@ describe("ItemDrawer", () => {
 				item={mockSimpleItem}
 				open={true}
 				onOpenChange={vi.fn()}
-				storeId={1}
+				storeId="store-1"
 				storeSlug="test-store"
 				isOpen={true}
 			/>,
@@ -187,7 +187,7 @@ describe("ItemDrawer DOM verification", () => {
 				item={mockItem}
 				open={true}
 				onOpenChange={vi.fn()}
-				storeId={1}
+				storeId="store-1"
 				storeSlug="test-store"
 				isOpen={true}
 			/>,

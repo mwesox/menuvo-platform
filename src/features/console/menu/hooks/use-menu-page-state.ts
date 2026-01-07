@@ -16,7 +16,7 @@ export function useMenuPageState() {
 
 	// Delete confirmation
 	const [deleteType, setDeleteType] = useState<DeleteType | null>(null);
-	const [deleteId, setDeleteId] = useState<number | null>(null);
+	const [deleteId, setDeleteId] = useState<string | null>(null);
 
 	return {
 		categoryDialog: {
@@ -56,7 +56,7 @@ export function useMenuPageState() {
 		deleteConfirmation: {
 			type: deleteType,
 			id: deleteId,
-			open: useCallback((type: DeleteType, id: number) => {
+			open: useCallback((type: DeleteType, id: string) => {
 				setDeleteType(type);
 				setDeleteId(id);
 			}, []),

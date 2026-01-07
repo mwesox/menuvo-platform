@@ -1,181 +1,167 @@
 {
 	"meta": {
-		"title": "Menuvo - Digitale Bestellungen für Ihr Restaurant",
-		"description": "Eigenes Online-Bestellsystem in unter 5 Minuten. 100% Ihres Umsatzes, keine Provisionen. KI-Menü-Assistent inklusive. DSGVO-konform und in Deutschland gehostet."
+		"title": "Menuvo - QR-Bestellung für Ihr Restaurant",
+		"description": "Gäste scannen, bestellen, bezahlen. In 5 Minuten live. Keine monatlichen Gebühren, nur 2,9% pro Bestellung. Ohne neues Kassensystem."
 	},
 	"header": {
 		"features": "Features",
 		"pricing": "Preise",
 		"faq": "FAQ",
-		"cta": "Kostenlos starten"
+		"cta": "Jetzt starten"
 	},
 	"hero": {
-		"headline": "Digitale Bestellungen für Ihr Restaurant",
-		"subtitle": "Mehr Zeit für Küche & Gäste. Mehr Umsatz mit jeder Bestellung.",
-		"description": "Eigenes Online-Bestellsystem in unter 5 Minuten eingerichtet – weniger Stress am Telefon, mehr Cross-Selling und höhere Bestellwerte. Ihre Gäste bestellen in wenigen Sekunden am Tisch – ohne Warten auf die Bedienung oder besetzte Telefonleitungen."
+		"badge": "Keine monatlichen Gebühren",
+		"headline": "Gäste scannen. Bestellen. Bezahlen.",
+		"subtitle": "QR-Bestellung ohne neues Kassensystem.",
+		"description": "Kunden scannen den QR-Code, wählen aus Ihrer Speisekarte und bezahlen – die Bestellung landet direkt in der Küche. In 5 Minuten eingerichtet, funktioniert mit Ihrem bestehenden Setup."
 	},
 	"cta": {
 		"primary": "Kostenlos starten",
 		"secondary": "Mehr erfahren",
-		"title": "Bereit, mehr Umsatz mit weniger Stress zu machen?",
-		"subtitle": "Starten Sie jetzt kostenlos und sehen Sie, wie Ihr Team mehr Zeit für das Wesentliche hat: Essen zubereiten, Gäste betreuen – statt Bestellungen am Telefon aufzunehmen.",
-		"button": "Kostenlos starten",
-		"trustStatement": "Einrichtung in unter 5 Minuten · Weniger Aufwand an Theke & Telefon · Jederzeit kündbar"
+		"title": "Bereit für weniger Stress und mehr Bestellungen?",
+		"subtitle": "Starten Sie jetzt – keine Kreditkarte, keine monatlichen Gebühren. Sie zahlen nur, wenn Sie verdienen.",
+		"button": "Jetzt kostenlos starten",
+		"trustStatement": "In 5 Minuten live · Keine monatlichen Kosten · Jederzeit kündbar"
 	},
 	"trust": {
-		"noSetupFee": "Keine Einrichtungsgebühr",
-		"gdpr": "DSGVO-konform",
-		"hostedDe": "In Deutschland gehostet"
+		"noMonthlyFee": "0€ monatlich",
+		"payPerOrder": "2,9% pro Bestellung",
+		"noHardware": "Keine Hardware nötig"
 	},
 	"ai": {
-		"headline": "KI erstellt Ihr digitales Menü in Minuten",
-		"description": "Laden Sie Ihre Speisekarte hoch – unsere KI übernimmt den Rest. Keine manuelle Eingabe notwendig."
+		"headline": "Speisekarte hochladen. Fertig.",
+		"description": "Laden Sie ein Foto oder PDF hoch – unsere KI erstellt Ihr digitales Menü in Minuten. Kein manuelles Eintippen."
 	},
 	"features": {
-		"title": "Alles, was Ihr Restaurant braucht",
-		"subtitle": "Leistungsstarke Funktionen, die Ihr Geschäft voranbringen - ohne Provision",
+		"title": "Alles inklusive. Keine versteckten Kosten.",
+		"subtitle": "Volle QR-Bestellung – nicht nur Bezahlung",
+		"ordering": {
+			"title": "Echte Bestellung, nicht nur Zahlung",
+			"description": "Kunden sehen Ihre Speisekarte, wählen Gerichte aus, legen in den Warenkorb und bezahlen – direkt in Ihre Küche."
+		},
+		"kitchen": {
+			"title": "Direkt in die Küche",
+			"description": "Bestellungen erscheinen sofort auf dem Küchendisplay oder Drucker. Kein Zettelschreiben, keine Missverständnisse."
+		},
 		"aiMenu": {
-			"title": "KI-Menü-Assistent",
-			"description": "Laden Sie einfach Ihre Speisekarte hoch – unser KI-Assistent erstellt automatisch Ihr digitales Menü mit Preisen und Beschreibungen."
+			"title": "KI-Menü-Import",
+			"description": "Speisekarte fotografieren oder PDF hochladen – in 5 Minuten online. Andere Systeme brauchen Stunden für die manuelle Eingabe."
 		},
-		"revenue": {
-			"title": "Mehr Umsatz pro Gast",
-			"description": "Automatisches Cross-Selling von Beilagen, Getränken und Desserts erhöht Ihren Durchschnittsbon – ohne Zusatzaufwand für Ihr Team."
+		"noHardware": {
+			"title": "Keine Hardware",
+			"description": "Funktioniert auf Ihrem vorhandenen Smartphone oder Tablet. Kein Kartenleser, kein Terminal, kein neues Kassensystem."
 		},
-		"setup": {
-			"title": "Schnelle Einrichtung",
-			"description": "Ihr Online-Bestellsystem ist in unter 5 Minuten einsatzbereit. Kein technisches Wissen erforderlich – einfach nutzen und Zeit an der Theke sparen."
-		},
-		"multilingual": {
-			"title": "Mehrsprachig",
-			"description": "Ihre Speisekarte automatisch in mehreren Sprachen. Erreichen Sie mehr Kunden durch automatische Übersetzungen."
-		},
-		"mobile": {
-			"title": "Mobil optimiert",
-			"description": "Perfekte Darstellung auf allen Geräten. Ihre Gäste bestellen in Ruhe am Tisch per Smartphone – das reduziert Wartezeiten und entlastet Ihr Service-Team."
+		"standalone": {
+			"title": "Funktioniert eigenständig",
+			"description": "Kein zusätzliches System nötig. Menuvo funktioniert unabhängig oder ergänzt Ihr bestehendes Kassensystem."
 		},
 		"gdpr": {
 			"title": "DSGVO-konform",
-			"description": "Alle Daten werden in Deutschland gehostet. Vollständig DSGVO-konform und sicher."
+			"description": "Gehostet in Deutschland. Ihre Kundendaten gehören Ihnen, nicht einer Plattform."
 		}
 	},
 	"pricing": {
-		"title": "Transparente Preise",
-		"subtitle": "Reduzieren Sie Personalkosten an Theke und Telefon – und steigern Sie Ihren Umsatz mit jedem Online-Bestellvorgang.",
-		"recommended": "Empfohlen",
-		"ctaStart": "Kostenlos starten",
-		"ctaUpgrade": "Jetzt starten",
-		"starter": {
-			"name": "Starter",
-			"description": "30 Tage kostenlos testen",
-			"price": "0",
-			"period": "/Monat",
+		"title": "Einfach. Transparent. Fair.",
+		"subtitle": "Keine monatlichen Gebühren. Sie zahlen nur, wenn Sie verdienen.",
+		"plan": {
+			"name": "Menuvo",
+			"description": "Alles inklusive",
+			"monthlyFee": "0€",
+			"monthlyLabel": "monatlich",
+			"transactionFee": "2,9%",
+			"transactionLabel": "pro Bestellung",
 			"features": [
 				"Unbegrenzte Bestellungen",
-				"Digitale Speisekarte",
-				"QR-Code für Tischbestellung",
-				"Mobile-optimiert",
+				"Digitale Speisekarte mit QR-Code",
+				"KI-Menü-Import aus Foto/PDF",
+				"Küchendisplay",
+				"Bestellverwaltung",
+				"Kundenbenachrichtigungen",
+				"Analysen & Berichte",
 				"E-Mail Support"
 			]
 		},
-		"professional": {
-			"name": "Professional",
-			"description": "Für professionelle Restaurants",
-			"price": "29",
-			"period": "/Monat",
-			"features": [
-				"Alles aus Starter",
-				"Eigene Domain",
-				"Detaillierte Analysen",
-				"Prioritäts-Support",
-				"Mehrere Standorte",
-				"Anpassbares Design"
-			]
+		"ctaButton": "Jetzt kostenlos starten",
+		"fees": {
+			"title": "Alle Gebühren auf einen Blick",
+			"menuvo": {
+				"label": "Menuvo-Gebühr",
+				"value": "2,9%",
+				"description": "Bestellsystem, Menü, Küchendisplay, Support"
+			},
+			"mollie": {
+				"label": "Zahlungsgebühr (Mollie)",
+				"value": "~1,8% + 0,25€",
+				"description": "Für Kartenzahlung, Apple Pay, Google Pay"
+			},
+			"paypal": {
+				"label": "PayPal (optional)",
+				"value": "2,49% + 0,35€",
+				"description": "Wenn Kunde mit PayPal zahlt"
+			},
+			"total": {
+				"label": "Gesamt pro Bestellung",
+				"value": "ca. 5%",
+				"description": "Bei Kartenzahlung – deutlich weniger als Lieferplattformen"
+			}
 		},
-		"max": {
-			"name": "Max",
-			"description": "Mit KI-Features",
-			"price": "49",
-			"period": "/Monat",
-			"features": [
-				"Alles aus Professional",
-				"KI-Menü-Optimierung",
-				"Automatische Übersetzungen",
-				"Intelligente Empfehlungen",
-				"Persönlicher Account Manager",
-				"API Zugang"
-			]
-		}
-	},
-	"comparison": {
-		"title": "Menuvo vs. Lieferando vs. Wolt",
-		"feature": "Feature",
-		"menuvo": "Menuvo",
-		"lieferando": "Lieferando",
-		"wolt": "Wolt",
-		"commission": "Provision pro Bestellung*",
-		"commissionMenuvo": "0% / keine Provision",
-		"commissionLieferando": "Provisionsmodell",
-		"commissionWolt": "Provisionsmodell",
-		"monthly": "Monatliche Plattformkosten*",
-		"monthlyMenuvo": "Fixe SaaS-Gebühr",
-		"monthlyLieferando": "Vom Umsatz abhängig",
-		"monthlyWolt": "Vom Umsatz abhängig",
-		"domain": "Eigene Domain",
-		"data": "Kundendaten gehören Ihnen",
-		"yes": "✓",
-		"no": "✗",
-		"note": "*Starter-Tarif: 30 Tage kostenlos im Testzeitraum. Danach können Sie jederzeit in einen bezahlten Monatstarif wechseln oder kündigen.",
-		"provisionNote": "*Bei klassischen Lieferplattformen werden in der Regel prozentuale Provisionen auf den Bestellumsatz berechnet. Die tatsächlichen Kosten hängen von Umsatz, Liefergebiet und individuellen Verträgen ab."
+		"example": {
+			"title": "Beispiel: 50€ Bestellung mit Karte",
+			"rows": [
+				{ "label": "Bestellwert", "value": "50,00€" },
+				{ "label": "Menuvo (2,9%)", "value": "−1,45€" },
+				{ "label": "Mollie Karte (1,8% + 0,25€)", "value": "−1,15€" },
+				{ "label": "Sie erhalten", "value": "47,40€", "highlight": true }
+			],
+			"comparison": "Bei Lieferplattformen: deutlich weniger",
+			"savings": "Mit Menuvo behalten Sie mehr"
+		},
+		"note": "Alle Gebühren werden automatisch abgezogen. Sie erhalten den Nettobetrag direkt auf Ihr Konto."
 	},
 	"faq": {
-		"title": "Häufig gestellte Fragen",
-		"subtitle": "Alles, was Sie über Menuvo wissen müssen",
+		"title": "Häufige Fragen",
+		"subtitle": "Alles, was Sie wissen müssen",
 		"items": [
 			{
-				"question": "Wie schnell kann ich Menuvo nutzen?",
-				"answer": "Sie können in unter 5 Minuten starten! Registrieren Sie sich, laden Sie Ihre Speisekarte hoch (als PDF oder Foto), und unser KI-Assistent erstellt automatisch Ihr digitales Menü. Danach können Sie sofort Bestellungen entgegennehmen."
+				"question": "Was kostet Menuvo?",
+				"answer": "Keine monatlichen Gebühren. Sie zahlen nur 2,9% pro Bestellung. Dazu kommen die normalen Zahlungsgebühren (ca. 1,8% + 0,25€ für Kartenzahlung). Bei einer 50€ Bestellung sind das insgesamt etwa 2,60€ – Sie behalten 47,40€."
 			},
 			{
-				"question": "Wie funktioniert der KI-Menü-Assistent?",
-				"answer": "Laden Sie einfach ein Foto oder PDF Ihrer aktuellen Speisekarte hoch. Unsere KI erkennt automatisch Gerichte, Preise und Beschreibungen und erstellt daraus Ihr digitales Menü. Sie können alles nachträglich anpassen und bearbeiten."
+				"question": "Brauche ich ein neues Kassensystem?",
+				"answer": "Nein. Menuvo funktioniert standalone – Sie brauchen nur ein Smartphone oder Tablet, um Bestellungen zu empfangen. Es funktioniert auch parallel zu Ihrem bestehenden Kassensystem."
 			},
 			{
-				"question": "Fallen wirklich keine Provisionen an?",
-				"answer": "Nein, absolut keine Provisionen! Im Gegensatz zu Lieferando (13-30% Provision) oder Wolt (15-30% Provision) behalten Sie bei Menuvo 100% Ihres Umsatzes. Sie zahlen nur eine transparente monatliche Gebühr - der Starter-Plan ist sogar komplett kostenlos."
+				"question": "Wie schnell bin ich online?",
+				"answer": "In 5 Minuten. Laden Sie ein Foto Ihrer Speisekarte hoch, unsere KI erstellt das digitale Menü, und Sie können sofort Bestellungen empfangen."
 			},
 			{
-				"question": "Spart Menuvo Zeit für mein Team?",
-				"answer": "Ja. Gäste bestellen selbst per Smartphone – ohne Anruf, ohne Kassenschlange. Ihr Service- oder Thekenpersonal hat mehr Zeit für das Wesentliche: Essen zubereiten, Gäste betreuen und die Qualität hochhalten, statt Bestellungen aufzunehmen."
+				"question": "Brauche ich Hardware?",
+				"answer": "Nein. Kein Kartenleser, kein Terminal. Kunden zahlen mit ihrem Smartphone (Karte, Apple Pay, Google Pay). Sie sehen Bestellungen auf Ihrem vorhandenen Gerät."
 			},
 			{
-				"question": "Wie hilft Menuvo mir, mehr Umsatz zu machen?",
-				"answer": "Ihr digitales Menü schlägt automatisch passende Beilagen, Getränke und Desserts vor. So wird Cross-Selling zum Standard – ganz ohne zusätzlichen Aufwand für Ihr Team. Viele kleine Zusatzverkäufe pro Bestellung summieren sich schnell zu mehr Monatsumsatz."
+				"question": "Für wen ist Menuvo geeignet?",
+				"answer": "Restaurants, Cafés, Food Trucks, Imbisse, Pop-ups – alle, die QR-Bestellungen anbieten wollen, ohne ein teures Kassensystem zu kaufen oder hohe Provisionen zu zahlen."
 			},
 			{
-				"question": "Benötige ich technische Kenntnisse?",
-				"answer": "Überhaupt nicht! Menuvo ist speziell für Restaurant-Besitzer entwickelt, die keine technischen Kenntnisse haben. Alles läuft über eine intuitive Oberfläche - wenn Sie WhatsApp bedienen können, können Sie auch Menuvo nutzen."
+				"question": "Wie funktioniert die Zahlung?",
+				"answer": "Kunden zahlen direkt beim Bestellen mit Karte, Apple Pay, Google Pay oder PayPal. Das Geld geht auf Ihr Konto. Wir nutzen Mollie für die Zahlungsabwicklung."
 			},
 			{
-				"question": "Wie erhalten Kunden Zugang zu meinem Bestellsystem?",
-				"answer": "Sie erhalten einen QR-Code, den Sie auf Ihre Tische kleben oder in Ihrem Restaurant aufhängen. Kunden scannen den Code mit ihrem Smartphone und können sofort bestellen - ohne App-Download."
+				"question": "Kann ich jederzeit kündigen?",
+				"answer": "Ja, jederzeit. Keine Mindestlaufzeit, keine Kündigungsfrist. Wenn Sie keine Bestellungen haben, zahlen Sie nichts."
 			},
 			{
 				"question": "Ist Menuvo DSGVO-konform?",
-				"answer": "Ja, zu 100%! Alle Daten werden in Deutschland gehostet und unterliegen deutschem Datenschutzrecht. Wir sind vollständig DSGVO-konform und Ihre Kundendaten gehören ausschließlich Ihnen."
+				"answer": "Ja. Alle Daten werden in Deutschland gehostet. Ihre Kundendaten gehören ausschließlich Ihnen."
 			},
 			{
-				"question": "Kann ich Menuvo auch für mehrere Standorte nutzen?",
-				"answer": "Ja! Mit dem Professional-Plan können Sie mehrere Standorte verwalten. Jeder Standort hat sein eigenes Menü, eigene Preise und eigene Bestellverwaltung - alles zentral über ein Dashboard."
-			},
-			{
-				"question": "Wie funktioniert der Support?",
-				"answer": "Starter-Plan: E-Mail Support innerhalb von 24 Stunden. Professional-Plan: Prioritäts-Support mit Antwort innerhalb von 4 Stunden. Max-Plan: Persönlicher Account Manager und direkter Telefon-Support."
+				"question": "Was passiert mit meinen Kundendaten?",
+				"answer": "Sie gehören Ihnen – nicht uns, nicht einer Plattform. Sie können sie für Marketing nutzen, Stammkunden pflegen und Ihre eigene Kundenbeziehung aufbauen."
 			}
 		]
 	},
 	"footer": {
-		"tagline": "Digitale Bestellungen für Ihr Restaurant - 100% Ihres Umsatzes, keine Provisionen",
+		"tagline": "QR-Bestellung ohne neues Kassensystem. 0€ monatlich, 2,9% pro Bestellung.",
 		"product": "Produkt",
 		"company": "Unternehmen",
 		"legal": "Rechtliches",

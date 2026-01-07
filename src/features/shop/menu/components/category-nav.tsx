@@ -2,12 +2,12 @@ import { cn } from "@/lib/utils";
 
 interface CategoryNavProps {
 	categories: {
-		id: number;
+		id: string;
 		name: string;
 		itemCount?: number;
 	}[];
-	activeCategoryId: number | null;
-	onCategoryClick: (categoryId: number) => void;
+	activeCategoryId: string | null;
+	onCategoryClick: (categoryId: string) => void;
 }
 
 export function CategoryNav({

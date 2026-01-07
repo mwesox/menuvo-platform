@@ -9,7 +9,7 @@ import { uniqueId } from "../utils/test-id";
 
 export interface ServicePointFactoryOptions {
 	testRunId: string;
-	storeId: number;
+	storeId: string;
 	name?: string;
 	code?: string;
 	shortCode?: string;

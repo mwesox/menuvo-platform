@@ -20,7 +20,7 @@ export interface OrderItemOptionInput {
 }
 
 export interface OrderItemInput {
-	itemId?: number | null;
+	itemId?: string | null;
 	name: string;
 	quantity: number;
 	unitPrice: number;
@@ -30,7 +30,7 @@ export interface OrderItemInput {
 
 export interface OrderFactoryOptions {
 	testRunId: string;
-	storeId: number;
+	storeId: string;
 	status?: OrderStatus;
 	paymentStatus?: PaymentStatus;
 	orderType?: OrderType;

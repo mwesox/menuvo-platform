@@ -37,7 +37,7 @@ const getTimeStyle = (level: UrgencyLevel): string => {
 
 interface OrderCardKitchenProps {
 	order: OrderWithItems & {
-		servicePoint?: { id: number; name: string; code: string } | null;
+		servicePoint?: { id: string; name: string; code: string } | null;
 	};
 	/** Current column (for done styling and next button visibility) */
 	columnId?: KanbanColumnId;

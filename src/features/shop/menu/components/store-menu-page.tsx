@@ -60,7 +60,7 @@ export function StoreMenuPage() {
 			<div className="mx-auto max-w-6xl">
 				<CategoryNav
 					categories={filteredCategories.map(
-						(c: { id: number; name: string; items: unknown[] }) => ({
+						(c: { id: string; name: string; items: unknown[] }) => ({
 							id: c.id,
 							name: c.name,
 							itemCount: c.items.length,

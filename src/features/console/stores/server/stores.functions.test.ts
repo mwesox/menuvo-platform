@@ -28,7 +28,7 @@ import {
 
 describe("stores.functions", () => {
 	const testRunId = createTestRunId();
-	let merchantId: number;
+	let merchantId: string;
 
 	beforeAll(async () => {
 		// Create test merchant for all tests in this file
@@ -65,7 +65,9 @@ describe("stores.functions", () => {
 			});
 
 			expect(result).toBeDefined();
-			expect(result.id).toBeGreaterThan(0);
+			expect(result.id).toMatch(
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+			);
 			expect(result.name).toBe(storeName);
 			expect(result.slug).toContain("coffee-shop");
 			expect(result.merchantId).toBe(merchantId);
@@ -114,9 +116,11 @@ describe("stores.functions", () => {
 		});
 
 		it("should throw for non-existent store", async () => {
-			await expect(getStore({ data: { storeId: 999999 } })).rejects.toThrow(
-				"Store not found",
-			);
+			await expect(
+				getStore({
+					data: { storeId: "00000000-0000-0000-0000-000000000000" },
+				}),
+			).rejects.toThrow("Store not found");
 		});
 	});
 

@@ -1,12 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+// NOTE: Server-only imports are dynamically imported inside handler
+// to prevent bundling in client via routeTree.gen.ts
 import {
 	type AllowedFileType,
 	allowedFileTypes,
 } from "@/features/console/menu-import/schemas";
-import { createImportJob } from "@/features/console/menu-import/server/import.helpers";
-import { menuImportLogger } from "@/lib/logger";
-import { enqueueImportJob } from "@/lib/queue/menu-import-queue";
-import { uploadFile } from "@/lib/storage/files-client";
+
+/** Maximum file size in bytes (5MB) */
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+/** Maximum imports allowed per store per hour */
+const MAX_IMPORTS_PER_HOUR = 10;
 
 /**
  * Menu Import Upload API Route
@@ -15,12 +19,33 @@ import { uploadFile } from "@/lib/storage/files-client";
  *
  * FormData fields:
  * - file: File (menu file - xlsx, csv, json, md, txt)
- * - storeId: string (will be parsed as number)
+ * - storeId: string (UUID)
+ *
+ * Security:
+ * - File size limit: 5MB
+ * - Rate limit: 10 imports per store per hour
  */
 export const Route = createFileRoute("/api/menu-import/upload")({
 	server: {
 		handlers: {
 			POST: async ({ request }) => {
+				// Dynamic imports to prevent client bundling
+				const [
+					{ and, count, eq, gt },
+					{ db },
+					{ menuImportJobs },
+					{ createImportJob },
+					{ menuImportLogger },
+					{ uploadFile },
+				] = await Promise.all([
+					import("drizzle-orm"),
+					import("@/db"),
+					import("@/db/schema"),
+					import("@/features/console/menu-import/server/import.helpers"),
+					import("@/lib/logger"),
+					import("@/lib/storage/files-client"),
+				]);
+
 				const formData = await request.formData();
 
 				const file = formData.get("file") as File | null;
@@ -35,9 +60,18 @@ export const Route = createFileRoute("/api/menu-import/upload")({
 					return Response.json({ error: "Missing storeId" }, { status: 400 });
 				}
 
-				const storeId = Number(storeIdStr);
-				if (Number.isNaN(storeId) || storeId <= 0) {
-					return Response.json({ error: "Invalid storeId" }, { status: 400 });
+				const storeId = storeIdStr;
+
+				// Security: Validate file size
+				if (file.size > MAX_FILE_SIZE) {
+					menuImportLogger.warn(
+						{ storeId, fileSize: file.size },
+						"Menu import rejected: file too large",
+					);
+					return Response.json(
+						{ error: "File too large. Maximum size is 5MB." },
+						{ status: 400 },
+					);
 				}
 
 				// Validate file type
@@ -48,6 +82,32 @@ export const Route = createFileRoute("/api/menu-import/upload")({
 							error: `Invalid file type. Allowed: ${allowedFileTypes.join(", ")}`,
 						},
 						{ status: 400 },
+					);
+				}
+
+				// Security: Rate limiting - check recent imports for this store
+				const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+				const [recentImports] = await db
+					.select({ count: count() })
+					.from(menuImportJobs)
+					.where(
+						and(
+							eq(menuImportJobs.storeId, storeId),
+							gt(menuImportJobs.createdAt, oneHourAgo),
+						),
+					);
+
+				if (recentImports.count >= MAX_IMPORTS_PER_HOUR) {
+					menuImportLogger.warn(
+						{ storeId, recentCount: recentImports.count },
+						"Menu import rejected: rate limit exceeded",
+					);
+					return Response.json(
+						{
+							error:
+								"Too many imports. Please try again later (max 10 per hour).",
+						},
+						{ status: 429 },
 					);
 				}
 
@@ -71,10 +131,7 @@ export const Route = createFileRoute("/api/menu-import/upload")({
 						fileKey,
 					});
 
-					// Enqueue for background processing
-					await enqueueImportJob(jobId);
-
-					return Response.json({ jobId, status: "PROCESSING" });
+					return Response.json({ jobId, status: "PENDING" });
 				} catch (error) {
 					menuImportLogger.error({ error }, "Menu import upload failed");
 					return Response.json(

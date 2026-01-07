@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/empty";
 
 interface StoreSelectionPromptProps {
-	stores: Array<{ id: number; name: string }>;
+	stores: Array<{ id: string; name: string }>;
 }
 
 export function StoreSelectionPrompt({ stores }: StoreSelectionPromptProps) {

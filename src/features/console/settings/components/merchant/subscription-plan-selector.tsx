@@ -17,7 +17,7 @@ import { getPriceIdForPlan } from "../../server/subscription.functions";
 import { PlanChangeConfirmDialog } from "./plan-change-confirm-dialog";
 
 interface SubscriptionPlanSelectorProps {
-	merchantId: number;
+	merchantId: string;
 	currentPlan: PlanTier | null;
 	subscriptionStatus: SubscriptionStatus;
 }

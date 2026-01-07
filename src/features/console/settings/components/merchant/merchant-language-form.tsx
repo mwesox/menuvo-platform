@@ -26,7 +26,7 @@ import {
 import { merchantQueries } from "../../queries.ts";
 
 interface MerchantLanguageFormProps {
-	merchantId: number;
+	merchantId: string;
 }
 
 export function MerchantLanguageForm({

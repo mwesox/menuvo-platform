@@ -14,7 +14,7 @@ import { ImageCropper } from "./image-cropper.tsx";
 interface ImageUploadFieldProps {
 	value?: string;
 	onChange: (url: string | undefined) => void;
-	merchantId: number;
+	merchantId: string;
 	imageType: ImageType;
 	className?: string;
 	disabled?: boolean;
@@ -33,7 +33,7 @@ export function ImageUploadField({
 	const [isUploading, setIsUploading] = useState(false);
 	const [cropperOpen, setCropperOpen] = useState(false);
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
-	const [currentImageId, setCurrentImageId] = useState<number | null>(null);
+	const [currentImageId, setCurrentImageId] = useState<string | null>(null);
 
 	const handleFileSelect = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {

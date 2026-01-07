@@ -41,7 +41,7 @@ import {
 import { cn } from "@/lib/utils.ts";
 
 interface StoreClosuresFormProps {
-	storeId: number;
+	storeId: string;
 }
 
 export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
@@ -50,7 +50,7 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 		storeClosuresQueries.list(storeId),
 	);
 	const [isAdding, setIsAdding] = useState(false);
-	const [editingId, setEditingId] = useState<number | null>(null);
+	const [editingId, setEditingId] = useState<string | null>(null);
 
 	return (
 		<div className="space-y-6">
@@ -107,7 +107,7 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 
 interface ClosureListItemProps {
 	closure: StoreClosure;
-	storeId: number;
+	storeId: string;
 	onEdit: () => void;
 }
 
@@ -165,7 +165,7 @@ function ClosureListItem({ closure, storeId, onEdit }: ClosureListItemProps) {
 }
 
 interface ClosureFormProps {
-	storeId: number;
+	storeId: string;
 	closure?: StoreClosure;
 	onSuccess: () => void;
 	onCancel: () => void;

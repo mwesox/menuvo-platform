@@ -49,7 +49,7 @@ export type AIMenuExtraction = z.infer<typeof aiMenuExtractionSchema>;
  * Server input for getting job status.
  */
 export const getImportJobStatusSchema = z.object({
-	jobId: z.number(),
+	jobId: z.string().uuid(),
 });
 
 /**
@@ -65,7 +65,7 @@ export const selectionItemSchema = z.object({
  * Server input for applying import changes.
  */
 export const applyImportChangesSchema = z.object({
-	jobId: z.number(),
+	jobId: z.string().uuid(),
 	selections: z.array(selectionItemSchema),
 });
 

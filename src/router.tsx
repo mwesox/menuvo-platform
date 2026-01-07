@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/tanstackstart-react";
 import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { DEFAULT_LANGUAGE } from "./i18n";
@@ -29,12 +28,15 @@ export const getRouter = () => {
 		queryClient: rqContext.queryClient,
 	});
 
+	// Dynamic import Sentry to avoid bundling @sentry/node dependencies (bytes.js, express, etc.)
 	if (!router.isServer) {
-		Sentry.init({
-			dsn: import.meta.env.VITE_SENTRY_DSN,
-			integrations: [],
-			tracesSampleRate: 1.0,
-			sendDefaultPii: true,
+		import("@sentry/tanstackstart-react").then((Sentry) => {
+			Sentry.init({
+				dsn: import.meta.env.VITE_SENTRY_DSN,
+				integrations: [],
+				tracesSampleRate: 1.0,
+				sendDefaultPii: true,
+			});
 		});
 	}
 

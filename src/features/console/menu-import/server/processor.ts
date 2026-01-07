@@ -51,7 +51,7 @@ const defaultDeps: ProcessorDeps = {
  * @param deps - Optional dependencies for testing
  */
 export async function processMenuImportJob(
-	jobId: number,
+	jobId: string,
 	deps: ProcessorDeps = defaultDeps,
 ): Promise<void> {
 	const job = await db.query.menuImportJobs.findFirst({

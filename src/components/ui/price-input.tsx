@@ -2,6 +2,50 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input.tsx";
 import { cn } from "@/lib/utils.ts";
 
+/**
+ * Format a price in cents to a localized currency string.
+ * @param cents - The price in cents
+ * @param currency - The currency code (default: "EUR")
+ * @param locale - The locale for formatting (default: "de-DE")
+ * @returns Formatted price string (e.g., "12,99 €")
+ */
+export function formatPrice(
+	cents: number,
+	currency = "EUR",
+	locale = "de-DE",
+): string {
+	return new Intl.NumberFormat(locale, {
+		style: "currency",
+		currency,
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	}).format(cents / 100);
+}
+
+/**
+ * Format a price modifier (can be positive or negative) with appropriate sign.
+ * Uses proper typographic minus sign (U+2212) for negative values.
+ * @param cents - The price modifier in cents
+ * @param currency - The currency code (default: "EUR")
+ * @param locale - The locale for formatting (default: "de-DE")
+ * @returns Formatted string with sign (e.g., "+2,20 €" or "−2,20 €")
+ */
+export function formatPriceModifier(
+	cents: number,
+	currency = "EUR",
+	locale = "de-DE",
+): string {
+	const formatted = formatPrice(Math.abs(cents), currency, locale);
+
+	if (cents > 0) {
+		return `+${formatted}`;
+	}
+	if (cents < 0) {
+		return `−${formatted}`; // Using proper minus sign (U+2212)
+	}
+	return formatted;
+}
+
 interface PriceInputProps {
 	value: number;
 	onChange: (cents: number) => void;
@@ -12,13 +56,6 @@ interface PriceInputProps {
 	currency?: string;
 	id?: string;
 	name?: string;
-}
-
-function formatPrice(cents: number, currency = "EUR"): string {
-	return new Intl.NumberFormat("de-DE", {
-		style: "currency",
-		currency,
-	}).format(cents / 100);
 }
 
 export function PriceInput({

@@ -5,7 +5,7 @@ import { z } from "zod";
 // ============================================================================
 
 export const createStoreSchema = z.object({
-	merchantId: z.number().int().positive(),
+	merchantId: z.string().uuid(),
 	name: z
 		.string()
 		.min(2, "Store name must be at least 2 characters")
@@ -63,7 +63,7 @@ export type StoreDetailsFormInput = z.infer<typeof storeDetailsFormSchema>;
 // ============================================================================
 
 export const storeIdSchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 });
 
 export type CreateStoreInput = z.infer<typeof createStoreSchema>;

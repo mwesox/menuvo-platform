@@ -1,6 +1,13 @@
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
+import { menuImportLogger } from "@/lib/logger";
 import type { AllowedFileType } from "../schemas";
+
+/**
+ * Maximum text length to send to AI (200KB).
+ * Larger texts are truncated to prevent resource exhaustion and excessive API costs.
+ */
+const MAX_TEXT_LENGTH = 200_000;
 
 /**
  * Result of text extraction from a file.
@@ -11,29 +18,52 @@ export interface ExtractionResult {
 		rowCount?: number;
 		sheetNames?: string[];
 		headers?: string[];
+		truncated?: boolean;
 	};
 }
 
 /**
  * Extract text content from various file types.
+ * Applies security limit on text length to prevent resource exhaustion.
  */
 export function extractTextFromFile(
 	buffer: Buffer,
 	fileType: AllowedFileType,
 ): ExtractionResult {
+	let result: ExtractionResult;
+
 	switch (fileType) {
 		case "xlsx":
-			return extractFromExcel(buffer);
+			result = extractFromExcel(buffer);
+			break;
 		case "csv":
-			return extractFromCSV(buffer);
+			result = extractFromCSV(buffer);
+			break;
 		case "json":
-			return extractFromJSON(buffer);
+			result = extractFromJSON(buffer);
+			break;
 		case "md":
 		case "txt":
-			return extractFromText(buffer);
+			result = extractFromText(buffer);
+			break;
 		default:
 			throw new Error(`Unsupported file type: ${fileType}`);
 	}
+
+	// Security: Truncate text if too large
+	if (result.text.length > MAX_TEXT_LENGTH) {
+		menuImportLogger.warn(
+			{ originalLength: result.text.length, maxLength: MAX_TEXT_LENGTH },
+			"Menu text truncated due to size limit",
+		);
+		result = {
+			...result,
+			text: result.text.slice(0, MAX_TEXT_LENGTH),
+			metadata: { ...result.metadata, truncated: true },
+		};
+	}
+
+	return result;
 }
 
 /**

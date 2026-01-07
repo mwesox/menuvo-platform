@@ -1,3 +1,5 @@
+"use server";
+
 import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq, ilike, inArray, or } from "drizzle-orm";
@@ -199,7 +201,7 @@ export const getPublicStores = createServerFn({ method: "GET" })
 					or(
 						ilike(stores.name, `%${data.search}%`),
 						ilike(stores.city, `%${data.search}%`),
-					) ?? eq(stores.id, -1), // Fallback that never matches
+					) ?? eq(stores.id, "00000000-0000-0000-0000-000000000000"), // Fallback that never matches
 				);
 			}
 

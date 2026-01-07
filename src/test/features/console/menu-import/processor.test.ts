@@ -43,7 +43,7 @@ type ImportJobStatus = {
 		};
 		categories: Array<{
 			extracted: { name: string };
-			existingId?: number;
+			existingId?: string;
 			items: Array<{
 				extracted: { name: string };
 				action: string;
@@ -107,8 +107,8 @@ function createTestDeps(options: {
 
 describe("Menu Import Pipeline", () => {
 	const testRunId = createTestRunId();
-	let storeId: number;
-	let merchantId: number;
+	let storeId: string;
+	let merchantId: string;
 
 	beforeAll(async () => {
 		const merchant = await createTestMerchant({ testRunId });

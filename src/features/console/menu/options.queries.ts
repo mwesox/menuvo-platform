@@ -42,29 +42,29 @@ import type {
 // Query keys
 export const optionKeys = {
 	groups: {
-		byStore: (storeId: number) => ["optionGroups", "store", storeId] as const,
-		detail: (optionGroupId: number) =>
+		byStore: (storeId: string) => ["optionGroups", "store", storeId] as const,
+		detail: (optionGroupId: string) =>
 			["optionGroups", "detail", optionGroupId] as const,
 	},
 	choices: {
-		byGroup: (optionGroupId: number) =>
+		byGroup: (optionGroupId: string) =>
 			["optionChoices", "group", optionGroupId] as const,
 	},
 	itemOptions: {
-		byItem: (itemId: number) => ["itemOptions", "item", itemId] as const,
+		byItem: (itemId: string) => ["itemOptions", "item", itemId] as const,
 	},
 };
 
 // Option group query options factories
 export const optionGroupQueries = {
-	byStore: (storeId: number) =>
+	byStore: (storeId: string) =>
 		queryOptions({
 			queryKey: optionKeys.groups.byStore(storeId),
 			queryFn: () => getOptionGroups({ data: { storeId } }),
 			enabled: !!storeId,
 		}),
 
-	detail: (optionGroupId: number) =>
+	detail: (optionGroupId: string) =>
 		queryOptions({
 			queryKey: optionKeys.groups.detail(optionGroupId),
 			queryFn: () => getOptionGroup({ data: { optionGroupId } }),
@@ -73,7 +73,7 @@ export const optionGroupQueries = {
 
 // Item options query options factory
 export const itemOptionQueries = {
-	byItem: (itemId: number) =>
+	byItem: (itemId: string) =>
 		queryOptions({
 			queryKey: optionKeys.itemOptions.byItem(itemId),
 			queryFn: () => getItemOptions({ data: { itemId } }),
@@ -81,7 +81,7 @@ export const itemOptionQueries = {
 };
 
 // Option group mutation hooks
-export function useCreateOptionGroup(storeId: number) {
+export function useCreateOptionGroup(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -100,7 +100,7 @@ export function useCreateOptionGroup(storeId: number) {
 	});
 }
 
-export function useUpdateOptionGroup(storeId: number) {
+export function useUpdateOptionGroup(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -108,7 +108,7 @@ export function useUpdateOptionGroup(storeId: number) {
 		mutationFn: ({
 			optionGroupId,
 			...data
-		}: UpdateOptionGroupInput & { optionGroupId: number }) =>
+		}: UpdateOptionGroupInput & { optionGroupId: string }) =>
 			updateOptionGroup({ data: { optionGroupId, ...data } }),
 		onSuccess: (updatedGroup) => {
 			queryClient.setQueryData(
@@ -126,7 +126,7 @@ export function useUpdateOptionGroup(storeId: number) {
 	});
 }
 
-export function useToggleOptionGroupActive(storeId: number) {
+export function useToggleOptionGroupActive(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -135,7 +135,7 @@ export function useToggleOptionGroupActive(storeId: number) {
 			optionGroupId,
 			isActive,
 		}: {
-			optionGroupId: number;
+			optionGroupId: string;
 			isActive: boolean;
 		}) => toggleOptionGroupActive({ data: { optionGroupId, isActive } }),
 		onSuccess: (optionGroup) => {
@@ -154,12 +154,12 @@ export function useToggleOptionGroupActive(storeId: number) {
 	});
 }
 
-export function useDeleteOptionGroup(storeId: number) {
+export function useDeleteOptionGroup(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (optionGroupId: number) =>
+		mutationFn: (optionGroupId: string) =>
 			deleteOptionGroup({ data: { optionGroupId } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -173,7 +173,7 @@ export function useDeleteOptionGroup(storeId: number) {
 	});
 }
 
-export function useSaveOptionGroupWithChoices(storeId: number) {
+export function useSaveOptionGroupWithChoices(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -197,7 +197,7 @@ export function useSaveOptionGroupWithChoices(storeId: number) {
 }
 
 // Option choice mutation hooks
-export function useCreateOptionChoice(optionGroupId: number) {
+export function useCreateOptionChoice(optionGroupId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -216,7 +216,7 @@ export function useCreateOptionChoice(optionGroupId: number) {
 	});
 }
 
-export function useUpdateOptionChoice(optionGroupId: number) {
+export function useUpdateOptionChoice(optionGroupId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -224,7 +224,7 @@ export function useUpdateOptionChoice(optionGroupId: number) {
 		mutationFn: ({
 			optionChoiceId,
 			...data
-		}: UpdateOptionChoiceInput & { optionChoiceId: number }) =>
+		}: UpdateOptionChoiceInput & { optionChoiceId: string }) =>
 			updateOptionChoice({ data: { optionChoiceId, ...data } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -238,7 +238,7 @@ export function useUpdateOptionChoice(optionGroupId: number) {
 	});
 }
 
-export function useToggleOptionChoiceAvailable(optionGroupId: number) {
+export function useToggleOptionChoiceAvailable(optionGroupId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
@@ -247,7 +247,7 @@ export function useToggleOptionChoiceAvailable(optionGroupId: number) {
 			optionChoiceId,
 			isAvailable,
 		}: {
-			optionChoiceId: number;
+			optionChoiceId: string;
 			isAvailable: boolean;
 		}) =>
 			toggleOptionChoiceAvailable({ data: { optionChoiceId, isAvailable } }),
@@ -267,12 +267,12 @@ export function useToggleOptionChoiceAvailable(optionGroupId: number) {
 	});
 }
 
-export function useDeleteOptionChoice(optionGroupId: number) {
+export function useDeleteOptionChoice(optionGroupId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (optionChoiceId: number) =>
+		mutationFn: (optionChoiceId: string) =>
 			deleteOptionChoice({ data: { optionChoiceId } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -287,12 +287,12 @@ export function useDeleteOptionChoice(optionGroupId: number) {
 }
 
 // Item options mutation hook
-export function useUpdateItemOptions(itemId: number) {
+export function useUpdateItemOptions(itemId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("toasts");
 
 	return useMutation({
-		mutationFn: (optionGroupIds: number[]) =>
+		mutationFn: (optionGroupIds: string[]) =>
 			updateItemOptions({ data: { itemId, optionGroupIds } }),
 		onSuccess: () => {
 			queryClient.invalidateQueries({

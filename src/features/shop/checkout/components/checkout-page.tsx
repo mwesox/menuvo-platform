@@ -24,7 +24,7 @@ import {
 import { useCreatePayment } from "../queries";
 
 interface CheckoutPageProps {
-	storeId: number;
+	storeId: string;
 	storeSlug: string;
 	capabilities: MerchantCapabilities;
 }

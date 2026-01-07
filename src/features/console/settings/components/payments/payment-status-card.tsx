@@ -27,7 +27,7 @@ interface PaymentStatusCardProps {
 		subscriptionStatus: string | null;
 		subscriptionTrialEndsAt: Date | null;
 	};
-	merchantId: number;
+	merchantId: string;
 }
 
 export function PaymentStatusCard({

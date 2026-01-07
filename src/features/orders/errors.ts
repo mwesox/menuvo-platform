@@ -57,7 +57,7 @@ export class PaymentAlreadyInitiatedError extends AppError {
 	readonly _tag = "PaymentAlreadyInitiatedError" as const;
 	readonly code = "PAYMENT_ALREADY_INITIATED" as const;
 
-	constructor(orderId: number, paymentStatus: string) {
+	constructor(orderId: string, paymentStatus: string) {
 		super(
 			`Payment already initiated for this order (status: ${paymentStatus})`,
 			{
@@ -76,7 +76,7 @@ export class NoCheckoutSessionError extends AppError {
 	readonly _tag = "NoCheckoutSessionError" as const;
 	readonly code = "NO_CHECKOUT_SESSION" as const;
 
-	constructor(orderId: number) {
+	constructor(orderId: string) {
 		super("No checkout session found for this order", { orderId });
 	}
 }

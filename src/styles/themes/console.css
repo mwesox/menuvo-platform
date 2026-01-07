@@ -186,3 +186,9 @@
 }
 
 /* Drag and drop - using native browser drag, no special optimizations needed */
+
+/* Form labels - bolder for better visual hierarchy */
+[data-slot="label"],
+[data-slot="field-label"] {
+	font-weight: 700;
+}

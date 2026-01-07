@@ -46,11 +46,13 @@ code {
 	--color-brand-orange: var(--brand-orange);
 	--color-brand-dark: var(--brand-dark);
 
-	/* Radius */
+	/* Radius - themed scale based on --radius from each theme */
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-2xl: calc(var(--radius) + 8px);
+	--radius-3xl: calc(var(--radius) + 12px);
 
 	/* Sidebar */
 	--color-sidebar: var(--sidebar);

@@ -3,8 +3,8 @@ import { getMollieClient } from "./client";
 import type { Amount } from "./types";
 
 export type CreateOrderPaymentInput = {
-	orderId: number;
-	storeId: number;
+	orderId: string;
+	storeId: string;
 	amount: Amount;
 	description: string;
 	redirectUrl: string;

@@ -26,7 +26,7 @@ import { useKitchenUpdateOrderStatus } from "../queries";
 // ============================================================================
 
 type OrderWithServicePoint = OrderWithItems & {
-	servicePoint?: { id: number; name: string; code: string } | null;
+	servicePoint?: { id: string; name: string; code: string } | null;
 };
 
 export interface KitchenBoardState {
@@ -36,9 +36,9 @@ export interface KitchenBoardState {
 
 export interface KitchenBoardActions {
 	/** Move order to a specific column (called from drop handler) */
-	moveCard: (orderId: number, targetColumn: KanbanColumnId) => void;
+	moveCard: (orderId: string, targetColumn: KanbanColumnId) => void;
 	/** Move order to next column (new->preparing->ready->done) */
-	moveToNext: (orderId: number) => void;
+	moveToNext: (orderId: string) => void;
 	/** Check if drop from source to target is valid */
 	canDrop: (
 		sourceColumn: KanbanColumnId,
@@ -49,7 +49,7 @@ export interface KitchenBoardActions {
 export type KitchenBoardResult = KitchenBoardState &
 	KitchenBoardActions & {
 		/** ID of the last moved order for visual highlighting */
-		lastMovedOrderId: number | null;
+		lastMovedOrderId: string | null;
 	};
 
 // ============================================================================
@@ -112,7 +112,7 @@ function getNextColumn(current: KanbanColumnId): KanbanColumnId | null {
  */
 function findContainer(
 	columns: Record<KanbanColumnId, OrderWithServicePoint[]>,
-	orderId: number,
+	orderId: string,
 ): KanbanColumnId | null {
 	for (const columnId of Object.keys(columns) as KanbanColumnId[]) {
 		if (columns[columnId].some((o) => o.id === orderId)) {
@@ -136,14 +136,14 @@ function findContainer(
  * - Offline mutation queueing
  */
 export function useKitchenBoard(
-	storeId: number,
+	storeId: string,
 	activeOrders: OrderWithItems[],
 	doneOrders: OrderWithItems[],
 ): KitchenBoardResult {
 	const { t } = useTranslation("console-kitchen");
 
 	// Track last moved order for visual highlighting
-	const [lastMovedOrderId, setLastMovedOrderId] = useState<number | null>(null);
+	const [lastMovedOrderId, setLastMovedOrderId] = useState<string | null>(null);
 
 	// Group orders into columns
 	const columns = groupOrdersByColumn(activeOrders, doneOrders);
@@ -161,7 +161,7 @@ export function useKitchenBoard(
 
 	// Move card to a specific column (called from drop handler)
 	const moveCard = useCallback(
-		(orderId: number, targetColumn: KanbanColumnId) => {
+		(orderId: string, targetColumn: KanbanColumnId) => {
 			const sourceColumn = findContainer(columns, orderId);
 			if (!sourceColumn) return;
 
@@ -185,7 +185,7 @@ export function useKitchenBoard(
 
 	// Move order to next column (new->preparing->ready->done)
 	const moveToNext = useCallback(
-		(orderId: number) => {
+		(orderId: string) => {
 			// Find current column
 			const currentColumn = findContainer(columns, orderId);
 			if (!currentColumn) return;

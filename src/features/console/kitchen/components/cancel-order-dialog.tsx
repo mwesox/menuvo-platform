@@ -21,8 +21,8 @@ import { useCancelOrder } from "@/features/orders/queries";
 interface CancelOrderDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	orderId: number;
-	storeId: number;
+	orderId: string;
+	storeId: string;
 }
 
 interface FormState {

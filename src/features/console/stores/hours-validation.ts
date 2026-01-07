@@ -33,7 +33,7 @@ export type TimeSlot = z.infer<typeof timeSlotSchema>;
 // Single store hour entry schema (for database)
 export const storeHourSchema = z
 	.object({
-		id: z.number().optional(),
+		id: z.string().uuid().optional(),
 		dayOfWeek: z.enum(daysOfWeek),
 		openTime: z.string().regex(timeRegex, "Invalid time format (HH:MM)"),
 		closeTime: z.string().regex(timeRegex, "Invalid time format (HH:MM)"),
@@ -115,11 +115,11 @@ export type WeekHoursInput = z.infer<typeof weekHoursSchema>;
 
 // Server function input schemas
 export const getStoreHoursSchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 });
 
 export const saveStoreHoursSchema = z.object({
-	storeId: z.number().int().positive(),
+	storeId: z.string().uuid(),
 	hours: z.array(
 		z.object({
 			dayOfWeek: z.enum(daysOfWeek),

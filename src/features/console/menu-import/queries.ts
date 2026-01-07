@@ -14,16 +14,16 @@ import type { ImportJobStatusResponse } from "./types";
  * Query keys for menu import.
  */
 export const importKeys = {
-	job: (jobId: number) => ["menuImport", "job", jobId] as const,
+	job: (jobId: string) => ["menuImport", "job", jobId] as const,
 };
 
 /**
  * Poll for import job status.
  * Polls every 2 seconds while job is processing.
  */
-export function useImportJobStatus(jobId: number | null) {
+export function useImportJobStatus(jobId: string | null) {
 	return useQuery({
-		queryKey: importKeys.job(jobId ?? 0),
+		queryKey: importKeys.job(jobId ?? ""),
 		queryFn: async () => {
 			if (jobId === null) throw new Error("Job ID required");
 			const result = await getImportJobStatus({ data: { jobId } });
@@ -51,7 +51,7 @@ export function useImportJobStatus(jobId: number | null) {
 /**
  * Apply selected import changes.
  */
-export function useApplyImportChanges(storeId: number) {
+export function useApplyImportChanges(storeId: string) {
 	const queryClient = useQueryClient();
 	const { t } = useTranslation("common");
 

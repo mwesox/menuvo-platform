@@ -1,3 +1,5 @@
+"use server";
+
 /**
  * Stripe Checkout server functions for order payments.
  *
@@ -37,7 +39,7 @@ import {
 // ============================================================================
 
 const createCheckoutSessionSchema = z.object({
-	orderId: z.number().int().positive(),
+	orderId: z.string().uuid(),
 	returnUrl: z.string().url(),
 });
 
@@ -46,7 +48,7 @@ const getCheckoutSessionSchema = z.object({
 });
 
 const expireCheckoutSessionSchema = z.object({
-	orderId: z.number().int().positive(),
+	orderId: z.string().uuid(),
 });
 
 // ============================================================================
@@ -72,7 +74,7 @@ const CHECKOUT_EXPIRATION_SECONDS = 30 * 60;
 // HELPER FUNCTIONS
 // ============================================================================
 
-async function findOrderWithPaymentDetails(orderId: number) {
+async function findOrderWithPaymentDetails(orderId: string) {
 	try {
 		const order = await db.query.orders.findFirst({
 			where: eq(orders.id, orderId),
@@ -112,7 +114,7 @@ async function findOrderWithPaymentDetails(orderId: number) {
 	}
 }
 
-async function findOrderById(orderId: number) {
+async function findOrderById(orderId: string) {
 	try {
 		const order = await db.query.orders.findFirst({
 			where: eq(orders.id, orderId),
@@ -227,8 +229,8 @@ export const createCheckoutSession = createServerFn({ method: "POST" })
 			line_items: lineItems,
 			return_url: `${data.returnUrl}?session_id={CHECKOUT_SESSION_ID}`,
 			metadata: {
-				orderId: order.id.toString(),
-				storeId: order.storeId.toString(),
+				orderId: order.id,
+				storeId: order.storeId,
 			},
 			customer_email: order.customerEmail || undefined,
 			// Expires in 30 minutes

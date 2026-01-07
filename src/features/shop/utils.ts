@@ -1,5 +1,8 @@
 import type { MenuItem, MenuItemWithDefaults } from "./schemas";
 
+// Re-export price formatting utilities from the centralized location
+export { formatPrice, formatPriceModifier } from "@/components/ui/price-input";
+
 /**
  * @deprecated Since API now returns isDefault directly, this is a pass-through.
  * Kept for backward compatibility but can be removed once all callers are updated.
@@ -13,54 +16,12 @@ export function enrichMenuItemWithDefaults(
 }
 
 /**
- * Format a price in cents to a currency string.
- * @param cents - The price in cents
- * @param currency - The currency code (default: "EUR")
- * @returns Formatted price string (e.g., "$12.99")
- */
-export function formatPrice(cents: number, currency = "EUR"): string {
-	const formatter = new Intl.NumberFormat(undefined, {
-		style: "currency",
-		currency,
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2,
-	});
-
-	return formatter.format(cents / 100);
-}
-
-/**
- * Format a price modifier (can be positive or negative) with appropriate sign.
- * @param cents - The price modifier in cents
- * @param currency - The currency code (default: "EUR")
- * @returns Formatted string with sign (e.g., "+€2.20" or "−€2.20")
- */
-export function formatPriceModifier(cents: number, currency = "EUR"): string {
-	const formatter = new Intl.NumberFormat(undefined, {
-		style: "currency",
-		currency,
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2,
-	});
-
-	const formatted = formatter.format(Math.abs(cents) / 100);
-
-	if (cents > 0) {
-		return `+${formatted}`;
-	}
-	if (cents < 0) {
-		return `−${formatted}`; // Using proper minus sign (U+2212)
-	}
-	return formatted;
-}
-
-/**
  * Selected option structure for cart items.
  */
 interface SelectedOption {
-	groupId: number;
+	groupId: string;
 	groupName: string;
-	choices: { id: number; name: string; price: number }[];
+	choices: { id: string; name: string; price: number }[];
 }
 
 /**
@@ -71,13 +32,13 @@ interface SelectedOption {
  * @returns A unique string ID for the cart item
  */
 export function generateCartItemId(
-	itemId: number,
+	itemId: string,
 	options: SelectedOption[],
 ): string {
 	// Extract all choice IDs, sort them, and join with the item ID
 	const choiceIds = options
 		.flatMap((opt) => opt.choices.map((c) => c.id))
-		.sort((a, b) => a - b);
+		.sort();
 
 	// Create a simple hash from itemId and sorted choice IDs
 	const hashInput = `${itemId}:${choiceIds.join(",")}`;

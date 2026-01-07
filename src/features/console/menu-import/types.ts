@@ -66,7 +66,7 @@ export interface FieldChange {
  */
 export interface ItemComparison {
 	extracted: ExtractedItem;
-	existingId?: number;
+	existingId?: string;
 	existingName?: string;
 	action: DiffAction;
 	matchScore: number; // 0-1 similarity score
@@ -78,7 +78,7 @@ export interface ItemComparison {
  */
 export interface CategoryComparison {
 	extracted: ExtractedCategory;
-	existingId?: number;
+	existingId?: string;
 	existingName?: string;
 	action: DiffAction;
 	matchScore: number;
@@ -90,7 +90,7 @@ export interface CategoryComparison {
  */
 export interface OptionGroupComparison {
 	extracted: ExtractedOptionGroup;
-	existingId?: number;
+	existingId?: string;
 	existingName?: string;
 	action: DiffAction;
 	matchScore: number;
@@ -125,7 +125,7 @@ export interface MenuComparisonData {
  * Import job status response from server.
  */
 export interface ImportJobStatusResponse {
-	id: number;
+	id: string;
 	status: "PROCESSING" | "READY" | "COMPLETED" | "FAILED";
 	errorMessage: string | null;
 	comparisonData: MenuComparisonData | null;

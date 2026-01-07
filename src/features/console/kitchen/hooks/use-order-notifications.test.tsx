@@ -12,11 +12,11 @@ vi.mock("../stores/kitchen-preferences", () => ({
 }));
 
 // Helper to create minimal mock orders
-const mockOrder = (id: number) => ({ id }) as OrderWithItems;
+const mockOrder = (id: string) => ({ id }) as OrderWithItems;
 
 describe("useOrderNotifications", () => {
 	it("does NOT alert on initial load with existing orders", () => {
-		const orders = [mockOrder(1), mockOrder(2)];
+		const orders = [mockOrder("order-1"), mockOrder("order-2")];
 
 		const { result } = renderHook(() => useOrderNotifications(orders));
 
@@ -24,7 +24,7 @@ describe("useOrderNotifications", () => {
 	});
 
 	it("alerts when NEW order arrives after initial load", () => {
-		const initialOrders = [mockOrder(1)];
+		const initialOrders = [mockOrder("order-1")];
 
 		const { result, rerender } = renderHook(
 			({ orders }) => useOrderNotifications(orders),
@@ -35,7 +35,7 @@ describe("useOrderNotifications", () => {
 		expect(result.current.alertActive).toBe(false);
 
 		// New order arrives
-		const updatedOrders = [mockOrder(1), mockOrder(2)];
+		const updatedOrders = [mockOrder("order-1"), mockOrder("order-2")];
 		rerender({ orders: updatedOrders });
 
 		expect(result.current.alertActive).toBe(true);
@@ -44,7 +44,11 @@ describe("useOrderNotifications", () => {
 	it("does NOT alert when order changes status (same IDs)", () => {
 		// Simulates: order moves from "done" to "preparing" column
 		// The ID stays the same, only status changes
-		const orders = [mockOrder(1), mockOrder(2), mockOrder(3)];
+		const orders = [
+			mockOrder("order-1"),
+			mockOrder("order-2"),
+			mockOrder("order-3"),
+		];
 
 		const { result, rerender } = renderHook(
 			({ orders }) => useOrderNotifications(orders),
@@ -54,7 +58,13 @@ describe("useOrderNotifications", () => {
 		expect(result.current.alertActive).toBe(false);
 
 		// Same orders, different statuses (simulated by same IDs)
-		rerender({ orders: [mockOrder(1), mockOrder(2), mockOrder(3)] });
+		rerender({
+			orders: [
+				mockOrder("order-1"),
+				mockOrder("order-2"),
+				mockOrder("order-3"),
+			],
+		});
 
 		expect(result.current.alertActive).toBe(false);
 	});
@@ -62,7 +72,11 @@ describe("useOrderNotifications", () => {
 	it("does NOT alert when order previously tracked reappears", () => {
 		// This tests the bug fix: order was in doneOrders, moves back to active
 		// Since we now pass ALL orders, the ID should already be tracked
-		const allOrders = [mockOrder(1), mockOrder(2), mockOrder(3)];
+		const allOrders = [
+			mockOrder("order-1"),
+			mockOrder("order-2"),
+			mockOrder("order-3"),
+		];
 
 		const { result, rerender } = renderHook(
 			({ orders }) => useOrderNotifications(orders),

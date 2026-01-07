@@ -20,7 +20,7 @@ export interface QueuedMutation {
 	/** Type of mutation */
 	type: MutationType;
 	/** Order ID affected */
-	orderId: number;
+	orderId: string;
 	/** Mutation payload */
 	payload: {
 		status?: OrderStatus;
@@ -49,7 +49,7 @@ interface MutationQueueActions {
 	/** Clear all mutations from the queue */
 	clearQueue: () => void;
 	/** Get mutations for a specific order */
-	getMutationsForOrder: (orderId: number) => QueuedMutation[];
+	getMutationsForOrder: (orderId: string) => QueuedMutation[];
 }
 
 export type MutationQueueStore = MutationQueueState & MutationQueueActions;

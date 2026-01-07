@@ -4,7 +4,7 @@ import { MenuItemCard } from "./menu-item-card";
 
 interface CategorySectionProps {
 	category: {
-		id: number;
+		id: string;
 		name: string;
 		description: string | null;
 		items: MenuItemLight[];

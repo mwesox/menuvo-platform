@@ -17,14 +17,14 @@ import type { EntityType } from "../schemas";
 import { TranslationStatusBadge } from "./translation-status-badge";
 
 interface TranslationEditorProps {
-	entityId: number;
+	entityId: string;
 	entityType: EntityType;
 	name: string;
 	description?: string | null;
 	translations: Record<string, { name?: string; description?: string }>;
 	primaryLanguage: string;
 	targetLanguages: string[];
-	storeId: number;
+	storeId: string;
 	onClose: () => void;
 }
 
