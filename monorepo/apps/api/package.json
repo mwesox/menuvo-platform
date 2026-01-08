@@ -1,0 +1,27 @@
+{
+  "name": "@menuvo/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "start": "bun dist/index.js",
+    "check": "biome check .",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@menuvo/db": "workspace:*",
+    "@menuvo/trpc": "workspace:*",
+    "hono": "catalog:",
+    "@hono/trpc-server": "catalog:",
+    "@trpc/server": "catalog:",
+    "drizzle-orm": "catalog:",
+    "zod": "catalog:",
+    "superjson": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.3",
+    "typescript": "^5.9.3"
+  }
+}

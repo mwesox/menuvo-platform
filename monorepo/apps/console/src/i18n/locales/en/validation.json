@@ -1,0 +1,97 @@
+{
+	"categoryName": {
+		"min": "Category name must be at least 2 characters",
+		"max": "Category name must be less than 100 characters"
+	},
+	"categoryMultilang": {
+		"required": "At least one language must have a name (min 2 characters)"
+	},
+	"itemName": {
+		"min": "Item name must be at least 2 characters",
+		"max": "Item name must be less than 100 characters"
+	},
+	"itemCategory": {
+		"required": "Category is required"
+	},
+	"itemPrice": {
+		"required": "Price is required"
+	},
+	"itemMultilang": {
+		"required": "At least one language must have a name (min 2 characters)"
+	},
+	"optionGroupName": {
+		"min": "Option group name must be at least 2 characters",
+		"max": "Option group name must be less than 100 characters"
+	},
+	"optionGroupMin": {
+		"min": "Min selections must be 0 or more"
+	},
+	"optionGroupMax": {
+		"min": "Max selections must be 1 or more"
+	},
+	"optionGroupFree": {
+		"min": "Free options must be 0 or more"
+	},
+	"optionGroupAggregateMin": {
+		"min": "Aggregate min must be 0 or more"
+	},
+	"optionGroupAggregateMax": {
+		"min": "Aggregate max must be 1 or more"
+	},
+	"optionGroupMultilang": {
+		"required": "At least one language must have a name (min 2 characters)"
+	},
+	"choiceName": {
+		"required": "Choice name is required"
+	},
+	"choicePrice": {
+		"integer": "Price must be an integer"
+	},
+	"choiceMinQuantity": {
+		"min": "Min quantity must be 0 or more"
+	},
+	"choiceMaxQuantity": {
+		"min": "Max quantity must be 1 or more"
+	},
+	"choiceMultilang": {
+		"required": "At least one language must have a name"
+	},
+	"businessName": {
+		"min": "Business name must be at least 4 characters",
+		"max": "Business name must be less than 100 characters"
+	},
+	"ownerName": {
+		"min": "Full name must be at least 2 characters",
+		"max": "Full name must be less than 100 characters",
+		"fullName": "Please enter first and last name"
+	},
+	"email": {
+		"invalid": "Please enter a valid email address"
+	},
+	"phone": {
+		"required": "Phone number is required",
+		"invalid": "Please enter a valid phone number (e.g. +49 123 456789)"
+	},
+	"storeName": {
+		"min": "Store name must be at least 2 characters",
+		"max": "Store name must be less than 100 characters"
+	},
+	"street": {
+		"required": "Street address must be at least 3 characters",
+		"max": "Street address is too long",
+		"incomplete": "Please enter street and house number"
+	},
+	"city": {
+		"required": "City is required",
+		"max": "City name is too long",
+		"invalid": "Please enter a valid city name"
+	},
+	"postalCode": {
+		"length": "Postal code must be exactly 5 digits",
+		"invalid": "Please enter a valid 5-digit postal code"
+	},
+	"country": {
+		"required": "Country is required",
+		"max": "Country name is too long"
+	}
+}

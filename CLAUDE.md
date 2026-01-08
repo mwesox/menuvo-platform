@@ -1,51 +1,48 @@
 # CLAUDE.md
 
-## ⚠️ REQUIRED READING
+## Required Reading
 
 **Before writing ANY code, read these docs:**
 
-1. **`docs/architecture.md`** - Structure & patterns (routes vs features, schemas, state management)
-2. **`docs/coding-guidelines.md`** - Implementation patterns (React 19+ hooks, code conventions)
+1. **`docs/architecture.md`** - Monorepo structure, apps, packages, data flow
+2. **`docs/coding-guidelines.md`** - Implementation patterns, tRPC, React 19+
 
 This file is a quick reference. The docs are the source of truth.
 
 ---
 
 ## Important
+
 - **Domain is `menuvo.app`** - Always use menuvo.app (not menuvo.de) for all URLs
-- **No subdomains for app routes** - Use path-based routing:
-  - Discovery: `www.menuvo.app/` (root)
-  - Store: `www.menuvo.app/{storeSlug}`
-  - Console: `www.menuvo.app/console`
-  - Only infrastructure uses subdomains: `status.menuvo.app`, `monitor.menuvo.app`
-- Use ShadCN MCP server to review latest docs and APIs and docs about ShadCN Components and the framework.
-- Never do git reset commands !!! NEVER !!!
-- **Middleware files must not have db imports** - Keep `createMiddleware()` in files without `@/db` imports to prevent server code leaking to client bundle (TanStack Start bug).
+- **Use ShadCN MCP server** - Review latest docs and APIs for shadcn components
+- **Never do git reset commands** - NEVER
+- **API is the boundary** - Apps never import `@menuvo/db` directly, use tRPC
 
 ## Subagent Instructions
 
-All subagents (Task tool) MUST read `docs/architecture.md` and `docs/coding-guidelines.md` before making code changes. This applies to Plan agents, Explore agents, and any agent writing code.
+All subagents (Task tool) MUST read `docs/architecture.md` and `docs/coding-guidelines.md` before making code changes.
 
 ---
 
-## Critical Rules (from architecture.md)
+## Critical Rules
 
-1. **Routes are thin wiring** - Routes connect URLs to features. No business logic, server functions, or complex components in routes.
+1. **Apps are independent** - Each app builds and deploys separately
 
-2. **Features own everything** - Business logic, server functions, components, queries, validation all live in `src/features/{feature}/`
+2. **API is the boundary** - All data flows through tRPC. Apps never import `@menuvo/db`
 
-3. **Three Schema Rule** - Every entity has: Form schema (strings), Server schema (typed), Database schema (Drizzle)
+3. **Three Schema Rule** - Form schema (strings), API schema (typed), Database schema (Drizzle)
 
-4. **Transformations happen in mutation hooks** - Forms collect strings, mutations transform + add context, server validates
+4. **tRPC v11 patterns**:
+   - Use `useTRPC()` hook in components
+   - Use `trpcClient` in route loaders
+   - Use `queryOptions()` and `mutationOptions()` factories
 
 5. **State by type**:
    - Server data → TanStack Query
-   - Persistent client → Zustand + persist (`stores/`)
+   - Persistent client → Zustand + persist
    - Transient UI → Context / useState
 
 6. **Never store server data in Zustand or Context**
-
-7. **Share server data via TanStack Query, not context** - When parent layouts need child route data, use the same query key. The child's loader caches data, parent's `useQuery` gets instant cache hit. Don't use context + useEffect (causes hydration mismatch).
 
 ---
 
@@ -54,103 +51,84 @@ All subagents (Task tool) MUST read `docs/architecture.md` and `docs/coding-guid
 **USE BUN ONLY!**
 
 ```bash
-bun --bun run dev          # Dev server on port 3000
-bun --bun run build        # Production build
-bun --bun run check        # Biome lint + format
-bun --bun run test         # Vitest tests
+# Root commands
+bun install                    # Install all workspace deps
 
-# Database (development)
-bun run db:generate        # Generate migrations
-bun run db:migrate         # Run migrations
-bun run db:push            # Push schema
-bun run db:studio          # Drizzle Studio
+# App-specific (from root)
+bun --filter @menuvo/api dev   # Start API server
+bun --filter @menuvo/console dev  # Start Console SPA
+bun --filter @menuvo/shop dev  # Start Shop SSR
 
-# Database (test)
-bun run db:test:start      # Start test postgres container
-bun run db:test:reset      # Reset test DB (drop + push schema)
-bun run db:test:push       # Push schema to test DB
+# Or from app directory
+cd apps/api && bun run dev
+cd apps/console && bun run dev
+cd apps/shop && bun run dev
+
+# Build
+bun run build                  # Build all apps
+bun --filter @menuvo/api build # Build specific app
+
+# Quality
+bun run check                  # Biome lint + format
+bun run test                   # Vitest tests
+
+# Database
+bun --filter @menuvo/db generate  # Generate migrations
+bun --filter @menuvo/db migrate   # Run migrations
+bun --filter @menuvo/db push      # Push schema
+bun --filter @menuvo/db studio    # Drizzle Studio
 ```
 
 ---
 
 ## Tech Stack
 
-- **TanStack Start** - Full-stack React framework
-- **TanStack Router** - File-based routing (`src/routes/`)
-- **TanStack Query** - Server state with SSR
-- **TanStack Form** - Forms with Zod validation
-- **Drizzle ORM** - PostgreSQL (`src/db/`)
-- **Tailwind CSS v4** - Styling
-- **Shadcn/ui** - Components (new-york style, zinc base)
-- **Zustand** - Client state with persist middleware
-- **Biome** - Linting/formatting (tabs, double quotes)
+| Concern | Tool |
+|---------|------|
+| Runtime | Bun |
+| API Framework | Hono |
+| Type-safe API | tRPC v11 |
+| Client Routing | TanStack Router |
+| Server State | TanStack Query |
+| Client State | Zustand |
+| Forms | TanStack Form + Zod |
+| Database | Drizzle ORM + PostgreSQL |
+| Styling | Tailwind CSS v4 |
+| Components | shadcn/ui |
+| Linting | Biome |
 
 ---
 
-## Project Structure
+## Monorepo Structure
 
 ```
-src/
-├── features/
-│   ├── console/              # Merchant admin
-│   │   └── {feature}/
-│   │       ├── components/
-│   │       ├── server/       # *.functions.ts
-│   │       ├── stores/       # Zustand stores
-│   │       ├── logic/        # Pure functions
-│   │       ├── queries.ts
-│   │       ├── schemas.ts
-│   │       └── constants.ts
-│   └── shop/                 # Customer storefront
-├── routes/                   # Thin wiring only
-├── components/ui/            # Shadcn primitives
-└── db/schema.ts              # Database schema
+menuvo-platform/
+├── apps/
+│   ├── api/              # Hono + tRPC backend
+│   ├── console/          # Vite + React SPA (merchant admin)
+│   └── shop/             # Hono + React SSR (storefront)
+├── packages/
+│   ├── db/               # Drizzle schema + client
+│   ├── trpc/             # Router definitions, shared types
+│   └── ui/               # Shared shadcn components
+└── docs/                 # Documentation
 ```
 
----
+### App Structure
 
-## Theming
-
-Three themes via CSS bundle swapping:
-
-| Theme | Route | Style |
-|-------|-------|-------|
-| Discovery | `/` (root) | Fresh modern neutral, sans-serif, light only |
-| Shop | `/{storeSlug}/*` | Editorial neutral, serif headings, light only |
-| Console | `/console/*` | Zinc, light only (dark mode deactivated) |
-
-Auto-detected by route in `src/routes/__root.tsx`.
-
-CSS files:
-- `src/styles/core.css` - Tailwind + theme mappings
-- `src/styles/themes/discovery.css`
-- `src/styles/themes/shop.css`
-- `src/styles/themes/console.css`
-
-### Radius (shadcn-compatible)
-
-Theme-aware radius system. Each theme sets `--radius` in its CSS file, all classes scale from it via `@theme inline` in core.css.
-
-| Class | Formula | Shop (6px) | Console (8px) | Discovery (12px) |
-|-------|---------|------------|---------------|------------------|
-| `rounded-sm` | base - 4px | 2px | 4px | 8px |
-| `rounded-md` | base - 2px | 4px | 6px | 10px |
-| `rounded-lg` | base | 6px | 8px | 12px |
-| `rounded-xl` | base + 4px | 10px | 12px | 16px |
-| `rounded-2xl` | base + 8px | 14px | 16px | 20px |
-| `rounded-3xl` | base + 12px | 18px | 20px | 24px |
-
-**Rules:**
-- Use `rounded-{sm|md|lg|xl|2xl|3xl}` - themed
-- Use `rounded-full` - always 50%
-- Never use `rounded-[Npx]` or hardcoded pixel values
-
----
-
-## Adding Shadcn Components
-
-```bash
-bunx --bun shadcn@latest add <component>
+```
+apps/{app}/src/
+├── routes/               # TanStack Router (console) or Hono (shop/api)
+├── features/             # Feature modules
+│   └── {feature}/
+│       ├── components/   # Feature UI
+│       ├── hooks/        # Custom hooks
+│       ├── stores/       # Zustand stores
+│       ├── logic/        # Pure functions
+│       ├── queries.ts    # TanStack Query hooks
+│       └── schemas.ts    # Form schemas
+├── components/           # App-specific components
+└── lib/                  # Utilities, trpc client
 ```
 
 ---
@@ -159,15 +137,38 @@ bunx --bun shadcn@latest add <component>
 
 | I need to... | Location |
 |--------------|----------|
-| Add database entity | `src/db/schema.ts` |
-| Add server function | `features/{f}/server/*.functions.ts` |
-| Add business logic | `features/{f}/logic/*.ts` |
-| Configure queries | `features/{f}/queries.ts` |
-| Define schemas | `features/{f}/schemas.ts` |
-| Define constants | `features/{f}/constants.ts` |
-| Build UI component | `features/{f}/components/` |
-| Persist client state | `features/{f}/stores/*.ts` |
-| Wire up a page | `src/routes/` (thin wiring only) |
+| Add database table | `packages/db/schema/` |
+| Add tRPC procedure | `packages/trpc/routers/` |
+| Add API schema | `packages/trpc/schemas/` |
+| Add UI primitive | `packages/ui/components/` |
+| Add feature UI | `apps/{app}/src/features/{f}/components/` |
+| Add business logic | `apps/api/src/services/` |
+| Configure queries | `apps/{app}/src/features/{f}/queries.ts` |
+| Wire up a page | `apps/{app}/src/routes/` |
+| Persist client state | `apps/{app}/src/features/{f}/stores/` |
+
+---
+
+## Theming
+
+Three visual contexts:
+
+| Context | App | Style |
+|---------|-----|-------|
+| Discovery | shop | Fresh modern, sans-serif |
+| Shop | shop | Editorial, serif headings |
+| Console | console | Zinc, professional |
+
+All themes: Light mode only.
+
+---
+
+## Adding Shadcn Components
+
+```bash
+# From packages/ui directory
+cd packages/ui && bunx --bun shadcn@latest add <component>
+```
 
 ---
 
@@ -176,7 +177,5 @@ bunx --bun shadcn@latest add <component>
 | File | Purpose |
 |------|---------|
 | `.env.local` | Local dev (git-ignored) |
-| `.env.production` | Non-secret prod configs (committed) |
+| `.env.production` | Non-secret prod configs |
 | GitHub Secrets | All secrets |
-
-Validate new vars in `src/env.ts`.

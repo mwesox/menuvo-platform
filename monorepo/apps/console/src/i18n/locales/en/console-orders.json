@@ -1,0 +1,75 @@
+{
+	"title": "Orders",
+	"searchPlaceholder": "Search by customer name...",
+	"filterByStatus": "Filter by status",
+	"allStatuses": "All statuses",
+	"loadMore": "Load more",
+	"loading": "Loading orders...",
+	"empty": {
+		"title": "No orders yet",
+		"description": "Orders will appear here once customers start placing them."
+	},
+	"emptyFiltered": {
+		"title": "No matching orders",
+		"description": "Try adjusting your search or filter criteria."
+	},
+	"selectOrder": "Select an order to view details",
+	"orderNumber": "Order #{{id}}",
+	"sections": {
+		"customer": "Customer",
+		"items": "Items",
+		"payment": "Payment",
+		"timeline": "Timeline"
+	},
+	"fields": {
+		"name": "Name",
+		"email": "Email",
+		"phone": "Phone",
+		"notes": "Notes",
+		"subtotal": "Subtotal",
+		"tax": "Tax",
+		"tip": "Tip",
+		"total": "Total",
+		"paymentMethod": "Method",
+		"paymentStatus": "Status",
+		"servicePoint": "Table",
+		"created": "Created",
+		"confirmed": "Confirmed",
+		"completed": "Completed"
+	},
+	"status": {
+		"awaiting_payment": "Awaiting Payment",
+		"confirmed": "Confirmed",
+		"preparing": "Preparing",
+		"ready": "Ready",
+		"completed": "Completed",
+		"cancelled": "Cancelled"
+	},
+	"paymentStatus": {
+		"pending": "Pending",
+		"awaiting_confirmation": "Processing",
+		"paid": "Paid",
+		"pay_at_counter": "Pay at Counter",
+		"failed": "Failed",
+		"refunded": "Refunded",
+		"expired": "Expired"
+	},
+	"orderType": {
+		"dine_in": "Dine In",
+		"takeaway": "Takeaway",
+		"delivery": "Delivery"
+	},
+	"dateRange": {
+		"7": "Last 7 days",
+		"30": "Last 30 days",
+		"90": "Last 90 days",
+		"all": "All time"
+	},
+	"export": {
+		"tooltip": "Export to CSV",
+		"noData": "No orders to export with current filters",
+		"success": "Exported {{count}} orders",
+		"successLimited": "Exported {{count}} of {{total}} orders (max 1000)",
+		"error": "Failed to export orders"
+	}
+}

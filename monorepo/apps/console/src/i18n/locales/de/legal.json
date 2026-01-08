@@ -1,0 +1,25 @@
+{
+	"cookie": {
+		"bannerTitle": "Wir verwenden Cookies",
+		"bannerDescription": "Essentielle Cookies sind für die Funktion der Seite erforderlich. Nicht-essentielle Cookies helfen uns, Ihre Erfahrung zu verbessern.",
+		"acceptAll": "Alle akzeptieren",
+		"essentialOnly": "Nur essentielle",
+		"settings": "Cookie-Einstellungen"
+	},
+	"footer": {
+		"poweredBy": "Powered by",
+		"copyright": "© {{year}} Menuvo. Alle Rechte vorbehalten.",
+		"impressum": "Impressum",
+		"privacy": "Datenschutz",
+		"cookies": "Cookie-Einstellungen",
+		"privacyPolicy": "Datenschutz",
+		"termsOfService": "AGB",
+		"cookiePolicy": "Cookie-Richtlinie",
+		"dataProtection": "Datenschutz",
+		"dpoContact": "Datenschutzbeauftragter",
+		"allRightsReserved": "Alle Rechte vorbehalten."
+	},
+	"dpo": {
+		"email": "dpo@menuvo.app"
+	}
+}

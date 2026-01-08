@@ -1,0 +1,128 @@
+{
+	"cart": {
+		"title": "Your Cart",
+		"viewCart": "View Cart",
+		"empty": "Your cart is empty",
+		"itemCount_one": "{{count}} item in your cart",
+		"itemCount_other": "{{count}} items in your cart",
+		"emptyTitle": "Your cart is empty",
+		"emptyDescription": "Add some delicious items to get started",
+		"checkout": "Checkout",
+		"checkoutComingSoon": "Checkout coming soon!",
+		"checkoutDescription": "Stripe integration will be added in a future update.",
+		"total": "Total",
+		"removeItem": "Remove {{name}} from cart",
+		"openCart": "Open cart with {{count}} items totaling {{total}}"
+	},
+	"menu": {
+		"categoriesNav": "Menu categories",
+		"itemCount_one": "{{count}} item",
+		"itemCount_other": "{{count}} items",
+		"customize": "Customize",
+		"add": "Add",
+		"addToOrder": "Add to order",
+		"contains": "Contains",
+		"soldOut": "Sold out",
+		"emptyTitle": "Menu coming soon",
+		"emptyDescription": "This restaurant is still setting up their menu. Check back later!",
+		"options": {
+			"required": "Required",
+			"optional": "Optional",
+			"selectAtLeast": "Select at least {{count}}",
+			"selectUpTo": "Select up to {{count}}",
+			"select": "Select {{count}}",
+			"selectRange": "Select {{min}}-{{max}}",
+			"selectQuantities": "Select quantities",
+			"atLeast": "At least {{count}}",
+			"upTo": "Up to {{count}}",
+			"free": "{{count}} free",
+			"selected": "{{count}} selected",
+			"max": "{{count}} max",
+			"decreaseQuantity": "Decrease {{name}} quantity",
+			"increaseQuantity": "Increase {{name}} quantity"
+		}
+	},
+	"header": {
+		"cartWithItems": "Shopping cart with {{count}} items",
+		"backToShop": "Back to shop",
+		"backToMenu": "Menu",
+		"itemCount_one": "{{count}} item",
+		"itemCount_other": "{{count}} items",
+		"searchPlaceholder": "Search menu..."
+	},
+	"errors": {
+		"somethingWentWrong": "Something went wrong",
+		"couldNotLoadRestaurant": "We couldn't load this restaurant. Please try again.",
+		"tryAgain": "Try again",
+		"restaurantNotFound": "Restaurant not found",
+		"restaurantNotFoundDescription": "The restaurant you're looking for doesn't exist or is no longer available.",
+		"storeTemporarilyUnavailable": "We'll be right back!",
+		"storeUnavailableDescription": "Online ordering is taking a short break. Please check back soon or visit us in person.",
+		"backToMenu": "Back to Menu"
+	},
+	"quantity": {
+		"decrease": "Decrease quantity",
+		"increase": "Increase quantity"
+	},
+	"status": {
+		"openNow": "Open now",
+		"closed": "Closed"
+	},
+	"checkout": {
+		"title": "Checkout",
+		"orderType": "Order Type",
+		"orderTypes": {
+			"dineIn": "Dine In",
+			"takeaway": "Takeaway",
+			"delivery": "Delivery"
+		},
+		"yourInfo": "Your Information",
+		"yourName": "Name",
+		"namePlaceholder": "Enter your name",
+		"yourEmail": "Email",
+		"emailPlaceholder": "Enter your email",
+		"nameRequired": "Please enter your name",
+		"emailRequired": "Email is required for online payment",
+		"invalidEmail": "Please enter a valid email address",
+		"emailRequiredForOnline": "Required for payment confirmation",
+		"specialRequests": "Special Requests",
+		"specialRequestsPlaceholder": "Allergies, dietary restrictions, special instructions...",
+		"optional": "optional",
+		"cartEmpty": "Your cart is empty",
+		"paymentMethod": "Payment Method",
+		"paymentMethods": {
+			"online": "Pay Online",
+			"onlineDescription": "Pay securely with card, Apple Pay, or Google Pay"
+		},
+		"orderSummary": "Order Summary",
+		"subtotal": "Total",
+		"submitting": "Processing...",
+		"placeOrder": "Place Order",
+		"proceedToPayment": "Proceed to Payment",
+		"invalidCartItems": "Your cart contains invalid items. Please add items again.",
+		"return": {
+			"verifying": "Verifying Payment",
+			"pleaseWait": "Please wait while we confirm your payment...",
+			"paymentFailed": "Payment Failed",
+			"sessionExpired": "Your payment session has expired. Please try again.",
+			"tryAgain": "Something went wrong. Please try again.",
+			"processing": "Processing..."
+		},
+		"payment": {
+			"title": "Complete Payment",
+			"description": "You'll be redirected to our secure payment page to complete your order.",
+			"error": "Failed to create payment. Please try again.",
+			"redirecting": "Redirecting to payment...",
+			"pleaseWait": "You'll be redirected to the secure payment page shortly.",
+			"payNow": "Pay Now",
+			"securePayment": "Secure payment processing"
+		}
+	},
+	"confirmation": {
+		"title": "Order Received!",
+		"subtitle": "Your order has been placed successfully",
+		"orderNumber": "Order Number",
+		"instructions": "Please wait for your order to be prepared. We'll call your name when it's ready.",
+		"backToMenu": "Back to Menu"
+	}
+}

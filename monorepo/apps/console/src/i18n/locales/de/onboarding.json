@@ -1,0 +1,124 @@
+{
+	"page": {
+		"title": "Willkommen bei",
+		"subtitle": "Richten Sie Ihr Restaurant-Verwaltungskonto ein"
+	},
+	"slides": {
+		"stepOf": "von {{total}}",
+		"stepIndicator": "Schritt {{current}} von {{total}}",
+		"back": "Zurück",
+		"continue": "Weiter",
+		"pressEnter": "Enter drücken",
+		"createAccount": "Account erstellen",
+		"creating": "Wird erstellt...",
+		"welcome": {
+			"title": "Schön, dass du hier bist",
+			"description": "Bevor wir loslegen, brauchen wir ein paar Infos über dich und dein Restaurant. Dauert nur",
+			"duration": "2 Minuten",
+			"pills": {
+				"business": "Geschäftsinfos",
+				"contact": "Kontaktdaten",
+				"store": "Dein Store"
+			},
+			"cta": "Los geht's",
+			"timeHint": ""
+		},
+		"business": {
+			"title": "Wie heißt dein Unternehmen?",
+			"why": "Erscheint auf Rechnungen und rechtlichen Dokumenten."
+		},
+		"owner": {
+			"title": "Wer ist der Geschäftsinhaber?",
+			"why": "Diese Person wird als rechtlich Verantwortlicher eingetragen."
+		},
+		"contact": {
+			"title": "Wie können wir dich erreichen?",
+			"why": "Für wichtige Updates und deine Login-Daten."
+		},
+		"store": {
+			"title": "Name deiner ersten Filiale",
+			"why": "Das ist der Name, den deine Gäste sehen werden. Du kannst später weitere Filialen hinzufügen.",
+			"urlPreview": "Deine Filial-URL wird sein:"
+		},
+		"address": {
+			"title": "Wo befindet sich deine Filiale?",
+			"why": "Damit Gäste wissen, wo sie dich finden."
+		},
+		"review": {
+			"title": "Sieht gut aus!",
+			"subtitle": "Prüfe kurz deine Angaben",
+			"edit": "Bearbeiten",
+			"sections": {
+				"business": "Dein Geschäft",
+				"contact": "Kontakt",
+				"store": "Deine erste Filiale"
+			},
+			"createAccount": "Account erstellen",
+			"creating": "Account wird erstellt..."
+		}
+	},
+	"titles": {
+		"welcome": "Willkommen",
+		"letsGetStarted": "Los geht's",
+		"tellUsAboutBusiness": "Erzählen Sie uns von Ihrem Unternehmen",
+		"setupFirstStore": "Richten Sie Ihre erste Filiale ein",
+		"reviewAndConfirm": "Überprüfen und bestätigen",
+		"businessDetails": "Geschäftsdetails",
+		"firstStore": "Erste Filiale"
+	},
+	"descriptions": {
+		"welcome": "Wir freuen uns, Ihnen beim Erstellen Ihrer digitalen Speisekarte zu helfen",
+		"businessInfo": "Helfen Sie uns, Ihr Unternehmen besser zu verstehen",
+		"storeInfo": "Lassen Sie uns Ihren ersten Standort einrichten",
+		"almostDone": "Überprüfen Sie Ihre Angaben und legen Sie los",
+		"businessDetailsInfo": "Erzählen Sie uns von Ihrem Unternehmen. Diese Informationen werden für Ihr Händlerkonto verwendet.",
+		"firstStoreInfo": "Richten Sie Ihren ersten Filialstandort ein. Sie können später weitere Filialen hinzufügen."
+	},
+	"steps": {
+		"businessInfo": "Geschäftsinformationen",
+		"storeInfo": "Filialinformationen",
+		"review": "Überprüfung"
+	},
+	"actions": {
+		"continue": "Weiter",
+		"previous": "Zurück",
+		"finish": "Einrichtung abschließen",
+		"createAccount": "Konto erstellen",
+		"creatingAccount": "Konto wird erstellt..."
+	},
+	"fields": {
+		"businessName": "Firmenname",
+		"ownerName": "Name des Geschäftsinhabers",
+		"contactEmail": "E-Mail",
+		"phone": "Telefon",
+		"primaryLanguage": "Hauptsprache",
+		"storeName": "Filialname",
+		"storeSlug": "URL-Kurzname",
+		"streetAddress": "Straße & Hausnummer",
+		"city": "Stadt",
+		"postalCode": "PLZ",
+		"country": "Land",
+		"timezone": "Zeitzone",
+		"currency": "Währung"
+	},
+	"placeholders": {
+		"businessName": "z.B. Acme Restaurant GmbH",
+		"ownerName": "z.B. Max Mustermann",
+		"contactEmail": "kontakt@beispiel.de",
+		"phone": "123 456 789",
+		"selectLanguage": "Sprache auswählen",
+		"storeName": "z.B. Innenstadt",
+		"storeSlug": "dein-store-name",
+		"streetAddress": "Hauptstraße 123",
+		"city": "Berlin",
+		"postalCode": "10115",
+		"country": "Deutschland",
+		"selectTimezone": "Zeitzone auswählen",
+		"selectCurrency": "Währung auswählen"
+	},
+	"toast": {
+		"successTitle": "Willkommen bei Menuvo!",
+		"successDescription": "Dein Konto wurde erfolgreich erstellt.",
+		"errorTitle": "Konto konnte nicht erstellt werden"
+	}
+}

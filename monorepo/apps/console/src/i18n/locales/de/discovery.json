@@ -1,0 +1,37 @@
+{
+	"page": {
+		"title": "Gutes Essen sollte nicht warten.",
+		"subtitle": "Entdecke Restaurants in deiner Nähe. Vorbestellen, vor Ort essen oder mitnehmen — alles vom Handy.",
+		"metaTitle": "Menuvo – Restaurants in der Nähe | Vorbestellen & Zeit sparen",
+		"metaDescription": "Finde Restaurants in deiner Nähe mit Menuvo. Speisekarten durchstöbern, vorbestellen und die Wartezeit überspringen – ob zum Essen vor Ort oder zum Mitnehmen."
+	},
+	"search": {
+		"placeholder": "Restaurants in der Nähe suchen...",
+		"clearSearch": "Suche löschen",
+		"allCities": "Alle",
+		"filterByCity": "Nach Stadt filtern"
+	},
+	"storeCard": {
+		"openNow": "Geöffnet",
+		"closed": "Geschlossen"
+	},
+	"emptyState": {
+		"noStores": {
+			"title": "Bald auch in deiner Nähe",
+			"description": "Wir arbeiten mit lokalen Restaurants zusammen, um Menuvo zu mehr Orten zu bringen. Schau bald wieder vorbei!"
+		},
+		"noResults": {
+			"title": "Keine Restaurants gefunden",
+			"description": "Versuche eine andere Suche oder stöbere durch alle Restaurants in der Nähe.",
+			"clearFilters": "Alle Restaurants anzeigen"
+		}
+	},
+	"error": {
+		"title": "Etwas ist schief gelaufen",
+		"description": "Wir konnten die Restaurants nicht laden. Bitte versuche es erneut.",
+		"tryAgain": "Erneut versuchen"
+	},
+	"loading": {
+		"searchPlaceholder": "Restaurants in der Nähe suchen..."
+	}
+}

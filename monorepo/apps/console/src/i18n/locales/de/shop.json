@@ -1,0 +1,127 @@
+{
+	"cart": {
+		"title": "Ihr Warenkorb",
+		"viewCart": "Warenkorb",
+		"empty": "Ihr Warenkorb ist leer",
+		"itemCount_one": "{{count}} Artikel in Ihrem Warenkorb",
+		"itemCount_other": "{{count}} Artikel in Ihrem Warenkorb",
+		"emptyTitle": "Ihr Warenkorb ist leer",
+		"emptyDescription": "Fügen Sie köstliche Artikel hinzu, um zu beginnen",
+		"checkout": "Zur Kasse",
+		"checkoutComingSoon": "Kasse kommt bald!",
+		"checkoutDescription": "Stripe-Integration wird in einem zukünftigen Update hinzugefügt.",
+		"total": "Gesamt",
+		"removeItem": "{{name}} aus dem Warenkorb entfernen",
+		"openCart": "Warenkorb öffnen mit {{count}} Artikeln im Wert von {{total}}"
+	},
+	"menu": {
+		"categoriesNav": "Menükategorien",
+		"itemCount_one": "{{count}} Artikel",
+		"itemCount_other": "{{count}} Artikel",
+		"customize": "Anpassen",
+		"add": "Hinzufügen",
+		"addToOrder": "Hinzufügen",
+		"contains": "Enthält",
+		"soldOut": "Ausverkauft",
+		"emptyTitle": "Speisekarte kommt bald",
+		"emptyDescription": "Dieses Restaurant richtet gerade seine Speisekarte ein. Schauen Sie später noch einmal vorbei!",
+		"options": {
+			"required": "Erforderlich",
+			"optional": "Optional",
+			"selectAtLeast": "Mindestens {{count}} auswählen",
+			"selectUpTo": "Bis zu {{count}} auswählen",
+			"select": "{{count}} auswählen",
+			"selectRange": "{{min}}-{{max}} auswählen",
+			"selectQuantities": "Mengen auswählen",
+			"atLeast": "Mindestens {{count}}",
+			"upTo": "Bis zu {{count}}",
+			"free": "{{count}} gratis",
+			"selected": "{{count}} ausgewählt",
+			"max": "{{count}} max",
+			"decreaseQuantity": "Menge von {{name}} verringern",
+			"increaseQuantity": "Menge von {{name}} erhöhen"
+		}
+	},
+	"header": {
+		"cartWithItems": "Warenkorb mit {{count}} Artikeln",
+		"backToShop": "Zurück zum Shop",
+		"backToMenu": "Menü",
+		"itemCount_one": "{{count}} Artikel",
+		"itemCount_other": "{{count}} Artikel",
+		"searchPlaceholder": "Menü durchsuchen..."
+	},
+	"errors": {
+		"somethingWentWrong": "Etwas ist schiefgelaufen",
+		"couldNotLoadRestaurant": "Wir konnten dieses Restaurant nicht laden. Bitte versuchen Sie es erneut.",
+		"tryAgain": "Erneut versuchen",
+		"restaurantNotFound": "Restaurant nicht gefunden",
+		"restaurantNotFoundDescription": "Das gesuchte Restaurant existiert nicht oder ist nicht mehr verfügbar.",
+		"storeTemporarilyUnavailable": "Wir sind gleich wieder da!",
+		"storeUnavailableDescription": "Die Online-Bestellung macht gerade eine kurze Pause. Bitte schauen Sie später vorbei oder besuchen Sie uns vor Ort.",
+		"backToMenu": "Zurück zum Menü"
+	},
+	"quantity": {
+		"decrease": "Menge verringern",
+		"increase": "Menge erhöhen"
+	},
+	"status": {
+		"openNow": "Jetzt geöffnet",
+		"closed": "Geschlossen"
+	},
+	"checkout": {
+		"title": "Kasse",
+		"orderType": "Bestellart",
+		"orderTypes": {
+			"dineIn": "Vor Ort essen",
+			"takeaway": "Zum Mitnehmen",
+			"delivery": "Lieferung"
+		},
+		"yourInfo": "Ihre Informationen",
+		"yourName": "Name",
+		"namePlaceholder": "Geben Sie Ihren Namen ein",
+		"yourEmail": "E-Mail",
+		"emailPlaceholder": "Geben Sie Ihre E-Mail-Adresse ein",
+		"nameRequired": "Bitte geben Sie Ihren Namen ein",
+		"emailRequired": "E-Mail ist für die Online-Zahlung erforderlich",
+		"invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+		"emailRequiredForOnline": "Erforderlich für die Zahlungsbestätigung",
+		"cartEmpty": "Ihr Warenkorb ist leer",
+		"paymentMethod": "Zahlungsart",
+		"paymentMethods": {
+			"counter": "An der Kasse bezahlen",
+			"counterDescription": "Bezahlen Sie bei Abholung Ihrer Bestellung",
+			"online": "Online bezahlen",
+			"onlineDescription": "Sicher bezahlen mit Karte, Apple Pay oder Google Pay"
+		},
+		"orderSummary": "Bestellübersicht",
+		"subtotal": "Gesamt",
+		"submitting": "Wird verarbeitet...",
+		"placeOrder": "Bestellung aufgeben",
+		"proceedToPayment": "Weiter zur Bezahlung",
+		"invalidCartItems": "Ihr Warenkorb enthält ungültige Artikel. Bitte fügen Sie die Artikel erneut hinzu.",
+		"return": {
+			"verifying": "Zahlung wird überprüft",
+			"pleaseWait": "Bitte warten Sie, während wir Ihre Zahlung bestätigen...",
+			"paymentFailed": "Zahlung fehlgeschlagen",
+			"sessionExpired": "Ihre Zahlungssitzung ist abgelaufen. Bitte versuchen Sie es erneut.",
+			"tryAgain": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+			"processing": "Wird verarbeitet..."
+		},
+		"payment": {
+			"title": "Zahlung abschließen",
+			"description": "Sie werden zu unserer sicheren Zahlungsseite weitergeleitet, um Ihre Bestellung abzuschließen.",
+			"error": "Zahlung konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+			"redirecting": "Weiterleitung zur Zahlung...",
+			"pleaseWait": "Sie werden in Kürze zur sicheren Zahlungsseite weitergeleitet.",
+			"payNow": "Jetzt bezahlen",
+			"securePayment": "Sichere Zahlungsabwicklung"
+		}
+	},
+	"confirmation": {
+		"title": "Bestellung eingegangen!",
+		"subtitle": "Ihre Bestellung wurde erfolgreich aufgegeben",
+		"orderNumber": "Bestellnummer",
+		"instructions": "Bitte warten Sie, bis Ihre Bestellung zubereitet wird. Wir rufen Ihren Namen auf, wenn sie fertig ist.",
+		"backToMenu": "Zurück zur Speisekarte"
+	}
+}
