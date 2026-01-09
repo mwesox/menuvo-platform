@@ -91,42 +91,16 @@ endpoints:
         failure-threshold: 3
         success-threshold: 2
 
-  # Internal monitoring (not on public status page)
-  - name: caddy
+  # Coolify Dashboard
+  - name: coolify
     group: internal
-    url: http://menuvo-caddy:2019/config/
+    url: https://coolify.menuvo.app
     interval: 60s
     conditions:
       - "[STATUS] == 200"
     alerts:
       - type: telegram
-        description: "Caddy reverse proxy is down"
-        send-on-resolved: true
-        failure-threshold: 3
-        success-threshold: 2
-
-  - name: postgres
-    group: internal
-    url: tcp://menuvo-postgres:5432
-    interval: 60s
-    conditions:
-      - "[CONNECTED] == true"
-    alerts:
-      - type: telegram
-        description: "PostgreSQL is unreachable"
-        send-on-resolved: true
-        failure-threshold: 3
-        success-threshold: 2
-
-  - name: redis
-    group: internal
-    url: tcp://menuvo-redis:6379
-    interval: 60s
-    conditions:
-      - "[CONNECTED] == true"
-    alerts:
-      - type: telegram
-        description: "Redis is unreachable"
+        description: "Coolify dashboard is down"
         send-on-resolved: true
         failure-threshold: 3
         success-threshold: 2
