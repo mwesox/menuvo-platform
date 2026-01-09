@@ -51,11 +51,8 @@ function BreadcrumbLink({
 
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
 	return (
-		// biome-ignore lint/a11y/useFocusableInteractive: Current page is intentionally non-focusable per shadcn design
 		<span
 			data-slot="breadcrumb-page"
-			role="link"
-			aria-disabled="true"
 			aria-current="page"
 			className={cn("font-normal text-foreground", className)}
 			{...props}

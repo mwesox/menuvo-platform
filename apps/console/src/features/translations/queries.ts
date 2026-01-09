@@ -71,13 +71,16 @@ export function useUpdateCategoryTranslations(storeId: string) {
 		mutationFn: async (input: UpdateCategoryTranslationsInput) => {
 			// Convert batch translations to individual updates
 			const updates = Object.entries(input.translations)
-				.filter(([, value]) => value?.name)
+				.filter(
+					(entry): entry is [string, { name: string; description?: string }] =>
+						!!entry[1]?.name,
+				)
 				.map(([langCode, value]) =>
 					trpcClient.translation.updateCategory.mutate({
 						categoryId: input.categoryId,
 						languageCode: langCode,
-						name: value!.name!,
-						description: value?.description,
+						name: value.name,
+						description: value.description,
 					}),
 				);
 			const results = await Promise.all(updates);
@@ -113,13 +116,16 @@ export function useUpdateItemTranslations(storeId: string) {
 		mutationFn: async (input: UpdateItemTranslationsInput) => {
 			// Convert batch translations to individual updates
 			const updates = Object.entries(input.translations)
-				.filter(([, value]) => value?.name)
+				.filter(
+					(entry): entry is [string, { name: string; description?: string }] =>
+						!!entry[1]?.name,
+				)
 				.map(([langCode, value]) =>
 					trpcClient.translation.updateItem.mutate({
 						itemId: input.itemId,
 						languageCode: langCode,
-						name: value!.name!,
-						description: value?.description,
+						name: value.name,
+						description: value.description,
 					}),
 				);
 			const results = await Promise.all(updates);
@@ -155,12 +161,14 @@ export function useUpdateOptionGroupTranslations(storeId: string) {
 		mutationFn: async (input: UpdateOptionGroupTranslationsInput) => {
 			// Convert batch translations to individual updates
 			const updates = Object.entries(input.translations)
-				.filter(([, value]) => value?.name)
+				.filter(
+					(entry): entry is [string, { name: string }] => !!entry[1]?.name,
+				)
 				.map(([langCode, value]) =>
 					trpcClient.translation.updateOptionGroup.mutate({
 						optionGroupId: input.optionGroupId,
 						languageCode: langCode,
-						name: value!.name!,
+						name: value.name,
 					}),
 				);
 			const results = await Promise.all(updates);
@@ -196,12 +204,14 @@ export function useUpdateOptionChoiceTranslations(storeId: string) {
 		mutationFn: async (input: UpdateOptionChoiceTranslationsInput) => {
 			// Convert batch translations to individual updates
 			const updates = Object.entries(input.translations)
-				.filter(([, value]) => value?.name)
+				.filter(
+					(entry): entry is [string, { name: string }] => !!entry[1]?.name,
+				)
 				.map(([langCode, value]) =>
 					trpcClient.translation.updateOptionChoice.mutate({
 						optionChoiceId: input.optionChoiceId,
 						languageCode: langCode,
-						name: value!.name!,
+						name: value.name,
 					}),
 				);
 			const results = await Promise.all(updates);

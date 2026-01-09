@@ -160,7 +160,7 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 				<div className="flex-1 overflow-hidden p-4">
 					<KanbanBoard
 						columns={columns}
-						storeId={storeId!}
+						storeId={storeId}
 						moveCard={moveCard}
 						moveToNext={moveToNext}
 						canDrop={canDrop}

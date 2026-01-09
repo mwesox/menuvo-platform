@@ -51,7 +51,7 @@
 	},
 	"overrides": [
 		{
-			"includes": ["**/components/ui/**"],
+			"includes": ["**/components/ui/**", "packages/ui/src/components/**"],
 			"linter": {
 				"rules": {
 					"a11y": {
@@ -59,7 +59,8 @@
 						"useKeyWithClickEvents": "off"
 					},
 					"suspicious": {
-						"noArrayIndexKey": "off"
+						"noArrayIndexKey": "off",
+						"noDocumentCookie": "off"
 					}
 				}
 			}

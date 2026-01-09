@@ -75,7 +75,6 @@ export function OrdersList({
 	}, [deferredSearch, onSearchChange]);
 
 	// Sync from URL if it changes externally (back button, shared link)
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally exclude localSearch to prevent infinite loop
 	useEffect(() => {
 		const urlValue = searchFilter ?? "";
 		if (urlValue !== localSearch) {
@@ -129,7 +128,6 @@ export function OrdersList({
 					<Skeleton className="h-10 flex-1" />
 				</div>
 				{Array.from({ length: 5 }).map((_, i) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton items
 					<Skeleton key={i} className="h-20" />
 				))}
 			</div>

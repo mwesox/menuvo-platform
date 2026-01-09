@@ -53,11 +53,16 @@ function App() {
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Root element not found");
 
+// Extend HTMLElement to support HMR root caching
+interface RootElement extends HTMLElement {
+	__reactRoot?: ReturnType<typeof createRoot>;
+}
+
 // Prevent double render in HMR
-let root = (rootElement as any).__reactRoot;
+let root = (rootElement as RootElement).__reactRoot;
 if (!root) {
 	root = createRoot(rootElement);
-	(rootElement as any).__reactRoot = root;
+	(rootElement as RootElement).__reactRoot = root;
 }
 
 root.render(

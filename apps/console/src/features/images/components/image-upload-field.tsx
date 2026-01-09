@@ -72,6 +72,10 @@ export function ImageUploadField({
 					"image.jpg",
 				);
 
+				if (!result) {
+					throw new Error("Upload failed - no result returned");
+				}
+
 				// Use display URL if available, otherwise original
 				const imageUrl = result.displayUrl || result.originalUrl;
 				onChange(imageUrl);

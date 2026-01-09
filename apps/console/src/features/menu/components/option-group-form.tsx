@@ -289,7 +289,6 @@ export function OptionGroupForm({
 									) : (
 										field.state.value.map((_choice, index) => (
 											<div
-												// biome-ignore lint/suspicious/noArrayIndexKey: Form array items are reordered and don't have stable IDs
 												key={index}
 												className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3"
 											>

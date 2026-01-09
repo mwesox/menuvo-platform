@@ -50,7 +50,6 @@ function MenuPageSkeleton() {
 			<div className="h-6 w-48 animate-pulse rounded bg-muted" />
 			<div className="space-y-2">
 				{Array.from({ length: 5 }).map((_, i) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton items
 					<div key={i} className="h-12 animate-pulse rounded bg-muted" />
 				))}
 			</div>

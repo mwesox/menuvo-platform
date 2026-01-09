@@ -1,4 +1,4 @@
-import type { EntityTranslations } from "@menuvo/trpc/schemas";
+import type { CategoryTranslations } from "@menuvo/trpc/schemas";
 import { z } from "zod";
 
 // ============================================================================
@@ -51,7 +51,7 @@ export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
 export type Category = {
 	id: string;
 	storeId: string;
-	translations: EntityTranslations;
+	translations: CategoryTranslations;
 	displayOrder: number;
 	isActive: boolean;
 	createdAt: Date;
@@ -109,6 +109,12 @@ export type UpdateItemInput = z.infer<typeof updateItemSchema>;
 // HELPER FUNCTIONS
 // ============================================================================
 
+// Loose input type for existing translations (from DB, may have optional name)
+type LooseTranslations = Record<
+	string,
+	{ name?: string; description?: string } | undefined
+>;
+
 /**
  * Transform form input (name, description for a specific language)
  * into translations JSONB format for server.
@@ -116,10 +122,10 @@ export type UpdateItemInput = z.infer<typeof updateItemSchema>;
 export function formToTranslations(
 	formData: { name: string; description: string },
 	language: string,
-	existingTranslations?: EntityTranslations,
-): EntityTranslations {
+	existingTranslations?: LooseTranslations,
+): CategoryTranslations {
 	// Start with empty object and only include translations that have valid names
-	const result: EntityTranslations = {};
+	const result: CategoryTranslations = {};
 
 	// Add existing translations that have valid names
 	if (existingTranslations) {
@@ -146,7 +152,7 @@ export function formToTranslations(
  * Extract form values from translations for a specific language.
  */
 export function translationsToForm(
-	translations: EntityTranslations | null,
+	translations: LooseTranslations | null,
 	language: string,
 ): { name: string; description: string } {
 	const t = translations?.[language];

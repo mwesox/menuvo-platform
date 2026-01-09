@@ -27,32 +27,36 @@ const THRESHOLD_UPDATE = 0.7;
  */
 function levenshteinDistance(a: string, b: string): number {
 	// Initialize matrix with proper dimensions
-	const matrix: number[][] = Array.from({ length: a.length + 1 }, () =>
-		Array.from({ length: b.length + 1 }, () => 0),
+	const rows = a.length + 1;
+	const cols = b.length + 1;
+	const matrix: number[][] = Array.from({ length: rows }, () =>
+		Array.from({ length: cols }, () => 0),
 	);
 
 	// Fill first column
-	for (let i = 0; i <= a.length; i++) {
-		matrix[i]![0] = i;
+	for (let i = 0; i < rows; i++) {
+		(matrix[i] as number[])[0] = i;
 	}
 	// Fill first row
-	for (let j = 0; j <= b.length; j++) {
-		matrix[0]![j] = j;
+	for (let j = 0; j < cols; j++) {
+		(matrix[0] as number[])[j] = j;
 	}
 
 	// Calculate distances
-	for (let i = 1; i <= a.length; i++) {
-		for (let j = 1; j <= b.length; j++) {
+	for (let i = 1; i < rows; i++) {
+		for (let j = 1; j < cols; j++) {
 			const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-			matrix[i]![j] = Math.min(
-				matrix[i - 1]![j]! + 1,
-				matrix[i]![j - 1]! + 1,
-				matrix[i - 1]![j - 1]! + cost,
+			const row = matrix[i] as number[];
+			const prevRow = matrix[i - 1] as number[];
+			row[j] = Math.min(
+				(prevRow[j] ?? 0) + 1,
+				(row[j - 1] ?? 0) + 1,
+				(prevRow[j - 1] ?? 0) + cost,
 			);
 		}
 	}
 
-	return matrix[a.length]![b.length]!;
+	return (matrix[a.length] as number[])[b.length] ?? 0;
 }
 
 /**

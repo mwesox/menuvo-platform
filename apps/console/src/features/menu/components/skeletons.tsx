@@ -118,7 +118,6 @@ export function CategoryItemsPageSkeleton() {
 			{/* Items grid */}
 			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				{Array.from({ length: 6 }).map((_, i) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton elements
 					<Card key={i} className="overflow-hidden">
 						{/* Item image */}
 						<Skeleton className="aspect-video w-full" />

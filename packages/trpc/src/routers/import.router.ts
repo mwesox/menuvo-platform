@@ -25,10 +25,21 @@ import { router, storeOwnerProcedure } from "../trpc.js";
 // S3 Client for internal files bucket
 // ============================================================================
 
+// Validate required environment variables
+const S3_ENDPOINT = process.env.S3_ENDPOINT;
+const S3_ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID;
+const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY;
+
+if (!S3_ENDPOINT || !S3_ACCESS_KEY_ID || !S3_SECRET_ACCESS_KEY) {
+	throw new Error(
+		"Missing required S3 environment variables: S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY",
+	);
+}
+
 const filesStorage = new S3Client({
-	endpoint: process.env.S3_ENDPOINT!,
-	accessKeyId: process.env.S3_ACCESS_KEY_ID!,
-	secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+	endpoint: S3_ENDPOINT,
+	accessKeyId: S3_ACCESS_KEY_ID,
+	secretAccessKey: S3_SECRET_ACCESS_KEY,
 	bucket: process.env.S3_FILES_BUCKET ?? "menuvo-files",
 	region: process.env.S3_REGION ?? "auto",
 });

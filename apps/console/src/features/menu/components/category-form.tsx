@@ -61,12 +61,12 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 			if (isEditing && category) {
 				await updateMutation.mutateAsync({
 					categoryId: category.id,
-					translations: translations as any, // TODO: Fix type mismatch
+					translations,
 				});
 			} else {
 				await createMutation.mutateAsync({
 					storeId,
-					translations: translations as any,
+					translations,
 				});
 			}
 
@@ -79,7 +79,6 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 	});
 
 	// Populate form when editing
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Only run when category changes
 	useEffect(() => {
 		if (category) {
 			const { name, description } = getLocalizedContent(

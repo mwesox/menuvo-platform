@@ -1,3 +1,4 @@
+import type { Image } from "@menuvo/db/schema";
 import type { ImageType } from "@menuvo/trpc/schemas";
 import { trpcClient } from "@/lib/trpc";
 
@@ -9,7 +10,7 @@ export async function uploadImageBinary(
 	merchantId: string,
 	type: ImageType,
 	filename?: string,
-): Promise<any> {
+): Promise<Image | undefined> {
 	const formData = new FormData();
 	formData.append("file", blob, filename || "image.jpg");
 	formData.append("merchantId", String(merchantId));

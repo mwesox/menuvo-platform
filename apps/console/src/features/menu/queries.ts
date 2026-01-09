@@ -33,11 +33,11 @@ export const categoryQueries = {
 				]);
 
 				// Combine categories with their items
-				return categories.map((category: any) => ({
+				return categories.map((category) => ({
 					...category,
 					items: items
-						.filter((item: any) => item.categoryId === category.id)
-						.map((item: any) => ({
+						.filter((item) => item.categoryId === category.id)
+						.map((item) => ({
 							id: item.id,
 							isAvailable: item.isAvailable,
 							imageUrl: item.imageUrl,
