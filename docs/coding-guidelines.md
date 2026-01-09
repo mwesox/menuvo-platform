@@ -120,6 +120,39 @@ const deferredQuery = useDeferredValue(query);
 | API input type | `z.infer<typeof createItemSchema>` |
 | Database type | `InferSelectModel<typeof items>` |
 
+### Enum & Const Arrays
+
+| Rule | Guideline |
+|------|-----------|
+| Source of truth | `packages/db/schema/` - define as `const array` with `as const` |
+| Zod schemas | `packages/trpc/schemas/` - derive using `z.enum(dbArray)`, never duplicate values |
+| App imports | Always from `@menuvo/trpc/schemas`, never from `@menuvo/db` |
+| Local types | Never create type mirrors in apps - import from tRPC |
+
+**Example - Correct pattern:**
+
+```typescript
+// packages/db/schema/index.ts (SOURCE)
+export const orderStatuses = ["awaiting_payment", "confirmed", ...] as const;
+export type OrderStatus = (typeof orderStatuses)[number];
+
+// packages/trpc/schemas/order.schema.ts (DERIVES)
+import { orderStatuses } from "@menuvo/db/schema";
+export const orderStatusEnum = z.enum(orderStatuses);
+export type OrderStatusType = z.infer<typeof orderStatusEnum>;
+
+// apps/console/features/orders (CONSUMES)
+import { type OrderStatusType } from "@menuvo/trpc/schemas";
+```
+
+### Composite Types
+
+| Need | Location |
+|------|----------|
+| Database join result | Define locally in feature `types.ts` |
+| tRPC response with relations | Use tRPC router inference |
+| Extended form state | Define locally in feature `schemas.ts` or `types.ts` |
+
 ---
 
 ## tRPC Procedure Rules
@@ -174,6 +207,25 @@ throw new TRPCError({
 });
 
 // Common codes: UNAUTHORIZED, FORBIDDEN, NOT_FOUND, BAD_REQUEST
+```
+
+### Response Data
+
+| Rule | Guideline |
+|------|-----------|
+| Use Drizzle `columns` | Fetch only needed fields, omit sensitive data |
+| Use `.output()` for public APIs | Explicit contract, strips extra fields |
+| Skip `.output()` internally | Type inference sufficient, no runtime overhead |
+| Never expose payment fields | `stripeAccountId`, `mollieProfileId`, etc. |
+
+```typescript
+// Preferred: column projection
+return ctx.db.query.merchants.findFirst({
+  columns: { id: true, name: true, email: true }, // omit sensitive
+});
+
+// Public APIs: explicit output schema
+getMenu: publicProcedure.output(menuSchema).query(...)
 ```
 
 ---

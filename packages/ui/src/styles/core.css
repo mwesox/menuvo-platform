@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Minimal base styles for shadcn component generation */
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+}

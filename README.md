@@ -1,103 +1,77 @@
-# Menuvo Platform
+# Menuvo Platform Monorepo
 
-A full-stack restaurant management platform built with TanStack Start.
+Turborepo-based monorepo for the Menuvo platform.
 
-## Prerequisites
+## Structure
 
-- [Bun](https://bun.sh/) (v1.0+)
-- [Docker](https://www.docker.com/) (for PostgreSQL)
+```
+monorepo/
+├── apps/
+│   ├── api/              # @menuvo/api - Hono + tRPC backend
+│   ├── console/          # @menuvo/console - Merchant admin (Vite + React SPA)
+│   ├── shop/             # @menuvo/shop - Customer storefront (Vite + React)
+│   └── business/         # @menuvo/business - Marketing site (Vite + React)
+├── packages/
+│   ├── db/               # @menuvo/db - Drizzle schema + client
+│   ├── trpc/             # @menuvo/trpc - tRPC routers + shared types
+│   └── ui/               # @menuvo/ui - Shared shadcn components
+└── docs/                 # Documentation (in parent directory)
+```
 
-## Quick Start
+## Tech Stack
+
+| Concern | Tool |
+|---------|------|
+| Runtime | Bun |
+| API Framework | Hono |
+| Type-safe API | tRPC v11 |
+| Client Routing | TanStack Router |
+| Server State | TanStack Query |
+| Client State | Zustand |
+| Forms | TanStack Form + Zod |
+| Database | Drizzle ORM + PostgreSQL |
+| Styling | Tailwind CSS v4 |
+| Components | shadcn/ui |
+| Linting | Biome |
+
+## Commands
 
 ```bash
 # Install dependencies
 bun install
 
-# Start database
-bun run db:start
+# Development
+bun run dev                          # Run all apps
+bun run dev --filter=@menuvo/api     # Run specific app
 
-# Run migrations
-bun run db:migrate
+# Build
+bun run build                        # Build all apps
+bun run build --filter=@menuvo/api   # Build specific app
 
-# Start dev server
-bun --bun run dev
+# Quality
+bun run check                        # Biome lint + format
+bun run check-types                  # TypeScript check
 
-# In a separate terminal, start background workers
-bun run worker
+# Database (from packages/db)
+bun run generate                     # Generate migrations
+bun run migrate                      # Run migrations
+bun run push                         # Push schema
+bun run studio                       # Drizzle Studio
 ```
 
-App runs at [http://localhost:3000](http://localhost:3000)
+## Architecture
 
-## Overview
+See `../docs/architecture.md` for full documentation.
 
-The platform has three main interfaces:
-
-- **Discovery** (`/`) - Customer-facing store discovery page
-- **Store** (`/{storeSlug}`) - Customer-facing storefront for browsing and ordering
-- **Console** (`/console`) - Merchant dashboard for managing menus, orders, and settings
-
-## Commands
-
-| Command | Description |
-|---------|-------------|
-| `bun --bun run dev` | Start development server |
-| `bun --bun run build` | Production build |
-| `bun --bun run start` | Run production server |
-| `bun --bun run check` | Lint and format code |
-| `bun --bun run test` | Run tests |
-| `bun run db:studio` | Open Drizzle Studio |
-| `bun run services:start` | Start all Docker services |
-| `bun run worker` | Start background workers |
-
-## Background Workers
-
-The platform uses background workers for async processing. Run in a separate terminal:
-
-```bash
-bun run worker
-```
-
-Workers handle:
-- **Image processing** - Generates image variants (thumbnails, optimized sizes)
-- **Menu import** - Processes uploaded menu files asynchronously
-
-Workers are required for full functionality in development.
-
-## Tech Stack
-
-- TanStack Start/Router/Query/Form
-- React 19
-- Drizzle ORM + PostgreSQL
-- Tailwind CSS v4
-- Shadcn/ui
-- Zustand
-
-## Project Structure
+### Data Flow
 
 ```
-src/
-├── features/       # Business logic & components
-│   ├── console/    # Merchant admin features
-│   └── shop/       # Customer storefront features
-├── routes/         # Page routing (thin wiring)
-├── components/ui/  # Shared UI components
-└── db/             # Database schema & migrations
+Console/Shop (React SPA) → tRPC Client → API (Hono + tRPC) → PostgreSQL
 ```
 
-## Environment Variables
+### Key Principles
 
-Copy `.env.example` to `.env.local` for development.
-
-| File | Purpose |
-|------|---------|
-| `.env.local` | Local dev (git-ignored) |
-| `.env.production` | Non-secret prod configs (committed) |
-| GitHub Secrets | Secrets (DB, Stripe, S3, etc.) |
-
-## Adding Shadcn Components
-
-```bash
-bunx --bun shadcn@latest add <component>
-```
-
-See `CLAUDE.md` for detailed architecture guidelines.
+1. **Apps are independent** - Each app builds and deploys separately
+2. **API is the boundary** - All data flows through tRPC, never direct DB access
+3. **Packages are shared** - UI, DB, types shared via Bun workspaces
+4. **Type safety end-to-end** - tRPC + Zod + Drizzle

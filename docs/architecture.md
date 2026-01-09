@@ -400,13 +400,38 @@ apps/console/src/features/menu/
 
 ## Schema Separation
 
-Three schema types, three purposes:
+Three schema types, three purposes, clear ownership chain.
 
 | Schema | Location | Types | Purpose |
 |--------|----------|-------|---------|
+| Database | `packages/db/schema/` | Column types, const arrays | Drizzle schema, enum source |
+| API | `packages/trpc/schemas/` | Zod schemas (derived) | tRPC validation, app-facing types |
 | Form | `features/{f}/schemas.ts` | Strings | HTML input validation |
-| API | `packages/trpc/schemas/` | Real types | tRPC input validation |
-| Database | `packages/db/schema/` | Column types | Drizzle schema |
+
+### Type Flow
+
+```
+@menuvo/db (owns enums + tables)
+    │
+    └── const arrays, table definitions
+          │
+          ▼
+@menuvo/trpc (derives Zod, exports types)
+    │
+    └── z.enum(dbArray), API schemas
+          │
+          ▼
+apps/* (imports from tRPC only)
+    │
+    └── Form schemas (local), composite types (local)
+```
+
+**Key rules:**
+- DB owns enum values (they constrain columns)
+- tRPC derives Zod from DB arrays - never duplicate values
+- Apps import from `@menuvo/trpc`, never `@menuvo/db`
+- Form schemas stay local to features
+- Composite types (joins) defined locally where used
 
 ### Transformation Flow
 
@@ -469,6 +494,9 @@ All themes: Light mode only (dark mode deactivated).
 | Direct fetch calls | Use tRPC client |
 | Inline Zod schemas | Define in schemas.ts or packages/trpc |
 | Cross-app imports | Share via packages |
+| Duplicate enum values in tRPC | Import array from `@menuvo/db`, use `z.enum()` |
+| Create type mirrors in apps | Import from `@menuvo/trpc/schemas` |
+| Define same const array twice | Single source in `packages/db/schema/` |
 
 ---
 
@@ -477,6 +505,7 @@ All themes: Light mode only (dark mode deactivated).
 | I need to... | Location |
 |--------------|----------|
 | Add database table | `packages/db/schema/` |
+| Add enum/const array | `packages/db/schema/` (source), derive in `packages/trpc/schemas/` |
 | Add tRPC procedure | `packages/trpc/routers/` |
 | Add API schema | `packages/trpc/schemas/` |
 | Add UI primitive | `packages/ui/components/` |

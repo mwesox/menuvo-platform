@@ -61,7 +61,7 @@ services:
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
       S3_BUCKET: ${S3_BUCKET}
       S3_FILES_BUCKET: ${S3_FILES_BUCKET}
-      S3_PUBLIC_URL: ${S3_PUBLIC_URL}
+      S3_BASE_URL: ${S3_BASE_URL}
       S3_REGION: ${S3_REGION:-auto}
 
       # Stripe
@@ -112,7 +112,7 @@ services:
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
       S3_BUCKET: ${S3_BUCKET}
       S3_FILES_BUCKET: ${S3_FILES_BUCKET}
-      S3_PUBLIC_URL: ${S3_PUBLIC_URL}
+      S3_BASE_URL: ${S3_BASE_URL}
       S3_REGION: ${S3_REGION:-auto}
 
       # Stripe

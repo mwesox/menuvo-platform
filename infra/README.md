@@ -174,7 +174,7 @@ S3_ACCESS_KEY_ID=xxx
 S3_SECRET_ACCESS_KEY=xxx
 S3_BUCKET=menuvo-images
 S3_FILES_BUCKET=menuvo-files
-S3_PUBLIC_URL=https://cdn.menuvo.app
+S3_BASE_URL=https://cdn.menuvo.app
 S3_REGION=auto
 STRIPE_SECRET_KEY=sk_live_xxx
 STRIPE_WEBHOOK_SECRET=whsec_xxx
@@ -249,7 +249,7 @@ Configure these in GitHub repository settings (Settings > Secrets and variables 
 | `S3_SECRET_ACCESS_KEY` | R2 secret key |
 | `S3_BUCKET` | Images bucket name |
 | `S3_FILES_BUCKET` | Files bucket name |
-| `S3_PUBLIC_URL` | CDN URL for images |
+| `S3_BASE_URL` | CDN URL for images |
 | `S3_REGION` | R2 region (usually `auto`) |
 | `STRIPE_SECRET_KEY` | Stripe API key |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |

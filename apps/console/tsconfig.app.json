@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "types": ["vite/client"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Path aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/db": ["../../packages/db/src/index.ts"],
+      "@/db/*": ["../../packages/db/src/*"],
+      "@menuvo/ui": ["../../packages/ui/src"],
+      "@menuvo/ui/*": ["../../packages/ui/src/*"],
+      "@menuvo/db": ["../../packages/db/src"],
+      "@menuvo/db/*": ["../../packages/db/src/*"],
+      "@menuvo/trpc": ["../../packages/trpc/src"],
+      "@menuvo/trpc/*": ["../../packages/trpc/src/*"]
+    },
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
+}
