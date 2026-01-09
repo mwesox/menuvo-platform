@@ -5,10 +5,10 @@ export const env = createEnv({
 	server: {
 		SERVER_URL: z.string().url().optional(),
 		DATABASE_URL: z.string().url().optional(),
-		// Stripe
-		STRIPE_SECRET_KEY: z.string().min(1),
-		STRIPE_WEBHOOK_SECRET: z.string().min(1),
-		STRIPE_WEBHOOK_SECRET_THIN: z.string().min(1),
+		// Stripe (deprecated - use Mollie instead)
+		STRIPE_SECRET_KEY: z.string().optional(),
+		STRIPE_WEBHOOK_SECRET: z.string().optional(),
+		STRIPE_WEBHOOK_SECRET_THIN: z.string().optional(),
 		STRIPE_PRICE_STARTER: z.string().optional(),
 		STRIPE_PRICE_PRO: z.string().optional(),
 		STRIPE_PRICE_MAX: z.string().optional(),
