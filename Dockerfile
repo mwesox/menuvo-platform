@@ -43,11 +43,14 @@ RUN apk add --no-cache vips
 # Create non-root user for security
 RUN addgroup -S menuvo && adduser -S menuvo -G menuvo
 
-# Copy package.json first to install sharp correctly
+# Copy node_modules first (for runtime deps and drizzle-kit)
+COPY --from=builder --chown=menuvo:menuvo /app/node_modules ./node_modules
+
+# Copy package.json for sharp installation
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/bun.lock ./
 
-# Install sharp for this platform
+# Reinstall sharp for this platform (overrides builder version)
 RUN bun add sharp --no-save
 
 # Copy built API
@@ -56,9 +59,6 @@ COPY --from=builder --chown=menuvo:menuvo /app/apps/api/dist ./dist
 # Copy drizzle migrations and config from packages/db
 COPY --from=builder --chown=menuvo:menuvo /app/packages/db/drizzle ./packages/db/drizzle
 COPY --from=builder --chown=menuvo:menuvo /app/packages/db/drizzle.config.ts ./packages/db/
-
-# Copy remaining node_modules (without replacing sharp)
-COPY --from=builder --chown=menuvo:menuvo /app/node_modules ./node_modules
 
 # Copy package files for drizzle-kit to work
 COPY --from=builder --chown=menuvo:menuvo /app/packages/db/package.json ./packages/db/
