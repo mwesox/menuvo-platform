@@ -1,7 +1,14 @@
 # Menuvo Production Docker Compose
-# TanStack Start Platform with Console and Shop
-# Main app: www.menuvo.app (Discovery at /, Store at /{slug}, Console at /console)
-# Infrastructure: monitor.menuvo.app, status.menuvo.app
+# API-only deployment - SPAs deployed to Cloudflare Pages
+#
+# Architecture:
+#   - api.menuvo.app      → API (Hono + tRPC)
+#   - menuvo.app          → Shop (Cloudflare Pages)
+#   - console.menuvo.app  → Console (Cloudflare Pages)
+#   - business.menuvo.app → Business (Cloudflare Pages)
+#   - status.menuvo.app   → Gatus (uptime monitoring)
+#   - monitor.menuvo.app  → Beszel (host monitoring)
+#
 # VPS: Hetzner 8GB RAM
 
 services:
@@ -37,20 +44,41 @@ services:
     networks:
       - menuvo
 
-  # Menuvo Platform - TanStack Start (Console + Shop)
-  platform-a:
-    image: ghcr.io/mwesox/menuvo-platform:${VERSION:-latest}
+  # Redis for caching and queues
+  redis:
+    image: redis:8-alpine
+    container_name: menuvo-redis
+    restart: always
+    mem_limit: 256m
+    cpus: 0.5
+    command: redis-server --appendonly yes --maxmemory 200mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - menuvo
+
+  # Menuvo API - Instance A (rolling deploy)
+  api-a:
+    image: ghcr.io/mwesox/menuvo-api:${VERSION:-latest}
+    container_name: menuvo-api-a
     restart: always
     mem_limit: 1g
     cpus: 1.0
     environment:
-      # Node.js environment
       NODE_ENV: production
       PORT: 3000
       ORIGIN: https://menuvo.app
 
       # Database
       DATABASE_URL: postgres://menuvo:${DB_PASSWORD}@postgres:5432/menuvo
+
+      # Redis
+      REDIS_URL: redis://redis:6379
 
       # Auth
       AUTH_SECRET: ${AUTH_SECRET}
@@ -68,17 +96,18 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       STRIPE_WEBHOOK_SECRET_THIN: ${STRIPE_WEBHOOK_SECRET_THIN}
-      VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
 
       # AI (OpenRouter)
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
 
-      # Sentry (optional)
-      VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
-      SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
+      # Mollie
+      MOLLIE_API_KEY: ${MOLLIE_API_KEY}
+      MOLLIE_TEST_MODE: ${MOLLIE_TEST_MODE:-false}
 
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
@@ -89,19 +118,23 @@ services:
     networks:
       - menuvo
 
-  platform-b:
-    image: ghcr.io/mwesox/menuvo-platform:${VERSION:-latest}
+  # Menuvo API - Instance B (rolling deploy)
+  api-b:
+    image: ghcr.io/mwesox/menuvo-api:${VERSION:-latest}
+    container_name: menuvo-api-b
     restart: always
     mem_limit: 1g
     cpus: 1.0
     environment:
-      # Node.js environment
       NODE_ENV: production
       PORT: 3000
       ORIGIN: https://menuvo.app
 
       # Database
       DATABASE_URL: postgres://menuvo:${DB_PASSWORD}@postgres:5432/menuvo
+
+      # Redis
+      REDIS_URL: redis://redis:6379
 
       # Auth
       AUTH_SECRET: ${AUTH_SECRET}
@@ -119,17 +152,18 @@ services:
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       STRIPE_WEBHOOK_SECRET_THIN: ${STRIPE_WEBHOOK_SECRET_THIN}
-      VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
 
       # AI (OpenRouter)
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
 
-      # Sentry (optional)
-      VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
-      SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-}
+      # Mollie
+      MOLLIE_API_KEY: ${MOLLIE_API_KEY}
+      MOLLIE_TEST_MODE: ${MOLLIE_TEST_MODE:-false}
 
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
@@ -159,8 +193,8 @@ services:
       - caddy_config:/config
       - /var/log/caddy:/var/log/caddy
     depends_on:
-      - platform-a
-      - platform-b
+      - api-a
+      - api-b
     networks:
       - menuvo
 
@@ -244,6 +278,8 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  redis_data:
     driver: local
   caddy_data:
     driver: local

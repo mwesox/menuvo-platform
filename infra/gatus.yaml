@@ -8,7 +8,7 @@ web:
 ui:
   title: "Menuvo Status"
   header: "Menuvo Status"
-  description: "Public endpoint health checks"
+  description: "Service health monitoring for Menuvo platform"
 
 alerting:
   telegram:
@@ -16,32 +16,77 @@ alerting:
     id: ${GATUS_TELEGRAM_CHAT_ID}
 
 endpoints:
-  - name: menuvo-live
-    group: public
-    url: https://menuvo.app/live
-    interval: 30s
-    conditions:
-      - "[STATUS] == 200"
-      - "[BODY].status == ok"
-    alerts:
-      - type: telegram
-        description: "menuvo.app/live is down"
-        send-on-resolved: true
-        failure-threshold: 3
-        success-threshold: 2
-
-  - name: menuvo-health
-    group: public
-    url: https://menuvo.app/health
+  # API Server (Hetzner VPS)
+  - name: api-health
+    group: api
+    url: https://api.menuvo.app/health
     interval: 30s
     conditions:
       - "[STATUS] == 200"
       - "[BODY].status == ok"
       - "[BODY].db == ok"
-      - "[BODY].redis == ok"
     alerts:
       - type: telegram
-        description: "menuvo.app/health is failing"
+        description: "API health check failing"
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
+
+  - name: api-live
+    group: api
+    url: https://api.menuvo.app/live
+    interval: 30s
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+        description: "API is down"
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
+
+  # Shop (Cloudflare Pages)
+  - name: shop
+    group: frontend
+    url: https://menuvo.app
+    interval: 60s
+    conditions:
+      - "[STATUS] == 200"
+      - "[RESPONSE_TIME] < 3000"
+    alerts:
+      - type: telegram
+        description: "Shop is down"
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
+
+  # Console (Cloudflare Pages)
+  - name: console
+    group: frontend
+    url: https://console.menuvo.app
+    interval: 60s
+    conditions:
+      - "[STATUS] == 200"
+      - "[RESPONSE_TIME] < 3000"
+    alerts:
+      - type: telegram
+        description: "Console is down"
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
+
+  # Business/Landing (Cloudflare Pages)
+  - name: business
+    group: frontend
+    url: https://business.menuvo.app
+    interval: 60s
+    conditions:
+      - "[STATUS] == 200"
+      - "[RESPONSE_TIME] < 3000"
+    alerts:
+      - type: telegram
+        description: "Business site is down"
         send-on-resolved: true
         failure-threshold: 3
         success-threshold: 2
@@ -56,6 +101,32 @@ endpoints:
     alerts:
       - type: telegram
         description: "Caddy reverse proxy is down"
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
+
+  - name: postgres
+    group: internal
+    url: tcp://menuvo-postgres:5432
+    interval: 60s
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: telegram
+        description: "PostgreSQL is unreachable"
+        send-on-resolved: true
+        failure-threshold: 3
+        success-threshold: 2
+
+  - name: redis
+    group: internal
+    url: tcp://menuvo-redis:6379
+    interval: 60s
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: telegram
+        description: "Redis is unreachable"
         send-on-resolved: true
         failure-threshold: 3
         success-threshold: 2

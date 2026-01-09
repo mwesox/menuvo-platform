@@ -1,8 +1,13 @@
 # Menuvo Production Caddyfile
-# TanStack Start Platform - Single domain routing
-# Main app: www.menuvo.app (Console at /console, Shop at /shop)
-# Infrastructure: monitor.menuvo.app (Beszel), status.menuvo.app (Gatus)
-# Legacy: console.menuvo.app redirects to www.menuvo.app/console
+# API-only deployment - SPAs on Cloudflare Pages
+#
+# Architecture:
+#   - api.menuvo.app      → API (Hono + tRPC) - this server
+#   - menuvo.app          → Shop (Cloudflare Pages)
+#   - console.menuvo.app  → Console (Cloudflare Pages)
+#   - business.menuvo.app → Business (Cloudflare Pages)
+#   - status.menuvo.app   → Gatus (uptime monitoring)
+#   - monitor.menuvo.app  → Beszel (host monitoring)
 
 # Global options (MUST be first!)
 {
@@ -32,12 +37,42 @@
 	header_up X-Forwarded-Proto {scheme}
 }
 
-# Main site - menuvo.app
-menuvo.app, www.menuvo.app {
-	import cloudflare_tls
+# Security headers
+(security_headers) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
 
-	# Rate limiting
-	@auth_endpoints path /auth/* /api/auth/*
+# CORS for API (SPAs on different domains)
+(cors_api) {
+	@cors_preflight method OPTIONS
+	handle @cors_preflight {
+		header Access-Control-Allow-Origin "{header.Origin}"
+		header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+		header Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, X-TRPC-Source"
+		header Access-Control-Allow-Credentials "true"
+		header Access-Control-Max-Age "86400"
+		respond "" 204
+	}
+
+	header Access-Control-Allow-Origin "{header.Origin}"
+	header Access-Control-Allow-Credentials "true"
+	header Access-Control-Expose-Headers "Content-Length, Content-Type"
+}
+
+# API - api.menuvo.app
+api.menuvo.app {
+	import cloudflare_tls
+	import cors_api
+
+	# Rate limiting for auth endpoints
+	@auth_endpoints path /auth/* /trpc/auth.*
 	rate_limit @auth_endpoints {
 		zone auth_zone {
 			key {client_ip}
@@ -46,17 +81,17 @@ menuvo.app, www.menuvo.app {
 		}
 	}
 
-	@api path /api/*
-	rate_limit @api {
+	# Rate limiting for general API
+	rate_limit {
 		zone api_zone {
 			key {client_ip}
-			events 100
+			events 200
 			window 1m
 		}
 	}
 
-	# Proxy all requests to platform
-	reverse_proxy platform-a:3000 platform-b:3000 {
+	# Proxy to API instances
+	reverse_proxy api-a:3000 api-b:3000 {
 		import proxy_settings
 		lb_policy least_conn
 		health_uri /health
@@ -64,18 +99,10 @@ menuvo.app, www.menuvo.app {
 		health_timeout 10s
 	}
 
-	# Security headers
-	header {
-		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-		X-Content-Type-Options "nosniff"
-		X-Frame-Options "SAMEORIGIN"
-		X-XSS-Protection "1; mode=block"
-		Referrer-Policy "strict-origin-when-cross-origin"
-		-Server
-	}
+	import security_headers
 
 	log {
-		output file /var/log/caddy/menuvo.log {
+		output file /var/log/caddy/api.log {
 			roll_size 10MiB
 			roll_keep 10
 			roll_keep_for 720h
@@ -85,12 +112,6 @@ menuvo.app, www.menuvo.app {
 	}
 
 	encode gzip zstd
-}
-
-# Console subdomain - redirect to main domain
-console.menuvo.app {
-	import cloudflare_tls
-	redir https://menuvo.app/console{uri} permanent
 }
 
 # Status Dashboard (Gatus)
@@ -107,13 +128,7 @@ status.menuvo.app {
 		}
 	}
 
-	header {
-		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-		X-Content-Type-Options "nosniff"
-		X-Frame-Options "DENY"
-		X-XSS-Protection "1; mode=block"
-		-Server
-	}
+	import security_headers
 
 	log {
 		output file /var/log/caddy/status.log {
@@ -140,13 +155,7 @@ monitor.menuvo.app {
 		}
 	}
 
-	header {
-		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-		X-Content-Type-Options "nosniff"
-		X-Frame-Options "DENY"
-		X-XSS-Protection "1; mode=block"
-		-Server
-	}
+	import security_headers
 
 	log {
 		output file /var/log/caddy/monitor.log {

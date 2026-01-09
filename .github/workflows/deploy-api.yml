@@ -1,98 +1,20 @@
-name: Build & Push
+name: Deploy API
 
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+    paths:
+      - "apps/api/**"
+      - "packages/db/**"
+      - "packages/trpc/**"
+      - "infra/**"
+      - ".github/workflows/deploy-api.yml"
   workflow_dispatch:
 
 jobs:
-  lint:
-    name: Lint & Format
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run Biome check
-        run: bun run check
-
-  typecheck:
-    name: Type Check
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run TypeScript
-        run: bunx tsc --noEmit
-
-  test:
-    name: Tests
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:18-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: menuvo_test
-        ports:
-          - 5433:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run database migrations
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/menuvo_test
-        run: bunx drizzle-kit push
-
-      - name: Run tests
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5433/menuvo_test
-          NODE_ENV: test
-        run: bun run test
-
   build-push:
-    name: Build & Push Docker Image
+    name: Build & Push API Image
     runs-on: hetzner-vps
-    needs: [lint, typecheck, test]
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     permissions:
       contents: read
       packages: write
@@ -117,7 +39,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/mwesox/menuvo-platform
+          images: ghcr.io/mwesox/menuvo-api
           tags: |
             type=sha
             type=ref,event=branch
@@ -128,23 +50,22 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: infra/Dockerfile.platform
+          file: infra/Dockerfile.api
           platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=ghcr.io/mwesox/menuvo-platform:buildcache
-          cache-to: type=registry,ref=ghcr.io/mwesox/menuvo-platform:buildcache,mode=max
+          cache-from: type=registry,ref=ghcr.io/mwesox/menuvo-api:buildcache
+          cache-to: type=registry,ref=ghcr.io/mwesox/menuvo-api:buildcache,mode=max
           provenance: false
 
   deploy:
     name: Deploy to VPS
     runs-on: hetzner-vps
     needs: [build-push]
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     environment: production
     concurrency:
-      group: deploy-${{ github.ref }}
+      group: deploy-api-${{ github.ref }}
       cancel-in-progress: false
 
     steps:
@@ -163,15 +84,12 @@ jobs:
           S3_SECRET_ACCESS_KEY=${{ secrets.S3_SECRET_ACCESS_KEY }}
           S3_BUCKET=${{ secrets.S3_BUCKET }}
           S3_FILES_BUCKET=${{ secrets.S3_FILES_BUCKET }}
-          S3_PUBLIC_URL=${{ secrets.S3_PUBLIC_URL }}
+          S3_BASE_URL=${{ secrets.S3_BASE_URL }}
           S3_REGION=${{ secrets.S3_REGION }}
           STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
           STRIPE_WEBHOOK_SECRET_THIN=${{ secrets.STRIPE_WEBHOOK_SECRET_THIN }}
-          VITE_STRIPE_PUBLISHABLE_KEY=${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
           OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}
-          VITE_SENTRY_DSN=${{ secrets.VITE_SENTRY_DSN }}
-          SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }}
           BESZEL_AGENT_KEY=${{ secrets.BESZEL_AGENT_KEY }}
           GATUS_TELEGRAM_TOKEN=${{ secrets.GATUS_TELEGRAM_TOKEN }}
           GATUS_TELEGRAM_CHAT_ID=${{ secrets.GATUS_TELEGRAM_CHAT_ID }}
@@ -207,19 +125,19 @@ jobs:
       - name: Ensure core services are running
         run: |
           cd /home/deploy/menuvo
-          docker compose up -d postgres
+          docker compose up -d postgres redis
 
       - name: Pull application images
         run: |
           cd /home/deploy/menuvo
-          docker compose pull platform-a platform-b
+          docker compose pull api-a api-b
 
       - name: Run database migrations
         run: |
           cd /home/deploy/menuvo
-          docker compose run --rm platform-a bunx drizzle-kit migrate
+          docker compose run --rm api-a bunx drizzle-kit migrate
 
-      - name: Rolling deploy platform
+      - name: Rolling deploy API
         run: |
           cd /home/deploy/menuvo
 
@@ -242,11 +160,11 @@ jobs:
             exit 1
           }
 
-          docker compose up -d platform-a
-          wait_for_health platform-a
+          docker compose up -d api-a
+          wait_for_health api-a
 
-          docker compose up -d platform-b
-          wait_for_health platform-b
+          docker compose up -d api-b
+          wait_for_health api-b
 
       - name: Deploy backup and monitoring
         run: |
@@ -256,14 +174,14 @@ jobs:
 
       - name: Health checks
         run: |
-          echo "Checking menuvo.app..."
+          echo "Checking api.menuvo.app..."
           for i in {1..12}; do
-            if curl -sf https://menuvo.app/health > /dev/null 2>&1; then
-              echo "OK: menuvo.app is healthy"
+            if curl -sf https://api.menuvo.app/health > /dev/null 2>&1; then
+              echo "OK: api.menuvo.app is healthy"
               break
             fi
             if [ $i -eq 12 ]; then
-              echo "FAILED: menuvo.app health check failed"
+              echo "FAILED: api.menuvo.app health check failed"
               exit 1
             fi
             echo "Attempt $i/12 - waiting..."
