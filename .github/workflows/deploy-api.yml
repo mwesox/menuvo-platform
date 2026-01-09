@@ -10,6 +10,12 @@ on:
       - "infra/**"
       - ".github/workflows/deploy-api.yml"
   workflow_dispatch:
+    inputs:
+      no-cache:
+        description: "Build without Docker cache"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build-push:
@@ -55,7 +61,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=ghcr.io/mwesox/menuvo-api:buildcache
+          cache-from: ${{ inputs.no-cache && '' || 'type=registry,ref=ghcr.io/mwesox/menuvo-api:buildcache' }}
           cache-to: type=registry,ref=ghcr.io/mwesox/menuvo-api:buildcache,mode=max
           provenance: false
 
