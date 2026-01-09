@@ -7,56 +7,12 @@ web:
 ui:
   title: "Menuvo Status"
   header: "Menuvo Status"
-  description: "Service health monitoring for Menuvo platform"
 
 endpoints:
-  # API Server
-  - name: api-health
-    group: api
+  - name: API
+    group: core
     url: https://api.menuvo.app/health
     interval: 30s
     conditions:
       - "[STATUS] == 200"
       - "[BODY].status == ok"
-
-  - name: api-live
-    group: api
-    url: https://api.menuvo.app/live
-    interval: 30s
-    conditions:
-      - "[STATUS] == 200"
-
-  # Shop (Cloudflare Pages)
-  - name: shop
-    group: frontend
-    url: https://menuvo.app
-    interval: 60s
-    conditions:
-      - "[STATUS] == 200"
-      - "[RESPONSE_TIME] < 3000"
-
-  # Console (Cloudflare Pages)
-  - name: console
-    group: frontend
-    url: https://console.menuvo.app
-    interval: 60s
-    conditions:
-      - "[STATUS] == 200"
-      - "[RESPONSE_TIME] < 3000"
-
-  # Business/Landing (Cloudflare Pages)
-  - name: business
-    group: frontend
-    url: https://business.menuvo.app
-    interval: 60s
-    conditions:
-      - "[STATUS] == 200"
-      - "[RESPONSE_TIME] < 3000"
-
-  # Coolify Dashboard
-  - name: coolify
-    group: internal
-    url: https://coolify.menuvo.app
-    interval: 60s
-    conditions:
-      - "[STATUS] == 200"
