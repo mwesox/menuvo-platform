@@ -1,0 +1,37 @@
+{
+	"page": {
+		"title": "Good food shouldn't wait.",
+		"subtitle": "Discover restaurants nearby. Order ahead, dine in, or grab and go — all from your phone.",
+		"metaTitle": "Menuvo – Restaurants Near Me | Order Ahead, Skip the Wait",
+		"metaDescription": "Find restaurants near you with Menuvo. Browse menus, order ahead from your phone, and skip the wait – whether dining in or grabbing takeaway."
+	},
+	"search": {
+		"placeholder": "Search restaurants near me...",
+		"clearSearch": "Clear search",
+		"allCities": "All",
+		"filterByCity": "Filter by city"
+	},
+	"storeCard": {
+		"openNow": "Open",
+		"closed": "Closed"
+	},
+	"emptyState": {
+		"noStores": {
+			"title": "Coming soon to your area",
+			"description": "We're partnering with local restaurants to bring Menuvo to more places. Check back soon!"
+		},
+		"noResults": {
+			"title": "No restaurants found",
+			"description": "Try a different search or browse all restaurants nearby.",
+			"clearFilters": "Show all restaurants"
+		}
+	},
+	"error": {
+		"title": "Something went wrong",
+		"description": "We couldn't load the restaurants. Please try again.",
+		"tryAgain": "Try again"
+	},
+	"loading": {
+		"searchPlaceholder": "Search restaurants near me..."
+	}
+}

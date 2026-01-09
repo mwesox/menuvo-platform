@@ -1,6 +1,6 @@
 # Coding Guidelines
 
-Implementation rules and conventions for writing code in this codebase.
+Implementation rules and conventions for writing code in this monorepo.
 
 ---
 
@@ -96,16 +96,17 @@ const deferredQuery = useDeferredValue(query);
 
 | Rule | Guideline |
 |------|-----------|
-| Location | Same `schemas.ts` as server schemas |
+| Location | `features/{f}/schemas.ts` |
 | Naming | `{entity}FormSchema` |
 | Types | Strings for all inputs (transform later) |
 | Messages | User-friendly error messages |
 | Context IDs | Excluded (added by mutation hook) |
 
-### Server Schemas
+### API Schemas
 
 | Rule | Guideline |
 |------|-----------|
+| Location | `packages/trpc/schemas/` |
 | Naming | `{action}{Entity}Schema` (createItem, updateStore) |
 | Types | Actual types (numbers, booleans, dates) |
 | Context IDs | Included (storeId, merchantId) |
@@ -116,79 +117,256 @@ const deferredQuery = useDeferredValue(query);
 | Need | Source |
 |------|--------|
 | Form values type | `z.infer<typeof itemFormSchema>` |
-| Server input type | `z.infer<typeof createItemSchema>` |
+| API input type | `z.infer<typeof createItemSchema>` |
 | Database type | `InferSelectModel<typeof items>` |
 
----
-
-## Server Function Rules
+### Enum & Const Arrays
 
 | Rule | Guideline |
 |------|-----------|
-| HTTP Methods | `GET` for reads, `POST` for writes |
-| Validation | Always use `.inputValidator()` |
-| Returns | Return affected record(s) for mutations |
-| Errors | `throw notFound()` in routes, `throw Error()` in server functions |
-| Logic | Delegate complex logic to `logic/` layer |
+| Source of truth | `packages/db/schema/` - define as `const array` with `as const` |
+| Zod schemas | `packages/trpc/schemas/` - derive using `z.enum(dbArray)`, never duplicate values |
+| App imports | Always from `@menuvo/trpc/schemas`, never from `@menuvo/db` |
+| Local types | Never create type mirrors in apps - import from tRPC |
+
+**Example - Correct pattern:**
+
+```typescript
+// packages/db/schema/index.ts (SOURCE)
+export const orderStatuses = ["awaiting_payment", "confirmed", ...] as const;
+export type OrderStatus = (typeof orderStatuses)[number];
+
+// packages/trpc/schemas/order.schema.ts (DERIVES)
+import { orderStatuses } from "@menuvo/db/schema";
+export const orderStatusEnum = z.enum(orderStatuses);
+export type OrderStatusType = z.infer<typeof orderStatusEnum>;
+
+// apps/console/features/orders (CONSUMES)
+import { type OrderStatusType } from "@menuvo/trpc/schemas";
+```
+
+### Composite Types
+
+| Need | Location |
+|------|----------|
+| Database join result | Define locally in feature `types.ts` |
+| tRPC response with relations | Use tRPC router inference |
+| Extended form state | Define locally in feature `schemas.ts` or `types.ts` |
 
 ---
 
-## Query Rules
+## tRPC Procedure Rules
+
+### Organization
 
 | Rule | Guideline |
 |------|-----------|
-| Keys | Hierarchical arrays: `["items", "store", storeId]` |
-| Options | Group in `{entity}Queries` object |
-| Mutations | Wrap in `use{Action}{Entity}` hooks |
-| Invalidation | Always invalidate on mutation success |
-| Feedback | Always show toast for mutations |
+| One router per domain | `storeRouter`, `itemRouter`, `orderRouter` |
+| Procedures are verbs | `get`, `list`, `create`, `update`, `delete` |
+| Protected by default | Use `protectedProcedure` for authenticated routes |
+| Public when needed | Use `publicProcedure` only for unauthenticated access |
 
----
+### Input Validation
 
-## Route Rules
+```typescript
+// Always validate inputs
+.input(createItemSchema)
+
+// Never trust client data
+.mutation(({ input, ctx }) => {
+  // input is fully validated and typed
+})
+```
+
+### Context Usage
+
+```typescript
+// Context provides authenticated user and database
+.mutation(({ input, ctx }) => {
+  const { db, user } = ctx;
+
+  // Always check ownership/permissions
+  const store = await db.query.stores.findFirst({
+    where: and(
+      eq(stores.id, input.storeId),
+      eq(stores.merchantId, user.merchantId)
+    ),
+  });
+})
+```
+
+### Error Handling
+
+```typescript
+import { TRPCError } from "@trpc/server";
+
+// Throw typed errors
+throw new TRPCError({
+  code: "NOT_FOUND",
+  message: "Store not found",
+});
+
+// Common codes: UNAUTHORIZED, FORBIDDEN, NOT_FOUND, BAD_REQUEST
+```
+
+### Response Data
 
 | Rule | Guideline |
 |------|-----------|
-| Loader | Use `ensureQueryData` for SSR prefetch |
-| Component | Use `useSuspenseQuery` (data guaranteed) |
-| Params | Parse in route definition |
-| Logic | Keep routes focused on wiring only |
+| Use Drizzle `columns` | Fetch only needed fields, omit sensitive data |
+| Use `.output()` for public APIs | Explicit contract, strips extra fields |
+| Skip `.output()` internally | Type inference sufficient, no runtime overhead |
+| Never expose payment fields | `stripeAccountId`, `mollieProfileId`, etc. |
+
+```typescript
+// Preferred: column projection
+return ctx.db.query.merchants.findFirst({
+  columns: { id: true, name: true, email: true }, // omit sensitive
+});
+
+// Public APIs: explicit output schema
+getMenu: publicProcedure.output(menuSchema).query(...)
+```
 
 ---
 
-## Data Loading Rules
+## Query Rules (tRPC v11 + TanStack Query)
 
-1. **Loaders prefetch** → `ensureQueryData(queryOptions)`
-2. **Components consume** → `useSuspenseQuery(queryOptions)`
-3. **Same query options** → Ensures cache hit
-4. **Never direct calls in loaders** → Always wrap in queryOptions
-5. **Mutations via hooks** → `use{Action}{Entity}()` in `queries.ts`
+### Using the tRPC Hook
+
+```typescript
+// Access tRPC client in components
+const trpc = useTRPC();
+
+// Use with TanStack Query hooks
+const { data } = useQuery(trpc.store.get.queryOptions({ id }));
+const { data } = useSuspenseQuery(trpc.store.get.queryOptions({ id }));
+```
+
+### Query Options Pattern
+
+```typescript
+// queries.ts - Wrap tRPC for reuse across components
+export function useStoreQueries() {
+  const trpc = useTRPC();
+
+  return {
+    all: () => trpc.store.list.queryOptions(),
+    detail: (id: string) => trpc.store.get.queryOptions({ id }),
+  };
+}
+
+// Usage in components
+const storeQueries = useStoreQueries();
+const { data } = useSuspenseQuery(storeQueries.detail(storeId));
+```
+
+### Query Key Access
+
+```typescript
+// Get type-safe query keys for invalidation
+const trpc = useTRPC();
+const queryKey = trpc.store.get.queryKey({ id });
+
+// Invalidate specific query
+queryClient.invalidateQueries({ queryKey });
+
+// Invalidate entire router
+queryClient.invalidateQueries({ queryKey: trpc.store.pathKey() });
+```
+
+### Mutations
+
+```typescript
+// Use mutationOptions() factory
+export function useCreateItem() {
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    ...trpc.item.create.mutationOptions(),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: trpc.item.list.queryKey({ storeId: variables.storeId })
+      });
+      toast.success("Item created");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+}
+```
+
+### Rules
+
+| Rule | Guideline |
+|------|-----------|
+| Use `queryOptions()` | Type-safe query configuration |
+| Use `queryKey()` | Type-safe invalidation |
+| Use `pathKey()` | Invalidate entire routers |
+| Always invalidate on mutation | Keep cache in sync |
+| Show toast feedback | User needs confirmation |
+
+---
+
+## Route Rules (SPA)
 
 ### Loader Pattern
 
 ```typescript
-export const Route = createFileRoute("/console/items")({
-  loader: async ({ context }) => {
-    // Always use ensureQueryData with query wrapper
-    await context.queryClient.ensureQueryData(itemQueries.byStore(storeId));
-
-    // Never call server functions directly in loaders
-    // ❌ await getItems({ data: { storeId } })
+// Route loaders can't use hooks, so use trpcClient directly
+export const Route = createFileRoute("/stores/$storeId")({
+  loader: async ({ context, params }) => {
+    // Prefetch using trpcClient (not useTRPC hook)
+    await context.queryClient.ensureQueryData({
+      queryKey: ["store", params.storeId],
+      queryFn: () => context.trpcClient.store.get.query({
+        id: params.storeId
+      }),
+    });
   },
+  component: StorePage,
 });
 ```
 
 ### Component Pattern
 
 ```typescript
-function ItemList() {
-  // useSuspenseQuery reads from cache (no network request)
-  // Data guaranteed by loader prefetch
-  const { data: items } = useSuspenseQuery(itemQueries.byStore(storeId));
+function StorePage() {
+  const { storeId } = Route.useParams();
+  const trpc = useTRPC();
 
-  return <ul>{items.map(item => <li key={item.id}>{item.name}</li>)}</ul>;
+  // Data guaranteed by loader prefetch
+  const { data: store } = useSuspenseQuery(
+    trpc.store.get.queryOptions({ id: storeId })
+  );
+
+  return <StoreDetail store={store} />;
 }
 ```
+
+### Matching Query Keys
+
+```typescript
+// Ensure loader and component use same query key
+// Option 1: Define key factory
+const storeKeys = {
+  detail: (id: string) => ["store", id] as const,
+};
+
+// Option 2: Use trpc.queryKey() in components (preferred)
+// Loader must match the key pattern tRPC generates
+```
+
+### Rules
+
+| Rule | Guideline |
+|------|-----------|
+| Loaders use `trpcClient` | Can't use hooks outside React |
+| Components use `useTRPC()` | Get queryOptions factory |
+| Match query keys | Ensures cache hit from loader |
+| Keep routes thin | No business logic |
 
 ---
 
@@ -209,8 +387,8 @@ function ItemList() {
 | Hook Type | Pattern | Example |
 |-----------|---------|---------|
 | Mutations | `use{Action}{Entity}` | `useCreateCategory()` |
-| Queries | `{entity}Queries` object | `merchantQueries.detail(id)` |
-| Context | `use{Feature}` | `useShop()`, `useMerchantContext()` |
+| Queries | `{entity}Queries` object | `storeQueries.detail(id)` |
+| Context | `use{Feature}` | `useShop()`, `useConsole()` |
 | UI state | `use{Concern}` | `useMenuPageState()` |
 | Stores | `use{Entity}Store` | `useCartStore()` |
 
@@ -238,52 +416,14 @@ function ItemList() {
 |-------|-------------------|-----|
 | Form | Field format, required fields | TanStack Form + Zod |
 | Mutation Hook | — | Transforms only, no validation |
-| Server Function | Full input validation | `.inputValidator(schema)` |
-
----
-
-## Sharing Data Between Layout and Child Routes
-
-When a parent layout needs data that's loaded in a child route, **use TanStack Query directly** - don't use context + useEffect.
-
-### The Problem
-
-```tsx
-// ❌ BAD: Child sets context via useEffect (causes flash/hydration mismatch)
-useEffect(() => {
-  setStoreName(store.name);
-}, [store]);
-
-// In parent layout header:
-const { storeName } = useContext(ShopContext); // Empty on SSR!
-```
-
-### The Solution
-
-```tsx
-// ✅ GOOD: Parent layout reads from same cache
-function StoreInfo() {
-  const slug = useStoreSlug();
-
-  // Same query key = instant cache hit, no flash
-  const { data: store } = useQuery({
-    ...shopQueries.storeBySlug(slug ?? ""),
-    enabled: !!slug,
-  });
-
-  if (!store) return null;
-  return <div>{store.name}</div>;
-}
-```
-
-**Rule:** For server data that multiple components need, use TanStack Query with consistent query keys. Don't duplicate into context or Zustand.
+| tRPC Procedure | Full input validation | `.input(schema)` |
 
 ---
 
 ## Naming Conventions
 
 **Files:** kebab-case
-- `store-form.tsx`, `items.functions.ts`
+- `store-form.tsx`, `create-item.ts`
 
 **Functions:**
 
@@ -301,10 +441,10 @@ function StoreInfo() {
 
 | Layer | Pattern |
 |-------|---------|
-| Server functions | `throw new Error()` for API errors |
-| Route loaders | `throw notFound()` for 404 pages |
+| tRPC procedures | `throw new TRPCError({ code, message })` |
 | Mutations | Toast on error, log to Sentry |
-| Routes | Use `errorComponent`, `notFoundComponent` |
+| Routes | Use `errorComponent` for error boundaries |
+| Components | Try/catch for async operations |
 
 ---
 
@@ -312,19 +452,19 @@ function StoreInfo() {
 
 | Type | Location | Approach |
 |------|----------|----------|
-| Integration | `server/*.test.ts` | Real test DB, no mocks |
-| Unit | `logic/*.test.ts` | Pure functions, no mocks |
-| Component | `components/*.test.tsx` | Mock Query hooks |
+| API Integration | `apps/api/src/**/*.test.ts` | Real test DB, no mocks |
+| Unit | `**/logic/*.test.ts` | Pure functions, no mocks |
+| Component | `**/*.test.tsx` | Mock tRPC client |
 
 ---
 
 ## Adding a New Feature
 
-1. **Database** → `src/db/schema.ts` (if new entity)
-2. **Schemas** → `features/{f}/schemas.ts`
-3. **Constants** → `features/{f}/constants.ts` (if static lists needed)
-4. **Server** → `features/{f}/server/{domain}.functions.ts`
-5. **Queries** → `features/{f}/queries.ts`
-6. **Components** → `features/{f}/components/`
-7. **Route** → `src/routes/{path}/` (thin wiring only)
-8. **Tests** → `logic/*.test.ts`, `server/*.test.ts`
+1. **Database** → `packages/db/schema/` (if new entity)
+2. **API Schema** → `packages/trpc/schemas/`
+3. **tRPC Router** → `packages/trpc/routers/`
+4. **Queries** → `apps/{app}/src/features/{f}/queries.ts`
+5. **Form Schemas** → `apps/{app}/src/features/{f}/schemas.ts`
+6. **Components** → `apps/{app}/src/features/{f}/components/`
+7. **Route** → `apps/{app}/src/routes/` (thin wiring only)
+8. **Tests** → `logic/*.test.ts`, `*.test.ts`

@@ -1,182 +1,79 @@
 # CLAUDE.md
 
-## ⚠️ REQUIRED READING
+## Required Reading
 
-**Before writing ANY code, read these docs:**
+Before writing code, read: `docs/architecture.md` and `docs/coding-guidelines.md`
 
-1. **`docs/architecture.md`** - Structure & patterns (routes vs features, schemas, state management)
-2. **`docs/coding-guidelines.md`** - Implementation patterns (React 19+ hooks, code conventions)
+## Rules
 
-This file is a quick reference. The docs are the source of truth.
-
----
-
-## Important
-- **Domain is `menuvo.app`** - Always use menuvo.app (not menuvo.de) for all URLs
-- **No subdomains for app routes** - Use path-based routing:
-  - Discovery: `www.menuvo.app/` (root)
-  - Store: `www.menuvo.app/{storeSlug}`
-  - Console: `www.menuvo.app/console`
-  - Only infrastructure uses subdomains: `status.menuvo.app`, `monitor.menuvo.app`
-- Use ShadCN MCP server to review latest docs and APIs and docs about ShadCN Components and the framework.
-- Never do git reset commands !!! NEVER !!!
-- **Middleware files must not have db imports** - Keep `createMiddleware()` in files without `@/db` imports to prevent server code leaking to client bundle (TanStack Start bug).
-
-## Subagent Instructions
-
-All subagents (Task tool) MUST read `docs/architecture.md` and `docs/coding-guidelines.md` before making code changes. This applies to Plan agents, Explore agents, and any agent writing code.
-
----
-
-## Critical Rules (from architecture.md)
-
-1. **Routes are thin wiring** - Routes connect URLs to features. No business logic, server functions, or complex components in routes.
-
-2. **Features own everything** - Business logic, server functions, components, queries, validation all live in `src/features/{feature}/`
-
-3. **Three Schema Rule** - Every entity has: Form schema (strings), Server schema (typed), Database schema (Drizzle)
-
-4. **Transformations happen in mutation hooks** - Forms collect strings, mutations transform + add context, server validates
-
-5. **State by type**:
-   - Server data → TanStack Query
-   - Persistent client → Zustand + persist (`stores/`)
-   - Transient UI → Context / useState
-
-6. **Never store server data in Zustand or Context**
-
-7. **Share server data via TanStack Query, not context** - When parent layouts need child route data, use the same query key. The child's loader caches data, parent's `useQuery` gets instant cache hit. Don't use context + useEffect (causes hydration mismatch).
-
----
+- **Domain**: `menuvo.app` (not menuvo.de)
+- **Apps never import `@menuvo/db`** - use tRPC
+- **Never `git reset`**
+- **Use ShadCN MCP** for component docs
+- **Subagents must read docs/** before code changes
 
 ## Commands
 
-**USE BUN ONLY!**
-
 ```bash
-bun --bun run dev          # Dev server on port 3000
-bun --bun run build        # Production build
-bun --bun run check        # Biome lint + format
-bun --bun run test         # Vitest tests
+bun install                      # Install deps
+bun run dev                      # All apps (turbo)
+bun run check                    # Biome lint + format
+bun run test                     # Vitest
 
-# Database (development)
-bun run db:generate        # Generate migrations
-bun run db:migrate         # Run migrations
-bun run db:push            # Push schema
-bun run db:studio          # Drizzle Studio
+# Single app
+bun --filter @menuvo/api dev
+bun --filter @menuvo/console dev
+bun --filter @menuvo/shop dev
+bun --filter @menuvo/business dev
 
-# Database (test)
-bun run db:test:start      # Start test postgres container
-bun run db:test:reset      # Reset test DB (drop + push schema)
-bun run db:test:push       # Push schema to test DB
+# Database (run from root, uses packages/db)
+bun run db:generate              # Generate migrations from schema changes
+bun run db:migrate               # Run pending migrations (production)
+bun run db:push                  # Push schema directly (dev only)
+bun run db:studio                # Open Drizzle Studio GUI
+
+# DB Workflow:
+# 1. Edit schema in packages/db/src/schema/
+# 2. Run `bun run db:generate` to create migration
+# 3. Run `bun run db:migrate` to apply migration
+# 4. Never use db:push in production
+
+# Shadcn
+cd packages/ui && bunx --bun shadcn@latest add <component>
 ```
 
----
-
-## Tech Stack
-
-- **TanStack Start** - Full-stack React framework
-- **TanStack Router** - File-based routing (`src/routes/`)
-- **TanStack Query** - Server state with SSR
-- **TanStack Form** - Forms with Zod validation
-- **Drizzle ORM** - PostgreSQL (`src/db/`)
-- **Tailwind CSS v4** - Styling
-- **Shadcn/ui** - Components (new-york style, zinc base)
-- **Zustand** - Client state with persist middleware
-- **Biome** - Linting/formatting (tabs, double quotes)
-
----
-
-## Project Structure
+## Structure
 
 ```
-src/
-├── features/
-│   ├── console/              # Merchant admin
-│   │   └── {feature}/
-│   │       ├── components/
-│   │       ├── server/       # *.functions.ts
-│   │       ├── stores/       # Zustand stores
-│   │       ├── logic/        # Pure functions
-│   │       ├── queries.ts
-│   │       ├── schemas.ts
-│   │       └── constants.ts
-│   └── shop/                 # Customer storefront
-├── routes/                   # Thin wiring only
-├── components/ui/            # Shadcn primitives
-└── db/schema.ts              # Database schema
+apps/
+  api/        # Hono + tRPC backend
+  console/    # Vite SPA - merchant admin
+  shop/       # Hono SSR - storefront
+  business/   # Vite SPA - landing/marketing
+packages/
+  db/         # Drizzle schema (API only)
+  trpc/       # Routers, schemas (all apps)
+  ui/         # shadcn components
 ```
 
----
+## Where to Add Things
 
-## Theming
+| Need | Location |
+|------|----------|
+| DB table/enum | `packages/db/schema/` |
+| tRPC procedure | `packages/trpc/routers/` |
+| API schema | `packages/trpc/schemas/` |
+| UI primitive | `packages/ui/components/` |
+| Feature code | `apps/{app}/src/features/{f}/` |
+| Business logic | `apps/api/src/services/` |
 
-Three themes via CSS bundle swapping:
+## Tech
 
-| Theme | Route | Style |
-|-------|-------|-------|
-| Discovery | `/` (root) | Fresh modern neutral, sans-serif, light only |
-| Shop | `/{storeSlug}/*` | Editorial neutral, serif headings, light only |
-| Console | `/console/*` | Zinc, light only (dark mode deactivated) |
+Bun, Hono, tRPC v11, TanStack (Router/Query/Form), Zustand, Drizzle, Tailwind v4, shadcn, Biome, Zod v4
 
-Auto-detected by route in `src/routes/__root.tsx`.
+## State
 
-CSS files:
-- `src/styles/core.css` - Tailwind + theme mappings
-- `src/styles/themes/discovery.css`
-- `src/styles/themes/shop.css`
-- `src/styles/themes/console.css`
-
-### Radius (shadcn-compatible)
-
-Theme-aware radius system. Each theme sets `--radius` in its CSS file, all classes scale from it via `@theme inline` in core.css.
-
-| Class | Formula | Shop (6px) | Console (8px) | Discovery (12px) |
-|-------|---------|------------|---------------|------------------|
-| `rounded-sm` | base - 4px | 2px | 4px | 8px |
-| `rounded-md` | base - 2px | 4px | 6px | 10px |
-| `rounded-lg` | base | 6px | 8px | 12px |
-| `rounded-xl` | base + 4px | 10px | 12px | 16px |
-| `rounded-2xl` | base + 8px | 14px | 16px | 20px |
-| `rounded-3xl` | base + 12px | 18px | 20px | 24px |
-
-**Rules:**
-- Use `rounded-{sm|md|lg|xl|2xl|3xl}` - themed
-- Use `rounded-full` - always 50%
-- Never use `rounded-[Npx]` or hardcoded pixel values
-
----
-
-## Adding Shadcn Components
-
-```bash
-bunx --bun shadcn@latest add <component>
-```
-
----
-
-## Quick Reference
-
-| I need to... | Location |
-|--------------|----------|
-| Add database entity | `src/db/schema.ts` |
-| Add server function | `features/{f}/server/*.functions.ts` |
-| Add business logic | `features/{f}/logic/*.ts` |
-| Configure queries | `features/{f}/queries.ts` |
-| Define schemas | `features/{f}/schemas.ts` |
-| Define constants | `features/{f}/constants.ts` |
-| Build UI component | `features/{f}/components/` |
-| Persist client state | `features/{f}/stores/*.ts` |
-| Wire up a page | `src/routes/` (thin wiring only) |
-
----
-
-## Environment Variables
-
-| File | Purpose |
-|------|---------|
-| `.env.local` | Local dev (git-ignored) |
-| `.env.production` | Non-secret prod configs (committed) |
-| GitHub Secrets | All secrets |
-
-Validate new vars in `src/env.ts`.
+- Server data: TanStack Query
+- Persistent client: Zustand + persist
+- Transient UI: Context/useState
+- Never store server data in Zustand/Context

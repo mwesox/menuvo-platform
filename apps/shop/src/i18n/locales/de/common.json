@@ -1,0 +1,114 @@
+{
+	"buttons": {
+		"save": "Speichern",
+		"saveChanges": "Änderungen speichern",
+		"saveTranslations": "Übersetzungen speichern",
+		"cancel": "Abbrechen",
+		"delete": "Löschen",
+		"edit": "Bearbeiten",
+		"add": "Hinzufügen",
+		"create": "Erstellen",
+		"update": "Aktualisieren",
+		"close": "Schließen",
+		"confirm": "Bestätigen",
+		"back": "Zurück",
+		"next": "Weiter",
+		"submit": "Absenden",
+		"getStarted": "Loslegen",
+		"goToConsole": "Zur Konsole",
+		"show": "Anzeigen",
+		"hide": "Ausblenden"
+	},
+	"states": {
+		"loading": "Wird geladen...",
+		"saving": "Wird gespeichert...",
+		"creating": "Wird erstellt...",
+		"updating": "Wird aktualisiert...",
+		"deleting": "Wird gelöscht..."
+	},
+	"labels": {
+		"required": "Erforderlich",
+		"optional": "Optional",
+		"active": "Aktiv",
+		"inactive": "Inaktiv",
+		"available": "Verfügbar",
+		"unavailable": "Nicht verfügbar",
+		"open": "Geöffnet",
+		"closed": "Geschlossen",
+		"unlimited": "Unbegrenzt",
+		"to": "bis",
+		"item": "Artikel",
+		"items": "Artikel"
+	},
+	"translationStatus": {
+		"complete": "Vollständig",
+		"partial": "Teilweise",
+		"missing": "Fehlend"
+	},
+	"entityTypes": {
+		"category": "Kategorie",
+		"item": "Artikel",
+		"optionGroup": "Optionsgruppe",
+		"optionChoice": "Option"
+	},
+	"languages": {
+		"en": "English",
+		"de": "Deutsch"
+	},
+	"days": {
+		"monday": "Montag",
+		"tuesday": "Dienstag",
+		"wednesday": "Mittwoch",
+		"thursday": "Donnerstag",
+		"friday": "Freitag",
+		"saturday": "Samstag",
+		"sunday": "Sonntag"
+	},
+	"currencies": {
+		"EUR": "Euro",
+		"USD": "US-Dollar",
+		"GBP": "Britisches Pfund",
+		"CHF": "Schweizer Franken"
+	},
+	"misc": {
+		"noResults": "Keine Ergebnisse",
+		"search": "Suchen",
+		"select": "Auswählen",
+		"selectOption": "Option auswählen"
+	},
+	"home": {
+		"tagline": "Entdecken Sie Restaurants in Ihrer Nähe",
+		"allCities": "Alle Städte",
+		"noRestaurants": "Keine Restaurants gefunden",
+		"console": "Konsole"
+	},
+	"toasts": {
+		"importApplied": "Menüänderungen erfolgreich importiert",
+		"importFailed": "Menüimport fehlgeschlagen",
+		"imageUploaded": "Bild erfolgreich hochgeladen",
+		"imageUploadFailed": "Bild konnte nicht hochgeladen werden",
+		"imageRemoved": "Bild entfernt",
+		"imageRemoveFailed": "Bild konnte nicht entfernt werden",
+		"pleaseSelectImage": "Bitte wählen Sie eine Bilddatei"
+	},
+	"images": {
+		"cropTitle": "Bild zuschneiden",
+		"cropDescription": "Wählen Sie eine Zuschnitt-Vorlage oder passen Sie frei an. Die erste Option ist für diesen Bildtyp optimiert.",
+		"applyCrop": "Zuschnitt anwenden",
+		"processing": "Wird verarbeitet...",
+		"uploading": "Wird hochgeladen...",
+		"clickToUpload": "Klicken Sie, um ein Bild hochzuladen",
+		"preview": "Vorschau",
+		"recommendedMinimum": "Empfohlenes Minimum: {{width}} x {{height}}px",
+		"presets": {
+			"thumbnail": "Quadratisch",
+			"thumbnailDescription": "Ideal für Logos und Icons",
+			"detail": "Standard",
+			"detailDescription": "Ideal für Menüartikel",
+			"banner": "Breit",
+			"bannerDescription": "Ideal für Header und Banner",
+			"free": "Individuell",
+			"freeDescription": "Frei zuschneiden ohne Einschränkungen"
+		}
+	}
+}

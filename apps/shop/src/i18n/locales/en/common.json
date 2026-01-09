@@ -1,0 +1,114 @@
+{
+	"buttons": {
+		"save": "Save",
+		"saveChanges": "Save Changes",
+		"saveTranslations": "Save Translations",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"edit": "Edit",
+		"add": "Add",
+		"create": "Create",
+		"update": "Update",
+		"close": "Close",
+		"confirm": "Confirm",
+		"back": "Back",
+		"next": "Next",
+		"submit": "Submit",
+		"getStarted": "Get Started",
+		"goToConsole": "Go to Console",
+		"show": "Show",
+		"hide": "Hide"
+	},
+	"states": {
+		"loading": "Loading...",
+		"saving": "Saving...",
+		"creating": "Creating...",
+		"updating": "Updating...",
+		"deleting": "Deleting..."
+	},
+	"labels": {
+		"required": "Required",
+		"optional": "Optional",
+		"active": "Active",
+		"inactive": "Inactive",
+		"available": "Available",
+		"unavailable": "Unavailable",
+		"open": "Open",
+		"closed": "Closed",
+		"unlimited": "Unlimited",
+		"to": "to",
+		"item": "Item",
+		"items": "Items"
+	},
+	"translationStatus": {
+		"complete": "Complete",
+		"partial": "Partial",
+		"missing": "Missing"
+	},
+	"entityTypes": {
+		"category": "Category",
+		"item": "Item",
+		"optionGroup": "Option Group",
+		"optionChoice": "Option"
+	},
+	"languages": {
+		"en": "English",
+		"de": "Deutsch"
+	},
+	"days": {
+		"monday": "Monday",
+		"tuesday": "Tuesday",
+		"wednesday": "Wednesday",
+		"thursday": "Thursday",
+		"friday": "Friday",
+		"saturday": "Saturday",
+		"sunday": "Sunday"
+	},
+	"currencies": {
+		"EUR": "Euro",
+		"USD": "US Dollar",
+		"GBP": "British Pound",
+		"CHF": "Swiss Franc"
+	},
+	"misc": {
+		"noResults": "No results",
+		"search": "Search",
+		"select": "Select",
+		"selectOption": "Select an option"
+	},
+	"home": {
+		"tagline": "Discover restaurants near you",
+		"allCities": "All cities",
+		"noRestaurants": "No restaurants found",
+		"console": "Console"
+	},
+	"toasts": {
+		"importApplied": "Menu changes imported successfully",
+		"importFailed": "Failed to apply menu import",
+		"imageUploaded": "Image uploaded successfully",
+		"imageUploadFailed": "Failed to upload image",
+		"imageRemoved": "Image removed",
+		"imageRemoveFailed": "Failed to remove image",
+		"pleaseSelectImage": "Please select an image file"
+	},
+	"images": {
+		"cropTitle": "Crop Image",
+		"cropDescription": "Select a crop preset or adjust freely. The first option is optimized for this image type.",
+		"applyCrop": "Apply Crop",
+		"processing": "Processing...",
+		"uploading": "Uploading...",
+		"clickToUpload": "Click to upload image",
+		"preview": "Preview",
+		"recommendedMinimum": "Recommended minimum: {{width}} x {{height}}px",
+		"presets": {
+			"thumbnail": "Square",
+			"thumbnailDescription": "Best for logos and icons",
+			"detail": "Standard",
+			"detailDescription": "Best for menu items",
+			"banner": "Wide",
+			"bannerDescription": "Best for headers and banners",
+			"free": "Custom",
+			"freeDescription": "Crop freely without restrictions"
+		}
+	}
+}

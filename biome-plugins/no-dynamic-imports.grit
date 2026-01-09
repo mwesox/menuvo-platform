@@ -1,0 +1,11 @@
+engine biome(1.0)
+language js(typescript, jsx)
+
+// Matches dynamic import() expressions and reports them as errors
+JsImportCallExpression() as $import where {
+    register_diagnostic(
+        span = $import,
+        message = "Dynamic imports are not allowed. Use static imports instead.",
+        severity = "error"
+    )
+}
