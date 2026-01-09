@@ -71,8 +71,7 @@ export function sanitizeMenuText(text: string): {
  * Parse AI response, handling various formats free models might return.
  * Exported for use by the API's menu extraction service.
  */
-export
-function parseAIResponse(content: string): AIMenuExtraction {
+export function parseAIResponse(content: string): AIMenuExtraction {
 	// Clean up markdown code blocks if present
 	let cleaned = content.trim();
 	if (cleaned.startsWith("```json")) {
@@ -225,7 +224,9 @@ export function splitIntoChunks(text: string, maxSize: number): string[] {
  * Merge multiple extractions into one.
  * Exported for use by the API's menu extraction service.
  */
-export function mergeExtractions(extractions: AIMenuExtraction[]): AIMenuExtraction {
+export function mergeExtractions(
+	extractions: AIMenuExtraction[],
+): AIMenuExtraction {
 	const categoryMap = new Map<string, AIMenuExtraction["categories"][0]>();
 	const optionGroupMap = new Map<string, AIMenuExtraction["optionGroups"][0]>();
 	let totalConfidence = 0;
@@ -298,7 +299,9 @@ export function containsBlockedContent(text: string | undefined): boolean {
  * Replaces offensive names/descriptions with placeholder text.
  * Exported for use by the API's menu extraction service.
  */
-export function filterExtraction(extraction: AIMenuExtraction): AIMenuExtraction {
+export function filterExtraction(
+	extraction: AIMenuExtraction,
+): AIMenuExtraction {
 	return {
 		...extraction,
 		categories: extraction.categories.map((cat) => ({

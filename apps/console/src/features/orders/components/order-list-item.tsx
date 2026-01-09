@@ -2,12 +2,16 @@ import { Badge } from "@menuvo/ui";
 import { formatDistanceToNow } from "date-fns";
 import { de, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
-import type { OrderListItem, OrderStatus, OrderTypeValue } from "@/features/orders";
+import type {
+	OrderListItem as OrderListItemData,
+	OrderStatus,
+	OrderTypeValue,
+} from "@/features/orders";
 import { formatPrice } from "@/features/orders/logic/order-pricing";
 import { cn } from "@/lib/utils";
 
 interface OrderListItemProps {
-	order: OrderListItem;
+	order: OrderListItemData;
 	isSelected: boolean;
 	onSelect: () => void;
 }

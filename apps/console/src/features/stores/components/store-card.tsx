@@ -1,5 +1,12 @@
 import type { Store } from "@menuvo/db/schema";
-import { LinkCard } from "@menuvo/ui";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@menuvo/ui";
+import { Link } from "@tanstack/react-router";
 import { Mail, MapPin, Phone, Store as StoreIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -28,28 +35,44 @@ export function StoreCard({ store }: StoreCardProps) {
 		);
 
 	return (
-		<LinkCard
-			href={`/console/stores/${store.id}`}
-			icon={StoreIcon}
-			title={store.name}
-			description={addressDescription}
+		<Link
+			to="/stores/$storeId"
+			params={{ storeId: store.id }}
+			className="block"
 		>
-			{(store.phone || store.email) && (
-				<div className="grid grid-cols-2 gap-4 text-sm">
-					{store.phone && (
-						<div className="flex items-center gap-2 text-muted-foreground">
-							<Phone className="size-4 shrink-0" />
-							<span className="truncate">{store.phone}</span>
+			<Card className="group h-full cursor-pointer overflow-hidden transition-all hover:bg-muted/30 hover:shadow-md">
+				<CardHeader className="flex-row items-start gap-4 pb-4">
+					<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+						<StoreIcon className="h-6 w-6 text-primary" />
+					</div>
+					<div className="min-w-0 flex-1 space-y-1">
+						<CardTitle className="flex items-center gap-2 font-semibold text-xl tracking-tight">
+							{store.name}
+						</CardTitle>
+						<CardDescription className="text-sm">
+							{addressDescription}
+						</CardDescription>
+					</div>
+				</CardHeader>
+				{(store.phone || store.email) && (
+					<CardContent className="pt-0">
+						<div className="grid grid-cols-2 gap-4 text-sm">
+							{store.phone && (
+								<div className="flex items-center gap-2 text-muted-foreground">
+									<Phone className="size-4 shrink-0" />
+									<span className="truncate">{store.phone}</span>
+								</div>
+							)}
+							{store.email && (
+								<div className="flex items-center gap-2 text-muted-foreground">
+									<Mail className="size-4 shrink-0" />
+									<span className="truncate">{store.email}</span>
+								</div>
+							)}
 						</div>
-					)}
-					{store.email && (
-						<div className="flex items-center gap-2 text-muted-foreground">
-							<Mail className="size-4 shrink-0" />
-							<span className="truncate">{store.email}</span>
-						</div>
-					)}
-				</div>
-			)}
-		</LinkCard>
+					</CardContent>
+				)}
+			</Card>
+		</Link>
 	);
 }

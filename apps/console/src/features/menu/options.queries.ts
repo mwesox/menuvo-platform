@@ -80,7 +80,9 @@ export function useUpdateOptionGroup(storeId: string) {
 			trpcClient.option.updateGroup.mutate({ optionGroupId, ...data }),
 		onSuccess: (updatedGroup) => {
 			queryClient.invalidateQueries({
-				queryKey: trpc.option.getGroup.queryKey({ optionGroupId: updatedGroup.id }),
+				queryKey: trpc.option.getGroup.queryKey({
+					optionGroupId: updatedGroup.id,
+				}),
 			});
 			queryClient.invalidateQueries({
 				queryKey: trpc.option.listGroups.queryKey({ storeId }),
@@ -159,7 +161,9 @@ export function useSaveOptionGroupWithChoices(storeId: string) {
 			trpcClient.option.saveGroupWithChoices.mutate({ storeId, ...input }),
 		onSuccess: (savedGroup) => {
 			queryClient.invalidateQueries({
-				queryKey: trpc.option.getGroup.queryKey({ optionGroupId: savedGroup.id }),
+				queryKey: trpc.option.getGroup.queryKey({
+					optionGroupId: savedGroup.id,
+				}),
 			});
 			queryClient.invalidateQueries({
 				queryKey: trpc.option.listGroups.queryKey({ storeId }),

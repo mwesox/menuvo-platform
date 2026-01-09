@@ -4,12 +4,12 @@
  * Processes menu import jobs: extracts text, runs AI, compares with existing menu.
  */
 
-import { asc, eq } from "drizzle-orm";
 import { db } from "@menuvo/db";
 import { categories, menuImportJobs, optionGroups } from "@menuvo/db/schema";
+import { asc, eq } from "drizzle-orm";
 import { logger } from "../../lib/logger";
 import { getFile } from "../storage/files-client";
-import { extractMenuFromText, type ExtractionOptions } from "./ai-extractor";
+import { extractMenuFromText } from "./ai-extractor";
 import { compareMenus } from "./comparer";
 import { extractTextFromFile } from "./text-extractor";
 import type { AllowedFileType, ExistingMenuData, ModelConfig } from "./types";

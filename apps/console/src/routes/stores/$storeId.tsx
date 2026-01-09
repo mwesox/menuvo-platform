@@ -15,7 +15,7 @@ import {
 	Label,
 	Switch,
 } from "@menuvo/ui";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { Suspense, useState } from "react";
@@ -25,7 +25,7 @@ import { PageActionBar } from "@/components/layout/page-action-bar";
 import { ConsoleError } from "@/features/components/console-error";
 import { ServicePointsPanel } from "@/features/service-points";
 import { ShopUrlDisplay } from "@/features/stores/components/shop-url-display";
-import { StoreDetailSkeleton } from "@/features/stores/components/skeletons";
+import { StoreDetailContentSkeleton } from "@/features/stores/components/skeletons";
 import { StoreClosuresForm } from "@/features/stores/components/store-closures-form";
 import { StoreForm } from "@/features/stores/components/store-form";
 import { StoreHoursForm } from "@/features/stores/components/store-hours-form";
@@ -51,41 +51,27 @@ export const Route = createFileRoute("/stores/$storeId")({
 			storeQueries.withDetails(params.storeId),
 		);
 	},
-	component: EditStorePage,
-	pendingComponent: StoreDetailSkeleton,
+	component: StoreDetailPage,
 	errorComponent: ConsoleError,
 });
 
-//FIXME move to features, too much logic in here!
-function EditStorePage() {
+/**
+ * Outer component - renders tabs immediately, wraps content in Suspense
+ */
+function StoreDetailPage() {
 	const { t } = useTranslation("stores");
-	const { t: tCommon } = useTranslation("common");
 	const navigate = useNavigate();
 	const { storeId } = Route.useParams();
 	const { tab = "details" } = Route.useSearch();
-	const { data: store } = useSuspenseQuery(storeQueries.withDetails(storeId));
 
-	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-	const toggleActiveMutation = useToggleStoreActive();
-	const deleteMutation = useDeleteStore();
+	// Non-suspending query for breadcrumb name (data is pre-fetched by loader)
+	const { data: store } = useQuery(storeQueries.withDetails(storeId));
 
 	const handleTabChange = (value: string) => {
 		navigate({
 			to: "/stores/$storeId",
 			params: { storeId },
 			search: { tab: value as TabValue },
-		});
-	};
-
-	const handleToggleActive = (checked: boolean) => {
-		toggleActiveMutation.mutate({ storeId, isActive: checked });
-	};
-
-	const handleDelete = () => {
-		deleteMutation.mutate(storeId, {
-			onSuccess: () => {
-				navigate({ to: "/stores" });
-			},
 		});
 	};
 
@@ -99,8 +85,10 @@ function EditStorePage() {
 	return (
 		<div className="space-y-6">
 			<PageActionBar
-				backHref="/stores"
-				backLabel={store.name}
+				breadcrumbs={[
+					{ label: t("titles.stores"), href: "/stores" },
+					{ label: store?.name ?? "..." },
+				]}
 				tabs={{
 					items: tabItems,
 					value: tab,
@@ -108,6 +96,46 @@ function EditStorePage() {
 				}}
 			/>
 
+			<Suspense fallback={<StoreDetailContentSkeleton />}>
+				<StoreDetailContent storeId={storeId} tab={tab} />
+			</Suspense>
+		</div>
+	);
+}
+
+/**
+ * Inner component - fetches data with useSuspenseQuery, renders tab content
+ */
+function StoreDetailContent({
+	storeId,
+	tab,
+}: {
+	storeId: string;
+	tab: TabValue;
+}) {
+	const { t } = useTranslation("stores");
+	const { t: tCommon } = useTranslation("common");
+	const navigate = useNavigate();
+	const { data: store } = useSuspenseQuery(storeQueries.withDetails(storeId));
+
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const toggleActiveMutation = useToggleStoreActive();
+	const deleteMutation = useDeleteStore();
+
+	const handleToggleActive = (checked: boolean) => {
+		toggleActiveMutation.mutate({ storeId, isActive: checked });
+	};
+
+	const handleDelete = () => {
+		deleteMutation.mutate(storeId, {
+			onSuccess: () => {
+				navigate({ to: "/stores" });
+			},
+		});
+	};
+
+	return (
+		<>
 			<div className="mt-6 space-y-6">
 				{tab === "details" && (
 					<>
@@ -196,6 +224,6 @@ function EditStorePage() {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-		</div>
+		</>
 	);
 }

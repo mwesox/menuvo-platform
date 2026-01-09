@@ -22,7 +22,9 @@ export function PaymentsPage() {
 	const navigate = useNavigate();
 
 	// Mollie payment status
-	const { data: mollieStatus } = useSuspenseQuery(molliePaymentQueries.status());
+	const { data: mollieStatus } = useSuspenseQuery(
+		molliePaymentQueries.status(),
+	);
 
 	const refreshMollieStatus = useRefreshMolliePaymentStatus();
 

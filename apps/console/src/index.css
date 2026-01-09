@@ -286,30 +286,3 @@
 [data-slot="field-label"] {
 	font-weight: 700;
 }
-
-/* Page Transitions */
-@keyframes fade-in {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
-}
-
-@keyframes fade-out {
-	from {
-		opacity: 1;
-	}
-	to {
-		opacity: 0;
-	}
-}
-
-::view-transition-old(root) {
-	animation: fade-out 150ms ease-out;
-}
-
-::view-transition-new(root) {
-	animation: fade-in 150ms ease-in;
-}

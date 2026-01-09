@@ -4,7 +4,11 @@
  * Uses the tRPC v11 pattern with queryOptions() and mutationOptions().
  */
 
-import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+	queryOptions,
+	useMutation,
+	useQueryClient,
+} from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { trpc, trpcClient, useTRPC, useTRPCClient } from "@/lib/trpc";

@@ -1,4 +1,7 @@
 // Components
+
+// Re-export order type enum value from trpc
+export type { OrderTypeValue } from "@menuvo/trpc";
 export { ExportOrdersButton } from "./components/export-orders-button";
 export { RefundButton } from "./components/refund-button";
 // Constants
@@ -24,8 +27,6 @@ export type {
 	OrderListItem,
 	OrderWithItems,
 } from "./types";
-// Re-export order type enum value from trpc
-export type { OrderTypeValue } from "@menuvo/trpc";
 
 // Utilities
 export {

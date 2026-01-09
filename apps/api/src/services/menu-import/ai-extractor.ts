@@ -5,8 +5,8 @@
  */
 
 import { z } from "zod/v4";
-import { chat, generateStructured } from "../ai/service";
 import { logger } from "../../lib/logger";
+import { chat, generateStructured } from "../ai/service";
 import type { ExtractedMenuData, ModelConfig } from "./types";
 
 const menuImportLogger = logger.child({ service: "menu-import" });

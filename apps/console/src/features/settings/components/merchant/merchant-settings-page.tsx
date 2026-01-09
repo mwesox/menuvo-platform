@@ -12,9 +12,7 @@ interface MerchantSettingsPageProps {
 	search: { tab?: TabValue };
 }
 
-export function MerchantSettingsPage({
-	search,
-}: MerchantSettingsPageProps) {
+export function MerchantSettingsPage({ search }: MerchantSettingsPageProps) {
 	const { t } = useTranslation("settings");
 	const navigate = useNavigate();
 	// Pre-fetch merchant data for the forms

@@ -31,9 +31,7 @@ interface PaymentStatusCardProps {
 	};
 }
 
-export function PaymentStatusCard({
-	paymentStatus,
-}: PaymentStatusCardProps) {
+export function PaymentStatusCard({ paymentStatus }: PaymentStatusCardProps) {
 	const { t } = useTranslation("settings");
 	const refreshStatus = useRefreshPaymentStatus();
 
