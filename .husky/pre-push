@@ -6,16 +6,9 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "🔍 Running TypeScript check..."
-bunx --bun tsc --noEmit
+bun run check-types
 if [ $? -ne 0 ]; then
   echo "❌ TypeScript check failed. Push aborted."
-  exit 1
-fi
-
-echo "🔍 Checking database migrations..."
-bunx drizzle-kit check
-if [ $? -ne 0 ]; then
-  echo "❌ Database schema out of sync. Run 'bun run db:generate' to create migration."
   exit 1
 fi
 

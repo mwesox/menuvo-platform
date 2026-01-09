@@ -11,9 +11,14 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@azure/identity": "^4.13.0",
     "@hono/trpc-server": "catalog:",
     "@menuvo/db": "workspace:*",
     "@menuvo/trpc": "workspace:*",
+    "@microsoft/kiota-authentication-azure": "^1.0.0-preview.99",
+    "@microsoft/msgraph-sdk": "^1.0.0-preview.75",
+    "@microsoft/msgraph-sdk-users": "^1.0.0-preview.75",
+    "@mollie/api-client": "^4.3.3",
     "@openrouter/sdk": "catalog:",
     "@t3-oss/env-core": "catalog:",
     "@trpc/server": "catalog:",
@@ -22,6 +27,7 @@
     "papaparse": "^5.5.3",
     "pino": "catalog:",
     "sharp": "^0.34.5",
+    "stripe": "^20.1.2",
     "superjson": "catalog:",
     "xlsx": "^0.18.5",
     "zod": "catalog:"
