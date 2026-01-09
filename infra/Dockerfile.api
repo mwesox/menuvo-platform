@@ -16,6 +16,9 @@ COPY packages/db/package.json ./packages/db/
 COPY packages/trpc/package.json ./packages/trpc/
 COPY packages/ui/package.json ./packages/ui/
 COPY apps/api/package.json ./apps/api/
+COPY apps/console/package.json ./apps/console/
+COPY apps/shop/package.json ./apps/shop/
+COPY apps/business/package.json ./apps/business/
 
 # Install all dependencies
 RUN bun install --frozen-lockfile
