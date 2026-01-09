@@ -20,13 +20,10 @@ COPY apps/api/package.json ./apps/api/
 # Install all dependencies
 RUN bun install --frozen-lockfile
 
-# Copy source code
+# Copy source code (includes drizzle.config.ts in packages/db)
 COPY packages/db ./packages/db
 COPY packages/trpc ./packages/trpc
 COPY apps/api ./apps/api
-
-# Copy drizzle config
-COPY drizzle.config.ts ./
 
 # Build API
 WORKDIR /app/apps/api
@@ -42,9 +39,9 @@ RUN addgroup -S menuvo && adduser -S menuvo -G menuvo
 # Copy built API
 COPY --from=builder --chown=menuvo:menuvo /app/apps/api/dist ./dist
 
-# Copy drizzle migrations and config
-COPY --from=builder --chown=menuvo:menuvo /app/packages/db/drizzle ./drizzle
-COPY --from=builder --chown=menuvo:menuvo /app/drizzle.config.ts ./
+# Copy drizzle migrations and config from packages/db
+COPY --from=builder --chown=menuvo:menuvo /app/packages/db/drizzle ./packages/db/drizzle
+COPY --from=builder --chown=menuvo:menuvo /app/packages/db/drizzle.config.ts ./packages/db/
 
 # Copy node_modules for runtime dependencies and drizzle-kit
 COPY --from=builder --chown=menuvo:menuvo /app/node_modules ./node_modules

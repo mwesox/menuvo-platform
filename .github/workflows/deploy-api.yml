@@ -135,7 +135,7 @@ jobs:
       - name: Run database migrations
         run: |
           cd /home/deploy/menuvo
-          docker compose run --rm api-a bunx drizzle-kit migrate
+          docker compose run --rm -w /app/packages/db api-a bunx drizzle-kit migrate
 
       - name: Rolling deploy API
         run: |
