@@ -26,11 +26,17 @@ bun --filter @menuvo/console dev
 bun --filter @menuvo/shop dev
 bun --filter @menuvo/business dev
 
-# Database
-bun run db:generate              # Generate migrations
-bun run db:migrate               # Run migrations
-bun run db:push                  # Push schema
-bun run db:studio                # Drizzle Studio
+# Database (run from root, uses packages/db)
+bun run db:generate              # Generate migrations from schema changes
+bun run db:migrate               # Run pending migrations (production)
+bun run db:push                  # Push schema directly (dev only)
+bun run db:studio                # Open Drizzle Studio GUI
+
+# DB Workflow:
+# 1. Edit schema in packages/db/src/schema/
+# 2. Run `bun run db:generate` to create migration
+# 3. Run `bun run db:migrate` to apply migration
+# 4. Never use db:push in production
 
 # Shadcn
 cd packages/ui && bunx --bun shadcn@latest add <component>
