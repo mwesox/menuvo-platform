@@ -37,8 +37,18 @@ RUN bun run build
 FROM oven/bun:1-alpine
 WORKDIR /app
 
+# Install vips for sharp (runtime dependency)
+RUN apk add --no-cache vips
+
 # Create non-root user for security
 RUN addgroup -S menuvo && adduser -S menuvo -G menuvo
+
+# Copy package.json first to install sharp correctly
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/bun.lock ./
+
+# Install sharp for this platform
+RUN bun add sharp --no-save
 
 # Copy built API
 COPY --from=builder --chown=menuvo:menuvo /app/apps/api/dist ./dist
@@ -47,11 +57,10 @@ COPY --from=builder --chown=menuvo:menuvo /app/apps/api/dist ./dist
 COPY --from=builder --chown=menuvo:menuvo /app/packages/db/drizzle ./packages/db/drizzle
 COPY --from=builder --chown=menuvo:menuvo /app/packages/db/drizzle.config.ts ./packages/db/
 
-# Copy node_modules for runtime dependencies and drizzle-kit
+# Copy remaining node_modules (without replacing sharp)
 COPY --from=builder --chown=menuvo:menuvo /app/node_modules ./node_modules
 
 # Copy package files for drizzle-kit to work
-COPY --from=builder --chown=menuvo:menuvo /app/package.json ./
 COPY --from=builder --chown=menuvo:menuvo /app/packages/db/package.json ./packages/db/
 COPY --from=builder --chown=menuvo:menuvo /app/packages/db ./packages/db
 
