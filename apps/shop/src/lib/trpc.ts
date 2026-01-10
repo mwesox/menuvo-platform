@@ -28,7 +28,7 @@ const getBaseUrl = () => {
  * Custom fetch that includes credentials for cross-origin cookie support.
  * Required for shop.menuvo.app to send cookies to api.menuvo.app.
  */
-const fetchWithCredentials: typeof fetch = (url, options) =>
+const fetchWithCredentials = (url: URL | string, options?: RequestInit) =>
 	fetch(url, { ...options, credentials: "include" });
 
 function makeQueryClient() {
