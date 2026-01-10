@@ -13,7 +13,6 @@
  */
 
 import type { Database } from "@menuvo/db";
-import type { Context as HonoContext } from "hono";
 
 /**
  * User session data available in authenticated procedures
@@ -63,8 +62,6 @@ export interface Context {
 	storage?: StorageService;
 	/** Menu import service for AI-powered menu extraction (optional, injected by API app) */
 	menuImport?: MenuImportService;
-	/** Hono context for cookie operations (optional, injected by API app) */
-	c?: HonoContext;
 	/** Response headers for setting cookies (from tRPC fetch adapter) */
 	resHeaders?: Headers;
 	/** Index signature to satisfy @hono/trpc-server's Record<string, unknown> constraint */
@@ -79,7 +76,7 @@ export interface CreateContextOptions {
 	session?: Session;
 	storage?: StorageService;
 	menuImport?: MenuImportService;
-	c?: HonoContext;
+	resHeaders?: Headers;
 }
 
 /**
@@ -91,6 +88,6 @@ export function createContext(opts: CreateContextOptions): Context {
 		session: opts.session,
 		storage: opts.storage,
 		menuImport: opts.menuImport,
-		c: opts.c,
+		resHeaders: opts.resHeaders,
 	};
 }

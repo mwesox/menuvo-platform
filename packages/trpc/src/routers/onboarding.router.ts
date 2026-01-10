@@ -13,7 +13,6 @@ import { merchants, stores } from "@menuvo/db/schema";
 import slugify from "@sindresorhus/slugify";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
-import { setCookie } from "hono/cookie";
 import { z } from "zod";
 import { publicProcedure, router } from "../trpc.js";
 
@@ -133,46 +132,35 @@ export const onboardingRouter = router({
 				};
 			});
 
-			// Set authentication cookie
-			const isProduction = process.env.NODE_ENV === "production";
-			const cookieOptions = {
-				httpOnly: true,
-				secure: isProduction,
-				sameSite: "lax" as const,
-				...(isProduction && {
-					// Allow cookie to be sent across subdomains (console.menuvo.app -> api.menuvo.app)
-					domain: ".menuvo.app",
-				}),
-				maxAge: 60 * 60 * 24 * 30, // 30 days
-				path: "/",
-			};
-
-			console.log(
-				"[onboarding] Setting cookie for merchant:",
-				result.merchant.id,
-			);
-			console.log("[onboarding] Cookie options:", cookieOptions);
-			console.log("[onboarding] ctx.c available:", !!ctx.c);
-			console.log("[onboarding] ctx.resHeaders available:", !!ctx.resHeaders);
-
-			// Try resHeaders first (tRPC fetch adapter), then fall back to Hono context
-			if (ctx.resHeaders) {
-				const cookieValue = `menuvo_merchant_id=${result.merchant.id}; Path=${cookieOptions.path}; Max-Age=${cookieOptions.maxAge}; HttpOnly${cookieOptions.secure ? "; Secure" : ""}${cookieOptions.sameSite ? `; SameSite=${cookieOptions.sameSite}` : ""}${isProduction ? "; Domain=.menuvo.app" : ""}`;
-				console.log("[onboarding] Setting cookie via resHeaders:", cookieValue);
-				ctx.resHeaders.set("Set-Cookie", cookieValue);
-			} else if (ctx.c) {
-				console.log("[onboarding] Setting cookie via Hono context");
-				setCookie(
-					ctx.c,
-					"menuvo_merchant_id",
-					result.merchant.id,
-					cookieOptions,
-				);
-			} else {
-				console.error(
-					"[onboarding] No way to set cookie - both resHeaders and ctx.c are unavailable!",
-				);
+			// Set authentication cookie via resHeaders (tRPC fetch adapter)
+			if (!ctx.resHeaders) {
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message:
+						"Cannot set authentication cookie - resHeaders not available",
+				});
 			}
+
+			const isProduction = process.env.NODE_ENV === "production";
+			const maxAge = 60 * 60 * 24 * 30; // 30 days
+
+			// Build cookie string manually for cross-subdomain support
+			const cookieParts = [
+				`menuvo_merchant_id=${result.merchant.id}`,
+				"Path=/",
+				`Max-Age=${maxAge}`,
+				"HttpOnly",
+			];
+
+			if (isProduction) {
+				cookieParts.push("Secure");
+				cookieParts.push("SameSite=None"); // Required for cross-origin cookies
+				cookieParts.push("Domain=.menuvo.app");
+			}
+
+			const cookieValue = cookieParts.join("; ");
+			console.log("[onboarding] Setting cookie:", cookieValue);
+			ctx.resHeaders.set("Set-Cookie", cookieValue);
 
 			return result;
 		}),
