@@ -27,14 +27,19 @@ const menuImportService: MenuImportService = {
 
 /**
  * Creates the tRPC context for a request
- * @param opts - Context creation options
+ * @param opts - Context creation options (from @hono/trpc-server, includes resHeaders)
  * @param c - Hono context (optional, provided by @hono/trpc-server)
  */
 export async function createContext(
-	opts: CreateContextOptions,
+	opts: CreateContextOptions & { resHeaders?: Headers },
 	c?: HonoContext,
 ): Promise<Context> {
 	const session = await extractSession(opts.req);
+
+	// Debug logging for cookie issues
+	console.log("[createContext] opts keys:", Object.keys(opts));
+	console.log("[createContext] resHeaders available:", !!opts.resHeaders);
+	console.log("[createContext] hono context available:", !!c);
 
 	return {
 		db: opts.db,
@@ -42,5 +47,6 @@ export async function createContext(
 		storage: storageService,
 		menuImport: menuImportService,
 		c,
+		resHeaders: opts.resHeaders,
 	};
 }

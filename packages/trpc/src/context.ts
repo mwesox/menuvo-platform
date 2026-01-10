@@ -65,6 +65,8 @@ export interface Context {
 	menuImport?: MenuImportService;
 	/** Hono context for cookie operations (optional, injected by API app) */
 	c?: HonoContext;
+	/** Response headers for setting cookies (from tRPC fetch adapter) */
+	resHeaders?: Headers;
 	/** Index signature to satisfy @hono/trpc-server's Record<string, unknown> constraint */
 	[key: string]: unknown;
 }
