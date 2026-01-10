@@ -1,5 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
@@ -14,10 +13,10 @@ import type { OnboardingFormInput } from "./schemas.ts";
  * Uses tRPC v11 best practices with mutationOptions().
  */
 export function useOnboardMerchant() {
-	const navigate = useNavigate();
 	const { t } = useTranslation("onboarding");
 	const trpc = useTRPC();
 	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
 
 	return useMutation({
 		...trpc.onboarding.onboard.mutationOptions(),
@@ -32,11 +31,17 @@ export function useOnboardMerchant() {
 				},
 			});
 		},
-		onSuccess: () => {
+		onSuccess: async () => {
+			// Invalidate auth queries with correct tRPC query key
+			// This ensures the dashboard sees the new merchant after navigation
+			await queryClient.invalidateQueries({
+				queryKey: trpc.auth.getMerchantOrNull.queryKey(),
+			});
+
 			toast.success(t("toast.successTitle"), {
 				description: t("toast.successDescription"),
 			});
-			navigate({ to: "/" });
+			// Navigation handled by the caller (wizard) after this completes
 		},
 		onError: (error) => {
 			toast.error(t("toast.errorTitle"), {

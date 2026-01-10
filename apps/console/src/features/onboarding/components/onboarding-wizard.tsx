@@ -1,5 +1,4 @@
 import { Logo } from "@menuvo/ui";
-import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence } from "motion/react";
 import { useState } from "react";
@@ -20,7 +19,6 @@ import {
 export function OnboardingWizard() {
 	const wizard = useOnboardingWizard();
 	const navigate = useNavigate();
-	const queryClient = useQueryClient();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const onboardMutation = useOnboardMerchant();
 
@@ -33,13 +31,8 @@ export function OnboardingWizard() {
 				store: wizard.data.store,
 			});
 
-			// Invalidate auth queries to refresh merchant state
-			// This ensures the dashboard will see the new merchant after navigation
-			await queryClient.invalidateQueries({
-				queryKey: ["auth"],
-			});
-
-			// Navigate to console on success
+			// Query invalidation is handled by the mutation's onSuccess callback
+			// Navigate to console after mutation completes
 			navigate({ to: "/" });
 		} catch (error) {
 			console.error("Onboarding failed:", error);
