@@ -141,12 +141,12 @@ export const onboardingRouter = router({
 				});
 			}
 
+			// Cookie configuration via environment variable
+			// If COOKIE_DOMAIN is set (production), use cross-origin cookies
+			// If not set (local dev), use same-origin cookies
+			const cookieDomain = process.env.COOKIE_DOMAIN;
 			const maxAge = 60 * 60 * 24 * 30; // 30 days
-			const isLocalhost =
-				process.env.NODE_ENV === "development" ||
-				process.env.API_URL?.includes("localhost");
 
-			// Build cookie string
 			const cookieParts = [
 				`menuvo_merchant_id=${result.merchant.id}`,
 				"Path=/",
@@ -154,19 +154,23 @@ export const onboardingRouter = router({
 				"HttpOnly",
 			];
 
-			if (isLocalhost) {
-				// Local dev: no Secure, SameSite=Lax, no domain restriction
-				cookieParts.push("SameSite=Lax");
-			} else {
-				// Production: cross-origin cookie support
+			if (cookieDomain) {
+				// Production: cross-origin cookie for subdomain sharing
+				// Required: SameSite=None + Secure for cross-origin cookies
 				cookieParts.push("Secure");
 				cookieParts.push("SameSite=None");
-				cookieParts.push("Domain=.menuvo.app");
+				cookieParts.push(`Domain=${cookieDomain}`);
+			} else {
+				// Local dev: same-origin cookies work with SameSite=Lax
+				cookieParts.push("SameSite=Lax");
 			}
 
 			const cookieValue = cookieParts.join("; ");
-			console.log("[onboarding] Setting cookie:", cookieValue);
-			console.log("[onboarding] isLocalhost:", isLocalhost);
+			console.log("[onboarding] Setting auth cookie:", {
+				merchantId: result.merchant.id,
+				cookieDomain: cookieDomain || "(not set - same-origin mode)",
+				cookie: cookieValue,
+			});
 			ctx.resHeaders.set("Set-Cookie", cookieValue);
 
 			return result;

@@ -29,20 +29,36 @@ export function OnboardingWizard() {
 	// Handle final form submission
 	const handleSubmit = async () => {
 		setIsSubmitting(true);
+		console.log("[onboarding-wizard] Starting submission...");
+
 		try {
-			await onboardMutation.mutateAsync({
+			const result = await onboardMutation.mutateAsync({
 				merchant: wizard.data.merchant,
 				store: wizard.data.store,
 			});
+			console.log("[onboarding-wizard] Mutation succeeded:", {
+				merchantId: result.merchant.id,
+				storeId: result.store.id,
+			});
+
+			// Check if cookie was set by browser
+			console.log(
+				"[onboarding-wizard] Cookies after mutation:",
+				document.cookie,
+			);
 
 			// Invalidate auth query before navigating so dashboard fetches fresh data
+			console.log("[onboarding-wizard] Invalidating auth queries...");
 			await queryClient.invalidateQueries({
 				queryKey: trpc.auth.getMerchantOrNull.queryKey(),
 			});
+			console.log(
+				"[onboarding-wizard] Auth queries invalidated, navigating to /",
+			);
 
 			navigate({ to: "/" });
 		} catch (error) {
-			console.error("Onboarding failed:", error);
+			console.error("[onboarding-wizard] Onboarding failed:", error);
 			toast.error(
 				"Fehler beim Erstellen des Kontos. Bitte versuchen Sie es erneut.",
 			);

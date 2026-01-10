@@ -88,6 +88,17 @@ export async function extractSession(
 		const cookieHeader = req.headers.get("cookie");
 		const merchantId = extractMerchantIdFromCookie(cookieHeader);
 
+		// Debug logging for auth flow tracing
+		const url = new URL(req.url);
+		if (url.pathname.includes("/trpc/auth") || !merchantId) {
+			console.log("[session] extractSession:", {
+				path: url.pathname,
+				hasCookieHeader: !!cookieHeader,
+				cookieHeader: cookieHeader ? cookieHeader.substring(0, 100) : null,
+				extractedMerchantId: merchantId || "(none)",
+			});
+		}
+
 		if (!merchantId) {
 			return undefined;
 		}

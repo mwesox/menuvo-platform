@@ -59,7 +59,13 @@ export const authRouter = router({
 	 * Gracefully handles database errors and returns null
 	 */
 	getMerchantOrNull: publicProcedure.query(async ({ ctx }) => {
+		console.log("[auth.getMerchantOrNull] Called:", {
+			hasSession: !!ctx.session,
+			merchantId: ctx.session?.merchantId || "(no session)",
+		});
+
 		if (!ctx.session?.merchantId) {
+			console.log("[auth.getMerchantOrNull] No session, returning null");
 			return null;
 		}
 
@@ -68,11 +74,16 @@ export const authRouter = router({
 				where: eq(merchants.id, ctx.session.merchantId),
 			});
 
+			console.log("[auth.getMerchantOrNull] Result:", {
+				found: !!merchant,
+				merchantId: merchant?.id || "(not found)",
+			});
+
 			return merchant ?? null;
 		} catch (error) {
 			// Log error but don't throw - return null to indicate no merchant found
 			// This allows the app to gracefully handle missing/invalid sessions
-			console.error("Error fetching merchant:", error);
+			console.error("[auth.getMerchantOrNull] Error fetching merchant:", error);
 			return null;
 		}
 	}),

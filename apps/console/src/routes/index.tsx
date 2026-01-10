@@ -18,9 +18,20 @@ function DashboardPage() {
 		trpc.auth.getMerchantOrNull.queryOptions(),
 	);
 
+	// Debug logging for auth flow
+	useEffect(() => {
+		console.log("[dashboard] Auth state:", {
+			isLoading,
+			hasMerchant: !!merchant,
+			merchantId: merchant?.id || "(none)",
+			cookies: document.cookie,
+		});
+	}, [isLoading, merchant]);
+
 	// Redirect to onboarding if no merchant (after loading completes)
 	useEffect(() => {
 		if (!isLoading && !merchant) {
+			console.log("[dashboard] No merchant found, redirecting to /onboarding");
 			navigate({ to: "/onboarding" });
 		}
 	}, [merchant, isLoading, navigate]);
