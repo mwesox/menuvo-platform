@@ -1,8 +1,10 @@
 import { Logo } from "@menuvo/ui";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTRPC } from "@/lib/trpc";
 import { useOnboardingWizard } from "../hooks/use-onboarding-wizard";
 import { useOnboardMerchant } from "../queries";
 import {
@@ -19,6 +21,8 @@ import {
 export function OnboardingWizard() {
 	const wizard = useOnboardingWizard();
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
+	const trpc = useTRPC();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const onboardMutation = useOnboardMerchant();
 
@@ -31,8 +35,11 @@ export function OnboardingWizard() {
 				store: wizard.data.store,
 			});
 
-			// Query invalidation is handled by the mutation's onSuccess callback
-			// Navigate to console after mutation completes
+			// Invalidate auth query before navigating so dashboard fetches fresh data
+			await queryClient.invalidateQueries({
+				queryKey: trpc.auth.getMerchantOrNull.queryKey(),
+			});
+
 			navigate({ to: "/" });
 		} catch (error) {
 			console.error("Onboarding failed:", error);

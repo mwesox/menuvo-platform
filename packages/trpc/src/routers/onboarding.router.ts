@@ -141,10 +141,12 @@ export const onboardingRouter = router({
 				});
 			}
 
-			const isProduction = process.env.NODE_ENV === "production";
 			const maxAge = 60 * 60 * 24 * 30; // 30 days
+			const isLocalhost =
+				process.env.NODE_ENV === "development" ||
+				process.env.API_URL?.includes("localhost");
 
-			// Build cookie string manually for cross-subdomain support
+			// Build cookie string
 			const cookieParts = [
 				`menuvo_merchant_id=${result.merchant.id}`,
 				"Path=/",
@@ -152,14 +154,19 @@ export const onboardingRouter = router({
 				"HttpOnly",
 			];
 
-			if (isProduction) {
+			if (isLocalhost) {
+				// Local dev: no Secure, SameSite=Lax, no domain restriction
+				cookieParts.push("SameSite=Lax");
+			} else {
+				// Production: cross-origin cookie support
 				cookieParts.push("Secure");
-				cookieParts.push("SameSite=None"); // Required for cross-origin cookies
+				cookieParts.push("SameSite=None");
 				cookieParts.push("Domain=.menuvo.app");
 			}
 
 			const cookieValue = cookieParts.join("; ");
 			console.log("[onboarding] Setting cookie:", cookieValue);
+			console.log("[onboarding] isLocalhost:", isLocalhost);
 			ctx.resHeaders.set("Set-Cookie", cookieValue);
 
 			return result;
