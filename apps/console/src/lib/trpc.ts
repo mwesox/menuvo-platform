@@ -27,13 +27,14 @@ import {
 	createTRPCOptionsProxy,
 } from "@trpc/tanstack-react-query";
 import superjson from "superjson";
+import { env } from "../env";
 
-// API URL - in dev, Vite proxies /trpc to the API server
+// API URL - in production uses VITE_API_URL, in dev Vite proxies /trpc
 const getBaseUrl = () => {
 	if (typeof window !== "undefined") {
-		return "";
+		return env.VITE_API_URL || "";
 	}
-	return "http://localhost:4000";
+	return env.VITE_API_URL || "http://localhost:4000";
 };
 
 /**
