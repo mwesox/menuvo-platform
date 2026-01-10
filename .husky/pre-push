@@ -12,4 +12,11 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+echo "🔨 Running build (catches stricter type errors)..."
+bun run build
+if [ $? -ne 0 ]; then
+  echo "❌ Build failed. Push aborted."
+  exit 1
+fi
+
 echo "✅ All checks passed."
