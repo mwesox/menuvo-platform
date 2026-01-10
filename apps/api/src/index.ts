@@ -19,11 +19,17 @@ app.use("*", logger());
 app.use(
 	"*",
 	cors({
-		origin: [
-			"http://localhost:3000",
-			"http://localhost:3001",
-			"http://localhost:3002",
-		],
+		origin: (origin) => {
+			// Allow all *.menuvo.app subdomains
+			if (origin.endsWith(".menuvo.app") || origin === "https://menuvo.app") {
+				return origin;
+			}
+			// Allow localhost in dev
+			if (origin.startsWith("http://localhost:")) {
+				return origin;
+			}
+			return null;
+		},
 		credentials: true,
 	}),
 );
