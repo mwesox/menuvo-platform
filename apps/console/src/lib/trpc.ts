@@ -38,6 +38,13 @@ const getBaseUrl = () => {
 };
 
 /**
+ * Custom fetch that includes credentials for cross-origin cookie support.
+ * Required for console.menuvo.app to send cookies to api.menuvo.app.
+ */
+const fetchWithCredentials: typeof fetch = (url, options) =>
+	fetch(url, { ...options, credentials: "include" });
+
+/**
  * Query Client with sensible defaults
  */
 function makeQueryClient() {
@@ -78,12 +85,13 @@ export function createTRPCReactClient() {
 				condition: (op) => isNonJsonSerializable(op.input),
 				true: httpLink({
 					url: `${getBaseUrl()}/trpc`,
-					// Server uses superjson, so we need it for response parsing
 					transformer: superjson,
+					fetch: fetchWithCredentials,
 				}),
 				false: httpBatchLink({
 					url: `${getBaseUrl()}/trpc`,
 					transformer: superjson,
+					fetch: fetchWithCredentials,
 				}),
 			}),
 		],

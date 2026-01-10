@@ -24,6 +24,13 @@ const getBaseUrl = () => {
 	return env.VITE_API_URL || "http://localhost:4000";
 };
 
+/**
+ * Custom fetch that includes credentials for cross-origin cookie support.
+ * Required for shop.menuvo.app to send cookies to api.menuvo.app.
+ */
+const fetchWithCredentials: typeof fetch = (url, options) =>
+	fetch(url, { ...options, credentials: "include" });
+
 function makeQueryClient() {
 	return new QueryClient({
 		defaultOptions: {
@@ -53,6 +60,7 @@ export function createTRPCReactClient() {
 			httpBatchLink({
 				url: `${getBaseUrl()}/trpc`,
 				transformer: superjson,
+				fetch: fetchWithCredentials,
 			}),
 		],
 	});

@@ -139,7 +139,11 @@ export const onboardingRouter = router({
 				setCookie(ctx.c, "menuvo_merchant_id", result.merchant.id, {
 					httpOnly: true,
 					secure: isProduction,
-					...(isProduction && { sameSite: "lax" }),
+					...(isProduction && {
+						sameSite: "lax",
+						// Allow cookie to be sent across subdomains (console.menuvo.app -> api.menuvo.app)
+						domain: ".menuvo.app",
+					}),
 					maxAge: 60 * 60 * 24 * 30, // 30 days
 					path: "/",
 				});
