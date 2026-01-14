@@ -12,6 +12,7 @@
     "migrate": "drizzle-kit migrate",
     "push": "drizzle-kit push",
     "studio": "drizzle-kit studio",
+    "build": "tsc -b",
     "check": "biome check .",
     "check-types": "tsc --noEmit"
   },
