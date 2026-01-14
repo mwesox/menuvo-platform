@@ -195,9 +195,9 @@ export function ItemDrawer({
 	});
 
 	// Get option groups from fetched data (or empty array for items without options)
-	const optionGroups = useMemo(() => {
+	const optionGroups: MenuItemOptionGroup[] = useMemo(() => {
 		if (!item.hasOptionGroups) return [];
-		return optionsData?.optionGroups ?? [];
+		return (optionsData?.optionGroups ?? []) as MenuItemOptionGroup[];
 	}, [item.hasOptionGroups, optionsData]);
 
 	// Reset selections when item changes or options are loaded
@@ -225,7 +225,11 @@ export function ItemDrawer({
 		for (const group of optionGroups) {
 			const choiceIds = selectedOptions.get(group.id) ?? [];
 			const quantities = quantitySelections.get(group.id) ?? new Map();
-			total += calculateGroupPrice(group, choiceIds, quantities);
+			total += calculateGroupPrice(
+				group as MenuItemOptionGroup,
+				choiceIds,
+				quantities,
+			);
 		}
 
 		return total * quantity;
@@ -237,7 +241,7 @@ export function ItemDrawer({
 		// If still loading options, not valid yet
 		if (isLoadingOptions) return false;
 
-		return optionGroups.every((group) => {
+		return optionGroups.every((group: MenuItemOptionGroup) => {
 			if (group.type === "quantity_select") {
 				// Check aggregate quantity constraints
 				const quantities = quantitySelections.get(group.id) ?? new Map();
@@ -274,56 +278,62 @@ export function ItemDrawer({
 	const handleAddToCart = () => {
 		if (!isValid) return;
 
-		const selectedOptionsArray = optionGroups.map((group) => {
-			if (group.type === "quantity_select") {
-				// For quantity select, convert quantities to choices with quantity
-				const quantities = quantitySelections.get(group.id) ?? new Map();
-				const choices: {
-					id: string;
-					name: string;
-					price: number;
-					quantity: number;
-				}[] = [];
+		const selectedOptionsArray = optionGroups.map(
+			(group: MenuItemOptionGroup) => {
+				if (group.type === "quantity_select") {
+					// For quantity select, convert quantities to choices with quantity
+					const quantities = quantitySelections.get(group.id) ?? new Map();
+					const choices: {
+						id: string;
+						name: string;
+						price: number;
+						quantity: number;
+					}[] = [];
 
-				for (const [choiceId, qty] of quantities) {
-					if (qty > 0) {
-						const choice = group.choices.find((c) => c.id === choiceId);
-						if (choice) {
-							choices.push({
-								id: choice.id,
-								name: choice.name,
-								price: choice.priceModifier,
-								quantity: qty,
-							});
+					for (const [choiceId, qty] of quantities) {
+						if (qty > 0) {
+							const choice = group.choices.find(
+								(c: MenuItemChoice) => c.id === choiceId,
+							);
+							if (choice) {
+								choices.push({
+									id: choice.id,
+									name: choice.name,
+									price: choice.priceModifier,
+									quantity: qty,
+								});
+							}
 						}
 					}
+
+					return {
+						groupId: group.id,
+						groupName: group.name,
+						choices,
+					};
 				}
 
+				// Single/multi select
+				const choiceIds = selectedOptions.get(group.id) ?? [];
 				return {
 					groupId: group.id,
 					groupName: group.name,
-					choices,
+					choices: choiceIds.map((choiceId) => {
+						const choice = group.choices.find(
+							(c: MenuItemChoice) => c.id === choiceId,
+						);
+						if (!choice) {
+							return { id: choiceId, name: "", price: 0 };
+						}
+						return {
+							id: choice.id,
+							name: choice.name,
+							price: choice.priceModifier,
+						};
+					}),
 				};
-			}
-
-			// Single/multi select
-			const choiceIds = selectedOptions.get(group.id) ?? [];
-			return {
-				groupId: group.id,
-				groupName: group.name,
-				choices: choiceIds.map((choiceId) => {
-					const choice = group.choices.find((c) => c.id === choiceId);
-					if (!choice) {
-						return { id: choiceId, name: "", price: 0 };
-					}
-					return {
-						id: choice.id,
-						name: choice.name,
-						price: choice.priceModifier,
-					};
-				}),
-			};
-		});
+			},
+		);
 
 		addItem({
 			itemId: item.id,
@@ -434,7 +444,7 @@ export function ItemDrawer({
 										<Loader2 className="size-6 animate-spin text-muted-foreground" />
 									</div>
 								) : (
-									optionGroups.map((group) => (
+									optionGroups.map((group: MenuItemOptionGroup) => (
 										<OptionGroup
 											key={group.id}
 											group={group}

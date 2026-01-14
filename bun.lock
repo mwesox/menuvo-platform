@@ -145,6 +145,7 @@
         "@trpc/client": "catalog:",
         "@trpc/react-query": "catalog:",
         "@trpc/server": "catalog:",
+        "@trpc/tanstack-react-query": "catalog:",
         "class-variance-authority": "^0.7.1",
         "i18next": "^25.7.4",
         "i18next-browser-languagedetector": "^8.2.0",

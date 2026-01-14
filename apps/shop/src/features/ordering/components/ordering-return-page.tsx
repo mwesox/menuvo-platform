@@ -1,4 +1,6 @@
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useNavigate, useSearch } from "@tanstack/react-router";
+import type { inferRouterOutputs } from "@trpc/server";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -8,6 +10,9 @@ import {
 	ShopMutedText,
 } from "../../shared/components/ui";
 import { useVerifyPayment } from "../queries";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type PaymentStatus = RouterOutput["order"]["verifyPayment"];
 
 interface OrderingReturnPageProps {
 	storeSlug: string;
@@ -32,10 +37,11 @@ export function OrderingReturnPage({ storeSlug }: OrderingReturnPageProps) {
 
 	// Verify payment status - backend checks Mollie API and updates order
 	const { data, isLoading, isError } = useVerifyPayment(orderId);
+	const paymentData = data as PaymentStatus | undefined;
 
 	// Redirect to order confirmation when payment is confirmed
 	useEffect(() => {
-		if (data?.paymentStatus === "paid" && orderId) {
+		if (paymentData?.paymentStatus === "paid" && orderId) {
 			navigate({
 				to: "/$slug/order/$orderId",
 				params: { slug: storeSlug, orderId },
@@ -63,7 +69,7 @@ export function OrderingReturnPage({ storeSlug }: OrderingReturnPageProps) {
 	// Show error state for any non-paid status or query error
 	const errorMessage = isError
 		? t("ordering.return.tryAgain")
-		: data?.paymentStatus === "expired"
+		: paymentData?.paymentStatus === "expired"
 			? t("ordering.return.sessionExpired")
 			: t("ordering.return.tryAgain");
 

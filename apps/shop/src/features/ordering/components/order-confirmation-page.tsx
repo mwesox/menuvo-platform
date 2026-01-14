@@ -1,8 +1,14 @@
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import type { inferRouterOutputs } from "@trpc/server";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTRPC } from "../../../lib/trpc";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type Order = RouterOutput["order"]["getById"];
+
 import {
 	ShopButton,
 	ShopCard,
@@ -30,7 +36,7 @@ export function OrderConfirmationPage({
 	});
 
 	// Format pickup number with leading zeros
-	const pickupNumber = order?.pickupNumber ?? 0;
+	const pickupNumber = (order as Order | undefined)?.pickupNumber ?? 0;
 	const formattedPickupNumber = String(pickupNumber).padStart(3, "0");
 
 	return (

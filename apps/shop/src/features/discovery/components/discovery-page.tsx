@@ -1,5 +1,7 @@
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useQuery } from "@tanstack/react-query";
 import type { ErrorComponentProps } from "@tanstack/react-router";
+import type { inferRouterOutputs } from "@trpc/server";
 import { Search, Store } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTRPC } from "../../../lib/trpc";
@@ -8,6 +10,9 @@ import { DiscoveryEmptyState } from "./discovery-empty-state";
 import { StoreCard } from "./store-card";
 import { StoreCardSkeletonGrid } from "./store-card-skeleton";
 import { StoreSearch } from "./store-search";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type FeaturedStores = RouterOutput["store"]["getFeaturedStores"];
 
 /** Floating orbs that gently drift */
 function HeroOrbs() {
@@ -32,7 +37,7 @@ export function DiscoveryPage() {
 	});
 
 	// Type assertion - the API returns stores matching the hook's expected shape
-	const stores = data ?? [];
+	const stores: FeaturedStores = (data ?? []) as FeaturedStores;
 
 	const {
 		cities,
