@@ -15,7 +15,15 @@
 			"dependsOn": ["^check"]
 		},
 		"check-types": {
-			"dependsOn": ["^build"]
+			"dependsOn": ["^check-types"],
+			"outputs": [
+				"dist/**/*.d.ts",
+				"dist/**/*.d.ts.map",
+				"dist/**/*.tsbuildinfo",
+				"tsconfig.tsbuildinfo",
+				"tsconfig.*.tsbuildinfo",
+				"node_modules/.tmp/*.tsbuildinfo"
+			]
 		},
 		"test": {}
 	}

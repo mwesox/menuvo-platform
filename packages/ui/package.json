@@ -11,7 +11,7 @@
   },
   "scripts": {
     "check": "biome check .",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc -b --emitDeclarationOnly"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
