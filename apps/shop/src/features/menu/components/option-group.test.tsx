@@ -1,6 +1,20 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { I18nextProvider } from "react-i18next";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { i18n } from "../../../i18n";
 import { OptionGroup } from "./option-group";
+
+// Create a wrapper with I18nextProvider for tests
+const createWrapper = () => {
+	return ({ children }: { children: React.ReactNode }) => (
+		<I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+	);
+};
+
+// Cleanup after each test
+afterEach(() => {
+	cleanup();
+});
 
 const mockSingleSelectGroup = {
 	id: "grp-1",
@@ -104,13 +118,14 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
 			expect(screen.getByText("Size")).toBeInTheDocument();
 		});
 
 		it("renders all choices", () => {
-			render(
+			const { container } = render(
 				<OptionGroup
 					group={mockSingleSelectGroup}
 					choices={mockChoices}
@@ -119,15 +134,17 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
-			expect(screen.getByText("Small")).toBeInTheDocument();
-			expect(screen.getByText("Medium")).toBeInTheDocument();
-			expect(screen.getByText("Large")).toBeInTheDocument();
+			// Use container to scope the query to this specific render
+			expect(container.textContent).toContain("Small");
+			expect(container.textContent).toContain("Medium");
+			expect(container.textContent).toContain("Large");
 		});
 
 		it("renders radio inputs for single select group", () => {
-			render(
+			const { container } = render(
 				<OptionGroup
 					group={mockSingleSelectGroup}
 					choices={mockChoices}
@@ -136,9 +153,10 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
-			const radios = screen.getAllByRole("radio");
+			const radios = container.querySelectorAll('input[type="radio"]');
 			expect(radios).toHaveLength(3);
 		});
 
@@ -152,6 +170,7 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
 			const mediumRadio = screen.getByRole("radio", { name: /medium/i });
@@ -170,6 +189,7 @@ describe("OptionGroup", () => {
 					onSelectionChange={onSelectionChange}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
 			const largeRadio = screen.getByRole("radio", { name: /large/i });
@@ -188,9 +208,11 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
-			expect(screen.getByText("Required")).toBeInTheDocument();
+			// The "Required" text comes from i18n translation
+			expect(screen.getByText(/required/i)).toBeInTheDocument();
 		});
 
 		it("shows price modifier for choices with non-zero price", () => {
@@ -203,6 +225,7 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
 			// Medium has +2,00 €, Large has +4,00 € (German locale)
@@ -222,6 +245,7 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
 			const checkboxes = screen.getAllByRole("checkbox");
@@ -267,6 +291,7 @@ describe("OptionGroup", () => {
 					onSelectionChange={onSelectionChange}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
 			const pepperoniCheckbox = screen.getByRole("checkbox", {
@@ -289,6 +314,7 @@ describe("OptionGroup", () => {
 					onSelectionChange={onSelectionChange}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
 			const cheeseCheckbox = screen.getByRole("checkbox", {
@@ -309,9 +335,10 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
-			expect(screen.getByText("Select up to 3")).toBeInTheDocument();
+			expect(screen.getByText(/select up to 3/i)).toBeInTheDocument();
 		});
 	});
 
@@ -361,6 +388,7 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
 			// Should have increase/decrease buttons for each choice
@@ -378,9 +406,10 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
-			expect(screen.getByText("Select 3-6")).toBeInTheDocument();
+			expect(screen.getByText(/select 3-6/i)).toBeInTheDocument();
 		});
 
 		it("calls onQuantityChange when incrementing", () => {
@@ -395,6 +424,7 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={onQuantityChange}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
 			const increaseButtons = screen.getAllByRole("button", {

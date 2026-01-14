@@ -1,9 +1,17 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import type React from "react";
+import { I18nextProvider } from "react-i18next";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { i18n } from "../../../i18n";
 import { TRPCProvider, trpcClient } from "../../../lib/trpc";
 import type { MenuItemLight } from "../types";
 import { ItemDrawer } from "./item-drawer";
+
+// Cleanup after each test
+afterEach(() => {
+	cleanup();
+});
 
 // Mock the cart store
 vi.mock("../../cart", () => ({
@@ -29,6 +37,12 @@ vi.mock("../../shared", () => ({
 			</button>
 		</div>
 	),
+	ShopButton: ({ children, ...props }: React.ComponentProps<"button">) => (
+		<button {...props}>{children}</button>
+	),
+	ShopHeading: ({ children, as: Component = "h2", ...props }: any) => (
+		<Component {...props}>{children}</Component>
+	),
 }));
 
 // Create a wrapper with QueryClient for tests
@@ -43,7 +57,7 @@ const createWrapper = () => {
 	return ({ children }: { children: React.ReactNode }) => (
 		<QueryClientProvider client={queryClient}>
 			<TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-				{children}
+				<I18nextProvider i18n={i18n}>{children}</I18nextProvider>
 			</TRPCProvider>
 		</QueryClientProvider>
 	);
@@ -123,9 +137,10 @@ describe("ItemDrawer", () => {
 			{ wrapper: createWrapper() },
 		);
 
-		expect(
-			screen.getByText("Fresh tomato sauce, mozzarella, and basil"),
-		).toBeInTheDocument();
+		// Drawer renders to portal, check document.body
+		expect(document.body.textContent).toContain(
+			"Fresh tomato sauce, mozzarella, and basil",
+		);
 	});
 
 	it("renders allergens", () => {
@@ -141,9 +156,10 @@ describe("ItemDrawer", () => {
 			{ wrapper: createWrapper() },
 		);
 
+		// Drawer renders to portal, check document.body
 		// Allergens shown as "Contains: Gluten, Dairy"
-		expect(screen.getByText("Gluten, Dairy")).toBeInTheDocument();
-		expect(screen.getByText("Contains:")).toBeInTheDocument();
+		expect(document.body.textContent).toContain("Gluten, Dairy");
+		expect(document.body.textContent).toContain("Contains:");
 	});
 
 	it("renders simple item without options", () => {

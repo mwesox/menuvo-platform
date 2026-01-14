@@ -163,6 +163,11 @@ export function ItemDrawer({
 	storeSlug,
 	isOpen: isStoreOpen,
 }: ItemDrawerProps) {
+	// Early return if item is null
+	if (!item) {
+		return null;
+	}
+
 	const { t } = useTranslation("shop");
 	const addItem = useCartStore((s) => s.addItem);
 	const [quantity, setQuantity] = useState(1);
@@ -387,11 +392,11 @@ export function ItemDrawer({
 						)}
 					>
 						{/* Title */}
-						<DrawerTitle asChild>
+						<DrawerTitle className="mb-3">
 							<ShopHeading
 								as="h2"
 								size="2xl"
-								className="mb-3 leading-tight tracking-tight"
+								className="leading-tight tracking-tight"
 							>
 								{item.name}
 							</ShopHeading>

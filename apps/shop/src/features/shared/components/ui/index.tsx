@@ -7,7 +7,7 @@
 
 import { cn } from "@menuvo/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ComponentProps } from "react";
+import { type ComponentProps, forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import { formatPrice as formatPriceCents } from "../../../utils";
 
@@ -40,21 +40,21 @@ type HeadingProps = ComponentProps<"h1"> &
  * Shop heading with serif font (Instrument Serif).
  * Use for all headings, titles, and item names.
  */
-export function ShopHeading({
-	as: Component = "h2",
-	size,
-	className,
-	style,
-	...props
-}: HeadingProps) {
-	return (
-		<Component
-			className={cn(headingVariants({ size }), className)}
-			style={{ fontFamily: "var(--font-heading)", ...style }}
-			{...props}
-		/>
-	);
-}
+export const ShopHeading = forwardRef<HTMLElement, HeadingProps>(
+	({ as: Component = "h2", size, className, style, ...props }, ref) => {
+		// Ensure Component is always defined
+		const Tag = Component || "h2";
+		return (
+			<Tag
+				ref={ref as any}
+				className={cn(headingVariants({ size }), className)}
+				style={{ fontFamily: "var(--font-heading)", ...style }}
+				{...props}
+			/>
+		);
+	},
+);
+ShopHeading.displayName = "ShopHeading";
 
 /**
  * Shop body text with sans-serif font (DM Sans).

@@ -3,7 +3,7 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -28,5 +28,8 @@ export default defineConfig({
 				changeOrigin: true,
 			},
 		},
+	},
+	test: {
+		environment: "jsdom",
 	},
 });
