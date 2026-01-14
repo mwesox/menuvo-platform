@@ -563,17 +563,8 @@ export class StoreStatusService implements IStoreStatusService {
 			month: "2-digit",
 			day: "2-digit",
 		}).format(slotTime);
-		const todayLabel = languageCode === "de" ? "Heute" : "Today";
-		const tomorrowLabel = languageCode === "de" ? "Morgen" : "Tomorrow";
 
-		if (slotDayDate.getTime() === today.getTime()) {
-			return `${todayLabel}, ${dateStr}, ${timeStr}`;
-		}
-		if (slotDayDate.getTime() === tomorrow.getTime()) {
-			return `${tomorrowLabel}, ${dateStr}, ${timeStr}`;
-		}
-
-		// For other days, use day name in locale
+		// Use actual day name for all days (consistent display)
 		const dayName = new Intl.DateTimeFormat(locale, {
 			timeZone: timezone,
 			weekday: "long",

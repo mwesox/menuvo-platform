@@ -219,6 +219,28 @@ export function ItemDrawer({
 		}
 	}, [open]);
 
+	// Move focus to drawer when it opens (fixes aria-hidden accessibility issue)
+	// This ensures focus is inside the drawer when vaul sets aria-hidden on root
+	useEffect(() => {
+		if (open) {
+			// Small delay to ensure drawer is fully rendered in DOM
+			const timeoutId = setTimeout(() => {
+				// Find the drawer content element (vaul renders it in a portal)
+				const drawerContent = document.querySelector(
+					'[data-slot="drawer-content"]',
+				) as HTMLElement;
+				if (drawerContent) {
+					// Find first focusable element in drawer
+					const firstFocusable = drawerContent.querySelector(
+						'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+					) as HTMLElement;
+					firstFocusable?.focus();
+				}
+			}, 150);
+			return () => clearTimeout(timeoutId);
+		}
+	}, [open]);
+
 	const calculateTotal = useMemo(() => {
 		let total = item.price;
 

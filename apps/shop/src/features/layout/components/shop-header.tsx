@@ -1,5 +1,6 @@
 import { Button } from "@menuvo/ui/components/button";
 import { Kbd } from "@menuvo/ui/components/kbd";
+import { useIsMobile } from "@menuvo/ui/hooks/use-media-query";
 import { cn } from "@menuvo/ui/lib/utils";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { ChevronLeft, Search, ShoppingCart, X } from "lucide-react";
@@ -31,9 +32,21 @@ function useIsMac() {
 
 function CartButton({ onClick }: { onClick: () => void }) {
 	const { t } = useTranslation("shop");
+	const isMobile = useIsMobile();
 	const items = useCartStore((s) => s.items);
 	const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 	const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
+	const toggleCartSidebar = useShopUIStore((s) => s.toggleCartSidebar);
+
+	const handleClick = () => {
+		if (isMobile) {
+			// Mobile: open drawer
+			onClick();
+		} else {
+			// Desktop: toggle sidebar collapse
+			toggleCartSidebar();
+		}
+	};
 
 	return (
 		<>
@@ -42,7 +55,7 @@ function CartButton({ onClick }: { onClick: () => void }) {
 				variant="ghost"
 				size="icon"
 				className="relative text-foreground hover:bg-accent hover:text-accent-foreground md:hidden"
-				onClick={onClick}
+				onClick={handleClick}
 				aria-label={t("header.cartWithItems", { count: itemCount })}
 			>
 				<ShoppingCart className="size-5" />
@@ -66,7 +79,7 @@ function CartButton({ onClick }: { onClick: () => void }) {
 					"hidden items-center gap-2 text-foreground hover:bg-accent hover:text-accent-foreground md:flex",
 					itemCount > 0 && "pe-3",
 				)}
-				onClick={onClick}
+				onClick={handleClick}
 				aria-label={t("header.cartWithItems", { count: itemCount })}
 			>
 				<div className="relative flex items-center gap-1.5">
@@ -183,7 +196,7 @@ function StoreInfo() {
 			className="group flex min-w-0 flex-col items-center md:flex-row md:gap-2"
 		>
 			{/* Store name - always visible, with editorial hover underline */}
-			<span className="truncate font-medium font-serif text-base text-foreground decoration-1 underline-offset-4 group-hover:underline">
+			<span className="truncate font-semibold text-base text-foreground decoration-1 underline-offset-4 group-hover:underline">
 				{store.name}
 			</span>
 
@@ -209,13 +222,7 @@ export function ShopHeader() {
 	const isDeepPage = useIsDeepPage();
 
 	return (
-		<header
-			className="sticky top-0 z-50 border-b backdrop-blur-md"
-			style={{
-				backgroundColor: "oklch(0.988 0.003 90 / 0.95)",
-				borderColor: "var(--border)",
-			}}
-		>
+		<header className="sticky top-0 z-50 border-b border-border bg-background">
 			<div className="flex h-14 items-center gap-4 px-4">
 				{/* Left: Context-aware back link */}
 				{isDeepPage && slug ? (

@@ -24,12 +24,7 @@ export function CookieBanner() {
 	}
 
 	return (
-		<div
-			className="slide-in-from-bottom fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 animate-in duration-300"
-			style={{
-				fontFamily: "var(--font-body)",
-			}}
-		>
+		<div className="slide-in-from-bottom fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 animate-in duration-300">
 			<Card
 				className="gap-4 py-4"
 				style={{
@@ -38,10 +33,7 @@ export function CookieBanner() {
 				}}
 			>
 				<CardHeader className="gap-1 pb-0">
-					<CardTitle
-						className="text-base"
-						style={{ fontFamily: "var(--font-heading)" }}
-					>
+					<CardTitle className="font-semibold text-base">
 						{t("cookie.bannerTitle")}
 					</CardTitle>
 					<CardDescription>{t("cookie.bannerDescription")}</CardDescription>

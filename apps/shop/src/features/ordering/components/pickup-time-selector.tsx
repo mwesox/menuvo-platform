@@ -17,7 +17,6 @@ import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTRPC } from "../../../lib/trpc";
 import {
-	ShopBadge,
 	ShopCard,
 	ShopHeading,
 	ShopMutedText,
@@ -34,6 +33,7 @@ interface PickupTimeSelectorProps {
 interface SlotGroup {
 	dayLabel: string;
 	dayKey: string;
+	datetime: string; // ISO datetime string for formatting
 	slots: Array<{
 		datetime: string;
 		label: string;
@@ -42,13 +42,14 @@ interface SlotGroup {
 }
 
 /**
- * Parse slot label to extract day and time information
+ * Parse slot label to extract day, date, and time information
  * Labels are formatted like: "Today, YYYY-MM-DD, HH:MM", "Tomorrow, YYYY-MM-DD, HH:MM", or "Monday, YYYY-MM-DD, HH:MM"
  */
 function parseSlotLabel(label: string): {
 	dayLabel: string;
 	dayKey: string;
 	time: string;
+	date: string;
 } {
 	// Split by comma to separate day, date, and time
 	const parts = label.split(",").map((p) => p.trim());
@@ -56,6 +57,7 @@ function parseSlotLabel(label: string): {
 	if (parts.length >= 3) {
 		// Format: "Day, Date, Time"
 		const dayPart = parts[0]!;
+		const datePart = parts[1]!; // Date is the middle part
 		const timePart = parts[parts.length - 1]!; // Time is always the last part
 
 		// Check if it's "Today" or "Tomorrow" (case-insensitive, supports English and German)
@@ -65,6 +67,7 @@ function parseSlotLabel(label: string): {
 				dayLabel: dayPart,
 				dayKey: "today",
 				time: timePart,
+				date: datePart,
 			};
 		}
 		if (dayLower === "tomorrow" || dayLower === "morgen") {
@@ -72,6 +75,7 @@ function parseSlotLabel(label: string): {
 				dayLabel: dayPart,
 				dayKey: "tomorrow",
 				time: timePart,
+				date: datePart,
 			};
 		}
 
@@ -80,6 +84,7 @@ function parseSlotLabel(label: string): {
 			dayLabel: dayPart,
 			dayKey: dayPart.toLowerCase(),
 			time: timePart,
+			date: datePart,
 		};
 	}
 
@@ -94,6 +99,7 @@ function parseSlotLabel(label: string): {
 				dayLabel: dayPart,
 				dayKey: "today",
 				time: timePart,
+				date: "",
 			};
 		}
 		if (dayLower === "tomorrow" || dayLower === "morgen") {
@@ -101,6 +107,7 @@ function parseSlotLabel(label: string): {
 				dayLabel: dayPart,
 				dayKey: "tomorrow",
 				time: timePart,
+				date: "",
 			};
 		}
 
@@ -108,6 +115,7 @@ function parseSlotLabel(label: string): {
 			dayLabel: dayPart,
 			dayKey: dayPart.toLowerCase(),
 			time: timePart,
+			date: "",
 		};
 	}
 
@@ -116,7 +124,55 @@ function parseSlotLabel(label: string): {
 		dayLabel: label,
 		dayKey: label.toLowerCase(),
 		time: "",
+		date: "",
 	};
+}
+
+/**
+ * Map language codes to locale strings for date formatting
+ */
+function getLocaleForLanguage(languageCode: string): string {
+	const lang = languageCode.split("-")[0] || "en";
+	switch (lang) {
+		case "de":
+			return "de-DE";
+		case "en":
+			return "en-US";
+		default:
+			return "en-US";
+	}
+}
+
+/**
+ * Format date to show only day and month using Intl.DateTimeFormat
+ * Returns locale-appropriate format (e.g., "15.01." for German, "01/15" for English)
+ */
+function formatDateShort(datetimeISO: string, languageCode: string): string {
+	if (!datetimeISO) return "";
+
+	try {
+		const date = new Date(datetimeISO);
+		if (isNaN(date.getTime())) return "";
+
+		const locale = getLocaleForLanguage(languageCode);
+
+		// Format with day and month only
+		const formatted = new Intl.DateTimeFormat(locale, {
+			day: "2-digit",
+			month: "2-digit",
+		}).format(date);
+
+		// If the formatted string uses dots as separators (e.g., "15.01"),
+		// add a trailing dot to match locale conventions (e.g., "15.01.")
+		// This works for any locale that uses dots, not just German
+		if (formatted.includes(".")) {
+			return `${formatted}.`;
+		}
+
+		return formatted;
+	} catch {
+		return "";
+	}
 }
 
 /**
@@ -141,6 +197,7 @@ function groupSlotsByDay(
 			groups.set(parsed.dayKey, {
 				dayLabel: parsed.dayLabel,
 				dayKey: parsed.dayKey,
+				datetime: slot.datetime, // Store ISO datetime for formatting
 				slots: [
 					{
 						datetime: slot.datetime,
@@ -245,7 +302,7 @@ export function PickupTimeSelector({
 			<div className="max-h-96 overflow-y-auto">
 				<Accordion
 					type="multiple"
-					defaultValue={["today"]}
+					defaultValue={dayGroups.length > 0 ? [dayGroups[0]!.dayKey] : []}
 					className="space-y-0"
 				>
 					{dayGroups.map((group) => (
@@ -255,11 +312,10 @@ export function PickupTimeSelector({
 									<ShopHeading as="h3" size="sm" className="font-medium">
 										{group.dayLabel}
 									</ShopHeading>
-									{(group.dayKey === "today" ||
-										group.dayKey === "tomorrow") && (
-										<ShopBadge variant="accent" size="sm">
-											{group.dayLabel}
-										</ShopBadge>
+									{group.datetime && (
+										<ShopMutedText className="text-sm">
+											{formatDateShort(group.datetime, i18n.language)}
+										</ShopMutedText>
 									)}
 								</div>
 							</AccordionTrigger>

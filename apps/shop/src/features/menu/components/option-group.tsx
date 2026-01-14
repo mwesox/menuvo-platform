@@ -364,7 +364,7 @@ function QuantitySelectGroup({
 							)}
 
 							{/* Quantity stepper */}
-							<div className="inline-flex items-center gap-1 rounded-full bg-muted p-0.5">
+							<div className="inline-flex items-center gap-1 rounded-xl bg-muted p-0.5">
 								<button
 									type="button"
 									onClick={() => onQuantityChange(choice.id, quantity - 1)}
@@ -490,10 +490,7 @@ export function OptionGroup({
 		<div className="py-4 first:pt-0">
 			{/* Group Header */}
 			<div className="mb-3 flex items-baseline justify-between">
-				<h3
-					className="font-medium text-base text-foreground"
-					style={{ fontFamily: "var(--font-heading)" }}
-				>
+				<h3 className="font-semibold text-base text-foreground">
 					{group.name}
 				</h3>
 				<span

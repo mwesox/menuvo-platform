@@ -54,8 +54,8 @@
         "@trpc/tanstack-react-query": "^11.4.3",
         "i18next": "^25.7.4",
         "lucide-react": "^0.513.0",
-        "react": "^19.2.0",
-        "react-dom": "^19.2.0",
+        "react": "^19.2.3",
+        "react-dom": "^19.2.3",
         "react-i18next": "^16.5.1",
         "sonner": "^2.0.5",
         "superjson": "^2.2.2",
@@ -135,8 +135,7 @@
       "name": "@menuvo/shop",
       "version": "0.0.0",
       "dependencies": {
-        "@fontsource-variable/dm-sans": "^5.0.0",
-        "@fontsource/playfair-display": "^5.0.0",
+        "@fontsource-variable/plus-jakarta-sans": "^5.2.3",
         "@menuvo/api": "workspace:*",
         "@menuvo/ui": "workspace:*",
         "@t3-oss/env-core": "catalog:",
@@ -148,6 +147,7 @@
         "@trpc/server": "catalog:",
         "@trpc/tanstack-react-query": "catalog:",
         "class-variance-authority": "^0.7.1",
+        "date-fns": "catalog:",
         "i18next": "^25.7.4",
         "i18next-browser-languagedetector": "^8.2.0",
         "lucide-react": "catalog:",
@@ -292,9 +292,9 @@
     "lucide-react": "^0.562.0",
     "pino": "^10.1.0",
     "postgres": "^3.4.7",
-    "react": "^19.2.0",
+    "react": "^19.2.3",
     "react-day-picker": "^9.0.0",
-    "react-dom": "^19.2.0",
+    "react-dom": "^19.2.3",
     "sonner": "^2.0.5",
     "superjson": "^2.2.2",
     "tailwind-merge": "^2.5.0",
@@ -490,9 +490,7 @@
 
     "@floating-ui/utils": ["@floating-ui/utils@0.2.10", "", {}, "sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ=="],
 
-    "@fontsource-variable/dm-sans": ["@fontsource-variable/dm-sans@5.2.8", "", {}, "sha512-AxkvMTvNWgfrmlyjiV05vlHYJa+nRQCf1EfvIrQAPBpFJW0O9VTz7oAFr9S3lvbWdmnFoBk7yFqQL86u64nl2g=="],
-
-    "@fontsource/playfair-display": ["@fontsource/playfair-display@5.2.8", "", {}, "sha512-fUEhib70SszNhQVsGbUMSsWJhr7Je0rdeuZdtGpDNu0GKF1xJM8QhpI/y0pckU25GcChXm9TLOmeZupkvvZo2g=="],
+    "@fontsource-variable/plus-jakarta-sans": ["@fontsource-variable/plus-jakarta-sans@5.2.8", "", {}, "sha512-iQecBizIdZxezODNHzOn4SvvRMrZL/S8k4MEXGDynCmUrImVW0VmX+tIAMqnADwH4haXlHSXqMgU6+kcfBQJdw=="],
 
     "@getbrevo/brevo": ["@getbrevo/brevo@2.5.0", "", { "dependencies": { "bluebird": "^3.5.0", "request": "^2.81.0", "rewire": "^7.0.0" } }, "sha512-0V+EpMX3pcPQb7XC+kkNwA1N/ka/z5aOElll4WFRkUq8utrGs/vHaeLYg8d+L2P572S+6rWjfLoZqyKnO/q4/Q=="],
 

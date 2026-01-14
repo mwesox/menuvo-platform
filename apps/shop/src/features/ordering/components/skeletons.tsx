@@ -59,7 +59,7 @@ export function OrderingPageSkeleton() {
 					</div>
 
 					{/* Submit Button */}
-					<Skeleton className="h-12 w-full rounded-full bg-muted" />
+					<Skeleton className="h-12 w-full rounded-lg bg-muted" />
 				</div>
 			</div>
 		</div>
@@ -84,7 +84,7 @@ export function OrderConfirmationPageSkeleton() {
 				<div className="space-y-4 rounded-xl bg-card p-4">
 					<div className="flex items-center justify-between">
 						<Skeleton className="h-5 w-20 bg-muted" />
-						<Skeleton className="h-6 w-16 rounded-full bg-muted" />
+						<Skeleton className="h-6 w-16 rounded-lg bg-muted" />
 					</div>
 					<div className="space-y-3">
 						<div className="flex justify-between">
@@ -105,7 +105,7 @@ export function OrderConfirmationPageSkeleton() {
 				</div>
 
 				{/* Back to menu button */}
-				<Skeleton className="mt-6 h-12 w-full rounded-full bg-muted" />
+				<Skeleton className="mt-6 h-12 w-full rounded-lg bg-muted" />
 			</div>
 		</div>
 	);

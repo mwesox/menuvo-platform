@@ -21,10 +21,7 @@ export function CategorySection({
 	return (
 		<section ref={refSetter} data-category-id={category.id} className="mb-10">
 			{/* Category header */}
-			<h2
-				className="mb-4 text-2xl text-foreground"
-				style={{ fontFamily: "var(--font-heading)" }}
-			>
+			<h2 className="mb-4 font-semibold text-2xl text-foreground">
 				{category.name}
 			</h2>
 
@@ -36,14 +33,16 @@ export function CategorySection({
 			)}
 
 			{/* Items grid - responsive 1-2-3 columns with container queries */}
-			<div className="@container grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-5">
-				{category.items.map((item: CategoryItem) => (
-					<MenuItemCard
-						key={item.id}
-						item={item}
-						onSelect={() => onItemSelect(item)}
-					/>
-				))}
+			<div className="@container">
+				<div className="grid grid-cols-1 gap-3 @xl:grid-cols-2 @xl:gap-4 @4xl:grid-cols-3 @4xl:gap-5">
+					{category.items.map((item: CategoryItem) => (
+						<MenuItemCard
+							key={item.id}
+							item={item}
+							onSelect={() => onItemSelect(item)}
+						/>
+					))}
+				</div>
 			</div>
 		</section>
 	);

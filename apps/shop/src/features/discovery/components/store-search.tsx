@@ -31,7 +31,7 @@ export function StoreSearch({
 					onChange={(e) => onSearchChange(e.target.value)}
 					placeholder={t("search.placeholder")}
 					className={cn(
-						"h-14 w-full rounded-2xl",
+						"h-14 w-full rounded-xl",
 						"bg-card ps-14 pe-12",
 						"text-base text-foreground",
 						"placeholder:text-muted-foreground/50",
@@ -66,7 +66,7 @@ export function StoreSearch({
 							type="button"
 							onClick={() => onCityChange(city)}
 							className={cn(
-								"flex-shrink-0 whitespace-nowrap rounded-full px-5 py-2",
+								"flex-shrink-0 whitespace-nowrap rounded-lg px-5 py-2",
 								"font-medium text-sm transition-all duration-200",
 								isSelected
 									? "bg-foreground text-background shadow-md"

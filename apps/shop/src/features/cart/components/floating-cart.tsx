@@ -30,7 +30,7 @@ export function FloatingCart() {
 			className={cn(
 				"fixed right-4 bottom-6 left-4 md:hidden",
 				"bg-primary text-primary-foreground",
-				"rounded-2xl px-5 py-4 shadow-xl",
+				"rounded-xl px-5 py-4 shadow-xl",
 				"flex items-center justify-between",
 				"z-40 font-medium",
 				"transition-all duration-300",

@@ -12,9 +12,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fontsource-variable/dm-sans": "^5.0.0",
+    "@fontsource-variable/plus-jakarta-sans": "^5.2.3",
     "@t3-oss/env-core": "catalog:",
-    "@fontsource/playfair-display": "^5.0.0",
     "@menuvo/api": "workspace:*",
     "@menuvo/ui": "workspace:*",
     "@tanstack/react-form": "catalog:",
@@ -25,6 +24,7 @@
     "@trpc/server": "catalog:",
     "@trpc/tanstack-react-query": "catalog:",
     "class-variance-authority": "^0.7.1",
+    "date-fns": "catalog:",
     "i18next": "^25.7.4",
     "i18next-browser-languagedetector": "^8.2.0",
     "lucide-react": "catalog:",

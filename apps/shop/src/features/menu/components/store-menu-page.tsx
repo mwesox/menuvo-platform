@@ -4,22 +4,17 @@ import {
 	useDeferredValue,
 	useEffect,
 	useMemo,
-	useRef,
 	useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 import {
-	CategoryNav,
 	CategorySection,
 	EmptyMenuState,
 	ItemDrawer,
 	StorePageSkeleton,
 } from "@/features";
 import { FloatingCart, useCartStore } from "../../cart";
-import {
-	CATEGORY_INTERSECTION_ROOT_MARGIN,
-	HEADER_OFFSET,
-} from "../../constants";
+import { CATEGORY_INTERSECTION_ROOT_MARGIN } from "../../constants";
 import { MenuContext, useShopUIStore } from "../../shared";
 import type { MenuCategory, MenuItemLight } from "../types";
 
@@ -84,44 +79,30 @@ export function StoreMenuPage() {
 	const hasResults = filteredCategories.length > 0;
 	const isSearching = deferredQuery.length > 0;
 
-	// Category scroll tracking (inlined from useCategoryScroll)
-	const [activeCategoryId, setActiveCategoryId] = useState<string | null>(
-		filteredCategories[0]?.id ?? null,
-	);
-	const categoryRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+	// Category navigation state from store (shared with layout)
+	const setActiveCategoryId = useShopUIStore((s) => s.setActiveCategoryId);
+	const setCategoryRef = useShopUIStore((s) => s.setCategoryRef);
+	const categoryRefs = useShopUIStore((s) => s.categoryRefs);
 
-	// Handle category click - scroll to section
-	const handleCategoryClick = useCallback((categoryId: string) => {
-		// Immediately update active category state for instant UI feedback
-		setActiveCategoryId(categoryId);
-
-		const element = categoryRefs.current.get(categoryId);
-		if (element) {
-			const elementPosition = element.getBoundingClientRect().top;
-			const offsetPosition = elementPosition + window.scrollY - HEADER_OFFSET;
-
-			window.scrollTo({
-				top: offsetPosition,
-				behavior: "smooth",
-			});
+	// Initialize active category on mount
+	useEffect(() => {
+		const firstCategory = filteredCategories[0];
+		if (firstCategory) {
+			setActiveCategoryId(firstCategory.id);
 		}
-	}, []);
+	}, [filteredCategories, setActiveCategoryId]);
 
-	// Store ref setter
-	const setCategoryRef = useCallback(
+	// Ref setter for category sections
+	const handleCategoryRef = useCallback(
 		(categoryId: React.Key | null | undefined) =>
 			(el: HTMLDivElement | null) => {
 				if (typeof categoryId !== "string") return;
-				if (el) {
-					categoryRefs.current.set(categoryId, el);
-				} else {
-					categoryRefs.current.delete(categoryId);
-				}
+				setCategoryRef(categoryId, el);
 			},
-		[],
+		[setCategoryRef],
 	);
 
-	// Intersection observer for active category
+	// Intersection observer for active category tracking
 	useEffect(() => {
 		const observer = new IntersectionObserver(
 			(entries) => {
@@ -142,14 +123,14 @@ export function StoreMenuPage() {
 
 		// Observe each category section element
 		for (const category of filteredCategories) {
-			const element = categoryRefs.current.get(category.id);
+			const element = categoryRefs.get(category.id);
 			if (element) {
 				observer.observe(element);
 			}
 		}
 
 		return () => observer.disconnect();
-	}, [filteredCategories]);
+	}, [filteredCategories, categoryRefs, setActiveCategoryId]);
 
 	// Item selection and drawer state (inlined from useMenuItemSelection)
 	const [selectedItem, setSelectedItem] = useState<MenuItemLight | null>(null);
@@ -161,37 +142,26 @@ export function StoreMenuPage() {
 	}, []);
 
 	return (
-		<div className="min-h-screen pb-24">
-			<div className="mx-auto max-w-6xl">
-				<CategoryNav
-					categories={filteredCategories.map((category: MenuCategory) => ({
-						id: category.id,
-						name: category.name,
-					}))}
-					activeCategoryId={activeCategoryId}
-					onCategoryClick={handleCategoryClick}
-				/>
-
-				<div className="px-4 py-4">
-					{categories.length === 0 ? (
-						<EmptyMenuState />
-					) : isSearching && !hasResults ? (
-						<div className="py-12 text-center">
-							<p className="text-muted-foreground">
-								{t("menu.noSearchResults", "No items found")}
-							</p>
-						</div>
-					) : (
-						filteredCategories.map((category: (typeof categories)[number]) => (
-							<CategorySection
-								key={category.id}
-								category={category}
-								onItemSelect={handleItemSelect}
-								refSetter={setCategoryRef(category.id)}
-							/>
-						))
-					)}
-				</div>
+		<div className="pb-24">
+			<div className="mx-auto max-w-6xl px-4 py-4">
+				{categories.length === 0 ? (
+					<EmptyMenuState />
+				) : isSearching && !hasResults ? (
+					<div className="py-12 text-center">
+						<p className="text-muted-foreground">
+							{t("menu.noSearchResults", "No items found")}
+						</p>
+					</div>
+				) : (
+					filteredCategories.map((category: (typeof categories)[number]) => (
+						<CategorySection
+							key={category.id}
+							category={category}
+							onItemSelect={handleItemSelect}
+							refSetter={handleCategoryRef(category.id)}
+						/>
+					))
+				)}
 			</div>
 
 			{selectedItem && (

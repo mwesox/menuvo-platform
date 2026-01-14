@@ -22,9 +22,9 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 		.join(", ");
 
 	return (
-		<div className="flex gap-3 border-border/50 border-b py-4">
-			{/* Item image - responsive sizing */}
-			<div className="size-12 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 sm:size-14">
+		<div className="flex items-center gap-3 border-border/50 border-b py-4">
+			{/* Item image - centered vertically */}
+			<div className="size-14 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
 				{item.imageUrl && (
 					<img
 						src={item.imageUrl}
@@ -34,31 +34,17 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 				)}
 			</div>
 
-			{/* Item details */}
+			{/* Item details - name and quantity */}
 			<div className="min-w-0 flex-1">
-				<div className="flex items-start justify-between gap-2">
-					<div className="min-w-0">
-						<ShopHeading as="h3" size="sm" className="truncate font-normal">
-							{item.name}
-						</ShopHeading>
-						{optionsText && (
-							<ShopMutedText className="truncate text-sm">
-								{optionsText}
-							</ShopMutedText>
-						)}
-					</div>
-					<button
-						type="button"
-						onClick={onRemove}
-						className="flex-shrink-0 p-1.5 text-muted-foreground transition-colors hover:text-foreground"
-						aria-label={t("cart.removeItem", { name: item.name })}
-					>
-						<X className="size-4" />
-					</button>
-				</div>
-
-				{/* Quantity and price row */}
-				<div className="mt-2 flex items-center justify-between">
+				<ShopHeading as="h3" size="sm" className="truncate font-normal">
+					{item.name}
+				</ShopHeading>
+				{optionsText && (
+					<ShopMutedText className="truncate text-sm">
+						{optionsText}
+					</ShopMutedText>
+				)}
+				<div className="mt-1.5">
 					<QuantityStepper
 						value={item.quantity}
 						onChange={onQuantityChange}
@@ -66,8 +52,20 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 						max={99}
 						size="sm"
 					/>
-					<ShopPrice cents={item.totalPrice} className="font-medium" />
 				</div>
+			</div>
+
+			{/* Price and remove - right aligned */}
+			<div className="flex flex-col items-end justify-between self-stretch">
+				<button
+					type="button"
+					onClick={onRemove}
+					className="p-1 -m-1 text-muted-foreground transition-colors hover:text-foreground"
+					aria-label={t("cart.removeItem", { name: item.name })}
+				>
+					<X className="size-4" />
+				</button>
+				<ShopPrice cents={item.totalPrice} className="font-medium" />
 			</div>
 		</div>
 	);
