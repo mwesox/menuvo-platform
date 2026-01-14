@@ -1,3 +1,4 @@
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Badge,
 	Button,
@@ -17,6 +18,7 @@ import {
 } from "@menuvo/ui";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
+import type { inferRouterOutputs } from "@trpc/server";
 import { formatDistanceToNow } from "date-fns";
 import { de, enUS } from "date-fns/locale";
 import { Search } from "lucide-react";
@@ -32,6 +34,9 @@ import type { OrderListItem } from "@/features/orders/types";
 import { useTRPC } from "@/lib/trpc";
 import { type DateRangePreset, dateRangePresets } from "@/routes/_app/orders";
 import { ExportOrdersButton } from "./export-orders-button";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type OrderListResponse = RouterOutput["order"]["listByStore"];
 
 interface OrdersTableProps {
 	storeId: string;
@@ -114,7 +119,7 @@ export function OrdersTable({
 		}
 	}, [searchFilter]);
 
-	const { data: ordersResponse, isLoading } = useQuery(
+	const { data: ordersResponseData, isLoading } = useQuery(
 		trpc.order.listByStore.queryOptions({
 			storeId,
 			status: statusFilter,
@@ -122,6 +127,7 @@ export function OrdersTable({
 			limit: PAGE_SIZE,
 		}),
 	);
+	const ordersResponse = ordersResponseData as OrderListResponse | undefined;
 
 	// Client-side search filtering (API doesn't support search yet)
 	const orders = useMemo(() => {

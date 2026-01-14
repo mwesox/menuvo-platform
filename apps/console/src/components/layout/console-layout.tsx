@@ -1,3 +1,4 @@
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	SidebarInset,
 	SidebarProvider,
@@ -6,11 +7,15 @@ import {
 } from "@menuvo/ui";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet, useNavigate, useSearch } from "@tanstack/react-router";
+import type { inferRouterOutputs } from "@trpc/server";
 import { Suspense, useCallback } from "react";
 import { useTRPC } from "@/lib/trpc";
 import { ConsoleHeader } from "./console-header";
 import { Footer } from "./footer";
 import { AppSidebar } from "./sidebar";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type StoreList = RouterOutput["store"]["list"];
 
 function ConsoleHeaderWrapper() {
 	const navigate = useNavigate();
@@ -18,7 +23,10 @@ function ConsoleHeaderWrapper() {
 	const trpc = useTRPC();
 
 	// Use tRPC v11 best practice: useTRPC() + queryOptions()
-	const { data: stores, isLoading } = useQuery(trpc.store.list.queryOptions());
+	const { data: storesData, isLoading } = useQuery(
+		trpc.store.list.queryOptions(),
+	);
+	const stores = (storesData ?? []) as StoreList;
 
 	// Auto-select first store if only one exists
 	const effectiveStoreId =

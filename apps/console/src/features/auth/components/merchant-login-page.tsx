@@ -1,3 +1,4 @@
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Button,
 	Card,
@@ -8,16 +9,21 @@ import {
 } from "@menuvo/ui";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
+import type { inferRouterOutputs } from "@trpc/server";
 import { Building2, Mail, Plus, User } from "lucide-react";
 import { useTRPC } from "@/lib/trpc";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type MerchantList = RouterOutput["auth"]["devListMerchants"];
 
 export function MerchantLoginPage() {
 	const router = useRouter();
 	const trpc = useTRPC();
 
-	const { data: merchants = [] } = useQuery({
+	const { data: merchantsData = [] } = useQuery({
 		...trpc.auth.devListMerchants.queryOptions(),
 	});
+	const merchants = merchantsData as MerchantList;
 
 	const loginMutation = useMutation({
 		...trpc.auth.devLogin.mutationOptions(),

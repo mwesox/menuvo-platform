@@ -30,6 +30,8 @@ import { KanbanBoard } from "./kanban-board";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type StoreType = RouterOutput["store"]["list"][number];
+type KitchenOrders = RouterOutput["order"]["listForKitchen"];
+type DoneOrders = RouterOutput["order"]["kitchenDone"];
 
 interface KitchenPageProps {
 	search: {
@@ -66,14 +68,17 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 			storeId ? { storeId, limit: 50 } : skipToken,
 		),
 	);
-	const activeOrders = (activeOrdersData?.orders ?? []) as OrderWithItems[];
+	const activeOrdersDataTyped = activeOrdersData as KitchenOrders | undefined;
+	const activeOrders = (activeOrdersDataTyped?.orders ??
+		[]) as OrderWithItems[];
 
 	const { data: doneOrdersData } = useQuery(
 		trpc.order.kitchenDone.queryOptions(
 			storeId ? { storeId, limit: 20 } : skipToken,
 		),
 	);
-	const doneOrders = (doneOrdersData?.orders ?? []) as OrderWithItems[];
+	const doneOrdersDataTyped = doneOrdersData as DoneOrders | undefined;
+	const doneOrders = (doneOrdersDataTyped?.orders ?? []) as OrderWithItems[];
 
 	// Initialize board state
 	const { columns, moveCard, moveToNext, canDrop, lastMovedOrderId } =
