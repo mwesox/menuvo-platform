@@ -2,7 +2,8 @@
 	"extends": ["//"],
 	"tasks": {
 		"check-types": {
-			"dependsOn": ["^build", "build"]
+			"dependsOn": ["^build", "build"],
+			"outputs": []
 		}
 	}
 }

@@ -15,7 +15,7 @@
   },
   "scripts": {
     "dev": "bun --watch src/index.ts",
-    "build": "tsc -b && bun build src/index.ts --outdir dist --target bun --external sharp",
+    "build": "bun build src/index.ts --outdir dist --target bun --external sharp && tsc -b",
     "start": "bun dist/index.js",
     "check": "biome check .",
     "check-types": "tsc --noEmit"
