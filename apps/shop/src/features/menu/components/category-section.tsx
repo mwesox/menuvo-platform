@@ -32,8 +32,14 @@ export function CategorySection({
 				</p>
 			)}
 
-			{/* Items grid - auto-fit columns based on available space (min 280px per card, max 3 columns) */}
-			<div className="grid max-w-5xl grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-4">
+			{/*
+			Items grid - professional responsive approach:
+			- auto-fill (not auto-fit) keeps consistent column tracks
+			- Cards have max-width to prevent over-stretching
+			- justify-items-start ensures orphan cards stay left-aligned
+			- Consistent visual rhythm regardless of item count
+		*/}
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
 				{category.items.map((item: CategoryItem) => (
 					<MenuItemCard
 						key={item.id}

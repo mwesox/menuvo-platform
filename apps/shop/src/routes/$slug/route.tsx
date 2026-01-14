@@ -126,8 +126,8 @@ function StoreLayoutContent() {
 				/>
 				{/* Scrollable content area */}
 				<main ref={scrollContainerRef} className="flex-1 overflow-y-auto">
-					{/* Reserve right margin for fixed sidebar on desktop (when not collapsed) */}
-					<div className={!isCartSidebarCollapsed ? "md:mr-80" : ""}>
+					{/* Reserve right margin for fixed sidebar on desktop lg+ (when not collapsed) */}
+					<div className={!isCartSidebarCollapsed ? "lg:mr-80" : ""}>
 						<Outlet />
 						<ShopFooter />
 					</div>

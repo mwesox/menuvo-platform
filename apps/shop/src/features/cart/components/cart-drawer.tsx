@@ -135,11 +135,11 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 		);
 	}
 
-	// Desktop: Fixed sidebar - completely outside document flow, no scroll interaction
+	// Desktop: Fixed sidebar - only show at lg (1024px+) to give tablets more content space
 	return (
 		<aside
 			className={cn(
-				"hidden md:flex",
+				"hidden lg:flex",
 				"fixed right-0 top-14 bottom-0", // Fixed to viewport edges (acts as containing block for absolute children)
 				"w-80 flex-col border-l border-border bg-background shadow-sm",
 				"transition-transform duration-300 ease-in-out",
