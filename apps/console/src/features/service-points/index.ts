@@ -7,16 +7,7 @@ export { ServicePointDialog } from "./components/service-point-dialog.tsx";
 export { ServicePointForm } from "./components/service-point-form.tsx";
 export { ServicePointsPanel } from "./components/service-points-panel.tsx";
 
-// Queries
-export {
-	servicePointQueries,
-	useBatchCreateServicePoints,
-	useCreateServicePoint,
-	useDeleteServicePoint,
-	useToggleServicePointActive,
-	useToggleZoneActive,
-	useUpdateServicePoint,
-} from "./queries.ts";
+// Queries - Custom hooks removed, use direct tRPC patterns in components
 
 // Types
 export type {

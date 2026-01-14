@@ -40,7 +40,7 @@ export function BusinessFooter() {
 									onClick={() => scrollToSection("features")}
 									className="cursor-pointer text-gray-600 transition-colors hover:text-brand-red"
 								>
-									{t("header.features")}
+									{t("header.domains")}
 								</button>
 							</li>
 							<li>

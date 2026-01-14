@@ -1,4 +1,3 @@
-import type { ServicePoint } from "@menuvo/db/schema";
 import {
 	Badge,
 	Button,
@@ -14,6 +13,7 @@ import {
 } from "@menuvo/ui";
 import { Edit, MoreVertical, QrCode, Tag, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import type { ServicePoint } from "../types.ts";
 
 interface ServicePointCardProps {
 	servicePoint: ServicePoint;

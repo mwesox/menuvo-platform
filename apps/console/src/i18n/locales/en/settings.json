@@ -78,7 +78,7 @@
 		"noAddressConfigured": "No address configured"
 	},
 	"placeholders": {
-		"closureReason": "e.g., Holiday, Vacation, Renovation",
+		"closureReason": "Reason for closure",
 		"pickDate": "Pick a date"
 	},
 	"actions": {

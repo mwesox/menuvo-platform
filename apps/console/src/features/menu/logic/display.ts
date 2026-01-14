@@ -1,7 +1,7 @@
 import type {
 	ChoiceTranslations,
 	EntityTranslations,
-} from "@menuvo/trpc/schemas";
+} from "../options.schemas";
 
 /**
  * Get display name from translations.
@@ -19,7 +19,8 @@ export function getDisplayName(
 
 	// Fallback to first available
 	for (const t of Object.values(translations)) {
-		if (t?.name) return t.name;
+		const trans = t as { name?: string } | undefined;
+		if (trans?.name) return trans.name;
 	}
 
 	return "";
@@ -41,7 +42,8 @@ export function getDisplayDescription(
 
 	// Fallback to first available
 	for (const t of Object.values(translations)) {
-		if (t?.description) return t.description;
+		const trans = t as { description?: string } | undefined;
+		if (trans?.description) return trans.description;
 	}
 
 	return "";

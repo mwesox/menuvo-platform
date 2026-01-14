@@ -66,5 +66,6 @@
 	},
 	"toast": {
 		"urlCopied": "URL in Zwischenablage kopiert"
-	}
+	},
+	"slugTaken": "\"{{original}}\" ist vergeben. Wird als \"{{alternative}}\" gespeichert."
 }

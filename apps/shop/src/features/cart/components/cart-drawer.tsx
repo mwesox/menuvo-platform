@@ -37,10 +37,10 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 	const updateQuantity = useCartStore((s) => s.updateQuantity);
 	const removeItem = useCartStore((s) => s.removeItem);
 
-	const handleCheckout = () => {
+	const handleOrdering = () => {
 		if (!storeSlug) return;
 		onOpenChange(false);
-		navigate({ to: "/$slug/checkout", params: { slug: storeSlug } });
+		navigate({ to: "/$slug/ordering", params: { slug: storeSlug } });
 	};
 
 	return (
@@ -94,17 +94,17 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 					)}
 				</div>
 
-				{/* Cart summary and checkout button */}
+				{/* Cart summary and ordering button */}
 				{items.length > 0 && (
 					<DrawerFooter className="border-border border-t bg-card pt-4">
 						<CartSummary subtotal={subtotal} />
 						<ShopButton
 							variant="primary"
 							size="lg"
-							onClick={handleCheckout}
+							onClick={handleOrdering}
 							className="w-full"
 						>
-							{t("cart.checkout")}
+							{t("cart.ordering")}
 						</ShopButton>
 					</DrawerFooter>
 				)}

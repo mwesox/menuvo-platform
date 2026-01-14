@@ -1,4 +1,4 @@
-import type { Store } from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Card,
 	CardContent,
@@ -7,8 +7,12 @@ import {
 	CardTitle,
 } from "@menuvo/ui";
 import { Link } from "@tanstack/react-router";
+import type { inferRouterOutputs } from "@trpc/server";
 import { Mail, MapPin, Phone, Store as StoreIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type Store = RouterOutput["store"]["list"][number];
 
 interface StoreCardProps {
 	store: Store;

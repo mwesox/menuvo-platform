@@ -3,8 +3,21 @@ import { z } from "zod";
 
 export const env = createEnv({
 	server: {
-		SERVER_URL: z.string().url().optional(),
+		// Core URLs with dev defaults
+		SERVER_URL: z.string().url().default("http://localhost:4000"),
+		CONSOLE_URL: z.string().url().default("http://localhost:3000"),
 		DATABASE_URL: z.string().url().optional(),
+		// Environment
+		NODE_ENV: z
+			.enum(["development", "production", "test"])
+			.default("development"),
+		LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+		// CORS allowed origins (comma-separated list of URLs)
+		ALLOWED_ORIGINS: z
+			.string()
+			.default(
+				"http://localhost:3000,http://localhost:3001,http://localhost:5173",
+			),
 		// Stripe (deprecated - use Mollie instead)
 		STRIPE_SECRET_KEY: z.string().optional(),
 		STRIPE_WEBHOOK_SECRET: z.string().optional(),
@@ -42,10 +55,8 @@ export const env = createEnv({
 			.enum(["true", "false"])
 			.default("false")
 			.transform((v) => v === "true"),
-		// Microsoft Graph Email (Azure AD)
-		EMAIL_TENANT_ID: z.string().min(1).optional(),
-		EMAIL_CLIENT_ID: z.string().min(1).optional(),
-		EMAIL_CLIENT_SECRET: z.string().min(1).optional(),
+		// Brevo Email
+		BREVO_API_KEY: z.string().min(1).optional(),
 	},
 
 	/**
@@ -53,7 +64,11 @@ export const env = createEnv({
 	 */
 	runtimeEnv: {
 		SERVER_URL: process.env.SERVER_URL,
+		CONSOLE_URL: process.env.CONSOLE_URL,
 		DATABASE_URL: process.env.DATABASE_URL,
+		NODE_ENV: process.env.NODE_ENV,
+		LOG_LEVEL: process.env.LOG_LEVEL,
+		ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
 		STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
 		STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
 		STRIPE_WEBHOOK_SECRET_THIN: process.env.STRIPE_WEBHOOK_SECRET_THIN,
@@ -82,10 +97,8 @@ export const env = createEnv({
 		MOLLIE_PRICE_MAX: process.env.MOLLIE_PRICE_MAX,
 		MOLLIE_TEST_MODE: process.env.MOLLIE_TEST_MODE,
 		MOLLIE_SKIP_ONBOARDING_CHECK: process.env.MOLLIE_SKIP_ONBOARDING_CHECK,
-		// Microsoft Graph Email
-		EMAIL_TENANT_ID: process.env.EMAIL_TENANT_ID,
-		EMAIL_CLIENT_ID: process.env.EMAIL_CLIENT_ID,
-		EMAIL_CLIENT_SECRET: process.env.EMAIL_CLIENT_SECRET,
+		// Brevo Email
+		BREVO_API_KEY: process.env.BREVO_API_KEY,
 	},
 
 	emptyStringAsUndefined: true,

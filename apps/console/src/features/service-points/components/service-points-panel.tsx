@@ -1,4 +1,4 @@
-import type { ServicePoint, Store } from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -18,35 +18,95 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@menuvo/ui";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { inferRouterInputs } from "@trpc/server";
 import { Layers, Plus, QrCode } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	servicePointQueries,
-	useDeleteServicePoint,
-	useToggleServicePointActive,
-	useToggleZoneActive,
-} from "../queries.ts";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
+import type { ServicePoint, StoreSummary } from "../types.ts";
 import { BatchCreateDialog } from "./batch-create-dialog.tsx";
 import { QRCodeDialog } from "./qr-code-dialog.tsx";
 import { ServicePointCard } from "./service-point-card.tsx";
 import { ServicePointDialog } from "./service-point-dialog.tsx";
 
 interface ServicePointsPanelProps {
-	store: Store;
+	store: StoreSummary;
 }
 
 export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 	const { t } = useTranslation("servicePoints");
-	const { data: servicePoints } = useSuspenseQuery(
-		servicePointQueries.list(store.id),
-	);
-	const { data: zones } = useSuspenseQuery(servicePointQueries.zones(store.id));
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+	const { data: servicePoints = [] } = useQuery({
+		...trpc.store.servicePoints.list.queryOptions({ storeId: store.id }),
+	});
+	const { data: zones = [] } = useQuery({
+		...trpc.store.servicePoints.getZones.queryOptions({ storeId: store.id }),
+	});
 
-	const toggleMutation = useToggleServicePointActive(store.id);
-	const toggleZoneMutation = useToggleZoneActive(store.id);
-	const deleteMutation = useDeleteServicePoint(store.id);
+	const toggleMutation = useMutation({
+		mutationKey: trpc.store.servicePoints.toggleActive.mutationKey(),
+		mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+			trpcClient.store.servicePoints.toggleActive.mutate({ id, isActive }),
+		onSuccess: async (servicePoint) => {
+			await queryClient.invalidateQueries({
+				queryKey: trpc.store.servicePoints.list.queryKey({ storeId: store.id }),
+			});
+			toast.success(
+				servicePoint.isActive
+					? tToasts("success.servicePointActivated")
+					: tToasts("success.servicePointDeactivated"),
+			);
+		},
+		onError: () => {
+			toast.error(tToasts("error.updateServicePointStatus"));
+		},
+	});
+
+	type RouterInput = inferRouterInputs<AppRouter>;
+	type ToggleZoneInput =
+		RouterInput["store"]["servicePoints"]["toggleZoneActive"];
+
+	const toggleZoneMutation = useMutation({
+		mutationKey: trpc.store.servicePoints.toggleZoneActive.mutationKey(),
+		mutationFn: (input: Omit<ToggleZoneInput, "storeId">) =>
+			trpcClient.store.servicePoints.toggleZoneActive.mutate({
+				...input,
+				storeId: store.id,
+			}),
+		onSuccess: async (result) => {
+			await queryClient.invalidateQueries({
+				queryKey: trpc.store.servicePoints.list.queryKey({ storeId: store.id }),
+			});
+			toast.success(
+				result.isActive
+					? tToasts("success.zoneActivated", { count: result.count })
+					: tToasts("success.zoneDeactivated", { count: result.count }),
+			);
+		},
+		onError: () => {
+			toast.error(tToasts("error.toggleZone"));
+		},
+	});
+
+	const deleteMutation = useMutation({
+		mutationKey: trpc.store.servicePoints.delete.mutationKey(),
+		mutationFn: (input: { id: string }) =>
+			trpcClient.store.servicePoints.delete.mutate(input),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({
+				queryKey: trpc.store.servicePoints.list.queryKey({ storeId: store.id }),
+			});
+			toast.success(tToasts("success.servicePointDeleted"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.deleteServicePoint"));
+		},
+	});
 
 	// Dialog states
 	const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -76,7 +136,7 @@ export function ServicePointsPanel({ store }: ServicePointsPanelProps) {
 
 	const confirmDelete = () => {
 		if (deleteId) {
-			deleteMutation.mutate(deleteId);
+			deleteMutation.mutate({ id: deleteId });
 			setDeleteId(null);
 		}
 	};

@@ -1,8 +1,8 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
-import { merchantQueries } from "../../queries";
+import { useTRPC } from "@/lib/trpc";
 import { MerchantGeneralForm } from "./merchant-general-form";
 import { MerchantLanguageForm } from "./merchant-language-form";
 
@@ -15,8 +15,11 @@ interface MerchantSettingsPageProps {
 export function MerchantSettingsPage({ search }: MerchantSettingsPageProps) {
 	const { t } = useTranslation("settings");
 	const navigate = useNavigate();
+	const trpc = useTRPC();
 	// Pre-fetch merchant data for the forms
-	useSuspenseQuery(merchantQueries.detail());
+	useQuery({
+		...trpc.merchant.getCurrent.queryOptions(),
+	});
 
 	const tab = search.tab ?? "general";
 

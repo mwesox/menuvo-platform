@@ -14,7 +14,7 @@ export function BusinessHero() {
 	}, []);
 
 	function scrollToFeatures() {
-		const element = document.getElementById("features");
+		const element = document.getElementById("domains");
 		if (element) {
 			element.scrollIntoView({ behavior: "smooth" });
 		}

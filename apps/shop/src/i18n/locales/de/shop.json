@@ -7,9 +7,9 @@
 		"itemCount_other": "{{count}} Artikel in Ihrem Warenkorb",
 		"emptyTitle": "Ihr Warenkorb ist leer",
 		"emptyDescription": "Fügen Sie köstliche Artikel hinzu, um zu beginnen",
-		"checkout": "Zur Kasse",
-		"checkoutComingSoon": "Kasse kommt bald!",
-		"checkoutDescription": "Stripe-Integration wird in einem zukünftigen Update hinzugefügt.",
+		"ordering": "Zur Kasse",
+		"orderingComingSoon": "Kasse kommt bald!",
+		"orderingDescription": "Online-Zahlung ist über Mollie verfügbar.",
 		"total": "Gesamt",
 		"removeItem": "{{name}} aus dem Warenkorb entfernen",
 		"openCart": "Warenkorb öffnen mit {{count}} Artikeln im Wert von {{total}}"
@@ -68,7 +68,7 @@
 		"openNow": "Jetzt geöffnet",
 		"closed": "Geschlossen"
 	},
-	"checkout": {
+	"ordering": {
 		"title": "Kasse",
 		"orderType": "Bestellart",
 		"orderTypes": {
@@ -85,6 +85,9 @@
 		"emailRequired": "E-Mail ist für die Online-Zahlung erforderlich",
 		"invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
 		"emailRequiredForOnline": "Erforderlich für die Zahlungsbestätigung",
+		"specialRequests": "Besondere Wünsche",
+		"specialRequestsPlaceholder": "Allergien, Ernährungseinschränkungen, besondere Hinweise...",
+		"optional": "optional",
 		"cartEmpty": "Ihr Warenkorb ist leer",
 		"paymentMethod": "Zahlungsart",
 		"paymentMethods": {

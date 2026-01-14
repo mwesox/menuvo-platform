@@ -1,14 +1,12 @@
 import { Button } from "@menuvo/ui/components/button";
 import { Kbd } from "@menuvo/ui/components/kbd";
 import { cn } from "@menuvo/ui/lib/utils";
-import { useQuery } from "@tanstack/react-query";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { ChevronLeft, Search, ShoppingCart, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCartStore } from "../../cart/stores/cart-store";
-import { shopQueries } from "../../queries";
-import { useShopOptional } from "../../shared/contexts/shop-context";
+import { StoreContext, useShopUIStore } from "../../shared";
 import { formatPrice } from "../../utils";
 
 /** Detect if user is on Mac for keyboard shortcut display */
@@ -90,13 +88,11 @@ function CartButton({ onClick }: { onClick: () => void }) {
 
 function SearchInput() {
 	const { t } = useTranslation("shop");
-	const shop = useShopOptional();
+	const searchQuery = useShopUIStore((s) => s.searchQuery);
+	const setSearchQuery = useShopUIStore((s) => s.setSearchQuery);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const isMac = useIsMac();
 	const [isFocused, setIsFocused] = useState(false);
-
-	const searchQuery = shop?.searchQuery ?? "";
-	const setSearchQuery = shop?.setSearchQuery;
 
 	// Keyboard shortcut: Cmd+K (Mac) or Ctrl+K (Windows/Linux)
 	useEffect(() => {
@@ -154,35 +150,19 @@ function SearchInput() {
 	);
 }
 
-/** Extract slug from current route if on a store page */
-function useStoreSlug() {
-	const routerState = useRouterState();
-	const matches = routerState.matches;
-	// Find the $slug route match
-	const slugMatch = matches.find((m) => m.routeId === "/$slug");
-	return (slugMatch?.params as { slug?: string })?.slug ?? null;
-}
-
-/** Detect if on a deep page (checkout, order) where we should show "Back to Menu" */
+/** Detect if on a deep page (ordering, order) where we should show "Back to Menu" */
 function useIsDeepPage() {
 	const routerState = useRouterState();
 	const pathname = routerState.location.pathname;
-	// Check if we're on checkout or order pages (not the main menu)
-	return pathname.includes("/checkout") || pathname.includes("/order/");
+	// Check if we're on ordering or order pages (not the main menu)
+	return pathname.includes("/ordering") || pathname.includes("/order/");
 }
 
 function StoreInfo() {
-	const slug = useStoreSlug();
+	const storeContext = useContext(StoreContext);
+	const store = storeContext?.store ?? null;
 
-	// Use the same query as the child route - data will be cached
-	const { data } = useQuery({
-		...shopQueries.menu(slug ?? ""),
-		enabled: !!slug,
-	});
-
-	const store = data?.store;
-
-	if (!store || !slug) {
+	if (!store) {
 		return null;
 	}
 
@@ -192,7 +172,7 @@ function StoreInfo() {
 	return (
 		<Link
 			to="/$slug"
-			params={{ slug }}
+			params={{ slug: store.slug }}
 			className="group flex min-w-0 flex-col items-center md:flex-row md:gap-2"
 		>
 			{/* Store name - always visible, with editorial hover underline */}
@@ -215,8 +195,10 @@ function StoreInfo() {
 
 export function ShopHeader() {
 	const { t } = useTranslation("shop");
-	const shop = useShopOptional();
-	const slug = useStoreSlug();
+	const openCartDrawer = useShopUIStore((s) => s.openCartDrawer);
+	const storeContext = useContext(StoreContext);
+	const store = storeContext?.store ?? null;
+	const slug = store?.slug;
 	const isDeepPage = useIsDeepPage();
 
 	return (
@@ -260,7 +242,7 @@ export function ShopHeader() {
 				{/* Right: Search + Cart */}
 				<div className="flex shrink-0 items-center gap-2">
 					<SearchInput />
-					<CartButton onClick={() => shop?.openCartDrawer()} />
+					<CartButton onClick={openCartDrawer} />
 				</div>
 			</div>
 		</header>

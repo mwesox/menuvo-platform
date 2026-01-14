@@ -1,0 +1,37 @@
+/**
+ * Orders Service Interface
+ *
+ * Defines the contract for order operations.
+ */
+
+import type { orders } from "@menuvo/db/schema";
+import type { CreateOrderInput, OrderStatusType } from "./schemas.js";
+import type {
+	DateRange,
+	ExportOrder,
+	ExportParams,
+	OrderStats,
+} from "./types.js";
+
+/**
+ * Orders service interface
+ */
+export interface IOrderService {
+	createOrder(input: CreateOrderInput): Promise<typeof orders.$inferSelect>;
+	cancelOrder(
+		orderId: string,
+		merchantId: string,
+		reason?: string,
+	): Promise<typeof orders.$inferSelect>;
+	updateOrderStatus(
+		orderId: string,
+		merchantId: string,
+		newStatus: OrderStatusType,
+	): Promise<typeof orders.$inferSelect>;
+	getOrderStats(
+		storeId: string,
+		merchantId: string,
+		dateRange?: DateRange,
+	): Promise<OrderStats>;
+	getOrdersForExport(params: ExportParams): Promise<ExportOrder[]>;
+}

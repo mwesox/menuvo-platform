@@ -32,7 +32,7 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
 			<RPNInput.default
 				ref={ref}
 				className={cn(
-					"flex h-12 w-full rounded-md border border-input bg-transparent px-3 shadow-xs",
+					"flex h-9 w-full rounded-md border border-input bg-transparent px-3 shadow-xs",
 					"focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
 					className,
 				)}
@@ -54,7 +54,7 @@ const InputComponent = React.forwardRef<
 	<input
 		className={cn(
 			"flex-1 border-0 bg-transparent py-1 outline-none",
-			"text-foreground text-lg",
+			"text-foreground text-base md:text-sm",
 			"placeholder:text-muted-foreground",
 			className,
 		)}

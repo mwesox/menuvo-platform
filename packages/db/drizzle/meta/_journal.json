@@ -8,6 +8,20 @@
       "when": 1767993656334,
       "tag": "0000_puzzling_major_mapleleaf",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1768319586598,
+      "tag": "0001_deep_boomer",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768407158304,
+      "tag": "0002_faithful_inertia",
+      "breakpoints": true
     }
   ]
 }

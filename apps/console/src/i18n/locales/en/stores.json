@@ -66,5 +66,6 @@
 	},
 	"toast": {
 		"urlCopied": "URL copied to clipboard"
-	}
+	},
+	"slugTaken": "\"{{original}}\" is taken. Will be saved as \"{{alternative}}\"."
 }

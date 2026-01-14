@@ -92,8 +92,8 @@ export function OrderCardKitchen({
 					)}
 				>
 					<span className="min-w-0 truncate">{orderTypeLabel}</span>
-					<span className="min-w-[3ch] shrink-0 text-end font-mono">
-						#{order.id}
+					<span className="min-w-[3ch] shrink-0 text-end font-bold font-mono text-lg">
+						#{String(order.pickupNumber).padStart(3, "0")}
 					</span>
 				</div>
 				<div className="px-3 py-2 text-muted-foreground text-sm">
@@ -126,8 +126,8 @@ export function OrderCardKitchen({
 							{elapsedText}
 						</span>
 					)}
-					<span className="min-w-[3ch] text-end font-bold font-mono">
-						#{order.id}
+					<span className="min-w-[3ch] text-end font-bold font-mono text-xl">
+						#{String(order.pickupNumber).padStart(3, "0")}
 					</span>
 				</div>
 			</div>

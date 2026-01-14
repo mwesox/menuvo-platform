@@ -1,4 +1,3 @@
-import type { EntityTranslations } from "@menuvo/db/schema";
 import {
 	formatPrice,
 	Table,
@@ -12,6 +11,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { EyeOff, ImageOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getDisplayName } from "../logic/display";
+import type { EntityTranslations } from "../options.schemas";
 
 type Item = {
 	id: string;

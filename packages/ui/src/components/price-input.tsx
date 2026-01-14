@@ -80,6 +80,9 @@ export function PriceInput({
 
 	return (
 		<div className={cn("flex items-center gap-2", className)}>
+			<span className="min-w-[70px] text-muted-foreground text-sm tabular-nums">
+				{formatPrice(displayCents, currency)}
+			</span>
 			<div className="relative flex-1">
 				<Input
 					id={id}
@@ -99,9 +102,6 @@ export function PriceInput({
 					ct
 				</span>
 			</div>
-			<span className="min-w-[70px] text-right text-muted-foreground text-sm tabular-nums">
-				{formatPrice(displayCents, currency)}
-			</span>
 		</div>
 	);
 }

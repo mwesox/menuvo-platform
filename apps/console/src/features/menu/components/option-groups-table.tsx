@@ -1,4 +1,4 @@
-import type { EntityTranslations, OptionGroupType } from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Badge,
 	Table,
@@ -9,29 +9,15 @@ import {
 	TableRow,
 } from "@menuvo/ui";
 import { Link, useNavigate } from "@tanstack/react-router";
+import type { inferRouterOutputs } from "@trpc/server";
 import { EyeOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getDisplayName } from "../logic/display";
+import type { OptionGroupType } from "../options.schemas";
 
-type OptionChoice = {
-	id: string;
-	translations: EntityTranslations | null;
-	priceModifier: number;
-	isAvailable: boolean;
-	isDefault: boolean;
-};
-
-type OptionGroupWithChoices = {
-	id: string;
-	translations: EntityTranslations | null;
-	type: OptionGroupType;
-	isActive: boolean;
-	isRequired: boolean;
-	minSelections: number;
-	maxSelections: number | null;
-	numFreeOptions: number;
-	choices: OptionChoice[];
-};
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type OptionGroupWithChoices =
+	RouterOutput["menu"]["options"]["listGroups"][number];
 
 interface OptionGroupsTableProps {
 	optionGroups: OptionGroupWithChoices[];
@@ -104,6 +90,7 @@ export function OptionGroupsTable({
 					optionGroups.map((group) => {
 						const name = getDisplayName(group.translations, language);
 						const choiceCount = group.choices.length;
+						const groupType = group.type as OptionGroupType;
 
 						return (
 							<TableRow
@@ -123,8 +110,8 @@ export function OptionGroupsTable({
 									</Link>
 								</TableCell>
 								<TableCell className="text-center">
-									<Badge variant={getTypeBadgeVariant(group.type)}>
-										{getTypeLabel(group.type)}
+									<Badge variant={getTypeBadgeVariant(groupType)}>
+										{getTypeLabel(groupType)}
 									</Badge>
 								</TableCell>
 								<TableCell className="text-center">

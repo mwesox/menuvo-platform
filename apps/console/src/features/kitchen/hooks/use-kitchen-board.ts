@@ -6,10 +6,13 @@
  * - State updates only on drop via moveCard function
  */
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import type { OrderStatus } from "@/features/orders/constants";
 import type { OrderWithItems } from "@/features/orders/types";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { COLUMN_TO_STATUS, type KanbanColumnId } from "../constants";
 import {
 	canDropInColumn,
@@ -19,7 +22,8 @@ import {
 	sortByCompletionTime,
 	sortByUrgencyAndTime,
 } from "../logic/order-sorting";
-import { useKitchenUpdateOrderStatus } from "../queries";
+import { useMutationQueue } from "../stores/mutation-queue";
+import { useConnectionStatus } from "./use-connection-status";
 
 // ============================================================================
 // TYPES
@@ -149,7 +153,60 @@ export function useKitchenBoard(
 	const columns = groupOrdersByColumn(activeOrders, doneOrders);
 
 	// Status update mutation with offline queueing
-	const statusMutation = useKitchenUpdateOrderStatus(storeId);
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+	const { isOnline } = useConnectionStatus();
+	const mutationQueue = useMutationQueue();
+
+	const statusMutation = useMutation({
+		...trpc.order.updateStatus.mutationOptions(),
+		mutationFn: async ({
+			orderId,
+			status,
+		}: {
+			orderId: string;
+			status: OrderStatus;
+		}) => {
+			return trpcClient.order.updateStatus.mutate({ orderId, status });
+		},
+		onSuccess: (_data, variables) => {
+			// Invalidate all related queries
+			queryClient.invalidateQueries({
+				queryKey: trpc.order.listByStore.queryKey({ storeId }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.order.listForKitchen.queryKey({ storeId, limit: 50 }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.order.kitchenDone.queryKey({ storeId, limit: 20 }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.order.getById.queryKey({ orderId: variables.orderId }),
+			});
+			// No toast - column movement provides visual feedback
+		},
+		onError: (_error, variables) => {
+			// Queue for retry if offline
+			if (!isOnline) {
+				mutationQueue.addMutation({
+					type: "updateStatus",
+					orderId: variables.orderId,
+					payload: { status: variables.status },
+				});
+				toast.info(t("info.queuedForSync"));
+			} else {
+				toast.error(t("errors.updateFailed"));
+				// Invalidate to revert to server state
+				queryClient.invalidateQueries({
+					queryKey: trpc.order.listForKitchen.queryKey({ storeId, limit: 50 }),
+				});
+				queryClient.invalidateQueries({
+					queryKey: trpc.order.kitchenDone.queryKey({ storeId, limit: 20 }),
+				});
+			}
+		},
+	});
 
 	// Check if drop is valid
 	const canDrop = useCallback(

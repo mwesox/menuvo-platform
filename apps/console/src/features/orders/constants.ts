@@ -9,6 +9,12 @@ export const ORDER_STATUSES = [
 
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
+export const ORDER_TYPES = ["dine_in", "takeaway", "delivery"] as const;
+export type OrderType = (typeof ORDER_TYPES)[number];
+
+export const PAYMENT_PROVIDERS = ["stripe", "mollie"] as const;
+export type PaymentProvider = (typeof PAYMENT_PROVIDERS)[number];
+
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 	awaiting_payment: "Awaiting Payment",
 	confirmed: "Confirmed",

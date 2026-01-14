@@ -23,7 +23,7 @@ function ConsoleHeaderWrapper() {
 	// Auto-select first store if only one exists
 	const effectiveStoreId =
 		search.storeId ??
-		(stores && stores.length === 1 ? stores[0].id : undefined);
+		(stores && stores.length === 1 ? stores[0]?.id : undefined);
 
 	const selectStore = useCallback(
 		(storeId: string) => {

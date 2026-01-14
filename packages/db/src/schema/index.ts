@@ -33,177 +33,6 @@ export type EntityTranslations = Record<
 export type ChoiceTranslations = Record<string, { name?: string }>;
 
 // ============================================================================
-// PAYMENT PROVIDER ENUM
-// ============================================================================
-
-/**
- * Payment provider tracking.
- * - stripe: Using Stripe for payments
- * - mollie: Using Mollie for payments
- */
-export const paymentProviders = ["stripe", "mollie"] as const;
-export type PaymentProvider = (typeof paymentProviders)[number];
-
-// ============================================================================
-// MOLLIE ENUMS
-// ============================================================================
-
-/**
- * Mollie onboarding status.
- * - needs-data: Merchant needs to provide more information
- * - in-review: Application is being reviewed
- * - completed: Onboarding complete, can receive payments
- */
-export const mollieOnboardingStatuses = [
-	"needs-data",
-	"in-review",
-	"completed",
-] as const;
-export type MollieOnboardingStatus = (typeof mollieOnboardingStatuses)[number];
-
-/**
- * Mollie mandate status.
- * - pending: Mandate not yet valid
- * - valid: Mandate is valid for recurring payments
- * - invalid: Mandate is no longer valid
- */
-export const mollieMandateStatuses = ["pending", "valid", "invalid"] as const;
-export type MollieMandateStatus = (typeof mollieMandateStatuses)[number];
-
-/**
- * Mollie subscription status.
- * - pending: Subscription pending activation
- * - active: Subscription is active
- * - canceled: Subscription was canceled
- * - suspended: Subscription is suspended (payment failed)
- * - completed: Subscription has completed all payments
- */
-export const mollieSubscriptionStatuses = [
-	"pending",
-	"active",
-	"canceled",
-	"suspended",
-	"completed",
-] as const;
-export type MollieSubscriptionStatus =
-	(typeof mollieSubscriptionStatuses)[number];
-
-// ============================================================================
-// STRIPE ENUMS
-// ============================================================================
-
-/**
- * Payment capabilities status from Stripe Connect.
- * - active: Can process payments
- * - pending: Awaiting verification/requirements
- * - inactive: Cannot process payments
- */
-export const paymentCapabilitiesStatus = [
-	"active",
-	"pending",
-	"inactive",
-] as const;
-export type PaymentCapabilitiesStatus =
-	(typeof paymentCapabilitiesStatus)[number];
-
-/**
- * Payment requirements status from Stripe Connect.
- * - none: No outstanding requirements
- * - currently_due: Requirements need to be submitted soon
- * - past_due: Requirements overdue, may affect payouts
- * - pending_verification: Requirements submitted, awaiting review
- */
-export const paymentRequirementsStatus = [
-	"none",
-	"currently_due",
-	"past_due",
-	"pending_verification",
-] as const;
-export type PaymentRequirementsStatus =
-	(typeof paymentRequirementsStatus)[number];
-
-/**
- * Subscription status from Stripe.
- * - none: No subscription
- * - trialing: In trial period (30 days)
- * - active: Subscription is active and paid
- * - paused: Trial ended without payment method
- * - past_due: Payment failed
- * - canceled: Subscription was canceled
- */
-export const subscriptionStatus = [
-	"none",
-	"trialing",
-	"active",
-	"paused",
-	"past_due",
-	"canceled",
-] as const;
-export type SubscriptionStatus = (typeof subscriptionStatus)[number];
-
-/**
- * Processing status for Stripe webhook events.
- * - PENDING: Event received, not yet processed
- * - PROCESSED: Successfully handled
- * - FAILED: Processing failed (will not retry automatically)
- */
-export const processingStatus = ["PENDING", "PROCESSED", "FAILED"] as const;
-export type ProcessingStatus = (typeof processingStatus)[number];
-
-// ============================================================================
-// ORDER ENUMS
-// ============================================================================
-
-/**
- * Order status enum (fulfillment workflow).
- * - awaiting_payment: Order created, waiting for Stripe payment
- * - confirmed: Payment confirmed OR pay-at-counter, ready for kitchen
- * - preparing: Kitchen working on it
- * - ready: Ready for pickup
- * - completed: Handed to customer
- * - cancelled: Cancelled (by customer, merchant, or payment failed)
- */
-export const orderStatuses = [
-	"awaiting_payment",
-	"confirmed",
-	"preparing",
-	"ready",
-	"completed",
-	"cancelled",
-] as const;
-export type OrderStatus = (typeof orderStatuses)[number];
-
-/**
- * Payment status enum.
- * - pending: Initial state before payment action
- * - awaiting_confirmation: Sent to Stripe Checkout, waiting for webhook
- * - paid: Payment confirmed via Stripe webhook
- * - pay_at_counter: Dine-in, will pay after eating
- * - failed: Payment failed
- * - refunded: Refunded (full or partial)
- * - expired: Stripe Checkout session expired
- */
-export const paymentStatuses = [
-	"pending",
-	"awaiting_confirmation",
-	"paid",
-	"pay_at_counter",
-	"failed",
-	"refunded",
-	"expired",
-] as const;
-export type PaymentStatus = (typeof paymentStatuses)[number];
-
-/**
- * Order type enum.
- * - dine_in: Eating at the restaurant
- * - takeaway: Pickup
- * - delivery: Future: delivery
- */
-export const orderTypes = ["dine_in", "takeaway", "delivery"] as const;
-export type OrderType = (typeof orderTypes)[number];
-
-// ============================================================================
 // MERCHANTS
 // ============================================================================
 
@@ -223,18 +52,10 @@ export const merchants = pgTable("merchants", {
 	paymentOnboardingComplete: boolean("payment_onboarding_complete")
 		.default(false)
 		.notNull(),
-	paymentCapabilitiesStatus: text("payment_capabilities_status", {
-		enum: paymentCapabilitiesStatus,
-	}),
-	paymentRequirementsStatus: text("payment_requirements_status", {
-		enum: paymentRequirementsStatus,
-	}),
+	paymentCapabilitiesStatus: text("payment_capabilities_status"),
+	paymentRequirementsStatus: text("payment_requirements_status"),
 	// Subscription fields
-	subscriptionStatus: text("subscription_status", {
-		enum: subscriptionStatus,
-	})
-		.default("none")
-		.notNull(),
+	subscriptionStatus: text("subscription_status").default("none").notNull(),
 	subscriptionId: text("subscription_id"),
 	subscriptionPriceId: text("subscription_price_id"),
 	subscriptionTrialEndsAt: timestamp("subscription_trial_ends_at"),
@@ -246,9 +67,7 @@ export const merchants = pgTable("merchants", {
 	mollieAccessToken: text("mollie_access_token"), // OAuth access token (encrypted)
 	mollieRefreshToken: text("mollie_refresh_token"), // OAuth refresh token (encrypted)
 	mollieTokenExpiresAt: timestamp("mollie_token_expires_at"),
-	mollieOnboardingStatus: text("mollie_onboarding_status", {
-		enum: mollieOnboardingStatuses,
-	}),
+	mollieOnboardingStatus: text("mollie_onboarding_status"),
 	mollieCanReceivePayments: boolean("mollie_can_receive_payments").default(
 		false,
 	),
@@ -257,17 +76,11 @@ export const merchants = pgTable("merchants", {
 	).default(false),
 	// Mollie Subscriptions (mandate-based)
 	mollieMandateId: text("mollie_mandate_id"), // mdt_xxx
-	mollieMandateStatus: text("mollie_mandate_status", {
-		enum: mollieMandateStatuses,
-	}),
+	mollieMandateStatus: text("mollie_mandate_status"),
 	mollieSubscriptionId: text("mollie_subscription_id"), // sub_xxx
-	mollieSubscriptionStatus: text("mollie_subscription_status", {
-		enum: mollieSubscriptionStatuses,
-	}),
+	mollieSubscriptionStatus: text("mollie_subscription_status"),
 	// Payment provider tracking
-	paymentProvider: text("payment_provider", { enum: paymentProviders }).default(
-		"stripe",
-	),
+	paymentProvider: text("payment_provider").default("stripe"),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -330,19 +143,33 @@ export const storesRelations = relations(stores, ({ one, many }) => ({
 }));
 
 // ============================================================================
-// STORE HOURS
+// STORE COUNTERS (Operational state - separate from configuration)
 // ============================================================================
 
-export const daysOfWeek = [
-	"monday",
-	"tuesday",
-	"wednesday",
-	"thursday",
-	"friday",
-	"saturday",
-	"sunday",
-] as const;
-export type DayOfWeek = (typeof daysOfWeek)[number];
+/**
+ * Operational counters for stores, kept separate from store configuration.
+ * Follows SRP: stores = config, store_counters = operational state.
+ */
+export const storeCounters = pgTable("store_counters", {
+	storeId: uuid("store_id")
+		.primaryKey()
+		.references(() => stores.id, { onDelete: "cascade" }),
+	// Last assigned pickup number (0-999, cycles continuously)
+	pickupNumber: integer("pickup_number").notNull().default(0),
+	// Timestamps
+	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const storeCountersRelations = relations(storeCounters, ({ one }) => ({
+	store: one(stores, {
+		fields: [storeCounters.storeId],
+		references: [stores.id],
+	}),
+}));
+
+// ============================================================================
+// STORE HOURS
+// ============================================================================
 
 export const storeHours = pgTable(
 	"store_hours",
@@ -351,7 +178,7 @@ export const storeHours = pgTable(
 		storeId: uuid("store_id")
 			.notNull()
 			.references(() => stores.id, { onDelete: "cascade" }),
-		dayOfWeek: text("day_of_week", { enum: daysOfWeek }).notNull(),
+		dayOfWeek: text("day_of_week").notNull(),
 		openTime: varchar("open_time", { length: 5 }).notNull(), // HH:MM
 		closeTime: varchar("close_time", { length: 5 }).notNull(), // HH:MM
 		displayOrder: integer("display_order").notNull().default(0),
@@ -480,23 +307,6 @@ export const itemsRelations = relations(items, ({ one, many }) => ({
 }));
 
 // ============================================================================
-// OPTION GROUP ENUMS
-// ============================================================================
-
-/**
- * Option group types for menu item customization.
- * - single_select: Radio buttons, customer must choose exactly one (e.g., Size)
- * - multi_select: Checkboxes, customer can choose 0 to N (e.g., Toppings)
- * - quantity_select: Quantity pickers, customer picks quantities (e.g., "Pick 3 donuts")
- */
-export const optionGroupTypes = [
-	"single_select",
-	"multi_select",
-	"quantity_select",
-] as const;
-export type OptionGroupType = (typeof optionGroupTypes)[number];
-
-// ============================================================================
 // OPTION GROUPS
 // ============================================================================
 
@@ -506,9 +316,7 @@ export const optionGroups = pgTable("option_groups", {
 		.notNull()
 		.references(() => stores.id, { onDelete: "cascade" }),
 	// Option group type (determines UI rendering)
-	type: text("type", { enum: optionGroupTypes })
-		.notNull()
-		.default("multi_select"),
+	type: text("type").notNull().default("multi_select"),
 	isRequired: boolean("is_required").notNull().default(false),
 	minSelections: integer("min_selections").notNull().default(0),
 	maxSelections: integer("max_selections"), // null = unlimited
@@ -641,9 +449,7 @@ export const stripeEvents = pgTable(
 		// When we finished processing (null if pending)
 		processedAt: timestamp("processed_at"),
 		// Current processing status
-		processingStatus: text("processing_status", { enum: processingStatus })
-			.notNull()
-			.default("PENDING"),
+		processingStatus: text("processing_status").notNull().default("PENDING"),
 		// Retry count for failed processing attempts
 		retryCount: integer("retry_count").notNull().default(0),
 		// Connected account ID (for Connect events, null for platform events)
@@ -698,9 +504,7 @@ export const mollieEvents = pgTable(
 		// When we finished processing (null if pending)
 		processedAt: timestamp("processed_at"),
 		// Current processing status
-		processingStatus: text("processing_status", { enum: processingStatus })
-			.notNull()
-			.default("PENDING"),
+		processingStatus: text("processing_status").notNull().default("PENDING"),
 		// Retry count for failed processing attempts
 		retryCount: integer("retry_count").notNull().default(0),
 		// Full resource data fetched from Mollie API as JSONB
@@ -724,17 +528,6 @@ export type NewMollieEvent = InferInsertModel<typeof mollieEvents>;
 // ============================================================================
 
 /**
- * Image type enum for categorizing uploaded images.
- */
-export const imageType = [
-	"item_image",
-	"store_logo",
-	"store_banner",
-	"merchant_logo",
-] as const;
-export type ImageType = (typeof imageType)[number];
-
-/**
  * Stores uploaded images with S3 keys and generated variants.
  * Variants (thumbnail, display) are generated asynchronously by a worker.
  */
@@ -745,7 +538,7 @@ export const images = pgTable(
 		merchantId: uuid("merchant_id")
 			.notNull()
 			.references(() => merchants.id, { onDelete: "cascade" }),
-		type: text("type", { enum: imageType }).notNull(),
+		type: text("type").notNull(),
 
 		// S3 storage
 		key: text("key").notNull(), // {merchantId}/{type}/{uuid}.webp
@@ -785,21 +578,6 @@ export const imagesRelations = relations(images, ({ one }) => ({
 // ============================================================================
 
 /**
- * Menu import job status.
- * - PROCESSING: File uploaded, processing in background
- * - READY: Processing complete, ready for user review
- * - COMPLETED: User applied selected changes
- * - FAILED: Processing failed
- */
-export const menuImportStatus = [
-	"PROCESSING",
-	"READY",
-	"COMPLETED",
-	"FAILED",
-] as const;
-export type MenuImportStatus = (typeof menuImportStatus)[number];
-
-/**
  * Tracks menu import jobs from file upload through AI extraction to user review.
  * Files are stored in the internal files bucket (not public).
  */
@@ -817,9 +595,7 @@ export const menuImportJobs = pgTable(
 		fileKey: text("file_key").notNull(), // S3 key in files bucket
 
 		// Status
-		status: text("status", { enum: menuImportStatus })
-			.notNull()
-			.default("PROCESSING"),
+		status: text("status").notNull().default("PROCESSING"),
 		errorMessage: text("error_message"),
 
 		// Comparison result (JSONB) - populated when READY
@@ -910,6 +686,11 @@ export const orders = pgTable(
 		storeId: uuid("store_id")
 			.notNull()
 			.references(() => stores.id),
+		merchantId: uuid("merchant_id")
+			.notNull()
+			.references(() => merchants.id),
+		// Human-readable pickup number (0-999, like McDonald's)
+		pickupNumber: integer("pickup_number").notNull(),
 
 		// Customer info (snapshot, not FK - customers may not have accounts)
 		customerName: varchar("customer_name", { length: 100 }),
@@ -917,10 +698,8 @@ export const orders = pgTable(
 		customerPhone: varchar("customer_phone", { length: 50 }),
 
 		// Order details
-		orderType: text("order_type", { enum: orderTypes }).notNull(),
-		status: text("status", { enum: orderStatuses })
-			.notNull()
-			.default("awaiting_payment"),
+		orderType: text("order_type").notNull(),
+		status: text("status").notNull().default("awaiting_payment"),
 
 		// Service point (table, counter, etc.) - optional
 		servicePointId: uuid("service_point_id").references(() => servicePoints.id),
@@ -932,9 +711,7 @@ export const orders = pgTable(
 		totalAmount: integer("total_amount").notNull(),
 
 		// Payment
-		paymentStatus: text("payment_status", { enum: paymentStatuses })
-			.notNull()
-			.default("pending"),
+		paymentStatus: text("payment_status").notNull().default("pending"),
 		paymentMethod: varchar("payment_method", { length: 50 }), // "card", "cash", "apple_pay", etc.
 		stripeCheckoutSessionId: varchar("stripe_checkout_session_id", {
 			length: 255,
@@ -944,9 +721,7 @@ export const orders = pgTable(
 		molliePaymentId: text("mollie_payment_id"), // tr_xxx
 		mollieCheckoutUrl: text("mollie_checkout_url"),
 		// Payment provider tracking (per-order, overrides merchant default)
-		orderPaymentProvider: text("order_payment_provider", {
-			enum: paymentProviders,
-		}),
+		orderPaymentProvider: text("order_payment_provider"),
 
 		// Notes
 		customerNotes: text("customer_notes"), // Special requests from customer
@@ -963,12 +738,14 @@ export const orders = pgTable(
 	},
 	(table) => [
 		index("idx_orders_store_id").on(table.storeId),
+		index("idx_orders_merchant_id").on(table.merchantId),
 		index("idx_orders_status").on(table.status),
 		index("idx_orders_payment_status").on(table.paymentStatus),
 		index("idx_orders_created_at").on(table.createdAt),
 		index("idx_orders_store_status").on(table.storeId, table.status),
 		index("idx_orders_stripe_session").on(table.stripeCheckoutSessionId),
 		index("idx_orders_mollie_payment").on(table.molliePaymentId),
+		index("idx_orders_store_pickup").on(table.storeId, table.pickupNumber),
 	],
 );
 
@@ -1083,6 +860,10 @@ export type NewMerchant = InferInsertModel<typeof merchants>;
 // Store types
 export type Store = InferSelectModel<typeof stores>;
 export type NewStore = InferInsertModel<typeof stores>;
+
+// Store Counter types
+export type StoreCounter = InferSelectModel<typeof storeCounters>;
+export type NewStoreCounter = InferInsertModel<typeof storeCounters>;
 
 // Category types
 export type Category = InferSelectModel<typeof categories>;

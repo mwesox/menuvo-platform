@@ -58,7 +58,7 @@ export function MerchantSettingsPageSkeleton() {
 }
 
 /**
- * Skeleton for a status card (used in payments/subscription).
+ * Skeleton for a status card (used in payments).
  */
 function StatusCardSkeleton() {
 	return (
@@ -104,46 +104,6 @@ export function PaymentsPageSkeleton() {
 					<Skeleton className="h-10 w-40" />
 					<Skeleton className="h-10 w-32" />
 				</div>
-			</div>
-		</div>
-	);
-}
-
-/**
- * Skeleton for the subscription settings page.
- */
-export function SubscriptionSettingsPageSkeleton() {
-	return (
-		<div className="space-y-6">
-			<PageActionBarSkeleton />
-
-			<div className="space-y-6">
-				{/* Current plan card */}
-				<StatusCardSkeleton />
-
-				{/* Plan selection or upgrade section */}
-				<Card>
-					<CardHeader>
-						<Skeleton className="h-6 w-36" />
-						<Skeleton className="mt-1 h-4 w-56" />
-					</CardHeader>
-					<CardContent>
-						<div className="grid gap-4 md:grid-cols-2">
-							<div className="space-y-3 rounded-lg border p-4">
-								<Skeleton className="h-5 w-20" />
-								<Skeleton className="h-8 w-24" />
-								<Skeleton className="h-4 w-full" />
-								<Skeleton className="h-4 w-3/4" />
-							</div>
-							<div className="space-y-3 rounded-lg border p-4">
-								<Skeleton className="h-5 w-24" />
-								<Skeleton className="h-8 w-28" />
-								<Skeleton className="h-4 w-full" />
-								<Skeleton className="h-4 w-3/4" />
-							</div>
-						</div>
-					</CardContent>
-				</Card>
 			</div>
 		</div>
 	);

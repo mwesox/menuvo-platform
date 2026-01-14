@@ -1,4 +1,4 @@
-import { SUPPORTED_MIME_TYPES } from "../constants";
+import { SUPPORTED_MIME_TYPES } from "../constants.ts";
 
 /**
  * MIME type to file extension mapping.

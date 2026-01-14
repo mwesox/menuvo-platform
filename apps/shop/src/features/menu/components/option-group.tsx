@@ -1,25 +1,17 @@
 import { cn } from "@menuvo/ui/lib/utils";
 import { Check, Minus, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { MenuItemChoice, OptionGroupType } from "../../schemas";
 import { formatPriceModifier } from "../../utils";
+import type { MenuItemChoice, MenuItemOptionGroup } from "../types";
 
 // ============================================================================
 // Types
 // ============================================================================
 
+type OptionGroupType = MenuItemOptionGroup["type"];
+
 interface OptionGroupProps {
-	group: {
-		id: string;
-		name: string;
-		type: OptionGroupType;
-		isRequired: boolean;
-		minSelections: number;
-		maxSelections: number | null;
-		numFreeOptions: number;
-		aggregateMinQuantity: number | null;
-		aggregateMaxQuantity: number | null;
-	};
+	group: MenuItemOptionGroup;
 	choices: MenuItemChoice[];
 	/** For single/multi select: array of selected choice IDs */
 	selectedChoiceIds: string[];
@@ -326,7 +318,7 @@ function QuantitySelectGroup({
 				const isAtChoiceMax = quantity >= choiceMax;
 				const canIncrement =
 					!isUnavailable && !isAtChoiceMax && !isAtAggregateMax;
-				const canDecrement = quantity > choice.minQuantity;
+				const canDecrement = quantity > (choice.minQuantity ?? 0);
 
 				return (
 					<div
@@ -462,12 +454,12 @@ export function OptionGroup({
 
 	const helperText = getHelperText(
 		group.type,
-		group.minSelections,
+		group.minSelections ?? 0,
 		group.maxSelections,
 		group.isRequired,
 		group.aggregateMinQuantity,
 		group.aggregateMaxQuantity,
-		group.numFreeOptions,
+		group.numFreeOptions ?? 0,
 		t,
 	);
 
@@ -484,7 +476,10 @@ export function OptionGroup({
 				return;
 			onSelectionChange([...selectedChoiceIds, choiceId]);
 		} else {
-			if (group.isRequired && selectedChoiceIds.length <= group.minSelections) {
+			if (
+				group.isRequired &&
+				selectedChoiceIds.length <= (group.minSelections ?? 0)
+			) {
 				return;
 			}
 			onSelectionChange(selectedChoiceIds.filter((id) => id !== choiceId));

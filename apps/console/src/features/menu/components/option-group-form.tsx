@@ -1,8 +1,4 @@
-import type {
-	OptionChoice,
-	OptionGroup,
-	OptionGroupType,
-} from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Button,
 	Card,
@@ -25,11 +21,15 @@ import {
 	Textarea,
 } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { getLocalizedContent } from "@/features/translations/logic/localization";
-import { useSaveOptionGroupWithChoices } from "../options.queries";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
+import { getLocalizedContent } from "../logic/localization";
+import type { OptionGroupType } from "../options.schemas";
 import { formToTranslations } from "../schemas";
 
 interface ChoiceFormValue {
@@ -38,7 +38,10 @@ interface ChoiceFormValue {
 	priceModifier: string; // in cents, can be negative
 }
 
-type OptionGroupWithChoices = OptionGroup & { choices: OptionChoice[] };
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type OptionGroupWithChoices = NonNullable<
+	RouterOutput["menu"]["options"]["getGroup"]
+>;
 
 interface OptionGroupFormProps {
 	storeId: string;
@@ -57,7 +60,38 @@ export function OptionGroupForm({
 	const isEditing = !!optionGroup;
 	const language = "de";
 
-	const saveMutation = useSaveOptionGroupWithChoices(storeId);
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+	const { t: tToasts } = useTranslation("toasts");
+
+	type RouterInput = inferRouterInputs<AppRouter>;
+	type SaveOptionGroupInput =
+		RouterInput["menu"]["options"]["saveGroupWithChoices"];
+
+	const saveMutation = useMutation({
+		mutationKey: trpc.menu.options.saveGroupWithChoices.mutationKey(),
+		mutationFn: async (input: Omit<SaveOptionGroupInput, "storeId">) =>
+			trpcClient.menu.options.saveGroupWithChoices.mutate({
+				storeId,
+				...input,
+			}),
+		onSuccess: (savedGroup) => {
+			const group = savedGroup as { id: string };
+			queryClient.invalidateQueries({
+				queryKey: trpc.menu.options.getGroup.queryKey({
+					optionGroupId: group.id,
+				}),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.menu.options.listGroups.queryKey({ storeId }),
+			});
+			toast.success(tToasts("success.optionGroupSaved"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.saveOptionGroup"));
+		},
+	});
 
 	// Compute initial values from optionGroup if editing
 	const initialValues = (() => {
@@ -92,7 +126,7 @@ export function OptionGroupForm({
 		return {
 			name,
 			description: description ?? "",
-			type: optionGroup.type,
+			type: optionGroup.type as OptionGroupType,
 			choices,
 		};
 	})();

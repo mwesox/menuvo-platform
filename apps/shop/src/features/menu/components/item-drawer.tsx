@@ -1,3 +1,4 @@
+import { formatPrice } from "@menuvo/ui";
 import {
 	Drawer,
 	DrawerContent,
@@ -9,16 +10,23 @@ import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, Loader2, Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+	OptionGroup,
+	QuantityStepper,
+	ShopButton,
+	ShopHeading,
+} from "@/features";
+import { useTRPC } from "../../../lib/trpc";
 import { useCartStore } from "../../cart";
-import { shopQueries } from "../../queries";
-import type { MenuItemLight, MenuItemOptionGroup } from "../../schemas";
-import { QuantityStepper } from "../../shared";
-import { ShopButton, ShopHeading } from "../../shared/components/ui";
-import { formatPrice } from "../../utils";
-import { OptionGroup } from "./option-group";
+import { menuQueryDefaults, resolveMenuLanguageCode } from "../queries";
+import type {
+	MenuItemChoice,
+	MenuItemLight,
+	MenuItemOptionGroup,
+} from "../types";
 
 interface ItemDrawerProps {
-	item: MenuItemLight | null;
+	item: MenuItemLight;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	storeId: string;
@@ -50,26 +58,31 @@ function calculateGroupPrice(
 		priceItems.sort((a, b) => a - b);
 
 		// First N are free
-		const numFree = Math.min(group.numFreeOptions, priceItems.length);
+		const numFree = Math.min(group.numFreeOptions ?? 0, priceItems.length);
 		return priceItems.slice(numFree).reduce((sum, p) => sum + p, 0);
 	}
 
 	// For single/multi select groups
-	const selectedChoices = group.choices.filter((c) =>
-		selectedChoiceIds.includes(c.id),
+	const selectedChoices = group.choices.filter((choice: MenuItemChoice) =>
+		selectedChoiceIds.includes(choice.id),
 	);
 
 	if (group.numFreeOptions === 0 || selectedChoices.length === 0) {
 		// No free options, just sum all price modifiers
-		return selectedChoices.reduce((sum, c) => sum + c.priceModifier, 0);
+		return selectedChoices.reduce(
+			(sum: number, choice: MenuItemChoice) => sum + choice.priceModifier,
+			0,
+		);
 	}
 
 	// Sort by price ascending (cheapest first for free)
 	const prices = selectedChoices
-		.map((c) => c.priceModifier)
-		.sort((a, b) => a - b);
-	const numFree = Math.min(group.numFreeOptions, prices.length);
-	return prices.slice(numFree).reduce((sum, p) => sum + p, 0);
+		.map((choice: MenuItemChoice) => choice.priceModifier)
+		.sort((a: number, b: number) => a - b);
+	const numFree = Math.min(group.numFreeOptions ?? 0, prices.length);
+	return prices.slice(numFree).reduce((sum: number, price: number) => {
+		return sum + price;
+	}, 0);
 }
 
 /**
@@ -88,8 +101,10 @@ function buildInitialSelections(
 		} else {
 			// Single/multi select: get default choice IDs
 			const defaultIds = group.choices
-				.filter((c) => c.isDefault && c.isAvailable)
-				.map((c) => c.id);
+				.filter(
+					(choice: MenuItemChoice) => choice.isDefault && choice.isAvailable,
+				)
+				.map((choice: MenuItemChoice) => choice.id);
 
 			// For required single select with no defaults, select first available
 			if (
@@ -97,7 +112,9 @@ function buildInitialSelections(
 				group.isRequired &&
 				defaultIds.length === 0
 			) {
-				const firstAvailable = group.choices.find((c) => c.isAvailable);
+				const firstAvailable = group.choices.find(
+					(choice: MenuItemChoice) => choice.isAvailable,
+				);
 				if (firstAvailable) {
 					defaults.set(group.id, [firstAvailable.id]);
 				} else {
@@ -126,9 +143,9 @@ function buildInitialQuantities(
 			for (const choice of group.choices) {
 				// If choice has isDefault, set initial quantity to minQuantity or 1
 				if (choice.isDefault && choice.isAvailable) {
-					groupQuantities.set(choice.id, Math.max(1, choice.minQuantity));
+					groupQuantities.set(choice.id, Math.max(1, choice.minQuantity ?? 0));
 				} else {
-					groupQuantities.set(choice.id, choice.minQuantity);
+					groupQuantities.set(choice.id, choice.minQuantity ?? 0);
 				}
 			}
 			quantities.set(group.id, groupQuantities);
@@ -157,17 +174,26 @@ export function ItemDrawer({
 	>(new Map());
 
 	// Fetch option groups on demand (only when drawer is open AND item has options)
-	const shouldFetchOptions = open && item?.hasOptionGroups && item?.id;
+	const shouldFetchOptions = Boolean(open && item.hasOptionGroups);
+	const trpc = useTRPC();
+	const { i18n } = useTranslation();
+	const languageCode = resolveMenuLanguageCode(
+		i18n.resolvedLanguage ?? i18n.language,
+	);
 	const { data: optionsData, isLoading: isLoadingOptions } = useQuery({
-		...shopQueries.itemDetails(storeSlug, item?.id ?? ""),
-		enabled: !!shouldFetchOptions,
+		...trpc.menu.shop.getItemDetails.queryOptions({
+			itemId: item.id,
+			languageCode,
+		}),
+		staleTime: menuQueryDefaults.staleTimeMs,
+		enabled: shouldFetchOptions,
 	});
 
 	// Get option groups from fetched data (or empty array for items without options)
 	const optionGroups = useMemo(() => {
-		if (!item?.hasOptionGroups) return [];
+		if (!item.hasOptionGroups) return [];
 		return optionsData?.optionGroups ?? [];
-	}, [item?.hasOptionGroups, optionsData]);
+	}, [item.hasOptionGroups, optionsData]);
 
 	// Reset selections when item changes or options are loaded
 	useEffect(() => {
@@ -189,7 +215,6 @@ export function ItemDrawer({
 	}, [open]);
 
 	const calculateTotal = useMemo(() => {
-		if (!item) return 0;
 		let total = item.price;
 
 		for (const group of optionGroups) {
@@ -202,7 +227,6 @@ export function ItemDrawer({
 	}, [item, optionGroups, selectedOptions, quantitySelections, quantity]);
 
 	const isValid = useMemo(() => {
-		if (!item) return false;
 		// If item has no options, it's always valid
 		if (!item.hasOptionGroups) return true;
 		// If still loading options, not valid yet
@@ -232,7 +256,7 @@ export function ItemDrawer({
 			// Single/multi select validation
 			if (!group.isRequired) return true;
 			const selected = selectedOptions.get(group.id) ?? [];
-			return selected.length >= group.minSelections;
+			return selected.length >= (group.minSelections ?? 0);
 		});
 	}, [
 		item,
@@ -243,7 +267,7 @@ export function ItemDrawer({
 	]);
 
 	const handleAddToCart = () => {
-		if (!item || !isValid) return;
+		if (!isValid) return;
 
 		const selectedOptionsArray = optionGroups.map((group) => {
 			if (group.type === "quantity_select") {
@@ -299,7 +323,7 @@ export function ItemDrawer({
 		addItem({
 			itemId: item.id,
 			name: item.name,
-			kitchenName: item.kitchenName,
+			kitchenName: undefined,
 			basePrice: item.price,
 			imageUrl: item.imageUrl ?? undefined,
 			quantity,
@@ -328,8 +352,6 @@ export function ItemDrawer({
 			return newMap;
 		});
 	};
-
-	if (!item) return null;
 
 	const hasAllergens = item.allergens && item.allergens.length > 0;
 	const hasOptions = item.hasOptionGroups;
@@ -390,7 +412,9 @@ export function ItemDrawer({
 									{t("menu.contains")}:{" "}
 									<span className="text-foreground">
 										{item.allergens
-											?.map((a) => t(`menu:allergens.${a}`, a))
+											?.map((allergen: string) =>
+												String(t(`menu:allergens.${allergen}`, allergen)),
+											)
 											.join(", ")}
 									</span>
 								</span>

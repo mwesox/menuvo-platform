@@ -1,20 +1,22 @@
 import { createFileRoute, notFound, Outlet } from "@tanstack/react-router";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { CartDrawer } from "../../features/cart";
 import {
 	ShopFooter,
 	ShopHeader,
 	ShopLayoutSkeleton,
 } from "../../features/layout";
-import { shopQueries } from "../../features/queries";
+import { getMenuLanguageCode } from "../../features/menu/queries";
 import {
 	CookieBanner,
 	CookieConsentProvider,
-	ShopProvider,
+	MenuProvider,
 	StoreError,
 	StoreNotFound,
-	useShop,
+	StoreProvider,
+	useShopUIStore,
 } from "../../features/shared";
+import { trpcUtils } from "../../lib/trpc";
 
 // Reserved paths that should not be caught by the $slug route
 const RESERVED_PATHS = [
@@ -34,16 +36,19 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/$slug")({
 	validateSearch: searchSchema,
-	loader: async ({ context, params }) => {
+	loader: async ({ params }) => {
 		// Prevent reserved paths from being treated as store slugs
 		if (RESERVED_PATHS.includes(params.slug)) {
 			throw notFound();
 		}
 
+		const languageCode = getMenuLanguageCode();
+
 		// Use light query for efficient initial load
-		const store = await context.queryClient.ensureQueryData(
-			shopQueries.menu(params.slug),
-		);
+		const store = await trpcUtils.menu.shop.getMenu.ensureData({
+			storeSlug: params.slug,
+			languageCode,
+		});
 		if (!store) {
 			throw notFound();
 		}
@@ -56,15 +61,21 @@ export const Route = createFileRoute("/$slug")({
 });
 
 function StoreSlugLayout() {
+	const menuData = Route.useLoaderData();
+	const { store, categories } = menuData;
+
 	return (
-		<ShopProvider>
-			<StoreLayoutContent />
-		</ShopProvider>
+		<StoreProvider store={store}>
+			<MenuProvider store={store} categories={categories}>
+				<StoreLayoutContent />
+			</MenuProvider>
+		</StoreProvider>
 	);
 }
 
 function StoreLayoutContent() {
-	const { isCartDrawerOpen, closeCartDrawer } = useShop();
+	const isCartDrawerOpen = useShopUIStore((s) => s.isCartDrawerOpen);
+	const closeCartDrawer = useShopUIStore((s) => s.closeCartDrawer);
 
 	return (
 		<CookieConsentProvider>

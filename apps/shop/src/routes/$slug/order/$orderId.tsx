@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
 	OrderConfirmationPage,
 	OrderConfirmationPageSkeleton,
-} from "../../../features/checkout";
+} from "../../../features/ordering";
 import { StoreError } from "../../../features/shared";
 
 export const Route = createFileRoute("/$slug/order/$orderId")({

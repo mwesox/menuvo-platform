@@ -66,6 +66,7 @@
 		"fullName": "Please enter first and last name"
 	},
 	"email": {
+		"required": "Email is required",
 		"invalid": "Please enter a valid email address"
 	},
 	"phone": {

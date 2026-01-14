@@ -62,10 +62,10 @@ export function BusinessFeatures() {
 			<div className="container relative z-10 mx-auto max-w-7xl px-4 md:px-6">
 				<div className="mb-14 flex flex-col items-center justify-center space-y-4 text-center">
 					<h2 className="text-pretty font-bold text-3xl text-gray-900 tracking-tighter sm:text-4xl md:text-5xl">
-						{t("features.title")}
+						{t("domains.title")}
 					</h2>
 					<p className="mx-auto max-w-[700px] text-gray-600 md:text-xl">
-						{t("features.subtitle")}
+						{t("domains.subtitle")}
 					</p>
 				</div>
 

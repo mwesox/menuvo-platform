@@ -1,4 +1,3 @@
-import type { PaymentProvider } from "@menuvo/db/schema";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -13,10 +12,13 @@ import {
 	Input,
 	Label,
 } from "@menuvo/ui";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useCreateMollieRefund } from "../queries";
+import { toast } from "sonner";
+import type { PaymentProvider } from "@/features/orders";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 interface RefundButtonProps {
 	orderId: string;
@@ -46,11 +48,53 @@ export function RefundButton({
 	compact = false,
 }: RefundButtonProps) {
 	const { t } = useTranslation("orders");
+	const { t: tToasts } = useTranslation("toasts");
 	const [isOpen, setIsOpen] = useState(false);
 	const [partialAmount, setPartialAmount] = useState("");
 	const [isPartialRefund, setIsPartialRefund] = useState(false);
 
-	const refundMutation = useCreateMollieRefund(storeId, orderId);
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+
+	const refundMutation = useMutation({
+		mutationKey: trpc.order.createRefund.mutationKey(),
+		mutationFn: async (input: {
+			orderId: string;
+			amount?: number;
+			description?: string;
+		}) => {
+			return trpcClient.order.createRefund.mutate({
+				orderId: input.orderId,
+				amount: input.amount,
+				description: input.description,
+			});
+		},
+		onSuccess: (result) => {
+			// Invalidate order queries to refresh status
+			queryClient.invalidateQueries({
+				queryKey: trpc.order.getById.queryKey({ orderId }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.order.listByStore.queryKey({ storeId }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.order.listForKitchen.queryKey({ storeId, limit: 50 }),
+			});
+
+			// Show success message based on refund type
+			if (result.isPartialRefund) {
+				toast.success(tToasts("success.orderPartiallyRefunded"));
+			} else {
+				toast.success(tToasts("success.orderRefunded"));
+			}
+		},
+		onError: (error: unknown) => {
+			const message =
+				error instanceof Error ? error.message : tToasts("error.createRefund");
+			toast.error(message);
+		},
+	});
 
 	// Only show for Mollie orders with status "paid"
 	if (paymentProvider !== "mollie" || paymentStatus !== "paid") {

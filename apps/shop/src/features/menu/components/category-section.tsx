@@ -1,15 +1,12 @@
 import { useTranslation } from "react-i18next";
-import type { MenuItemLight } from "../../schemas";
+import type { MenuCategory } from "../types";
 import { MenuItemCard } from "./menu-item-card";
 
+type CategoryItem = MenuCategory["items"][number];
+
 interface CategorySectionProps {
-	category: {
-		id: string;
-		name: string;
-		description: string | null;
-		items: MenuItemLight[];
-	};
-	onItemSelect: (item: MenuItemLight) => void;
+	category: MenuCategory;
+	onItemSelect: (item: CategoryItem) => void;
 	refSetter: (el: HTMLDivElement | null) => void;
 }
 
@@ -49,13 +46,10 @@ export function CategorySection({
 
 			{/* Items grid - responsive 1-2-3 columns with container queries */}
 			<div className="@container grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-5">
-				{category.items.map((item) => (
+				{category.items.map((item: CategoryItem) => (
 					<MenuItemCard
 						key={item.id}
-						item={{
-							...item,
-							hasOptions: item.hasOptionGroups,
-						}}
+						item={item}
 						onSelect={() => onItemSelect(item)}
 					/>
 				))}

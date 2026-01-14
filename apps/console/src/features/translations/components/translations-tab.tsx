@@ -9,7 +9,7 @@ import {
 	Progress,
 	ScrollArea,
 } from "@menuvo/ui";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, Languages, Settings } from "lucide-react";
 import { useDeferredValue, useMemo, useState } from "react";
@@ -19,7 +19,7 @@ import {
 	getDisplayDescription,
 	getDisplayName,
 } from "@/features/menu/logic/display";
-import { translationQueries } from "../queries";
+import { useTRPC } from "@/lib/trpc";
 import type { EntityType, TranslationStatus } from "../schemas";
 import { TranslationEditor } from "./translation-editor";
 import { TranslationFilters } from "./translation-filters";
@@ -41,6 +41,7 @@ interface TranslatableEntity {
 
 export function TranslationsTab({ storeId }: TranslationsTabProps) {
 	const { t } = useTranslation("menu");
+	const trpc = useTRPC();
 
 	// Filters state
 	const [entityTypeFilter, setEntityTypeFilter] = useState<"all" | EntityType>(
@@ -60,7 +61,13 @@ export function TranslationsTab({ storeId }: TranslationsTabProps) {
 	} | null>(null);
 
 	// Fetch translation status (merchantId obtained from auth context on server)
-	const { data } = useSuspenseQuery(translationQueries.status(storeId));
+	const { data } = useQuery({
+		...trpc.menu.translations.getStatus.queryOptions({ storeId }),
+	});
+
+	if (!data) {
+		return null;
+	}
 
 	// Primary language is the first supported language (fallback)
 	// Target languages are all others that need translations

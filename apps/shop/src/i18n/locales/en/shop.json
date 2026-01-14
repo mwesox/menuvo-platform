@@ -7,9 +7,9 @@
 		"itemCount_other": "{{count}} items in your cart",
 		"emptyTitle": "Your cart is empty",
 		"emptyDescription": "Add some delicious items to get started",
-		"checkout": "Checkout",
-		"checkoutComingSoon": "Checkout coming soon!",
-		"checkoutDescription": "Stripe integration will be added in a future update.",
+		"ordering": "Checkout",
+		"orderingComingSoon": "Checkout coming soon!",
+		"orderingDescription": "Online payment is available via Mollie.",
 		"total": "Total",
 		"removeItem": "Remove {{name}} from cart",
 		"openCart": "Open cart with {{count}} items totaling {{total}}"
@@ -68,7 +68,7 @@
 		"openNow": "Open now",
 		"closed": "Closed"
 	},
-	"checkout": {
+	"ordering": {
 		"title": "Checkout",
 		"orderType": "Order Type",
 		"orderTypes": {

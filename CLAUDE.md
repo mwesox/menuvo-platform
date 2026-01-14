@@ -11,6 +11,9 @@ Before writing code, read: `docs/architecture.md` and `docs/coding-guidelines.md
 - **Never `git reset`**
 - **Use ShadCN MCP** for component docs
 - **Subagents must read docs/** before code changes
+- Dont start DEV servers in sessions. usually there is a server already running. 
+- Avoid too defensive fallback solutions. check bigger picture, sometimes failing is better , thatn implementing anothe fallback. 
+- Use Jetbrains MCP for navigating through codebase. 
 
 ## Commands
 
@@ -40,20 +43,6 @@ bun run db:studio                # Open Drizzle Studio GUI
 
 # Shadcn
 cd packages/ui && bunx --bun shadcn@latest add <component>
-```
-
-## Structure
-
-```
-apps/
-  api/        # Hono + tRPC backend
-  console/    # Vite SPA - merchant admin
-  shop/       # Hono SSR - storefront
-  business/   # Vite SPA - landing/marketing
-packages/
-  db/         # Drizzle schema (API only)
-  trpc/       # Routers, schemas (all apps)
-  ui/         # shadcn components
 ```
 
 ## Where to Add Things

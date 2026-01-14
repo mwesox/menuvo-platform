@@ -1,32 +1,46 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useNavigate, useSearch } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { PageActionBar } from "@/components/layout/page-action-bar";
-import {
-	molliePaymentQueries,
-	useRefreshMolliePaymentStatus,
-} from "../../queries";
+import { useTRPC } from "@/lib/trpc";
 import { MollieSetupCard } from "./mollie-setup-card";
 import { MollieStatusCard } from "./mollie-status-card";
 
-// Stripe imports - kept for future use
-// import { paymentQueries, useRefreshPaymentStatus } from "../../queries";
-// import { OnboardingInstructions } from "./onboarding-instructions";
-// import { PaymentSetupCard } from "./payment-setup-card";
-// import { PaymentStatusCard } from "./payment-status-card";
+interface PaymentsPageProps {
+	search: { from?: "mollie"; refresh?: boolean; error?: string };
+}
 
-export function PaymentsPage() {
+export function PaymentsPage({ search }: PaymentsPageProps) {
 	const { t } = useTranslation("settings");
-	const search = useSearch({ from: "/settings/payments" });
+	const { t: tToasts } = useTranslation("toasts");
 	const navigate = useNavigate();
+	const trpc = useTRPC();
+	const queryClient = useQueryClient();
 
 	// Mollie payment status
-	const { data: mollieStatus } = useSuspenseQuery(
-		molliePaymentQueries.status(),
-	);
+	const { data: mollieStatus } = useQuery({
+		...trpc.payments.getMollieStatus.queryOptions(),
+	});
 
-	const refreshMollieStatus = useRefreshMolliePaymentStatus();
+	if (!mollieStatus) {
+		return null;
+	}
+
+	const refreshMollieStatus = useCallback(async () => {
+		try {
+			await queryClient.fetchQuery(
+				trpc.payments.getOnboardingStatus.queryOptions(),
+			);
+			queryClient.invalidateQueries({
+				queryKey: trpc.payments.getMollieStatus.queryKey(),
+			});
+			toast.success(tToasts("success.paymentStatusRefreshed"));
+		} catch {
+			toast.error(tToasts("error.refreshPaymentStatus"));
+		}
+	}, [queryClient, tToasts, trpc]);
 
 	// Track if we've already triggered a refresh for this URL to prevent double-triggers
 	const hasTriggeredRefresh = useRef(false);
@@ -37,7 +51,7 @@ export function PaymentsPage() {
 
 		if (shouldRefresh && !hasTriggeredRefresh.current) {
 			hasTriggeredRefresh.current = true;
-			refreshMollieStatus.mutate();
+			void refreshMollieStatus();
 
 			// Clear URL params to prevent re-triggering on page refresh
 			navigate({ to: "/settings/payments", search: {}, replace: true });
@@ -65,15 +79,7 @@ export function PaymentsPage() {
 			{!hasMollieAccount ? (
 				<MollieSetupCard />
 			) : (
-				<MollieStatusCard
-					mollieStatus={{
-						mollieOrganizationId: mollieStatus.organizationId,
-						mollieProfileId: mollieStatus.profileId,
-						mollieOnboardingStatus: mollieStatus.onboardingStatus ?? null,
-						mollieCanReceivePayments: mollieStatus.canReceivePayments,
-						mollieCanReceiveSettlements: mollieStatus.canReceiveSettlements,
-					}}
-				/>
+				<MollieStatusCard mollieStatus={mollieStatus} />
 			)}
 		</div>
 	);

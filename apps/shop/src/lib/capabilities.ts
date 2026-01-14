@@ -2,15 +2,12 @@
  * Merchant Capabilities
  *
  * Type definitions for merchant payment and feature capabilities
- * Used by checkout and store features to determine available functionality.
+ * Used by ordering and store domains to determine available functionality.
  */
 
 export interface MerchantCapabilities {
 	/** Whether the merchant can accept payments */
 	canAcceptPayments: boolean;
-
-	/** Whether the merchant has Stripe enabled */
-	hasStripe: boolean;
 
 	/** Whether the merchant has Mollie enabled */
 	hasMollie: boolean;
@@ -30,7 +27,6 @@ export interface MerchantCapabilities {
  */
 export const defaultCapabilities: MerchantCapabilities = {
 	canAcceptPayments: false,
-	hasStripe: false,
 	hasMollie: false,
 	paymentMethods: [],
 	canPlaceOrders: false,

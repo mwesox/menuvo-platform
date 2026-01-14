@@ -3,7 +3,7 @@ import { trpcClient } from "../../lib/trpc";
 
 export const Route = createFileRoute("/q/$shortCode")({
 	loader: async ({ params }) => {
-		const result = await trpcClient.public.resolveQRCode.query({
+		const result = await trpcClient.store.resolveQRCode.query({
 			shortCode: params.shortCode,
 		});
 

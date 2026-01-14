@@ -1,4 +1,3 @@
-import type { ServicePoint } from "@menuvo/db/schema";
 import {
 	Button,
 	Dialog,
@@ -13,6 +12,7 @@ import { Check, Copy, Download, Link } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import type { ServicePoint } from "../types.ts";
 import {
 	buildFullUrl,
 	buildShortUrl,

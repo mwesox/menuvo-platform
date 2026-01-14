@@ -11,10 +11,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@menuvo/ui";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, HelpCircle, LogOut, Store, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useLogout } from "@/features/auth/queries";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 interface ConsoleHeaderProps {
 	stores: Array<{ id: string; name: string; isActive: boolean }>;
@@ -28,7 +30,25 @@ export function ConsoleHeader({
 	onStoreChange,
 }: ConsoleHeaderProps) {
 	const { t } = useTranslation("navigation");
-	const logout = useLogout();
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+
+	const logout = useMutation({
+		...trpc.auth.logout.mutationOptions(),
+		mutationFn: async () => {
+			return trpcClient.auth.logout.mutate();
+		},
+		onSuccess: () => {
+			// Clear all queries on logout
+			queryClient.clear();
+			toast.success(tToasts("success.loggedOut"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.logout"));
+		},
+	});
 
 	const hasMultipleStores = stores.length > 1;
 	const selectedStore = stores.find((s) => s.id === storeId) ?? stores[0];

@@ -2,7 +2,6 @@ import { MinusIcon, PlusIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Cropper, type CropperRef } from "react-advanced-cropper";
 import "react-advanced-cropper/dist/style.css";
-import type { ImageType } from "@menuvo/trpc/schemas";
 import {
 	Button,
 	Dialog,
@@ -15,6 +14,7 @@ import {
 } from "@menuvo/ui";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import type { ImageType } from "../constants.ts";
 import {
 	type CropPreset,
 	getDefaultPreset,
@@ -68,6 +68,7 @@ export function ImageCropper({
 	const handleZoomChange = useCallback(
 		(value: number[]) => {
 			const newZoom = value[0];
+			if (newZoom === undefined) return;
 			const delta = newZoom - zoom;
 			if (cropperRef.current && delta !== 0) {
 				// Convert slider delta to zoom ratio (positive = zoom in, negative = zoom out)

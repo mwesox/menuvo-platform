@@ -13,7 +13,7 @@ import type {
 	DiffAction,
 	ItemComparison,
 	MenuComparisonData,
-} from "../types";
+} from "../schemas";
 
 interface ComparisonPanelProps {
 	comparison: MenuComparisonData;

@@ -6,9 +6,11 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@menuvo/ui";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, CreditCard, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useSetupMolliePaymentAccount } from "../../queries";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 /**
  * Card shown when merchant hasn't set up Mollie payments yet.
@@ -16,10 +18,39 @@ import { useSetupMolliePaymentAccount } from "../../queries";
  */
 export function MollieSetupCard() {
 	const { t } = useTranslation("settings");
-	const setupMollie = useSetupMolliePaymentAccount();
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+
+	const setupMollie = useMutation({
+		...trpc.payments.startOnboarding.mutationOptions(),
+		mutationFn: () => trpcClient.payments.startOnboarding.mutate(),
+		onSuccess: (data) => {
+			queryClient.invalidateQueries({
+				queryKey: trpc.payments.getMollieStatus.queryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.merchant.getCurrent.queryKey(),
+			});
+
+			// If we got an onboarding URL, open it in a new tab
+			// so our app stays open during Mollie onboarding
+			const result = data as { onboardingUrl?: string } | undefined;
+			if (result && "onboardingUrl" in result && result.onboardingUrl) {
+				window.open(result.onboardingUrl, "_blank");
+				toast.success(tToasts("success.mollieOnboardingStarted"));
+			} else {
+				toast.success(tToasts("success.mollieAccountSetup"));
+			}
+		},
+		onError: () => {
+			toast.error(tToasts("error.setupMollieAccount"));
+		},
+	});
 
 	const handleSetup = () => {
-		setupMollie.mutate({});
+		setupMollie.mutate();
 	};
 
 	const benefits = [

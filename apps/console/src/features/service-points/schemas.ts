@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 
 // URL-safe code pattern (lowercase letters, numbers, hyphens)
 const codePattern = /^[a-z0-9-]+$/;

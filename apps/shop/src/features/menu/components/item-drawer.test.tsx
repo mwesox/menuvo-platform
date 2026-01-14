@@ -1,7 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { MenuItemLight } from "../../schemas";
+import { TRPCProvider, trpcClient } from "../../../lib/trpc";
+import type { MenuItemLight } from "../types";
 import { ItemDrawer } from "./item-drawer";
 
 // Mock the cart store
@@ -40,7 +41,11 @@ const createWrapper = () => {
 		},
 	});
 	return ({ children }: { children: React.ReactNode }) => (
-		<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+		<QueryClientProvider client={queryClient}>
+			<TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+				{children}
+			</TRPCProvider>
+		</QueryClientProvider>
 	);
 };
 

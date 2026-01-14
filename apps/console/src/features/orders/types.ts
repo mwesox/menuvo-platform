@@ -7,8 +7,9 @@
  * Uses tRPC's inferRouterOutputs to derive types from procedure return values.
  */
 
-import type { AppRouter } from "@menuvo/trpc";
+import type { AppRouter } from "@menuvo/api/trpc";
 import type { inferRouterOutputs } from "@trpc/server";
+import type { OrderStatus, OrderType, PaymentProvider } from "./constants";
 
 // Infer types from tRPC router outputs
 type RouterOutput = inferRouterOutputs<AppRouter>;
@@ -17,7 +18,12 @@ type RouterOutput = inferRouterOutputs<AppRouter>;
  * Full order detail from getById procedure
  * Includes store, servicePoint, and items with options
  */
-export type OrderDetail = NonNullable<RouterOutput["order"]["getById"]>;
+type OrderDetailBase = NonNullable<RouterOutput["order"]["getById"]>;
+export type OrderDetail = OrderDetailBase & {
+	status: OrderStatus;
+	orderType: OrderType;
+	orderPaymentProvider: PaymentProvider | null;
+};
 
 /**
  * Order with items (subset of OrderDetail, without store relation)
@@ -29,8 +35,11 @@ export type OrderWithItems = Omit<OrderDetail, "store">;
  * Order list item from listByStore procedure
  * Has simplified items without options (for performance in list views)
  */
-export type OrderListItem =
-	RouterOutput["order"]["listByStore"]["orders"][number];
+type OrderListItemBase = RouterOutput["order"]["listByStore"]["orders"][number];
+export type OrderListItem = OrderListItemBase & {
+	status: OrderStatus;
+	orderType: OrderType;
+};
 
 /**
  * Single order item from the items array
@@ -41,4 +50,4 @@ export type OrderItem = OrderDetail["items"][number];
  * Order status type - re-exported from constants for convenience
  * @see ./constants.ts for the canonical definition
  */
-export type { OrderStatus } from "./constants";
+export type { OrderStatus, OrderType, PaymentProvider } from "./constants";

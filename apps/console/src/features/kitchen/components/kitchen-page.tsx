@@ -2,7 +2,7 @@
  * Main Kitchen Monitor page component.
  */
 
-import type { Store as StoreType } from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Select,
 	SelectContent,
@@ -11,12 +11,14 @@ import {
 	SelectValue,
 	TooltipProvider,
 } from "@menuvo/ui";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { skipToken, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import type { inferRouterOutputs } from "@trpc/server";
 import { ChefHat, Store } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
-import { orderQueries } from "@/features/orders/queries";
+import type { OrderWithItems } from "@/features/orders/types";
+import { useTRPC } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { useAudioPermission } from "../hooks/use-audio-permission";
 import { useKitchenBoard } from "../hooks/use-kitchen-board";
@@ -25,6 +27,9 @@ import { useScreenWakeLock } from "../hooks/use-screen-wake-lock";
 import { AudioControl } from "./audio-control";
 import { ConnectionStatus } from "./connection-status";
 import { KanbanBoard } from "./kanban-board";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type StoreType = RouterOutput["store"]["list"][number];
 
 interface KitchenPageProps {
 	search: {
@@ -40,6 +45,7 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 	const { t } = useTranslation("console-kitchen");
 	const navigate = useNavigate();
 	const { stores, autoSelectedStoreId } = loaderData;
+	const trpc = useTRPC();
 
 	// Determine effective store ID
 	const storeId = search.storeId ?? autoSelectedStoreId;
@@ -55,15 +61,19 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 
 	// Fetch orders (only if store selected - early return below handles no storeId case)
 	// API returns { orders: [...], nextCursor } so we need to extract the orders array
-	const { data: activeOrdersData } = useSuspenseQuery(
-		orderQueries.kitchen(storeId ?? ""),
+	const { data: activeOrdersData } = useQuery(
+		trpc.order.listForKitchen.queryOptions(
+			storeId ? { storeId, limit: 50 } : skipToken,
+		),
 	);
-	const activeOrders = activeOrdersData?.orders ?? [];
+	const activeOrders = (activeOrdersData?.orders ?? []) as OrderWithItems[];
 
-	const { data: doneOrdersData } = useSuspenseQuery(
-		orderQueries.kitchenDone(storeId ?? ""),
+	const { data: doneOrdersData } = useQuery(
+		trpc.order.kitchenDone.queryOptions(
+			storeId ? { storeId, limit: 20 } : skipToken,
+		),
 	);
-	const doneOrders = doneOrdersData?.orders ?? [];
+	const doneOrders = (doneOrdersData?.orders ?? []) as OrderWithItems[];
 
 	// Initialize board state
 	const { columns, moveCard, moveToNext, canDrop, lastMovedOrderId } =

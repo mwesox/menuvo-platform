@@ -1,8 +1,8 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { Search, Store } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { shopQueries } from "../../queries";
+import { useTRPC } from "../../../lib/trpc";
 import { useStoreDiscovery } from "../hooks/use-store-discovery";
 import { DiscoveryEmptyState } from "./discovery-empty-state";
 import { StoreCard } from "./store-card";
@@ -25,7 +25,11 @@ function HeroOrbs() {
 
 export function DiscoveryPage() {
 	const { t } = useTranslation("discovery");
-	const { data } = useSuspenseQuery(shopQueries.featuredStores(20));
+	const trpc = useTRPC();
+	const { data } = useQuery({
+		...trpc.store.getFeaturedStores.queryOptions({ limit: 20 }),
+		staleTime: 1000 * 60 * 5,
+	});
 
 	// Type assertion - the API returns stores matching the hook's expected shape
 	const stores = data ?? [];

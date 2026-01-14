@@ -36,7 +36,7 @@ export function BusinessHeader() {
 							onClick={() => scrollToSection("features")}
 							className="nav-link relative cursor-pointer py-2 font-medium text-base text-white/70 uppercase tracking-wider transition-colors hover:text-white"
 						>
-							{t("header.features")}
+							{t("header.domains")}
 						</button>
 						<button
 							type="button"
@@ -115,7 +115,7 @@ export function BusinessHeader() {
 							onClick={() => scrollToSection("features")}
 							className="cursor-pointer rounded-lg px-4 py-4 text-start font-medium text-white/80 text-xl uppercase tracking-wider transition-all hover:bg-white/5 hover:text-white"
 						>
-							{t("header.features")}
+							{t("header.domains")}
 						</button>
 						<button
 							type="button"

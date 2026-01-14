@@ -1,30 +1,24 @@
 import { cn } from "@menuvo/ui/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { getRouteApi } from "@tanstack/react-router";
 import { Plus, UtensilsCrossed } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { shopQueries } from "../../queries";
+import { useTRPC } from "../../../lib/trpc";
 import { focusRing, ShopPrice } from "../../shared/components/ui";
-
-const routeApi = getRouteApi("/$slug/");
+import { menuQueryDefaults, resolveMenuLanguageCode } from "../queries";
+import type { MenuItemLight } from "../types";
 
 interface MenuItemCardProps {
-	item: {
-		id: string;
-		name: string;
-		description: string | null;
-		price: number;
-		imageUrl: string | null;
-		allergens: string[] | null;
-		hasOptions: boolean;
-	};
-	onSelect: (item: MenuItemCardProps["item"]) => void;
+	item: MenuItemLight;
+	onSelect: (item: MenuItemLight) => void;
 }
 
 export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
-	const { t } = useTranslation(["shop", "menu"]);
-	const { slug } = routeApi.useParams();
+	const { t, i18n } = useTranslation(["shop", "menu"]);
+	const trpc = useTRPC();
 	const queryClient = useQueryClient();
+	const languageCode = resolveMenuLanguageCode(
+		i18n.resolvedLanguage ?? i18n.language,
+	);
 
 	const handleCardClick = () => {
 		onSelect(item);
@@ -32,8 +26,14 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 
 	// Prefetch item options on hover for items that have options
 	const handlePointerEnter = () => {
-		if (item.hasOptions) {
-			queryClient.prefetchQuery(shopQueries.itemDetails(slug, item.id));
+		if (item.hasOptionGroups) {
+			queryClient.prefetchQuery({
+				...trpc.menu.shop.getItemDetails.queryOptions({
+					itemId: item.id,
+					languageCode,
+				}),
+				staleTime: menuQueryDefaults.staleTimeMs,
+			});
 		}
 	};
 
@@ -85,12 +85,12 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 				{/* Row 3: Allergens (subtle badges) */}
 				{item.allergens && item.allergens.length > 0 && (
 					<div className="mt-2 flex flex-wrap gap-1">
-						{item.allergens.map((allergen) => (
+						{item.allergens.map((allergen: string) => (
 							<span
 								key={allergen}
 								className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground text-xs"
 							>
-								{t(`menu:allergens.${allergen}`, allergen)}
+								{String(t(`menu:allergens.${allergen}`, allergen))}
 							</span>
 						))}
 					</div>
@@ -107,12 +107,12 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 						aria-hidden="true"
 						className={cn(
 							"transition-all duration-150",
-							item.hasOptions
+							item.hasOptionGroups
 								? "rounded-lg border border-border/60 bg-muted px-3 py-1.5 font-medium text-foreground text-sm group-hover:bg-muted/80"
 								: "flex size-11 items-center justify-center rounded-full bg-foreground text-background group-hover:scale-105 group-active:scale-95",
 						)}
 					>
-						{item.hasOptions ? (
+						{item.hasOptionGroups ? (
 							t("menu.customize")
 						) : (
 							<Plus className="size-5" strokeWidth={2.5} />

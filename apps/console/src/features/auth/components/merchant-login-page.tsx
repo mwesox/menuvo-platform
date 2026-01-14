@@ -6,27 +6,23 @@ import {
 	LinkCard,
 	Logo,
 } from "@menuvo/ui";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { Building2, Mail, Plus, User } from "lucide-react";
-import { toast } from "sonner";
-import { authQueries } from "../queries";
+import { useTRPC } from "@/lib/trpc";
 
 export function MerchantLoginPage() {
 	const router = useRouter();
+	const trpc = useTRPC();
 
-	const { data: merchants } = useSuspenseQuery(authQueries.allMerchants);
+	const { data: merchants = [] } = useQuery({
+		...trpc.auth.devListMerchants.queryOptions(),
+	});
 
 	const loginMutation = useMutation({
-		mutationFn: async (_merchantId: string): Promise<void> => {
-			// TODO: Implement dev login via API route
-			// This requires a dev-only API endpoint that sets the session cookie
-			// e.g., POST /api/dev/login with { merchantId }
-			toast.error("Dev login not implemented - need API route");
-			throw new Error("Dev login not implemented via tRPC");
-		},
+		...trpc.auth.devLogin.mutationOptions(),
 		onSuccess: async () => {
-			// Invalidate router to re-run beforeLoad with new cookie
+			// Invalidate router to re-run queries with new cookie
 			await router.invalidate();
 			router.navigate({ to: "/" });
 		},
@@ -63,7 +59,9 @@ export function MerchantLoginPage() {
 								key={merchant.id}
 								icon={Building2}
 								title={merchant.name}
-								onClick={() => loginMutation.mutate(merchant.id)}
+								onClick={() =>
+									loginMutation.mutate({ merchantId: merchant.id })
+								}
 								disabled={loginMutation.isPending}
 								showChevron
 								description={

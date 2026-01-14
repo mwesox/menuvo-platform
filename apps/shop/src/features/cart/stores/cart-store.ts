@@ -119,6 +119,9 @@ export const useCartStore = create<CartStore>()(
 						// Increment quantity instead of duplicating
 						const updatedItems = [...state.items];
 						const existing = updatedItems[existingIndex];
+						if (!existing) {
+							return state;
+						}
 						const newQuantity = existing.quantity + item.quantity;
 						updatedItems[existingIndex] = {
 							...existing,

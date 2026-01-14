@@ -1,9 +1,9 @@
 {
 	"cookie": {
 		"bannerTitle": "Wir verwenden Cookies",
-		"bannerDescription": "Essentielle Cookies sind für die Funktion der Seite erforderlich. Nicht-essentielle Cookies helfen uns, Ihre Erfahrung zu verbessern.",
+		"bannerDescription": "Notwendige Cookies sind für die Funktion der Seite erforderlich. Optionale Cookies helfen uns, Ihre Erfahrung zu verbessern.",
 		"acceptAll": "Alle akzeptieren",
-		"essentialOnly": "Nur essentielle",
+		"essentialOnly": "Nur notwendige",
 		"settings": "Cookie-Einstellungen"
 	},
 	"footer": {

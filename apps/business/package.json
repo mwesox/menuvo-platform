@@ -7,11 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "check": "biome check .",
-    "check-types": "tsc --noEmit",
+    "check-types": "tsc -b",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@menuvo/trpc": "workspace:*",
+    "@menuvo/api": "workspace:*",
     "@menuvo/ui": "workspace:*",
     "@tanstack/react-form": "^1.12.2",
     "@tanstack/react-query": "^5.80.7",

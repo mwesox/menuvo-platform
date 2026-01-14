@@ -1,4 +1,4 @@
-import type { DayOfWeek, StoreHour } from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Button,
 	Card,
@@ -12,18 +12,21 @@ import {
 	TimeInput,
 } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { Plus, Trash2 } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import {
 	type DayHoursInput,
 	daysOfWeek,
 } from "@/features/stores/hours-validation.ts";
-import {
-	storeHoursQueries,
-	useSaveStoreHours,
-} from "@/features/stores/queries.ts";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type StoreHour = RouterOutput["store"]["hours"]["get"][number];
+type DayOfWeek = (typeof daysOfWeek)[number];
 
 interface StoreHoursFormProps {
 	storeId: string;
@@ -73,10 +76,12 @@ function transformToHoursArray(weekHours: DayHoursInput[]): Array<{
 	for (const day of weekHours) {
 		if (!day.isOpen) continue;
 		for (let i = 0; i < day.slots.length; i++) {
+			const slot = day.slots[i];
+			if (!slot) continue;
 			result.push({
 				dayOfWeek: day.dayOfWeek,
-				openTime: day.slots[i].openTime,
-				closeTime: day.slots[i].closeTime,
+				openTime: slot.openTime,
+				closeTime: slot.closeTime,
 				displayOrder: i,
 			});
 		}
@@ -88,8 +93,31 @@ function transformToHoursArray(weekHours: DayHoursInput[]): Array<{
 export function StoreHoursForm({ storeId }: StoreHoursFormProps) {
 	const { t } = useTranslation("settings");
 	const { t: tCommon } = useTranslation("common");
-	const { data: hours } = useSuspenseQuery(storeHoursQueries.list(storeId));
-	const saveMutation = useSaveStoreHours();
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+	const { data: hours = [] } = useQuery({
+		...trpc.store.hours.get.queryOptions({ storeId }),
+	});
+
+	type RouterInput = inferRouterInputs<AppRouter>;
+	type SaveStoreHoursInput = RouterInput["store"]["hours"]["save"];
+
+	const saveMutation = useMutation({
+		mutationKey: trpc.store.hours.save.mutationKey(),
+		mutationFn: async (input: SaveStoreHoursInput) =>
+			trpcClient.store.hours.save.mutate(input),
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: trpc.store.hours.get.queryKey({ storeId: variables.storeId }),
+			});
+			toast.success(tToasts("success.hoursUpdated"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.updateHours"));
+		},
+	});
 
 	const defaultValues = useMemo(() => transformToWeekHours(hours), [hours]);
 
@@ -173,7 +201,12 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 	const handleSlotChange = useCallback(
 		(slotIndex: number, field: "openTime" | "closeTime", newValue: string) => {
 			const newSlots = [...value.slots];
-			newSlots[slotIndex] = { ...newSlots[slotIndex], [field]: newValue };
+			const existingSlot = newSlots[slotIndex];
+			if (!existingSlot) return;
+			newSlots[slotIndex] = {
+				openTime: field === "openTime" ? newValue : existingSlot.openTime,
+				closeTime: field === "closeTime" ? newValue : existingSlot.closeTime,
+			};
 			onChange({ ...value, slots: newSlots });
 		},
 		[value, onChange],
