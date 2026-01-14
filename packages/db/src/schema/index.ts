@@ -727,6 +727,12 @@ export const orders = pgTable(
 		customerNotes: text("customer_notes"), // Special requests from customer
 		merchantNotes: text("merchant_notes"), // Internal notes from merchant
 
+		// Scheduled pickup time (for pre-orders and takeaway orders)
+		scheduledPickupTime: timestamp("scheduled_pickup_time"),
+
+		// Idempotency key for preventing duplicate orders
+		idempotencyKey: varchar("idempotency_key", { length: 36 }), // UUID string
+
 		// Timestamps
 		createdAt: timestamp("created_at").notNull().defaultNow(),
 		updatedAt: timestamp("updated_at")
@@ -746,6 +752,7 @@ export const orders = pgTable(
 		index("idx_orders_stripe_session").on(table.stripeCheckoutSessionId),
 		index("idx_orders_mollie_payment").on(table.molliePaymentId),
 		index("idx_orders_store_pickup").on(table.storeId, table.pickupNumber),
+		unique("idx_orders_idempotency_key").on(table.idempotencyKey),
 	],
 );
 

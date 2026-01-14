@@ -11,6 +11,7 @@ import type {
 	ExportOrder,
 	ExportParams,
 	OrderStats,
+	OrderWithRelations,
 } from "./types.js";
 
 /**
@@ -28,6 +29,7 @@ export interface IOrderService {
 		merchantId: string,
 		newStatus: OrderStatusType,
 	): Promise<typeof orders.$inferSelect>;
+	getById(orderId: string): Promise<OrderWithRelations>;
 	getOrderStats(
 		storeId: string,
 		merchantId: string,

@@ -3,12 +3,35 @@
  */
 
 import type { OrderWithItems } from "@/features/orders/types";
+import { FAR_AWAY_THRESHOLD_HOURS } from "../constants";
 import { calculateUrgency } from "./urgency";
 
 /**
- * Sort orders by urgency (most critical first), then by confirmation time (oldest first).
+ * Check if an order is too far away (scheduled pickup time is more than threshold hours away).
+ * Dine-in orders without scheduledPickupTime are not considered "too far away".
+ */
+export function isOrderTooFarAway(
+	order: OrderWithItems,
+	now: number = Date.now(),
+	thresholdHours: number = FAR_AWAY_THRESHOLD_HOURS,
+): boolean {
+	if (!order.scheduledPickupTime) return false; // Dine-in orders use urgency, not proximity
+
+	const pickupTime =
+		typeof order.scheduledPickupTime === "string"
+			? new Date(order.scheduledPickupTime).getTime()
+			: order.scheduledPickupTime.getTime();
+
+	const hoursUntilPickup = (pickupTime - now) / (1000 * 60 * 60);
+	return hoursUntilPickup > thresholdHours;
+}
+
+/**
+ * Sort orders by urgency (most critical first), then by proximity (near orders first),
+ * then by confirmation time (oldest first).
  * Critical orders appear at top, followed by warning, then normal.
- * Within same urgency level, older orders come first.
+ * Within same urgency level, near orders come before far-away orders.
+ * Within same proximity, older orders come first.
  */
 export function sortByUrgencyAndTime(
 	orders: OrderWithItems[],
@@ -24,7 +47,15 @@ export function sortByUrgencyAndTime(
 
 		if (urgencyDiff !== 0) return urgencyDiff;
 
-		// Same urgency: sort by confirmation time (oldest first)
+		// Same urgency: prioritize orders that are NOT too far away
+		const isFarAwayA = isOrderTooFarAway(a, now);
+		const isFarAwayB = isOrderTooFarAway(b, now);
+		if (isFarAwayA !== isFarAwayB) {
+			// Near orders (false) come before far-away orders (true)
+			return isFarAwayA ? 1 : -1;
+		}
+
+		// Same urgency and proximity: sort by confirmation time (oldest first)
 		const timeA = a.confirmedAt
 			? new Date(a.confirmedAt).getTime()
 			: Number.POSITIVE_INFINITY;

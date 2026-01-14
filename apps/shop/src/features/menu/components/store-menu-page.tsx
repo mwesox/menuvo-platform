@@ -92,6 +92,9 @@ export function StoreMenuPage() {
 
 	// Handle category click - scroll to section
 	const handleCategoryClick = useCallback((categoryId: string) => {
+		// Immediately update active category state for instant UI feedback
+		setActiveCategoryId(categoryId);
+
 		const element = categoryRefs.current.get(categoryId);
 		if (element) {
 			const elementPosition = element.getBoundingClientRect().top;
@@ -164,7 +167,6 @@ export function StoreMenuPage() {
 					categories={filteredCategories.map((category: MenuCategory) => ({
 						id: category.id,
 						name: category.name,
-						itemCount: category.items.length,
 					}))}
 					activeCategoryId={activeCategoryId}
 					onCategoryClick={handleCategoryClick}

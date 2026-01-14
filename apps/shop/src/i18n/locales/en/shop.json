@@ -16,8 +16,6 @@
 	},
 	"menu": {
 		"categoriesNav": "Menu categories",
-		"itemCount_one": "{{count}} item",
-		"itemCount_other": "{{count}} items",
 		"customize": "Customize",
 		"add": "Add",
 		"addToOrder": "Add to order",
@@ -100,6 +98,21 @@
 		"placeOrder": "Place Order",
 		"proceedToPayment": "Proceed to Payment",
 		"invalidCartItems": "Your cart contains invalid items. Please add items again.",
+		"shopClosed": "Shop is currently closed",
+		"preOrderMessage": "You can pre-order for our upcoming opening times. Select a pickup time below.",
+		"nextOpenTime": "We open at {{time}}",
+		"pickupTime": "Pickup Time",
+		"deliveryTime": "Delivery Time",
+		"selectPickupTime": "Select a pickup time",
+		"pickupTimeRequired": "Please select a pickup time",
+		"deliveryTimeRequired": "Please select a delivery time",
+		"preOrderFor": "Pre-order for: {{time}}",
+		"preOrderDeliveryFor": "Pre-order delivery for: {{time}}",
+		"scheduledPickup": "Pickup time: {{time}}",
+		"scheduledDelivery": "Delivery time: {{time}}",
+		"loadingSlots": "Loading available times...",
+		"errorLoadingSlots": "Failed to load available times. Please try again.",
+		"noSlotsAvailable": "No pickup times available at the moment.",
 		"return": {
 			"verifying": "Verifying Payment",
 			"pleaseWait": "Please wait while we confirm your payment...",
@@ -122,6 +135,7 @@
 		"title": "Order Received!",
 		"subtitle": "Your order has been placed successfully",
 		"orderNumber": "Order Number",
+		"scheduledPickup": "Scheduled Pickup",
 		"instructions": "Please wait for your order to be prepared. We'll call your name when it's ready.",
 		"backToMenu": "Back to Menu"
 	}

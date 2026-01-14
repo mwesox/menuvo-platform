@@ -5,6 +5,7 @@
  */
 
 import type {
+	CreateImageRecordInput as CreateImageRecordInputSchema,
 	DeleteImageInput as DeleteImageInputSchema,
 	ImageType,
 } from "./schemas.js";
@@ -47,3 +48,8 @@ export interface DeleteImageResult {
 		notFound: string[];
 	} | null;
 }
+
+/**
+ * Input for creating an image record
+ */
+export type CreateImageRecordInput = CreateImageRecordInputSchema;

@@ -8,6 +8,10 @@
 		"hours": "{{count}}h+",
 		"days": "{{count}}d+"
 	},
+	"pickupTime": {
+		"today": "Today",
+		"tomorrow": "Tomorrow"
+	},
 	"columns": {
 		"new": "New",
 		"preparing": "Preparing",

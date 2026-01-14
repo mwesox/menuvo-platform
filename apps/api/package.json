@@ -29,6 +29,7 @@
     "@sindresorhus/slugify": "^2.2.1",
     "@t3-oss/env-core": "catalog:",
     "@trpc/server": "catalog:",
+    "date-fns": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
     "nanoid": "^5.1.6",

@@ -6,6 +6,10 @@ interface Store {
 	name: string;
 	street: string | null;
 	city: string | null;
+	status?: {
+		isOpen: boolean;
+		nextOpenTime: string | null;
+	};
 }
 
 interface StoreContextValue {

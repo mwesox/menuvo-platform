@@ -7,12 +7,17 @@
 import type { Database } from "@menuvo/db";
 import { stores } from "@menuvo/db/schema";
 import slugify from "@sindresorhus/slugify";
-import { and, eq, ne } from "drizzle-orm";
+import { and, asc, eq, gt, ilike, ne, or } from "drizzle-orm";
 import { NotFoundError, ValidationError } from "../errors.js";
 import type { IStoreService } from "./interface.js";
+import type { IStoreStatusService } from "./status/index.js";
 import type {
 	CreateStoreInput,
+	GetFeaturedStoresParams,
+	SearchStoresParams,
+	SearchStoresResult,
 	SlugAvailabilityResult,
+	StoreWithStatus,
 	UpdateStoreInput,
 } from "./types.js";
 
@@ -21,9 +26,11 @@ import type {
  */
 export class StoreService implements IStoreService {
 	private readonly db: Database;
+	private readonly statusService: IStoreStatusService | null;
 
-	constructor(db: Database) {
+	constructor(db: Database, statusService?: IStoreStatusService) {
 		this.db = db;
+		this.statusService = statusService ?? null;
 	}
 
 	async list(merchantId: string): Promise<(typeof stores.$inferSelect)[]> {
@@ -251,6 +258,119 @@ export class StoreService implements IStoreService {
 			excludeStoreId,
 		);
 		return { slug, ...result };
+	}
+
+	async searchStores(params: SearchStoresParams): Promise<SearchStoresResult> {
+		const { query, city, limit, cursor } = params;
+
+		// Build where conditions
+		const conditions = [eq(stores.isActive, true)];
+
+		// Text search on name
+		if (query) {
+			conditions.push(
+				or(
+					ilike(stores.name, `%${query}%`),
+					ilike(stores.city, `%${query}%`),
+				) ?? eq(stores.isActive, true),
+			);
+		}
+
+		// City filter
+		if (city) {
+			conditions.push(ilike(stores.city, `%${city}%`));
+		}
+
+		// Cursor-based pagination
+		if (cursor) {
+			conditions.push(gt(stores.id, cursor));
+		}
+
+		const results = await this.db.query.stores.findMany({
+			where: and(...conditions),
+			orderBy: [asc(stores.name)],
+			limit: limit + 1, // Fetch one extra to check if there are more
+			columns: {
+				id: true,
+				slug: true,
+				name: true,
+				logoUrl: true,
+				street: true,
+				city: true,
+				postalCode: true,
+				country: true,
+				currency: true,
+			},
+		});
+
+		// Check if there are more results
+		const hasMore = results.length > limit;
+		const storeResults = hasMore ? results.slice(0, -1) : results;
+		const nextCursor = hasMore
+			? storeResults[storeResults.length - 1]?.id
+			: undefined;
+
+		return {
+			stores: storeResults,
+			nextCursor,
+		};
+	}
+
+	async getFeaturedStores(
+		params: GetFeaturedStoresParams,
+	): Promise<StoreWithStatus[]> {
+		const { city, limit } = params;
+
+		// Build where conditions
+		const conditions = [eq(stores.isActive, true)];
+
+		// City filter
+		if (city) {
+			conditions.push(ilike(stores.city, `%${city}%`));
+		}
+
+		// TODO: Add isFeatured column to stores table for explicit featuring
+		// For now, return active stores ordered by creation date (newest first)
+		const results = await this.db.query.stores.findMany({
+			where: and(...conditions),
+			orderBy: (stores, { desc }) => [desc(stores.createdAt)],
+			limit,
+			columns: {
+				id: true,
+				slug: true,
+				name: true,
+				logoUrl: true,
+				street: true,
+				city: true,
+				postalCode: true,
+				country: true,
+				currency: true,
+			},
+		});
+
+		// Add status to each store using status service if available
+		if (this.statusService) {
+			const storesWithStatus = await Promise.all(
+				results.map(async (store) => {
+					try {
+						const status = await this.statusService!.getStatusBySlug(
+							store.slug,
+						);
+						return {
+							...store,
+							status,
+						};
+					} catch {
+						// If status can't be computed, return store without status
+						return store;
+					}
+				}),
+			);
+			return storesWithStatus;
+		}
+
+		// If status service is not available, return stores without status
+		return results;
 	}
 
 	// Private utility methods

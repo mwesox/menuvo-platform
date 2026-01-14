@@ -1,7 +1,7 @@
 import { Input } from "@menuvo/ui/components/input";
 import { Label } from "@menuvo/ui/components/label";
-import { RadioGroup, RadioGroupItem } from "@menuvo/ui/components/radio-group";
 import { Textarea } from "@menuvo/ui/components/textarea";
+import { cn } from "@menuvo/ui/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,8 +17,11 @@ import {
 	ShopMutedText,
 	ShopPrice,
 	ShopPriceRow,
+	ShopText,
 } from "../../shared/components/ui";
+import { formatDateTime } from "../../shared/utils/date-formatting";
 import { useCreateOrder, useCreatePayment } from "../queries";
+import { PickupTimeSelector } from "./pickup-time-selector";
 
 type CreateOrderInput = Parameters<TrpcClient["order"]["create"]["mutate"]>[0];
 type OrderType = CreateOrderInput["orderType"];
@@ -27,12 +30,17 @@ interface OrderingPageProps {
 	storeId: string;
 	storeSlug: string;
 	capabilities: MerchantCapabilities;
+	storeStatus?: {
+		isOpen: boolean;
+		nextOpenTime: string | null;
+	};
 }
 
 export function OrderingPage({
 	storeId,
 	storeSlug,
 	capabilities,
+	storeStatus,
 }: OrderingPageProps) {
 	const { t } = useTranslation("shop");
 
@@ -40,10 +48,33 @@ export function OrderingPage({
 	const items = useCartStore((s) => s.items);
 	const clearCart = useCartStore((s) => s.clearCart);
 
+	// Determine if shop is closed
+	const isClosed = storeStatus ? !storeStatus.isOpen : false;
+
 	// Form state
 	const [customerName, setCustomerName] = useState("");
 	const [customerNotes, setCustomerNotes] = useState("");
-	const [orderType, setOrderType] = useState<OrderType>("dine_in");
+	const [orderType, setOrderType] = useState<OrderType>(
+		isClosed ? "takeaway" : "dine_in",
+	);
+	const [scheduledPickupTime, setScheduledPickupTime] = useState<string | null>(
+		null,
+	);
+
+	// Idempotency key - generate once and persist in sessionStorage
+	const getIdempotencyKey = (): string => {
+		const storageKey = `order-idempotency-key-${storeId}`;
+		const existingKey = sessionStorage.getItem(storageKey);
+		if (existingKey) {
+			return existingKey;
+		}
+		const newKey = crypto.randomUUID();
+		sessionStorage.setItem(storageKey, newKey);
+		return newKey;
+	};
+
+	// When order type changes to delivery and shop is closed, clear pickup time if it was set for takeaway
+	// (delivery will also need time selection when closed)
 
 	// Payment redirect state
 	const [isPaymentRedirecting, setIsPaymentRedirecting] = useState(false);
@@ -81,6 +112,19 @@ export function OrderingPage({
 			return false;
 		}
 
+		// Validate pickup/delivery time for takeaway orders or delivery when closed
+		if (
+			(orderType === "takeaway" || (orderType === "delivery" && isClosed)) &&
+			!scheduledPickupTime
+		) {
+			toast.error(
+				orderType === "takeaway"
+					? t("ordering.pickupTimeRequired")
+					: t("ordering.deliveryTimeRequired"),
+			);
+			return false;
+		}
+
 		return true;
 	};
 
@@ -111,6 +155,10 @@ export function OrderingPage({
 			orderType,
 			customerName: customerName.trim(),
 			customerNotes: customerNotes.trim() || undefined,
+			scheduledPickupTime: scheduledPickupTime
+				? new Date(scheduledPickupTime)
+				: undefined,
+			idempotencyKey: getIdempotencyKey(),
 		};
 
 		try {
@@ -132,8 +180,9 @@ export function OrderingPage({
 				return;
 			}
 
-			// Clear cart before redirect
+			// Clear cart and idempotency key before redirect
 			clearCart();
+			sessionStorage.removeItem(`order-idempotency-key-${storeId}`);
 			// Redirect to hosted payment page
 			window.location.href = payment.checkoutUrl;
 		} catch {
@@ -162,7 +211,11 @@ export function OrderingPage({
 	const isSubmitting =
 		createOrderMutation.isPending || createPaymentMutation.isPending;
 
-	const isFormValid = customerName.trim() && items.length > 0;
+	const isFormValid =
+		customerName.trim() &&
+		items.length > 0 &&
+		(orderType !== "takeaway" || scheduledPickupTime !== null) &&
+		!(orderType === "delivery" && isClosed && scheduledPickupTime === null);
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -173,39 +226,133 @@ export function OrderingPage({
 				</ShopHeading>
 
 				<form onSubmit={handleSubmit} className="space-y-6">
+					{/* Closed Status Banner */}
+					{isClosed && (
+						<ShopCard
+							padding="md"
+							className="space-y-2 border-destructive bg-destructive/10"
+						>
+							<ShopHeading as="h2" size="md" className="text-destructive">
+								{t("ordering.shopClosed")}
+							</ShopHeading>
+							<ShopMutedText>{t("ordering.preOrderMessage")}</ShopMutedText>
+							{storeStatus?.nextOpenTime && (
+								<ShopMutedText className="text-sm">
+									{t("ordering.nextOpenTime", {
+										time: formatDateTime(storeStatus.nextOpenTime),
+									})}
+								</ShopMutedText>
+							)}
+						</ShopCard>
+					)}
+
 					{/* Order Type Selection */}
 					<ShopCard padding="md" className="space-y-4">
 						<ShopHeading as="h2" size="md">
 							{t("ordering.orderType")}
 						</ShopHeading>
 
-						<RadioGroup
-							value={orderType}
-							onValueChange={(value: string) =>
-								setOrderType(value as OrderType)
-							}
-							className="space-y-2"
-						>
-							<div className="flex items-center space-x-3">
-								<RadioGroupItem value="dine_in" id="dine_in" />
-								<Label htmlFor="dine_in" className="cursor-pointer">
-									{t("ordering.orderTypes.dineIn")}
-								</Label>
-							</div>
-							<div className="flex items-center space-x-3">
-								<RadioGroupItem value="takeaway" id="takeaway" />
-								<Label htmlFor="takeaway" className="cursor-pointer">
-									{t("ordering.orderTypes.takeaway")}
-								</Label>
-							</div>
-							<div className="flex items-center space-x-3">
-								<RadioGroupItem value="delivery" id="delivery" />
-								<Label htmlFor="delivery" className="cursor-pointer">
-									{t("ordering.orderTypes.delivery")}
-								</Label>
-							</div>
-						</RadioGroup>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+							{[
+								{
+									value: "dine_in",
+									label: t("ordering.orderTypes.dineIn"),
+									disabled: isClosed,
+								},
+								{
+									value: "takeaway",
+									label: t("ordering.orderTypes.takeaway"),
+									disabled: false,
+								},
+								{
+									value: "delivery",
+									label: t("ordering.orderTypes.delivery"),
+									disabled: false,
+								},
+							].map((option) => {
+								const isSelected = orderType === option.value;
+								const isDisabled = option.disabled;
+
+								return (
+									<ShopCard
+										key={option.value}
+										variant="interactive"
+										padding="md"
+										className={cn(
+											"cursor-pointer transition-all",
+											isSelected
+												? "border-2 border-primary bg-primary/10"
+												: "border border-border hover:border-primary/50 hover:bg-muted/50",
+											isDisabled && "cursor-not-allowed opacity-50",
+										)}
+										onClick={() =>
+											!isDisabled && setOrderType(option.value as OrderType)
+										}
+										onKeyDown={(e) => {
+											if (!isDisabled && (e.key === "Enter" || e.key === " ")) {
+												e.preventDefault();
+												setOrderType(option.value as OrderType);
+											}
+										}}
+										role="button"
+										tabIndex={isDisabled ? -1 : 0}
+										aria-pressed={isSelected}
+										aria-disabled={isDisabled}
+									>
+										<div className="flex items-center gap-3">
+											{/* Radio indicator */}
+											<div
+												className={cn(
+													"size-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-all",
+													isSelected
+														? "border-primary bg-primary"
+														: "border-border",
+													isDisabled && "opacity-50",
+												)}
+											>
+												{isSelected && (
+													<div className="size-2 rounded-full bg-white" />
+												)}
+											</div>
+											{/* Label */}
+											<ShopText
+												className={cn(
+													"font-medium",
+													isSelected ? "text-foreground" : "text-foreground",
+													isDisabled && "opacity-50",
+												)}
+											>
+												{option.label}
+											</ShopText>
+										</div>
+									</ShopCard>
+								);
+							})}
+						</div>
 					</ShopCard>
+
+					{/* Pickup/Delivery Time Selection (for takeaway orders, or delivery when closed) */}
+					{(orderType === "takeaway" ||
+						(orderType === "delivery" && isClosed)) && (
+						<ShopCard padding="md" className="space-y-4">
+							<ShopHeading as="h2" size="md">
+								{orderType === "takeaway"
+									? t("ordering.pickupTime")
+									: t("ordering.deliveryTime")}
+							</ShopHeading>
+							<PickupTimeSelector
+								storeSlug={storeSlug}
+								value={scheduledPickupTime}
+								onChange={setScheduledPickupTime}
+								isRequired={true}
+								minDate={
+									isClosed && storeStatus?.nextOpenTime
+										? storeStatus.nextOpenTime
+										: undefined
+								}
+							/>
+						</ShopCard>
+					)}
 
 					{/* Customer Info */}
 					<ShopCard padding="md" className="space-y-4">
@@ -214,8 +361,10 @@ export function OrderingPage({
 						</ShopHeading>
 
 						<div>
-							<Label htmlFor="customerName" className="font-medium text-sm">
-								{t("ordering.yourName")}
+							<Label htmlFor="customerName">
+								<ShopText className="font-medium text-sm">
+									{t("ordering.yourName")}
+								</ShopText>
 							</Label>
 							<Input
 								id="customerName"
@@ -229,11 +378,13 @@ export function OrderingPage({
 						</div>
 
 						<div>
-							<Label htmlFor="customerNotes" className="font-medium text-sm">
-								{t("ordering.specialRequests")}
-								<span className="ms-1 font-normal text-muted-foreground">
-									({t("ordering.optional")})
-								</span>
+							<Label htmlFor="customerNotes">
+								<ShopText className="font-medium text-sm">
+									{t("ordering.specialRequests")}
+									<span className="ms-1 font-normal text-muted-foreground">
+										({t("ordering.optional")})
+									</span>
+								</ShopText>
 							</Label>
 							<Textarea
 								id="customerNotes"
@@ -272,6 +423,31 @@ export function OrderingPage({
 								</div>
 							))}
 						</div>
+
+						{/* Pickup/Delivery Time Display */}
+						{(orderType === "takeaway" ||
+							(orderType === "delivery" && isClosed)) &&
+							scheduledPickupTime && (
+								<div className="space-y-2 border-border border-t pt-3">
+									<ShopMutedText className="text-sm">
+										{isClosed
+											? orderType === "takeaway"
+												? t("ordering.preOrderFor", {
+														time: formatDateTime(scheduledPickupTime),
+													})
+												: t("ordering.preOrderDeliveryFor", {
+														time: formatDateTime(scheduledPickupTime),
+													})
+											: orderType === "takeaway"
+												? t("ordering.scheduledPickup", {
+														time: formatDateTime(scheduledPickupTime),
+													})
+												: t("ordering.scheduledDelivery", {
+														time: formatDateTime(scheduledPickupTime),
+													})}
+									</ShopMutedText>
+								</div>
+							)}
 
 						{/* Totals */}
 						<div className="space-y-2 border-border border-t pt-3">

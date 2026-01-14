@@ -4,6 +4,7 @@
  * Domain types for order operations.
  */
 
+import type { orderItemOptions, orderItems, orders } from "@menuvo/db/schema";
 import type {
 	OrderStatusType,
 	OrderTypeValue,
@@ -132,3 +133,25 @@ export interface ExportParams {
 	endDate: Date;
 	status?: OrderStatusType;
 }
+
+/**
+ * Order with relations (for public order retrieval)
+ */
+export type OrderWithRelations = typeof orders.$inferSelect & {
+	store: {
+		id: string;
+		name: string;
+		slug: string;
+		currency: string;
+	};
+	servicePoint: {
+		id: string;
+		name: string;
+		code: string;
+	} | null;
+	items: Array<
+		typeof orderItems.$inferSelect & {
+			options: Array<typeof orderItemOptions.$inferSelect>;
+		}
+	>;
+};

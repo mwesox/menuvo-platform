@@ -291,26 +291,8 @@ export function OptionGroupForm({
 
 					{/* Choices Section */}
 					<div className="mt-6 space-y-4">
-						<div className="flex items-center justify-between">
+						<div>
 							<h3 className="font-medium text-sm">{t("labels.choices")}</h3>
-							<form.Field name="choices" mode="array">
-								{(field) => (
-									<Button
-										type="button"
-										variant="outline"
-										size="sm"
-										onClick={() =>
-											field.pushValue({
-												name: "",
-												priceModifier: "0",
-											})
-										}
-									>
-										<PlusIcon className="mr-1.5 size-4" />
-										{t("actions.addChoice")}
-									</Button>
-								)}
-							</form.Field>
 						</div>
 
 						<form.Field name="choices" mode="array">
@@ -386,6 +368,21 @@ export function OptionGroupForm({
 											</div>
 										))
 									)}
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={() =>
+											field.pushValue({
+												name: "",
+												priceModifier: "0",
+											})
+										}
+										className="mt-2"
+									>
+										<PlusIcon className="mr-1.5 size-4" />
+										{t("actions.addChoice")}
+									</Button>
 								</div>
 							)}
 						</form.Field>

@@ -8,9 +8,10 @@ import type { Database } from "@menuvo/db";
 import { images } from "@menuvo/db/schema";
 import { and, eq } from "drizzle-orm";
 import { uploadImage as uploadToStorage } from "../../infrastructure/images/upload.service.js";
-import { DomainError } from "../errors.js";
+import { DomainError, ValidationError } from "../errors.js";
 import type { IImagesService } from "./interface.js";
 import type {
+	CreateImageRecordInput,
 	DeleteImageInput,
 	DeleteImageResult,
 	StorageService,
@@ -84,5 +85,40 @@ export class ImagesService implements IImagesService {
 			success: true,
 			s3Result,
 		};
+	}
+
+	async createRecord(
+		input: CreateImageRecordInput,
+		merchantId: string,
+	): Promise<typeof images.$inferSelect> {
+		// Security: Verify merchantId matches session to prevent creating images for other merchants
+		if (input.merchantId !== merchantId) {
+			throw new DomainError(
+				"FORBIDDEN",
+				"Cannot create images for another merchant",
+			);
+		}
+
+		const [record] = await this.db
+			.insert(images)
+			.values({
+				merchantId,
+				type: input.type,
+				key: input.key,
+				originalUrl: input.originalUrl,
+				thumbnailUrl: input.thumbnailUrl,
+				filename: input.filename,
+				mimeType: input.mimeType,
+				sizeBytes: input.sizeBytes,
+				width: input.width,
+				height: input.height,
+			})
+			.returning();
+
+		if (!record) {
+			throw new ValidationError("Failed to create image record");
+		}
+
+		return record;
 	}
 }

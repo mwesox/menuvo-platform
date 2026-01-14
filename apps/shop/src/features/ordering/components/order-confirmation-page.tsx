@@ -5,6 +5,7 @@ import type { inferRouterOutputs } from "@trpc/server";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTRPC } from "../../../lib/trpc";
+import { formatDateTime } from "../../shared/utils/date-formatting";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type Order = RouterOutput["order"]["getById"];
@@ -71,6 +72,18 @@ export function OrderConfirmationPage({
 							</ShopHeading>
 						)}
 					</div>
+
+					{/* Scheduled Pickup Time */}
+					{order?.scheduledPickupTime && (
+						<div className="rounded-lg bg-muted py-4">
+							<ShopMutedText className="text-sm">
+								{t("confirmation.scheduledPickup")}
+							</ShopMutedText>
+							<ShopHeading as="p" size="md" className="mt-1">
+								{formatDateTime(order.scheduledPickupTime)}
+							</ShopHeading>
+						</div>
+					)}
 
 					{/* Instructions */}
 					<ShopMutedText className="text-sm">

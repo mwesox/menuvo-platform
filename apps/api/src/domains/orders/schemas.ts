@@ -93,6 +93,8 @@ export const createOrderSchema = z.object({
 	customerPhone: z.string().max(50).optional(),
 	customerEmail: z.string().email().optional(),
 	customerNotes: z.string().max(1000).optional(),
+	scheduledPickupTime: z.coerce.date().optional(),
+	idempotencyKey: z.string().uuid().optional(),
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;

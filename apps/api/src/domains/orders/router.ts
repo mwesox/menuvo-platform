@@ -77,32 +77,17 @@ export const orderRouter = router({
 	getById: publicProcedure
 		.input(getOrderByIdSchema)
 		.query(async ({ ctx, input }) => {
-			const order = await ctx.db.query.orders.findFirst({
-				where: eq(orders.id, input.orderId),
-				with: {
-					store: {
-						columns: { id: true, name: true, slug: true, currency: true },
-					},
-					servicePoint: {
-						columns: { id: true, name: true, code: true },
-					},
-					items: {
-						with: {
-							options: true,
-						},
-						orderBy: [asc(orderItems.displayOrder)],
-					},
-				},
-			});
-
-			if (!order) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Order not found",
-				});
+			try {
+				return await ctx.services.orders.getById(input.orderId);
+			} catch (error) {
+				if (error instanceof Error && error.message === "Order not found") {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "Order not found",
+					});
+				}
+				throw error;
 			}
-
-			return order;
 		}),
 
 	/**
@@ -112,32 +97,17 @@ export const orderRouter = router({
 	getByOrderId: publicProcedure
 		.input(getOrderByIdSchema)
 		.query(async ({ ctx, input }) => {
-			const order = await ctx.db.query.orders.findFirst({
-				where: eq(orders.id, input.orderId),
-				with: {
-					store: {
-						columns: { id: true, name: true, slug: true, currency: true },
-					},
-					servicePoint: {
-						columns: { id: true, name: true, code: true },
-					},
-					items: {
-						with: {
-							options: true,
-						},
-						orderBy: [asc(orderItems.displayOrder)],
-					},
-				},
-			});
-
-			if (!order) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Order not found",
-				});
+			try {
+				return await ctx.services.orders.getById(input.orderId);
+			} catch (error) {
+				if (error instanceof Error && error.message === "Order not found") {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "Order not found",
+					});
+				}
+				throw error;
 			}
-
-			return order;
 		}),
 
 	/**

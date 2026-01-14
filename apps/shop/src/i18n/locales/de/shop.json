@@ -16,8 +16,6 @@
 	},
 	"menu": {
 		"categoriesNav": "Menükategorien",
-		"itemCount_one": "{{count}} Artikel",
-		"itemCount_other": "{{count}} Artikel",
 		"customize": "Anpassen",
 		"add": "Hinzufügen",
 		"addToOrder": "Hinzufügen",
@@ -102,6 +100,21 @@
 		"placeOrder": "Bestellung aufgeben",
 		"proceedToPayment": "Weiter zur Bezahlung",
 		"invalidCartItems": "Ihr Warenkorb enthält ungültige Artikel. Bitte fügen Sie die Artikel erneut hinzu.",
+		"shopClosed": "Geschäft ist derzeit geschlossen",
+		"preOrderMessage": "Sie können für unsere kommenden Öffnungszeiten vorbestellen. Wählen Sie unten eine Abholzeit.",
+		"nextOpenTime": "Wir öffnen um {{time}}",
+		"pickupTime": "Abholzeit",
+		"deliveryTime": "Lieferzeit",
+		"selectPickupTime": "Abholzeit auswählen",
+		"pickupTimeRequired": "Bitte wählen Sie eine Abholzeit",
+		"deliveryTimeRequired": "Bitte wählen Sie eine Lieferzeit",
+		"preOrderFor": "Vorbestellung für: {{time}}",
+		"preOrderDeliveryFor": "Vorbestellung Lieferung für: {{time}}",
+		"scheduledPickup": "Abholzeit: {{time}}",
+		"scheduledDelivery": "Lieferzeit: {{time}}",
+		"loadingSlots": "Verfügbare Zeiten werden geladen...",
+		"errorLoadingSlots": "Fehler beim Laden der verfügbaren Zeiten. Bitte versuchen Sie es erneut.",
+		"noSlotsAvailable": "Derzeit sind keine Abholzeiten verfügbar.",
 		"return": {
 			"verifying": "Zahlung wird überprüft",
 			"pleaseWait": "Bitte warten Sie, während wir Ihre Zahlung bestätigen...",
@@ -124,6 +137,7 @@
 		"title": "Bestellung eingegangen!",
 		"subtitle": "Ihre Bestellung wurde erfolgreich aufgegeben",
 		"orderNumber": "Bestellnummer",
+		"scheduledPickup": "Geplante Abholung",
 		"instructions": "Bitte warten Sie, bis Ihre Bestellung zubereitet wird. Wir rufen Ihren Namen auf, wenn sie fertig ist.",
 		"backToMenu": "Zurück zur Speisekarte"
 	}

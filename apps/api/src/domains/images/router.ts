@@ -8,7 +8,6 @@
  * - Image record creation
  */
 
-import { images } from "@menuvo/db/schema";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import {
@@ -125,33 +124,28 @@ export const imageRouter = router({
 	createRecord: protectedProcedure
 		.input(createImageRecordSchema)
 		.mutation(async ({ ctx, input }) => {
-			// SECURITY: Verify merchantId matches session to prevent creating images for other merchants
-			if (input.merchantId !== ctx.session.merchantId) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "Cannot create images for another merchant",
-				});
+			try {
+				return await ctx.services.images.createRecord(
+					input,
+					ctx.session.merchantId,
+				);
+			} catch (error) {
+				if (error instanceof Error) {
+					if (error.message.includes("another merchant")) {
+						throw new TRPCError({
+							code: "FORBIDDEN",
+							message: error.message,
+						});
+					}
+					if (error.message.includes("Failed to create")) {
+						throw new TRPCError({
+							code: "INTERNAL_SERVER_ERROR",
+							message: error.message,
+						});
+					}
+				}
+				throw error;
 			}
-
-			// Note: createRecord keeps direct DB access as it's just metadata insertion
-			// The upload flow handles the full pipeline via domains service
-			const [record] = await ctx.db
-				.insert(images)
-				.values({
-					merchantId: ctx.session.merchantId,
-					type: input.type,
-					key: input.key,
-					originalUrl: input.originalUrl,
-					thumbnailUrl: input.thumbnailUrl,
-					filename: input.filename,
-					mimeType: input.mimeType,
-					sizeBytes: input.sizeBytes,
-					width: input.width,
-					height: input.height,
-				})
-				.returning();
-
-			return record;
 		}),
 });
 

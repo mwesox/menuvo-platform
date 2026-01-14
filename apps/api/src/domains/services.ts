@@ -31,6 +31,10 @@ import {
 	type IServicePointsService,
 	ServicePointsService,
 } from "./stores/service-points/index.js";
+import {
+	type IStoreStatusService,
+	StoreStatusService,
+} from "./stores/status/index.js";
 
 /**
  * Dependencies required for DomainServices.
@@ -58,6 +62,7 @@ export class DomainServices {
 	readonly payments: IPaymentService;
 	readonly servicePoints: IServicePointsService;
 	readonly shopMenu: IShopMenuService;
+	readonly status: IStoreStatusService;
 	readonly stores: IStoreService;
 
 	constructor(deps: DomainServicesDeps) {
@@ -69,11 +74,12 @@ export class DomainServices {
 		this.items = new ItemsService(deps.db);
 		this.menuImport = new MenuImportService(deps.db);
 		this.merchants = new MerchantsService(deps.db);
-		this.orders = new OrderService(deps.db);
 		this.payments = new PaymentService(deps.db);
 		this.servicePoints = new ServicePointsService(deps.db);
 		this.shopMenu = new ShopMenuService(deps.db);
-		this.stores = new StoreService(deps.db);
+		this.status = new StoreStatusService(deps.db);
+		this.orders = new OrderService(deps.db, this.status);
+		this.stores = new StoreService(deps.db, this.status);
 	}
 }
 
@@ -91,3 +97,4 @@ export type { IClosuresService } from "./stores/closures/index.js";
 export type { IHoursService } from "./stores/hours/index.js";
 export type { IStoreService } from "./stores/index.js";
 export type { IServicePointsService } from "./stores/service-points/index.js";
+export type { IStoreStatusService } from "./stores/status/index.js";

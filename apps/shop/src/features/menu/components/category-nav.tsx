@@ -4,7 +4,6 @@ interface CategoryNavProps {
 	categories: {
 		id: string;
 		name: string;
-		itemCount?: number;
 	}[];
 	activeCategoryId: string | null;
 	onCategoryClick: (categoryId: string) => void;
@@ -49,19 +48,6 @@ export function CategoryNav({
 								aria-current={isActive ? "true" : undefined}
 							>
 								{category.name}
-								{/* Item count badge */}
-								{category.itemCount !== undefined && category.itemCount > 0 && (
-									<span
-										className={cn(
-											"ms-1.5 text-xs tabular-nums",
-											isActive
-												? "text-primary-foreground/70"
-												: "text-muted-foreground/60",
-										)}
-									>
-										({category.itemCount})
-									</span>
-								)}
 							</button>
 						);
 					})}

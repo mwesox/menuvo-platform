@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import type { MenuCategory } from "../types";
 import { MenuItemCard } from "./menu-item-card";
 
@@ -19,23 +18,15 @@ export function CategorySection({
 	onItemSelect,
 	refSetter,
 }: CategorySectionProps) {
-	const { t } = useTranslation("shop");
-	const itemCount = category.items.length;
-
 	return (
 		<section ref={refSetter} data-category-id={category.id} className="mb-10">
-			{/* Category header with item count */}
-			<div className="mb-4 flex items-baseline gap-3">
-				<h2
-					className="text-2xl text-foreground"
-					style={{ fontFamily: "var(--font-heading)" }}
-				>
-					{category.name}
-				</h2>
-				<span className="text-muted-foreground text-sm tabular-nums">
-					{t("menu.itemCount", { count: itemCount })}
-				</span>
-			</div>
+			{/* Category header */}
+			<h2
+				className="mb-4 text-2xl text-foreground"
+				style={{ fontFamily: "var(--font-heading)" }}
+			>
+				{category.name}
+			</h2>
 
 			{/* Category description */}
 			{category.description && (

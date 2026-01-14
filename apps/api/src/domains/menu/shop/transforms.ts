@@ -18,6 +18,7 @@ type StoreWithMenuRelations = NonNullable<
 export function transformMenuToShop(
 	store: StoreWithMenuRelations,
 	languageCode: string,
+	status?: { isOpen: boolean; nextOpenTime: string | null },
 ): MenuResponse {
 	return {
 		store: {
@@ -30,6 +31,7 @@ export function transformMenuToShop(
 			postalCode: store.postalCode,
 			country: store.country,
 			currency: store.currency,
+			...(status && { status }),
 		},
 		categories: store.categories.map((category) => ({
 			id: category.id,

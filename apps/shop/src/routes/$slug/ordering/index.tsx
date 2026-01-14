@@ -36,7 +36,7 @@ function OrderingRouteComponent() {
 		hasMollie: capabilities?.canAcceptOnlinePayment ?? false,
 		paymentMethods: capabilities?.canAcceptOnlinePayment ? ["mollie"] : [],
 		canPlaceOrders: capabilities?.canAcceptOnlinePayment ?? false,
-		isOpen: true,
+		isOpen: store.status?.isOpen ?? true,
 	};
 
 	return (
@@ -44,6 +44,7 @@ function OrderingRouteComponent() {
 			storeId={store.id}
 			storeSlug={store.slug}
 			capabilities={merchantCapabilities}
+			storeStatus={store.status}
 		/>
 	);
 }

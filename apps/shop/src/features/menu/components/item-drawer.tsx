@@ -402,7 +402,7 @@ export function ItemDrawer({
 						)}
 					>
 						{/* Title */}
-						<DrawerTitle className="mb-3">
+						<DrawerTitle asChild className="mb-3">
 							<ShopHeading
 								as="h2"
 								size="2xl"

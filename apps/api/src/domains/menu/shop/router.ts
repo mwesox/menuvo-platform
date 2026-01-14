@@ -20,10 +20,24 @@ export const shopMenuRouter = router({
 		.input(getMenuSchema)
 		.query(async ({ ctx, input }) => {
 			try {
-				return await ctx.services.shopMenu.getMenu(
+				const menuData = await ctx.services.shopMenu.getMenu(
 					input.storeSlug,
 					input.languageCode,
 				);
+
+				// Get store status using status service (no duplication)
+				const status = await ctx.services.status.getStatusBySlug(
+					input.storeSlug,
+				);
+
+				// Add status to store object
+				return {
+					...menuData,
+					store: {
+						...menuData.store,
+						status,
+					},
+				};
 			} catch (error) {
 				if (error instanceof Error && error.message === "Store not found") {
 					throw new TRPCError({

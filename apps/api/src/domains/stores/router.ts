@@ -9,7 +9,7 @@
 
 import { stores } from "@menuvo/db/schema";
 import { TRPCError } from "@trpc/server";
-import { and, asc, eq, gt, ilike, or } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { router } from "../../trpc/index.js";
 import { protectedProcedure, publicProcedure } from "../../trpc/trpc.js";
 import { closuresRouter } from "./closures/index.js";
@@ -28,6 +28,7 @@ import {
 	updateStoreImageApiSchema,
 } from "./schemas.js";
 import { servicePointsRouter } from "./service-points/index.js";
+import { statusRouter } from "./status/index.js";
 
 export const storeRouter = router({
 	/**
@@ -247,61 +248,15 @@ export const storeRouter = router({
 	searchStores: publicProcedure
 		.input(searchStoresSchema)
 		.query(async ({ ctx, input }) => {
-			const { query, city, limit, cursor } = input;
-			// Note: lat, lng, radius are accepted but geo-search requires PostGIS
-			// For now, we filter by city/query only
-
-			// Build where conditions
-			const conditions = [eq(stores.isActive, true)];
-
-			// Text search on name
-			if (query) {
-				conditions.push(
-					or(
-						ilike(stores.name, `%${query}%`),
-						ilike(stores.city, `%${query}%`),
-					) ?? eq(stores.isActive, true),
-				);
-			}
-
-			// City filter
-			if (city) {
-				conditions.push(ilike(stores.city, `%${city}%`));
-			}
-
-			// Cursor-based pagination
-			if (cursor) {
-				conditions.push(gt(stores.id, cursor));
-			}
-
-			const results = await ctx.db.query.stores.findMany({
-				where: and(...conditions),
-				orderBy: [asc(stores.name)],
-				limit: limit + 1, // Fetch one extra to check if there are more
-				columns: {
-					id: true,
-					slug: true,
-					name: true,
-					logoUrl: true,
-					street: true,
-					city: true,
-					postalCode: true,
-					country: true,
-					currency: true,
-				},
+			return await ctx.services.stores.searchStores({
+				query: input.query,
+				city: input.city,
+				lat: input.lat,
+				lng: input.lng,
+				radius: input.radius,
+				limit: input.limit,
+				cursor: input.cursor,
 			});
-
-			// Check if there are more results
-			const hasMore = results.length > limit;
-			const storeResults = hasMore ? results.slice(0, -1) : results;
-			const nextCursor = hasMore
-				? storeResults[storeResults.length - 1]?.id
-				: undefined;
-
-			return {
-				stores: storeResults,
-				nextCursor,
-			};
 		}),
 
 	/**
@@ -311,36 +266,10 @@ export const storeRouter = router({
 	getFeaturedStores: publicProcedure
 		.input(getFeaturedStoresSchema)
 		.query(async ({ ctx, input }) => {
-			const { city, limit } = input;
-
-			// Build where conditions
-			const conditions = [eq(stores.isActive, true)];
-
-			// City filter
-			if (city) {
-				conditions.push(ilike(stores.city, `%${city}%`));
-			}
-
-			// TODO: Add isFeatured column to stores table for explicit featuring
-			// For now, return active stores ordered by creation date (newest first)
-			const results = await ctx.db.query.stores.findMany({
-				where: and(...conditions),
-				orderBy: (stores, { desc }) => [desc(stores.createdAt)],
-				limit,
-				columns: {
-					id: true,
-					slug: true,
-					name: true,
-					logoUrl: true,
-					street: true,
-					city: true,
-					postalCode: true,
-					country: true,
-					currency: true,
-				},
+			return await ctx.services.stores.getFeaturedStores({
+				city: input.city,
+				limit: input.limit,
 			});
-
-			return results;
 		}),
 
 	/**
@@ -367,6 +296,9 @@ export const storeRouter = router({
 
 	/** Store closures operations */
 	closures: closuresRouter,
+
+	/** Store status operations */
+	status: statusRouter,
 });
 
 export type StoreRouter = typeof storeRouter;

@@ -29,6 +29,7 @@ import {
 	sum,
 } from "drizzle-orm";
 import { ForbiddenError, NotFoundError, ValidationError } from "../errors.js";
+import type { IStoreStatusService } from "../stores/status/index.js";
 import type { IOrderService } from "./interface.js";
 import type {
 	CreateOrderInput,
@@ -50,6 +51,7 @@ import type {
 	OptionGroup,
 	OrderStats,
 	OrderTotals,
+	OrderWithRelations,
 } from "./types.js";
 
 /**
@@ -57,20 +59,127 @@ import type {
  */
 export class OrderService implements IOrderService {
 	private readonly db: Database;
+	private readonly statusService: IStoreStatusService | null;
 
-	constructor(db: Database) {
+	constructor(db: Database, statusService?: IStoreStatusService) {
 		this.db = db;
+		this.statusService = statusService ?? null;
 	}
 
 	async createOrder(input: CreateOrderInput) {
+		// 0. Check for existing order with idempotency key (if provided)
+		if (input.idempotencyKey) {
+			const existingOrder = await this.db.query.orders.findFirst({
+				where: eq(orders.idempotencyKey, input.idempotencyKey),
+			});
+
+			if (existingOrder) {
+				// Return existing order (matches return type of createOrder)
+				return existingOrder;
+			}
+		}
+
 		// 1. Verify store exists and is active
 		const store = await this.db.query.stores.findFirst({
 			where: and(eq(stores.id, input.storeId), eq(stores.isActive, true)),
-			columns: { id: true, merchantId: true, currency: true },
+			columns: { id: true, merchantId: true, currency: true, slug: true },
 		});
 
 		if (!store) {
 			throw new NotFoundError("Store not found or is not active");
+		}
+
+		// 1.5. Validate order based on store status (if status service is available)
+		if (this.statusService) {
+			const storeStatus = await this.statusService.getStatusBySlug(store.slug);
+
+			// If shop is closed, only takeaway and delivery orders are allowed
+			if (
+				!storeStatus.isOpen &&
+				input.orderType !== "takeaway" &&
+				input.orderType !== "delivery"
+			) {
+				throw new ValidationError(
+					"Shop is currently closed. Only takeaway and delivery orders are available for pre-ordering.",
+				);
+			}
+
+			// If shop is closed, scheduledPickupTime is required for both takeaway and delivery
+			if (
+				!storeStatus.isOpen &&
+				!input.scheduledPickupTime &&
+				(input.orderType === "takeaway" || input.orderType === "delivery")
+			) {
+				throw new ValidationError(
+					"Pickup/delivery time is required when shop is closed. Please select a time for when the shop opens.",
+				);
+			}
+
+			// If shop is closed, scheduledPickupTime must be after nextOpenTime
+			if (
+				!storeStatus.isOpen &&
+				input.scheduledPickupTime &&
+				storeStatus.nextOpenTime
+			) {
+				const nextOpenDate = new Date(storeStatus.nextOpenTime);
+				if (input.scheduledPickupTime <= nextOpenDate) {
+					throw new ValidationError(
+						"Pickup/delivery time must be after the shop opens. Please select a time after the shop opens.",
+					);
+				}
+			}
+
+			// For all takeaway orders, validate scheduledPickupTime
+			// For delivery orders when shop is closed, also validate scheduledPickupTime
+			if (
+				input.orderType === "takeaway" ||
+				(input.orderType === "delivery" && !storeStatus.isOpen)
+			) {
+				if (!input.scheduledPickupTime) {
+					const timeLabel =
+						input.orderType === "takeaway" ? "Pickup" : "Delivery";
+					throw new ValidationError(
+						`${timeLabel} time is required for ${input.orderType} orders.`,
+					);
+				}
+
+				const now = new Date();
+				const minAdvanceTime = new Date(now.getTime() + 30 * 60 * 1000); // 30 minutes
+
+				// Validate minimum 30-minute advance time
+				if (input.scheduledPickupTime < minAdvanceTime) {
+					const timeLabel =
+						input.orderType === "takeaway" ? "Pickup" : "Delivery";
+					throw new ValidationError(
+						`${timeLabel} time must be at least 30 minutes in advance.`,
+					);
+				}
+
+				// Validate scheduledPickupTime is in the future
+				if (input.scheduledPickupTime <= now) {
+					const timeLabel =
+						input.orderType === "takeaway" ? "Pickup" : "Delivery";
+					throw new ValidationError(`${timeLabel} time must be in the future.`);
+				}
+
+				// Validate scheduledPickupTime is during open hours
+				// Get available slots and check if the selected time is valid
+				const availableSlots = await this.statusService.getAvailablePickupSlots(
+					store.slug,
+				);
+				const pickupTimeISO = input.scheduledPickupTime.toISOString();
+				const selectedSlot = availableSlots.slots.find(
+					(slot) => slot.datetime === pickupTimeISO,
+				);
+
+				if (!selectedSlot) {
+					const timeLabel =
+						input.orderType === "takeaway" ? "pickup" : "delivery";
+					throw new ValidationError(
+						`Selected ${timeLabel} time is not available. Please select a valid time slot.`,
+					);
+				}
+			}
 		}
 
 		// 2. If service point is provided, verify it exists and belongs to the store
@@ -192,6 +301,8 @@ export class OrderService implements IOrderService {
 					tipAmount: 0,
 					totalAmount: subtotal,
 					pickupNumber,
+					scheduledPickupTime: input.scheduledPickupTime ?? null,
+					idempotencyKey: input.idempotencyKey ?? null,
 				})
 				.returning();
 
@@ -241,6 +352,32 @@ export class OrderService implements IOrderService {
 		});
 
 		return result;
+	}
+
+	async getById(orderId: string): Promise<OrderWithRelations> {
+		const order = await this.db.query.orders.findFirst({
+			where: eq(orders.id, orderId),
+			with: {
+				store: {
+					columns: { id: true, name: true, slug: true, currency: true },
+				},
+				servicePoint: {
+					columns: { id: true, name: true, code: true },
+				},
+				items: {
+					with: {
+						options: true,
+					},
+					orderBy: [asc(orderItems.displayOrder)],
+				},
+			},
+		});
+
+		if (!order) {
+			throw new NotFoundError("Order not found");
+		}
+
+		return order as OrderWithRelations;
 	}
 
 	async cancelOrder(orderId: string, merchantId: string, reason?: string) {

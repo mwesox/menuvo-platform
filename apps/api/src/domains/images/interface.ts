@@ -6,6 +6,7 @@
 
 import type { images } from "@menuvo/db/schema";
 import type {
+	CreateImageRecordInput,
 	DeleteImageInput,
 	DeleteImageResult,
 	UploadImageInput,
@@ -21,4 +22,8 @@ export interface IImagesService {
 	): Promise<typeof images.$inferSelect>;
 	getImage(imageId: string): Promise<typeof images.$inferSelect | null>;
 	deleteImage(input: DeleteImageInput): Promise<DeleteImageResult>;
+	createRecord(
+		input: CreateImageRecordInput,
+		merchantId: string,
+	): Promise<typeof images.$inferSelect>;
 }

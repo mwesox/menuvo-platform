@@ -7,7 +7,11 @@
 import type { storeClosures, storeHours, stores } from "@menuvo/db/schema";
 import type {
 	CreateStoreInput,
+	GetFeaturedStoresParams,
+	SearchStoresParams,
+	SearchStoresResult,
 	SlugAvailabilityResult,
+	StoreWithStatus,
 	UpdateStoreInput,
 } from "./types.js";
 
@@ -76,4 +80,12 @@ export interface IStoreService {
 		name: string,
 		excludeStoreId?: string,
 	) => Promise<{ slug: string } & SlugAvailabilityResult>;
+
+	/** Search stores by name, city, or location (public) */
+	searchStores: (params: SearchStoresParams) => Promise<SearchStoresResult>;
+
+	/** Get featured stores for homepage/discovery (public) */
+	getFeaturedStores: (
+		params: GetFeaturedStoresParams,
+	) => Promise<StoreWithStatus[]>;
 }

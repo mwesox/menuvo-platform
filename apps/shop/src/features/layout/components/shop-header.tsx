@@ -69,17 +69,24 @@ function CartButton({ onClick }: { onClick: () => void }) {
 				onClick={onClick}
 				aria-label={t("header.cartWithItems", { count: itemCount })}
 			>
-				<ShoppingCart className="size-5" />
+				<div className="relative flex items-center gap-1.5">
+					<ShoppingCart className="size-5" />
+					{itemCount > 0 && (
+						<span
+							className="flex size-4 items-center justify-center rounded-full font-semibold text-[10px] leading-none"
+							style={{
+								backgroundColor: "var(--primary)",
+								color: "var(--primary-foreground)",
+							}}
+						>
+							{itemCount > 99 ? "99+" : itemCount}
+						</span>
+					)}
+				</div>
 				{itemCount > 0 && (
-					<>
-						<span className="font-medium text-sm">
-							{t("header.itemCount", { count: itemCount })}
-						</span>
-						<span className="opacity-60">·</span>
-						<span className="font-semibold text-sm tabular-nums">
-							{formatPrice(subtotal)}
-						</span>
-					</>
+					<span className="font-semibold text-sm tabular-nums">
+						{formatPrice(subtotal)}
+					</span>
 				)}
 			</Button>
 		</>

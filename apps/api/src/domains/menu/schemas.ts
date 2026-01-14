@@ -39,6 +39,12 @@ export const publicStoreSchema = z.object({
 	postalCode: z.string().nullable(),
 	country: z.string().nullable(),
 	currency: z.string(),
+	status: z
+		.object({
+			isOpen: z.boolean(),
+			nextOpenTime: z.string().nullable(),
+		})
+		.optional(),
 });
 
 export type PublicStore = z.infer<typeof publicStoreSchema>;
