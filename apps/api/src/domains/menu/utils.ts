@@ -38,8 +38,11 @@ export function getTranslatedName(
 
 	// Fall back to first available translation
 	const firstLang = Object.keys(translations)[0];
-	if (firstLang && translations[firstLang]?.name) {
-		return translations[firstLang].name;
+	if (firstLang) {
+		const firstTranslation = translations[firstLang];
+		if (firstTranslation?.name) {
+			return firstTranslation.name;
+		}
 	}
 
 	return "";
@@ -61,8 +64,11 @@ export function getTranslatedDescription(
 
 	// Fall back to first available translation
 	const firstLang = Object.keys(translations)[0];
-	if (firstLang && translations[firstLang]?.description !== undefined) {
-		return translations[firstLang].description ?? null;
+	if (firstLang) {
+		const firstTranslation = translations[firstLang];
+		if (firstTranslation?.description !== undefined) {
+			return firstTranslation.description ?? null;
+		}
 	}
 
 	return null;

@@ -14,13 +14,15 @@ Before writing code, read: `docs/architecture.md` and `docs/coding-guidelines.md
 - Dont start DEV servers in sessions. usually there is a server already running. 
 - Avoid too defensive fallback solutions. check bigger picture, sometimes failing is better , thatn implementing anothe fallback. 
 - Use Jetbrains MCP for navigating through codebase. 
-
+- Use GH CLI to push changes. never skip --no-verify when pushign (only when user wants it)
+- always run bun run check-types to make sure we are on track. 
 ## Commands
 
 ```bash
 bun install                      # Install deps
 bun run dev                      # All apps (turbo)
 bun run check                    # Biome lint + format
+bun run check-types                    # Type checks
 bun run test                     # Vitest
 
 # Single app

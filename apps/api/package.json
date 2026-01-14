@@ -15,10 +15,10 @@
   },
   "scripts": {
     "dev": "bun --watch src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun --external sharp",
+    "build": "tsc -b && bun build src/index.ts --outdir dist --target bun --external sharp",
     "start": "bun dist/index.js",
     "check": "biome check .",
-    "check-types": "tsc -b"
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@getbrevo/brevo": "^2.2.0",

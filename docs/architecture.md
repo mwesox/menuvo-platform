@@ -52,7 +52,10 @@ Pragmatic structure focused on clear boundaries, vertical slices, and testabilit
 - Max 50-100 lines per procedure
 - No database queries - call services only
 - No business logic calculations
-- Pattern: validate input → check auth → call service → return result
+- Pattern: `.input(schema)` → auth check → `ctx.services.{domain}.{method}()` → catch errors → map to TRPCError
+- Never access `ctx.db` in routers - use services only
+- Use `.output()` for public APIs only
+- Routers catch domain errors and map to TRPCError codes
 
 **Procedure types:**
 
@@ -95,9 +98,10 @@ Domains follow one of two patterns depending on complexity:
 
 ### Service Facade Pattern
 
-- Interface defines the contract (e.g., `IStoreService`, `ICategoriesService`)
-- Class implements the interface (e.g., `StoreService`, `CategoriesService`)
-- Constructor receives dependencies (`db`, other services if needed)
+**Required structure:**
+- All services MUST have interface in `interface.ts` (e.g., `IStoreService`)
+- Service class in `service.ts` implements the interface (e.g., `StoreService implements IStoreService`)
+- Constructor receives dependencies (typically `db`)
 - `DomainServices` class aggregates all services and handles wiring
 
 **Service aggregation:**
@@ -137,6 +141,23 @@ Domains follow one of two patterns depending on complexity:
 - Explicit dependencies as first parameter
 - Returns domain types, not raw DB types
 - Throws domain errors (NotFoundError, ValidationError), not TRPCError
+
+---
+
+## Error Handling
+
+**Error handling boundary:**
+- Domain services throw domain errors (not TRPCError)
+- Routers catch domain errors and map to TRPCError codes
+- Domain layer throws, router layer maps
+
+**Domain layer throws:**
+- `NotFoundError` - Resource doesn't exist
+- `ValidationError` - Invalid input data
+- `ConflictError` - Duplicate or conflicting state
+- `ForbiddenError` - Not authorized
+
+**Router layer:** Maps domain errors to TRPCError codes
 
 ---
 
@@ -182,19 +203,9 @@ Context creation is simplified via `DomainServices` class.
 | `resHeaders` | Response headers for cookies |
 | `serverUrl` | Base URL for OAuth callbacks |
 
-**Note:** `db` is NOT exposed on context - routers access data through services only.
-
----
-
-## Error Handling
-
-**Domain layer throws:**
-- `NotFoundError` - Resource doesn't exist
-- `ValidationError` - Invalid input data
-- `ConflictError` - Duplicate or conflicting state
-- `ForbiddenError` - Not authorized
-
-**Router layer:** Maps domain errors to TRPCError codes
+**Rules:**
+- `db` is NOT exposed on context - routers access data through services only
+- Routers use `ctx.services.{service}.{method}()` only
 
 ---
 
@@ -220,16 +231,30 @@ Context creation is simplified via `DomainServices` class.
 
 ---
 
+## Query Patterns
+
+**Frontend data fetching:**
+- Prefer direct `trpc.{router}.{procedure}.queryOptions()` in components
+- Only create query helpers (`use{Entity}Queries()`) if query used in 3+ components
+- Mutation hooks acceptable for side effects (toast, cache invalidation)
+- Avoid wrapping `useQuery(trpc.x.queryOptions())` in hooks - use directly
+- Route loaders: use `trpcClient` (no hooks), components: use `useTRPC()`
+
+---
+
 ## Anti-Patterns to Avoid
 
 | Don't | Do Instead |
 |-------|------------|
 | Business logic in routers | Extract to domain service classes |
 | Direct DB queries in routers | Call `ctx.services.{domain}.{method}()` |
-| `ctx.db` access in routers | Use service methods |
+| `ctx.db` access in routers | Use `ctx.services.{service}.{method}()` |
 | Manual service wiring in context | Use `DomainServices` class |
 | Service classes without interfaces | Always define `I{Service}` interface |
 | Monolithic service classes | Split into sub-services if > 500 lines |
+| Wrapping `useQuery(trpc.x.queryOptions())` in hooks | Use queryOptions directly |
+| Throwing TRPCError from domain services | Domain services throw domain errors |
+| Creating hooks for queries used once | Use queryOptions directly in component |
 
 ---
 
