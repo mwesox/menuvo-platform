@@ -32,17 +32,15 @@ export function CategorySection({
 				</p>
 			)}
 
-			{/* Items grid - responsive 1-2-3 columns with container queries */}
-			<div className="@container">
-				<div className="grid grid-cols-1 gap-3 @xl:grid-cols-2 @xl:gap-4 @4xl:grid-cols-3 @4xl:gap-5">
-					{category.items.map((item: CategoryItem) => (
-						<MenuItemCard
-							key={item.id}
-							item={item}
-							onSelect={() => onItemSelect(item)}
-						/>
-					))}
-				</div>
+			{/* Items grid - auto-fit columns based on available space (min 280px per card, max 3 columns) */}
+			<div className="grid max-w-5xl grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-4">
+				{category.items.map((item: CategoryItem) => (
+					<MenuItemCard
+						key={item.id}
+						item={item}
+						onSelect={() => onItemSelect(item)}
+					/>
+				))}
 			</div>
 		</section>
 	);
