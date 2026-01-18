@@ -31,6 +31,7 @@ import {
 	sum,
 } from "drizzle-orm";
 import { ForbiddenError, NotFoundError, ValidationError } from "../errors.js";
+import type { IVatService } from "../menu/vat/index.js";
 import { DEFAULT_ORDER_TYPES } from "../stores/settings/types.js";
 import type { IStoreStatusService } from "../stores/status/index.js";
 import type { IOrderService } from "./interface.js";
@@ -63,10 +64,17 @@ import type {
 export class OrderService implements IOrderService {
 	private readonly db: Database;
 	private readonly statusService: IStoreStatusService | null;
+	// biome-ignore lint/correctness/noUnusedPrivateClassMembers: Will be used for VAT calculations
+	private readonly vatService: IVatService | null;
 
-	constructor(db: Database, statusService?: IStoreStatusService) {
+	constructor(
+		db: Database,
+		statusService?: IStoreStatusService,
+		vatService?: IVatService,
+	) {
 		this.db = db;
 		this.statusService = statusService ?? null;
+		this.vatService = vatService ?? null;
 	}
 
 	async createOrder(input: CreateOrderInput) {

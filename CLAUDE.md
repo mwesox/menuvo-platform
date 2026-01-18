@@ -17,6 +17,7 @@ Before writing code, read: `docs/architecture.md` and `docs/coding-guidelines.md
 - Use GH CLI to push changes. never skip --no-verify when pushign (only when user wants it)
 - always run bun run check-types to make sure we are on track. 
 - Use fullstack-react-dev for subagent work in developement. 
+- Enforce type safety. fields which are mandatory must be mandatory and dont fill it with fallback values or model it optional or nullable. 
 ## Commands
 
 ```bash

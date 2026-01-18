@@ -18,7 +18,8 @@
     "build": "bun build src/index.ts --outdir dist --target bun --external sharp && tsc -b",
     "start": "bun dist/index.js",
     "check": "biome check .",
-    "check-types": "tsc -b --emitDeclarationOnly"
+    "check-types": "tsc -b --emitDeclarationOnly",
+    "seed": "bun --bun run scripts/seed.ts"
   },
   "dependencies": {
     "@getbrevo/brevo": "^2.2.0",

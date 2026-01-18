@@ -10,7 +10,8 @@
 		"db:push": "bun --filter @menuvo/db push",
 		"db:migrate": "bun --filter @menuvo/db migrate",
 		"db:generate": "bun --filter @menuvo/db generate",
-		"db:studio": "bun --filter @menuvo/db studio"
+		"db:studio": "bun --filter @menuvo/db studio",
+		"seed": "bun run --cwd apps/api seed"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.11",

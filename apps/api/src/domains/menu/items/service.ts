@@ -117,6 +117,7 @@ export class ItemsService implements IItemsService {
 				displayOrder,
 				allergens: input.allergens ?? [],
 				kitchenName: input.kitchenName ?? null,
+				vatGroupId: input.vatGroupId ?? null,
 			})
 			.returning();
 
@@ -167,6 +168,8 @@ export class ItemsService implements IItemsService {
 		if (input.allergens !== undefined) updateData.allergens = input.allergens;
 		if (input.kitchenName !== undefined)
 			updateData.kitchenName = input.kitchenName;
+		if (input.vatGroupId !== undefined)
+			updateData.vatGroupId = input.vatGroupId;
 
 		if (Object.keys(updateData).length === 0) {
 			return existingItem;

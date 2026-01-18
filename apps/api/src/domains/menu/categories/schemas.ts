@@ -57,6 +57,8 @@ export const createCategorySchema = z.object({
 	),
 	displayOrder: z.number().int().optional(),
 	isActive: z.boolean().default(true),
+	/** Default VAT group for items in this category */
+	defaultVatGroupId: z.string().uuid("Invalid VAT group ID").optional(),
 });
 
 /**
@@ -68,6 +70,12 @@ export const updateCategorySchema = z.object({
 	translations: categoryTranslationsSchema.optional(),
 	displayOrder: z.number().int().optional(),
 	isActive: z.boolean().optional(),
+	/** Default VAT group for items in this category */
+	defaultVatGroupId: z
+		.string()
+		.uuid("Invalid VAT group ID")
+		.nullable()
+		.optional(),
 });
 
 /**

@@ -12,6 +12,7 @@ import { itemRouter } from "./items/index.js";
 import { optionRouter } from "./options/index.js";
 import { shopMenuRouter } from "./shop/index.js";
 import { translationRouter } from "./translations/index.js";
+import { vatRouter } from "./vat/index.js";
 
 /**
  * Menu router merges all menu-related sub-routers
@@ -34,6 +35,9 @@ export const menuRouter = router({
 
 	/** Menu import operations (console/admin) */
 	import: importRouter,
+
+	/** VAT group management (protected - merchant-owned) */
+	vat: vatRouter,
 });
 
 export type MenuRouter = typeof menuRouter;

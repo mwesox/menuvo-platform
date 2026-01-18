@@ -78,6 +78,7 @@ export class CategoriesService implements ICategoriesService {
 			translations: input.translations,
 			displayOrder,
 			isActive: input.isActive ?? true,
+			defaultVatGroupId: input.defaultVatGroupId ?? null,
 		});
 
 		if (!newCategory) {
@@ -110,6 +111,7 @@ export class CategoriesService implements ICategoriesService {
 			translations?: Record<string, { name: string; description?: string }>;
 			displayOrder?: number;
 			isActive?: boolean;
+			defaultVatGroupId?: string | null;
 		} = {};
 		if (input.translations !== undefined) {
 			updateData.translations = input.translations;
@@ -119,6 +121,9 @@ export class CategoriesService implements ICategoriesService {
 		}
 		if (input.isActive !== undefined) {
 			updateData.isActive = input.isActive;
+		}
+		if (input.defaultVatGroupId !== undefined) {
+			updateData.defaultVatGroupId = input.defaultVatGroupId;
 		}
 
 		if (Object.keys(updateData).length === 0) {

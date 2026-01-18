@@ -83,6 +83,7 @@ export async function insertCategory(
 		translations: Record<string, { name: string; description?: string }>;
 		displayOrder: number;
 		isActive: boolean;
+		defaultVatGroupId?: string | null;
 	},
 ) {
 	const [newCategory] = await db
@@ -92,6 +93,7 @@ export async function insertCategory(
 			translations: data.translations,
 			displayOrder: data.displayOrder,
 			isActive: data.isActive,
+			defaultVatGroupId: data.defaultVatGroupId ?? null,
 		})
 		.returning();
 
@@ -124,6 +126,7 @@ export async function updateCategory(
 		translations?: Record<string, { name: string; description?: string }>;
 		displayOrder?: number;
 		isActive?: boolean;
+		defaultVatGroupId?: string | null;
 	},
 ) {
 	const [updatedCategory] = await db

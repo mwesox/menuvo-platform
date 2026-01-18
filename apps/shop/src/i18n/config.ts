@@ -5,11 +5,13 @@ import { initReactI18next } from "react-i18next";
 import commonDe from "./locales/de/common.json";
 import discoveryDe from "./locales/de/discovery.json";
 import legalDe from "./locales/de/legal.json";
+import menuDe from "./locales/de/menu.json";
 import shopDe from "./locales/de/shop.json";
 // English translations
 import commonEn from "./locales/en/common.json";
 import discoveryEn from "./locales/en/discovery.json";
 import legalEn from "./locales/en/legal.json";
+import menuEn from "./locales/en/menu.json";
 import shopEn from "./locales/en/shop.json";
 
 export const SUPPORTED_LANGUAGES = ["en", "de"] as const;
@@ -21,12 +23,14 @@ const resources = {
 		common: commonEn,
 		discovery: discoveryEn,
 		legal: legalEn,
+		menu: menuEn,
 		shop: shopEn,
 	},
 	de: {
 		common: commonDe,
 		discovery: discoveryDe,
 		legal: legalDe,
+		menu: menuDe,
 		shop: shopDe,
 	},
 };
@@ -57,7 +61,7 @@ export function initI18n(detectedLanguage?: string) {
 			fallbackLng: DEFAULT_LANGUAGE,
 			supportedLngs: [...SUPPORTED_LANGUAGES],
 			defaultNS: "common",
-			ns: ["common", "discovery", "legal", "shop"],
+			ns: ["common", "discovery", "legal", "menu", "shop"],
 			interpolation: {
 				escapeValue: false,
 			},

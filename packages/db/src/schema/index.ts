@@ -33,6 +33,54 @@ export type EntityTranslations = Record<
 export type ChoiceTranslations = Record<string, { name?: string }>;
 
 // ============================================================================
+// VAT GROUPS
+// ============================================================================
+
+/**
+ * VAT Groups - Merchant-managed tax categories.
+ *
+ * Each merchant creates their own VAT groups for their items/categories.
+ * Common examples: "Food", "Beverages", "Alcohol", "Milk-based Drinks"
+ */
+export const vatGroups = pgTable(
+	"vat_groups",
+	{
+		id: uuid().primaryKey().defaultRandom(),
+		/** Merchant that owns this VAT group */
+		merchantId: uuid("merchant_id")
+			.notNull()
+			.references(() => merchants.id, { onDelete: "cascade" }),
+		/** Code for the group (e.g., "food", "drinks") - unique per merchant */
+		code: varchar("code", { length: 50 }).notNull(),
+		/** Display name for the group */
+		name: varchar("name", { length: 100 }).notNull(),
+		/** Optional description */
+		description: text("description"),
+		/** VAT rate in basis points (700 = 7%, 1900 = 19%) */
+		rate: integer("rate").notNull().default(1900),
+		/** Display order for UI */
+		displayOrder: integer("display_order").notNull().default(0),
+		// Timestamps
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+		updatedAt: timestamp("updated_at")
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [
+		index("idx_vat_groups_merchant").on(table.merchantId),
+		unique("unq_vat_groups_merchant_code").on(table.merchantId, table.code),
+	],
+);
+
+export const vatGroupsRelations = relations(vatGroups, ({ one }) => ({
+	merchant: one(merchants, {
+		fields: [vatGroups.merchantId],
+		references: [merchants.id],
+	}),
+}));
+
+// ============================================================================
 // MERCHANTS
 // ============================================================================
 
@@ -118,6 +166,8 @@ export const stores = pgTable("stores", {
 	// Settings
 	timezone: varchar({ length: 50 }).notNull().default("UTC"),
 	currency: varchar({ length: 3 }).notNull().default("EUR"),
+	/** ISO 3166-1 alpha-2 country code for VAT calculation (e.g., "DE", "AT") */
+	countryCode: varchar("country_code", { length: 2 }).notNull().default("DE"),
 	// Status
 	isActive: boolean("is_active").notNull().default(true),
 	// Timestamps
@@ -289,6 +339,10 @@ export const categories = pgTable("categories", {
 		.$type<EntityTranslations>()
 		.notNull()
 		.default(sql`'{}'::jsonb`),
+	/** Default VAT group for items in this category (items inherit unless overridden) */
+	defaultVatGroupId: uuid("default_vat_group_id").references(
+		() => vatGroups.id,
+	),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -329,6 +383,8 @@ export const items = pgTable("items", {
 		.$type<EntityTranslations>()
 		.notNull()
 		.default(sql`'{}'::jsonb`),
+	/** VAT group override (NULL = inherit from category's defaultVatGroupId) */
+	vatGroupId: uuid("vat_group_id").references(() => vatGroups.id),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -417,6 +473,8 @@ export const optionChoices = pgTable("option_choices", {
 		.$type<ChoiceTranslations>()
 		.notNull()
 		.default(sql`'{}'::jsonb`),
+	/** VAT group override for this choice (NULL = inherit from parent item) */
+	vatGroupId: uuid("vat_group_id").references(() => vatGroups.id),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -748,10 +806,14 @@ export const orders = pgTable(
 		servicePointId: uuid("service_point_id").references(() => servicePoints.id),
 
 		// Pricing (all in cents)
-		subtotal: integer().notNull(), // Sum of item totals
+		subtotal: integer().notNull(), // Sum of item totals (gross amounts)
+		/** Total net amount before VAT (cents) - calculated from gross */
+		netAmount: integer("net_amount"),
 		taxAmount: integer("tax_amount").notNull().default(0),
 		tipAmount: integer("tip_amount").notNull().default(0),
 		totalAmount: integer("total_amount").notNull(),
+		/** Country code at order time for VAT calculation snapshot */
+		vatCountryCode: varchar("vat_country_code", { length: 2 }),
 
 		// Payment
 		paymentStatus: text("payment_status").notNull().default("pending"),
@@ -814,6 +876,7 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
 		references: [servicePoints.id],
 	}),
 	items: many(orderItems),
+	vatLines: many(orderVatLines),
 }));
 
 // ============================================================================
@@ -838,9 +901,19 @@ export const orderItems = pgTable(
 		kitchenName: varchar("kitchen_name", { length: 50 }), // Short name for kitchen display
 		description: text(),
 		quantity: integer().notNull(),
-		unitPrice: integer("unit_price").notNull(), // Base price per unit (cents)
-		optionsPrice: integer("options_price").notNull(), // Total options price per unit (cents)
-		totalPrice: integer("total_price").notNull(), // (unitPrice + optionsPrice) * quantity
+		unitPrice: integer("unit_price").notNull(), // Base price per unit (cents) - gross
+		optionsPrice: integer("options_price").notNull(), // Total options price per unit (cents) - gross
+		totalPrice: integer("total_price").notNull(), // (unitPrice + optionsPrice) * quantity - gross
+
+		// VAT snapshot at order time
+		/** VAT group code snapshot (e.g., "food", "drinks") */
+		vatGroupCode: varchar("vat_group_code", { length: 50 }),
+		/** VAT rate at order time (basis points: 700 = 7%) */
+		vatRate: integer("vat_rate"),
+		/** Net price before VAT (cents) */
+		netPrice: integer("net_price"),
+		/** VAT amount (cents) */
+		vatAmount: integer("vat_amount"),
 
 		// Metadata
 		displayOrder: integer("display_order").notNull(),
@@ -906,6 +979,56 @@ export const orderItemOptionsRelations = relations(
 		}),
 	}),
 );
+
+// ============================================================================
+// ORDER VAT LINES
+// ============================================================================
+
+/**
+ * Order VAT Lines - VAT breakdown per order for receipt compliance.
+ *
+ * Each line represents one VAT rate applied to the order.
+ * All amounts are in cents and are snapshots at order creation time.
+ *
+ * Receipt display:
+ * | Net (7%):  €23.36 |
+ * | VAT (7%):  € 1.64 |
+ * | Net (19%): € 8.40 |
+ * | VAT (19%): € 1.60 |
+ * | Total:     €35.00 |
+ */
+export const orderVatLines = pgTable(
+	"order_vat_lines",
+	{
+		id: uuid().primaryKey().defaultRandom(),
+		/** Reference to order */
+		orderId: uuid("order_id")
+			.notNull()
+			.references(() => orders.id, { onDelete: "cascade" }),
+		/** Snapshot of VAT group code at order time */
+		vatGroupCode: varchar("vat_group_code", { length: 50 }).notNull(),
+		/** Snapshot of VAT group name at order time */
+		vatGroupName: varchar("vat_group_name", { length: 100 }).notNull(),
+		/** VAT rate at order time (basis points: 700 = 7%) */
+		rate: integer("rate").notNull(),
+		/** Net amount before VAT (cents) */
+		netAmount: integer("net_amount").notNull(),
+		/** VAT amount (cents) */
+		vatAmount: integer("vat_amount").notNull(),
+		/** Gross amount including VAT (cents) */
+		grossAmount: integer("gross_amount").notNull(),
+		// Timestamp
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+	},
+	(table) => [index("idx_order_vat_lines_order").on(table.orderId)],
+);
+
+export const orderVatLinesRelations = relations(orderVatLines, ({ one }) => ({
+	order: one(orders, {
+		fields: [orderVatLines.orderId],
+		references: [orders.id],
+	}),
+}));
 
 // ============================================================================
 // TYPE EXPORTS
@@ -978,3 +1101,11 @@ export type NewOrderItemOption = InferInsertModel<typeof orderItemOptions>;
 // Menu Import Job types
 export type MenuImportJob = InferSelectModel<typeof menuImportJobs>;
 export type NewMenuImportJob = InferInsertModel<typeof menuImportJobs>;
+
+// VAT Group types
+export type VatGroup = InferSelectModel<typeof vatGroups>;
+export type NewVatGroup = InferInsertModel<typeof vatGroups>;
+
+// Order VAT Line types
+export type OrderVatLine = InferSelectModel<typeof orderVatLines>;
+export type NewOrderVatLine = InferInsertModel<typeof orderVatLines>;

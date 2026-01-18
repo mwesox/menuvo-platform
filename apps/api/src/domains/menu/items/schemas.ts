@@ -67,6 +67,8 @@ export const createItemApiSchema = z.object({
 	displayOrder: z.number().int().optional(),
 	allergens: z.array(z.string()).optional(),
 	kitchenName: z.string().max(50).optional(),
+	/** VAT group override (NULL = inherit from category) */
+	vatGroupId: z.string().uuid("Invalid VAT group ID").optional(),
 });
 
 /**
@@ -82,6 +84,8 @@ export const updateItemApiSchema = z.object({
 	displayOrder: z.number().int().optional(),
 	allergens: z.array(z.string()).optional(),
 	kitchenName: z.string().max(50).nullable().optional(),
+	/** VAT group override (NULL = inherit from category) */
+	vatGroupId: z.string().uuid("Invalid VAT group ID").nullable().optional(),
 });
 
 /**

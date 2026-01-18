@@ -17,7 +17,9 @@ import {
 	MenuImportService,
 } from "./menu/import/index.js";
 import { type IItemsService, ItemsService } from "./menu/items/index.js";
+import { type IOptionsService, OptionsService } from "./menu/options/index.js";
 import { type IShopMenuService, ShopMenuService } from "./menu/shop/index.js";
+import { type IVatService, VatService } from "./menu/vat/index.js";
 import { type IMerchantsService, MerchantsService } from "./merchants/index.js";
 import {
 	type IOnboardingService,
@@ -67,6 +69,7 @@ export class DomainServices {
 	readonly menuImport: IMenuImportService;
 	readonly merchants: IMerchantsService;
 	readonly onboarding: IOnboardingService;
+	readonly options: IOptionsService;
 	readonly orders: IOrderService;
 	readonly payments: IPaymentService;
 	readonly servicePoints: IServicePointsService;
@@ -74,6 +77,7 @@ export class DomainServices {
 	readonly status: IStoreStatusService;
 	readonly storeSettings: IStoreSettingsService;
 	readonly stores: IStoreService;
+	readonly vat: IVatService;
 
 	constructor(deps: DomainServicesDeps) {
 		this.auth = new AuthService(deps.db);
@@ -84,12 +88,14 @@ export class DomainServices {
 		this.items = new ItemsService(deps.db);
 		this.menuImport = new MenuImportService(deps.db);
 		this.merchants = new MerchantsService(deps.db);
+		this.options = new OptionsService(deps.db);
 		this.payments = new PaymentService(deps.db);
 		this.servicePoints = new ServicePointsService(deps.db);
 		this.shopMenu = new ShopMenuService(deps.db);
 		this.status = new StoreStatusService(deps.db);
 		this.storeSettings = new StoreSettingsService(deps.db);
-		this.orders = new OrderService(deps.db, this.status);
+		this.vat = new VatService(deps.db);
+		this.orders = new OrderService(deps.db, this.status, this.vat);
 		this.stores = new StoreService(deps.db, this.status);
 		// Onboarding depends on merchants and stores services
 		this.onboarding = new OnboardingService(
@@ -106,7 +112,9 @@ export type { IImagesService } from "./images/index.js";
 export type { ICategoriesService } from "./menu/categories/index.js";
 export type { IMenuImportService } from "./menu/import/index.js";
 export type { IItemsService } from "./menu/items/index.js";
+export type { IOptionsService } from "./menu/options/index.js";
 export type { IShopMenuService } from "./menu/shop/index.js";
+export type { IVatService } from "./menu/vat/index.js";
 export type { IMerchantsService } from "./merchants/index.js";
 export type { IOnboardingService } from "./onboarding/index.js";
 export type { IOrderService } from "./orders/index.js";

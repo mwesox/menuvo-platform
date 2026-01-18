@@ -48,15 +48,15 @@ export function initI18n(detectedLanguage?: string) {
 			lng: detectedLanguage,
 			fallbackLng: DEFAULT_LANGUAGE,
 			supportedLngs: [...SUPPORTED_LANGUAGES],
+			nonExplicitSupportedLngs: true,
 			defaultNS: "business",
 			ns: ["business", "legal"],
 			interpolation: {
 				escapeValue: false,
 			},
 			detection: {
-				order: ["localStorage", "navigator"],
-				caches: ["localStorage"],
-				lookupLocalStorage: "menuvo-language",
+				order: ["navigator"],
+				caches: [],
 			},
 			react: {
 				useSuspense: false,
