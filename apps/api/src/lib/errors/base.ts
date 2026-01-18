@@ -57,8 +57,10 @@ export class NotFoundError extends AppError {
 	readonly _tag = "NotFoundError" as const;
 	readonly code = "NOT_FOUND" as const;
 
-	constructor(resource: string, id: string | number) {
-		super(`${resource} not found`, { resource, id });
+	constructor(resource: string, id?: string | number) {
+		const message = id !== undefined ? `${resource} not found` : resource;
+		const context = id !== undefined ? { resource, id } : { resource };
+		super(message, context);
 	}
 }
 
@@ -69,8 +71,12 @@ export class ValidationError extends AppError {
 	readonly _tag = "ValidationError" as const;
 	readonly code = "VALIDATION_ERROR" as const;
 
-	constructor(field: string, reason: string) {
-		super(`Validation failed: ${reason}`, { field, reason });
+	constructor(fieldOrMessage: string, reason?: string) {
+		if (reason !== undefined) {
+			super(`Validation failed: ${reason}`, { field: fieldOrMessage, reason });
+		} else {
+			super(fieldOrMessage, { message: fieldOrMessage });
+		}
 	}
 }
 
@@ -139,7 +145,22 @@ export class ForbiddenError extends AppError {
 	readonly _tag = "ForbiddenError" as const;
 	readonly code = "FORBIDDEN" as const;
 
-	constructor(resource: string, action: string) {
-		super(`Not authorized to ${action} ${resource}`, { resource, action });
+	constructor(resourceOrMessage: string, action?: string) {
+		if (action !== undefined) {
+			super(`Not authorized to ${action} ${resourceOrMessage}`, {
+				resource: resourceOrMessage,
+				action,
+			});
+		} else {
+			super(resourceOrMessage, { message: resourceOrMessage });
+		}
 	}
+}
+
+/**
+ * Conflict error - resource conflict (duplicate, conflicting state).
+ */
+export class ConflictError extends AppError {
+	readonly _tag = "ConflictError" as const;
+	readonly code = "CONFLICT" as const;
 }

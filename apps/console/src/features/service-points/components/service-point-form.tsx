@@ -1,4 +1,4 @@
-import type { ServicePoint } from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Button,
 	Field,
@@ -9,14 +9,13 @@ import {
 	Textarea,
 } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { inferRouterInputs } from "@trpc/server";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	servicePointQueries,
-	useCreateServicePoint,
-	useUpdateServicePoint,
-} from "../queries.ts";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
+import type { ServicePoint } from "../types.ts";
 import { AttributesEditor } from "./attributes-editor.tsx";
 
 interface ServicePointFormProps {
@@ -40,14 +39,62 @@ export function ServicePointForm({
 	onCancel,
 }: ServicePointFormProps) {
 	const { t } = useTranslation("servicePoints");
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
 	const isEditing = !!servicePoint;
-	const createMutation = useCreateServicePoint(storeId);
-	const updateMutation = useUpdateServicePoint(storeId);
+
+	type RouterInput = inferRouterInputs<AppRouter>;
+	type CreateServicePointInput =
+		RouterInput["store"]["servicePoints"]["create"];
+
+	const createMutation = useMutation({
+		mutationKey: trpc.store.servicePoints.create.mutationKey(),
+		mutationFn: (input: Omit<CreateServicePointInput, "storeId">) =>
+			trpcClient.store.servicePoints.create.mutate({ ...input, storeId }),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: trpc.store.servicePoints.list.queryKey({ storeId }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.store.servicePoints.getZones.queryKey({ storeId }),
+			});
+			toast.success(tToasts("success.servicePointCreated"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.createServicePoint"));
+		},
+	});
+
+	type UpdateServicePointInput =
+		RouterInput["store"]["servicePoints"]["update"];
+
+	const updateMutation = useMutation({
+		mutationKey: trpc.store.servicePoints.update.mutationKey(),
+		mutationFn: (input: UpdateServicePointInput) =>
+			trpcClient.store.servicePoints.update.mutate(input),
+		onSuccess: (updated) => {
+			queryClient.invalidateQueries({
+				queryKey: trpc.store.servicePoints.getById.queryKey({ id: updated.id }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.store.servicePoints.list.queryKey({ storeId }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.store.servicePoints.getZones.queryKey({ storeId }),
+			});
+			toast.success(tToasts("success.servicePointUpdated"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.updateServicePoint"));
+		},
+	});
 
 	// Get existing zones for suggestions
-	const { data: existingZones } = useSuspenseQuery(
-		servicePointQueries.zones(storeId),
-	);
+	const { data: existingZones = [] } = useQuery({
+		...trpc.store.servicePoints.getZones.queryOptions({ storeId }),
+	});
 
 	const [autoGenerateCode, setAutoGenerateCode] = useState(!isEditing);
 

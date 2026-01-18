@@ -10,18 +10,83 @@ import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { OrderItem, OrderWithItems } from "@/features/orders/types";
 import { cn } from "@/lib/utils";
-import type { KanbanColumnId, UrgencyLevel } from "../constants";
+import {
+	FAR_AWAY_THRESHOLD_HOURS,
+	type KanbanColumnId,
+	type UrgencyLevel,
+} from "../constants";
 import { useUrgency } from "../hooks/use-urgency";
+import { isOrderTooFarAway } from "../logic/order-sorting";
 
 /** Header style based on ORDER TYPE (not urgency) */
-const getHeaderStyle = (orderType: string): string => {
+const getHeaderStyle = (
+	orderType: string,
+	isFarAway: boolean = false,
+): string => {
 	if (orderType === "takeaway") {
 		// Amber = action, needs packaging
-		return "bg-amber-600 text-white";
+		return isFarAway ? "bg-amber-500 text-white" : "bg-amber-600 text-white";
 	}
 	// Blue = calm, seated, staying (default for dine_in and other types)
-	return "bg-blue-700 text-white";
+	return isFarAway ? "bg-blue-500 text-white" : "bg-blue-700 text-white";
 };
+
+/**
+ * Format pickup time for display.
+ * Shows time only for today, "Tomorrow, HH:mm" for tomorrow, or full date for later.
+ */
+function formatPickupTime(
+	scheduledPickupTime: Date | string | null,
+	now: number = Date.now(),
+	locale: string = "en",
+): string | null {
+	if (!scheduledPickupTime) return null;
+
+	const pickupDate =
+		typeof scheduledPickupTime === "string"
+			? new Date(scheduledPickupTime)
+			: scheduledPickupTime;
+
+	const nowDate = new Date(now);
+	const today = new Date(
+		nowDate.getFullYear(),
+		nowDate.getMonth(),
+		nowDate.getDate(),
+	);
+	const pickupDay = new Date(
+		pickupDate.getFullYear(),
+		pickupDate.getMonth(),
+		pickupDate.getDate(),
+	);
+	const tomorrow = new Date(today);
+	tomorrow.setDate(tomorrow.getDate() + 1);
+
+	const isToday = pickupDay.getTime() === today.getTime();
+	const isTomorrow = pickupDay.getTime() === tomorrow.getTime();
+
+	const timeStr = new Intl.DateTimeFormat(locale === "de" ? "de-DE" : "en-US", {
+		hour: "2-digit",
+		minute: "2-digit",
+		hour12: false,
+	}).format(pickupDate);
+
+	if (isToday) return locale === "de" ? `${timeStr} Uhr` : timeStr;
+	if (isTomorrow) {
+		const tomorrowLabel = locale === "de" ? "Morgen" : "Tomorrow";
+		return locale === "de"
+			? `${tomorrowLabel}, ${timeStr} Uhr`
+			: `${tomorrowLabel}, ${timeStr}`;
+	}
+
+	// For later dates, show full date
+	const dateStr = new Intl.DateTimeFormat(locale === "de" ? "de-DE" : "en-US", {
+		day: "2-digit",
+		month: "2-digit",
+	}).format(pickupDate);
+	return locale === "de"
+		? `${dateStr}, ${timeStr} Uhr`
+		: `${dateStr}, ${timeStr}`;
+}
 
 /** Time text style based on urgency - white text on colored backgrounds */
 const getTimeStyle = (level: UrgencyLevel): string => {
@@ -55,7 +120,7 @@ export function OrderCardKitchen({
 	isLastMoved,
 	className,
 }: OrderCardKitchenProps) {
-	const { t } = useTranslation("console-kitchen");
+	const { t, i18n } = useTranslation("console-kitchen");
 	const { level, timeData } = useUrgency(order.confirmedAt);
 
 	const isTableOrder = order.orderType === "dine_in" && order.servicePoint;
@@ -63,11 +128,25 @@ export function OrderCardKitchen({
 	const isDone = columnId === "done";
 	const showNextButton = onNext && columnId !== "done";
 
+	// Check if order is too far away for deprioritization
+	const isFarAway = isOrderTooFarAway(
+		order,
+		Date.now(),
+		FAR_AWAY_THRESHOLD_HOURS,
+	);
+
 	// Format elapsed time with i18n
 	const elapsedText =
 		timeData.type === "none"
 			? null
 			: t(`time.${timeData.type}`, { count: timeData.count });
+
+	// Format pickup time if available
+	const pickupTimeText = formatPickupTime(
+		order.scheduledPickupTime,
+		Date.now(),
+		i18n.language,
+	);
 
 	// Build order type label
 	const orderTypeLabel = isTakeaway
@@ -92,8 +171,8 @@ export function OrderCardKitchen({
 					)}
 				>
 					<span className="min-w-0 truncate">{orderTypeLabel}</span>
-					<span className="min-w-[3ch] shrink-0 text-end font-mono">
-						#{order.id}
+					<span className="min-w-[3ch] shrink-0 text-end font-bold font-mono text-lg">
+						#{String(order.pickupNumber).padStart(3, "0")}
 					</span>
 				</div>
 				<div className="px-3 py-2 text-muted-foreground text-sm">
@@ -109,6 +188,7 @@ export function OrderCardKitchen({
 				"overflow-hidden rounded bg-card shadow-sm",
 				level === "critical" && "animate-pulse-subtle",
 				isLastMoved && "animate-highlight-glow",
+				isFarAway && "opacity-65 grayscale-[40%]",
 				className,
 			)}
 		>
@@ -116,7 +196,8 @@ export function OrderCardKitchen({
 			<div
 				className={cn(
 					"flex items-center justify-between @[200px]:gap-2 gap-1 px-3 py-2",
-					getHeaderStyle(order.orderType),
+					getHeaderStyle(order.orderType, isFarAway),
+					isFarAway && "opacity-90",
 				)}
 			>
 				<span className="min-w-0 truncate font-semibold">{orderTypeLabel}</span>
@@ -126,8 +207,13 @@ export function OrderCardKitchen({
 							{elapsedText}
 						</span>
 					)}
-					<span className="min-w-[3ch] text-end font-bold font-mono">
-						#{order.id}
+					{pickupTimeText && (
+						<span className={cn("@[240px]:inline hidden", getTimeStyle(level))}>
+							{pickupTimeText}
+						</span>
+					)}
+					<span className="min-w-[3ch] text-end font-bold font-mono text-xl">
+						#{String(order.pickupNumber).padStart(3, "0")}
 					</span>
 				</div>
 			</div>

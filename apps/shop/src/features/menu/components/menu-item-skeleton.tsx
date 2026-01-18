@@ -56,10 +56,10 @@ export function StorePageSkeleton() {
 			{/* Category nav skeleton */}
 			<div className="sticky top-14 z-30 border-border border-b bg-background">
 				<div className="flex gap-2 px-4 py-3">
-					<Skeleton className="h-8 w-24 rounded-full bg-muted" />
-					<Skeleton className="h-8 w-20 rounded-full bg-muted" />
-					<Skeleton className="h-8 w-28 rounded-full bg-muted" />
-					<Skeleton className="h-8 w-24 rounded-full bg-muted" />
+					<Skeleton className="h-8 w-24 rounded-lg bg-muted" />
+					<Skeleton className="h-8 w-20 rounded-lg bg-muted" />
+					<Skeleton className="h-8 w-28 rounded-lg bg-muted" />
+					<Skeleton className="h-8 w-24 rounded-lg bg-muted" />
 				</div>
 			</div>
 

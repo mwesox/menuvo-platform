@@ -13,13 +13,11 @@ import {
 	ScrollArea,
 } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	servicePointQueries,
-	useBatchCreateServicePoints,
-} from "../queries.ts";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 interface BatchCreateDialogProps {
 	open: boolean;
@@ -41,12 +39,50 @@ function BatchCreateForm({
 	onCancel?: () => void;
 }) {
 	const { t } = useTranslation("servicePoints");
-	const batchCreateMutation = useBatchCreateServicePoints(storeId);
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+
+	const batchCreateMutation = useMutation({
+		mutationKey: trpc.store.servicePoints.batchCreate.mutationKey(),
+		mutationFn: (input: {
+			prefix: string;
+			startNumber: number;
+			endNumber: number;
+			zone?: string;
+		}) => {
+			// Transform form input (endNumber) to API input (count)
+			const count = input.endNumber - input.startNumber + 1;
+			return trpcClient.store.servicePoints.batchCreate.mutate({
+				storeId,
+				prefix: input.prefix,
+				startNumber: input.startNumber,
+				count,
+				type: "table",
+				zone: input.zone,
+			});
+		},
+		onSuccess: (created) => {
+			queryClient.invalidateQueries({
+				queryKey: trpc.store.servicePoints.list.queryKey({ storeId }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.store.servicePoints.getZones.queryKey({ storeId }),
+			});
+			toast.success(
+				tToasts("success.servicePointsBatchCreated", { count: created.length }),
+			);
+		},
+		onError: () => {
+			toast.error(tToasts("error.batchCreateServicePoints"));
+		},
+	});
 
 	// Get existing zones for suggestions
-	const { data: existingZones } = useSuspenseQuery(
-		servicePointQueries.zones(storeId),
-	);
+	const { data: existingZones = [] } = useQuery({
+		...trpc.store.servicePoints.getZones.queryOptions({ storeId }),
+	});
 
 	const form = useForm({
 		defaultValues: {

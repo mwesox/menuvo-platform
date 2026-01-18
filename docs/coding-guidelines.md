@@ -106,7 +106,7 @@ const deferredQuery = useDeferredValue(query);
 
 | Rule | Guideline |
 |------|-----------|
-| Location | `packages/trpc/schemas/` |
+| Location | `packages/trpc/routers/{domain}/schemas.ts` |
 | Naming | `{action}{Entity}Schema` (createItem, updateStore) |
 | Types | Actual types (numbers, booleans, dates) |
 | Context IDs | Included (storeId, merchantId) |
@@ -125,25 +125,9 @@ const deferredQuery = useDeferredValue(query);
 | Rule | Guideline |
 |------|-----------|
 | Source of truth | `packages/db/schema/` - define as `const array` with `as const` |
-| Zod schemas | `packages/trpc/schemas/` - derive using `z.enum(dbArray)`, never duplicate values |
-| App imports | Always from `@menuvo/trpc/schemas`, never from `@menuvo/db` |
+| Zod schemas | `packages/trpc/routers/{domain}/schemas.ts` - derive using `z.enum(dbArray)` |
+| App imports | Always from `@menuvo/trpc`, never from `@menuvo/db` |
 | Local types | Never create type mirrors in apps - import from tRPC |
-
-**Example - Correct pattern:**
-
-```typescript
-// packages/db/schema/index.ts (SOURCE)
-export const orderStatuses = ["awaiting_payment", "confirmed", ...] as const;
-export type OrderStatus = (typeof orderStatuses)[number];
-
-// packages/trpc/schemas/order.schema.ts (DERIVES)
-import { orderStatuses } from "@menuvo/db/schema";
-export const orderStatusEnum = z.enum(orderStatuses);
-export type OrderStatusType = z.infer<typeof orderStatusEnum>;
-
-// apps/console/features/orders (CONSUMES)
-import { type OrderStatusType } from "@menuvo/trpc/schemas";
-```
 
 ### Composite Types
 
@@ -157,14 +141,13 @@ import { type OrderStatusType } from "@menuvo/trpc/schemas";
 
 ## tRPC Procedure Rules
 
-### Organization
+### Procedure Types
 
-| Rule | Guideline |
-|------|-----------|
-| One router per domain | `storeRouter`, `itemRouter`, `orderRouter` |
-| Procedures are verbs | `get`, `list`, `create`, `update`, `delete` |
-| Protected by default | Use `protectedProcedure` for authenticated routes |
-| Public when needed | Use `publicProcedure` only for unauthenticated access |
+| Type | Use When |
+|------|----------|
+| `publicProcedure` | Unauthenticated access (storefront, public menu) |
+| `protectedProcedure` | Requires valid session |
+| `storeOwnerProcedure` | Requires owner/admin role |
 
 ### Input Validation
 
@@ -450,21 +433,22 @@ const storeKeys = {
 
 ## Testing
 
-| Type | Location | Approach |
-|------|----------|----------|
-| API Integration | `apps/api/src/**/*.test.ts` | Real test DB, no mocks |
-| Unit | `**/logic/*.test.ts` | Pure functions, no mocks |
-| Component | `**/*.test.tsx` | Mock tRPC client |
+| Type | Approach |
+|------|----------|
+| Domain functions | Unit test with mocked dependencies |
+| Pure logic | Unit test, no mocks needed |
+| Components | Mock tRPC client |
+| Infrastructure | Integration test with real services (test mode) |
 
 ---
 
 ## Adding a New Feature
 
-1. **Database** → `packages/db/schema/` (if new entity)
-2. **API Schema** → `packages/trpc/schemas/`
-3. **tRPC Router** → `packages/trpc/routers/`
-4. **Queries** → `apps/{app}/src/features/{f}/queries.ts`
-5. **Form Schemas** → `apps/{app}/src/features/{f}/schemas.ts`
-6. **Components** → `apps/{app}/src/features/{f}/components/`
-7. **Route** → `apps/{app}/src/routes/` (thin wiring only)
-8. **Tests** → `logic/*.test.ts`, `*.test.ts`
+See `docs/architecture.md` for detailed folder structure. High-level flow:
+
+1. **Database schema** → `packages/db/schema/`
+2. **Domain logic** → `apps/api/src/domain/{slice}/`
+3. **tRPC router + schema** → `packages/trpc/routers/{domain}/`
+4. **Frontend queries** → `apps/{app}/src/features/{f}/queries.ts`
+5. **Frontend components** → `apps/{app}/src/features/{f}/components/`
+6. **Route** → `apps/{app}/src/routes/` (thin wiring only)

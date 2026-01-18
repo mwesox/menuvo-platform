@@ -11,13 +11,20 @@ Before writing code, read: `docs/architecture.md` and `docs/coding-guidelines.md
 - **Never `git reset`**
 - **Use ShadCN MCP** for component docs
 - **Subagents must read docs/** before code changes
-
+- Dont start DEV servers in sessions. usually there is a server already running. 
+- Avoid too defensive fallback solutions. check bigger picture, sometimes failing is better , thatn implementing anothe fallback. 
+- Use Jetbrains MCP for navigating through codebase. 
+- Use GH CLI to push changes. never skip --no-verify when pushign (only when user wants it)
+- always run bun run check-types to make sure we are on track. 
+- Use fullstack-react-dev for subagent work in developement. 
+- Enforce type safety. fields which are mandatory must be mandatory and dont fill it with fallback values or model it optional or nullable. 
 ## Commands
 
 ```bash
 bun install                      # Install deps
 bun run dev                      # All apps (turbo)
 bun run check                    # Biome lint + format
+bun run check-types                    # Type checks
 bun run test                     # Vitest
 
 # Single app
@@ -40,20 +47,6 @@ bun run db:studio                # Open Drizzle Studio GUI
 
 # Shadcn
 cd packages/ui && bunx --bun shadcn@latest add <component>
-```
-
-## Structure
-
-```
-apps/
-  api/        # Hono + tRPC backend
-  console/    # Vite SPA - merchant admin
-  shop/       # Hono SSR - storefront
-  business/   # Vite SPA - landing/marketing
-packages/
-  db/         # Drizzle schema (API only)
-  trpc/       # Routers, schemas (all apps)
-  ui/         # shadcn components
 ```
 
 ## Where to Add Things

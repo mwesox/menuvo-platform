@@ -11,10 +11,12 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@menuvo/ui";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, HelpCircle, LogOut, Store, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useLogout } from "@/features/auth/queries";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 interface ConsoleHeaderProps {
 	stores: Array<{ id: string; name: string; isActive: boolean }>;
@@ -28,7 +30,25 @@ export function ConsoleHeader({
 	onStoreChange,
 }: ConsoleHeaderProps) {
 	const { t } = useTranslation("navigation");
-	const logout = useLogout();
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+
+	const logout = useMutation({
+		...trpc.auth.logout.mutationOptions(),
+		mutationFn: async () => {
+			return trpcClient.auth.logout.mutate();
+		},
+		onSuccess: () => {
+			// Clear all queries on logout
+			queryClient.clear();
+			toast.success(tToasts("success.loggedOut"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.logout"));
+		},
+	});
 
 	const hasMultipleStores = stores.length > 1;
 	const selectedStore = stores.find((s) => s.id === storeId) ?? stores[0];
@@ -39,9 +59,9 @@ export function ConsoleHeader({
 			<div className="flex items-center gap-2">
 				{hasMultipleStores && onStoreChange ? (
 					<Select value={storeId} onValueChange={(v) => onStoreChange(v)}>
-						<SelectTrigger className="h-8 w-[200px] border-0 bg-transparent hover:bg-accent">
+						<SelectTrigger className="h-10 min-w-[220px] gap-2 border-input bg-background hover:bg-muted">
 							<div className="flex items-center gap-2">
-								<Store className="h-4 w-4 text-muted-foreground" />
+								<Store className="h-5 w-5 text-muted-foreground" />
 								<SelectValue placeholder={t("selectStore", "Filiale wählen")} />
 							</div>
 						</SelectTrigger>
@@ -54,8 +74,8 @@ export function ConsoleHeader({
 						</SelectContent>
 					</Select>
 				) : selectedStore ? (
-					<div className="flex items-center gap-2 px-2 text-sm">
-						<Store className="h-4 w-4 text-muted-foreground" />
+					<div className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm">
+						<Store className="h-5 w-5 text-muted-foreground" />
 						<span className="font-medium">{selectedStore.name}</span>
 					</div>
 				) : null}

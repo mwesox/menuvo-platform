@@ -12,17 +12,44 @@ import {
 	Input,
 } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { merchantQueries, useUpdateMerchantGeneral } from "../../queries.ts";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { merchantGeneralSchema } from "../../schemas";
 
 export function MerchantGeneralForm() {
 	const { t } = useTranslation("settings");
 	const { t: tForms } = useTranslation("forms");
 	const { t: tCommon } = useTranslation("common");
-	const { data: merchant } = useSuspenseQuery(merchantQueries.detail());
-	const updateMutation = useUpdateMerchantGeneral();
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+	const { data: merchant } = useQuery({
+		...trpc.merchant.getCurrent.queryOptions(),
+	});
+
+	const updateMutation = useMutation({
+		...trpc.merchant.updateGeneral.mutationOptions(),
+		// Server gets merchantId from auth context
+		mutationFn: (input: { name: string; email: string; phone?: string }) =>
+			trpcClient.merchant.updateGeneral.mutate(input),
+		onSuccess: (updatedMerchant) => {
+			queryClient.setQueryData(
+				trpc.merchant.getCurrent.queryKey(),
+				updatedMerchant,
+			);
+			toast.success(tToasts("success.settingsSaved"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.saveSettings"));
+		},
+	});
+
+	if (!merchant) {
+		return null;
+	}
 
 	const form = useForm({
 		defaultValues: {

@@ -5,10 +5,10 @@
  * - monitorForElements at board level to handle all drops
  * - No state changes during drag (eliminates flickering)
  * - State updates only on drop
+ *
+ * Note: drag-and-drop libraries are dynamically imported to reduce initial bundle (~76ms savings)
  */
 
-import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { triggerPostMoveFlash } from "@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash";
 import { LayoutGroup } from "motion/react";
 import { useEffect } from "react";
 import type { OrderWithItems } from "@/features/orders/types";
@@ -44,29 +44,44 @@ export function KanbanBoard({
 	lastMovedOrderId,
 }: KanbanBoardProps) {
 	// Monitor all drag operations at board level
+	// Libraries are dynamically imported to reduce initial bundle size
 	useEffect(() => {
-		return monitorForElements({
-			onDrop({ source, location }) {
-				// Get the innermost drop target (the column)
-				const destination = location.current.dropTargets[0];
-				if (!destination) return;
+		let cleanup: (() => void) | undefined;
 
-				const orderId = source.data.orderId as string;
-				const targetColumn = destination.data.columnId as KanbanColumnId;
+		// Dynamically import drag-and-drop libraries
+		Promise.all([
+			import("@atlaskit/pragmatic-drag-and-drop/element/adapter"),
+			import(
+				"@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash"
+			),
+		]).then(([{ monitorForElements }, { triggerPostMoveFlash }]) => {
+			cleanup = monitorForElements({
+				onDrop({ source, location }) {
+					// Get the innermost drop target (the column)
+					const destination = location.current.dropTargets[0];
+					if (!destination) return;
 
-				moveCard(orderId, targetColumn);
+					const orderId = source.data.orderId as string;
+					const targetColumn = destination.data.columnId as KanbanColumnId;
 
-				// Trigger post-move flash after React re-renders
-				requestAnimationFrame(() => {
-					const droppedCard = document.querySelector(
-						`[data-order-id="${orderId}"]`,
-					);
-					if (droppedCard instanceof HTMLElement) {
-						triggerPostMoveFlash(droppedCard);
-					}
-				});
-			},
+					moveCard(orderId, targetColumn);
+
+					// Trigger post-move flash after React re-renders
+					requestAnimationFrame(() => {
+						const droppedCard = document.querySelector(
+							`[data-order-id="${orderId}"]`,
+						);
+						if (droppedCard instanceof HTMLElement) {
+							triggerPostMoveFlash(droppedCard);
+						}
+					});
+				},
+			});
 		});
+
+		return () => {
+			cleanup?.();
+		};
 	}, [moveCard]);
 
 	return (

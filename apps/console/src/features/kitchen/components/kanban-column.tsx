@@ -3,9 +3,10 @@
  *
  * Uses pragmatic-drag-and-drop dropTargetForElements for drop zone handling.
  * Industrial/utilitarian design - recessive headers, prominent order cards.
+ *
+ * Note: drag-and-drop library is dynamically imported to reduce initial bundle size
  */
 
-import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { ScrollArea } from "@menuvo/ui";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -60,33 +61,43 @@ export function KanbanColumn({
 
 	const config = columnConfig[id];
 
-	// Set up drop target
+	// Set up drop target - dynamically import to reduce initial bundle
 	useEffect(() => {
 		const el = columnRef.current;
 		invariant(el, "Column element should exist");
 
-		return dropTargetForElements({
-			element: el,
-			getData: () => ({ columnId: id }),
-			canDrop: ({ source }) => {
-				// Validate drop is allowed based on source column
-				const sourceColumn = source.data.sourceColumn as KanbanColumnId;
-				return canDrop(sourceColumn, id);
+		let cleanup: (() => void) | undefined;
+
+		import("@atlaskit/pragmatic-drag-and-drop/element/adapter").then(
+			({ dropTargetForElements }) => {
+				cleanup = dropTargetForElements({
+					element: el,
+					getData: () => ({ columnId: id }),
+					canDrop: ({ source }) => {
+						// Validate drop is allowed based on source column
+						const sourceColumn = source.data.sourceColumn as KanbanColumnId;
+						return canDrop(sourceColumn, id);
+					},
+					onDragEnter: ({ source }) => {
+						setIsDraggedOver(true);
+						const sourceColumn = source.data.sourceColumn as KanbanColumnId;
+						setIsValidTarget(canDrop(sourceColumn, id));
+					},
+					onDragLeave: () => {
+						setIsDraggedOver(false);
+						setIsValidTarget(false);
+					},
+					onDrop: () => {
+						setIsDraggedOver(false);
+						setIsValidTarget(false);
+					},
+				});
 			},
-			onDragEnter: ({ source }) => {
-				setIsDraggedOver(true);
-				const sourceColumn = source.data.sourceColumn as KanbanColumnId;
-				setIsValidTarget(canDrop(sourceColumn, id));
-			},
-			onDragLeave: () => {
-				setIsDraggedOver(false);
-				setIsValidTarget(false);
-			},
-			onDrop: () => {
-				setIsDraggedOver(false);
-				setIsValidTarget(false);
-			},
-		});
+		);
+
+		return () => {
+			cleanup?.();
+		};
 	}, [id, canDrop]);
 
 	return (

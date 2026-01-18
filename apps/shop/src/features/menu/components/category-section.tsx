@@ -1,15 +1,11 @@
-import { useTranslation } from "react-i18next";
-import type { MenuItemLight } from "../../schemas";
+import type { MenuCategory } from "../types";
 import { MenuItemCard } from "./menu-item-card";
 
+type CategoryItem = MenuCategory["items"][number];
+
 interface CategorySectionProps {
-	category: {
-		id: string;
-		name: string;
-		description: string | null;
-		items: MenuItemLight[];
-	};
-	onItemSelect: (item: MenuItemLight) => void;
+	category: MenuCategory;
+	onItemSelect: (item: CategoryItem) => void;
 	refSetter: (el: HTMLDivElement | null) => void;
 }
 
@@ -22,23 +18,12 @@ export function CategorySection({
 	onItemSelect,
 	refSetter,
 }: CategorySectionProps) {
-	const { t } = useTranslation("shop");
-	const itemCount = category.items.length;
-
 	return (
 		<section ref={refSetter} data-category-id={category.id} className="mb-10">
-			{/* Category header with item count */}
-			<div className="mb-4 flex items-baseline gap-3">
-				<h2
-					className="text-2xl text-foreground"
-					style={{ fontFamily: "var(--font-heading)" }}
-				>
-					{category.name}
-				</h2>
-				<span className="text-muted-foreground text-sm tabular-nums">
-					{t("menu.itemCount", { count: itemCount })}
-				</span>
-			</div>
+			{/* Category header */}
+			<h2 className="mb-4 font-semibold text-2xl text-foreground">
+				{category.name}
+			</h2>
 
 			{/* Category description */}
 			{category.description && (
@@ -47,15 +32,18 @@ export function CategorySection({
 				</p>
 			)}
 
-			{/* Items grid - responsive 1-2-3 columns with container queries */}
-			<div className="@container grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-5">
-				{category.items.map((item) => (
+			{/*
+			Items grid - professional responsive approach:
+			- auto-fill (not auto-fit) keeps consistent column tracks
+			- Cards have max-width to prevent over-stretching
+			- justify-items-start ensures orphan cards stay left-aligned
+			- Consistent visual rhythm regardless of item count
+		*/}
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+				{category.items.map((item: CategoryItem) => (
 					<MenuItemCard
 						key={item.id}
-						item={{
-							...item,
-							hasOptions: item.hasOptionGroups,
-						}}
+						item={item}
 						onSelect={() => onItemSelect(item)}
 					/>
 				))}

@@ -1,16 +1,21 @@
-import type { Image } from "@menuvo/db/schema";
-import type { ImageType } from "@menuvo/trpc/schemas";
-import { trpcClient } from "@/lib/trpc";
+import type { AppRouter } from "@menuvo/api/trpc";
+import type { TRPCClient } from "@trpc/client";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { ImageType } from "../constants.ts";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type UploadImageResult = RouterOutput["image"]["upload"];
 
 /**
  * Upload an image using tRPC with FormData.
  */
 export async function uploadImageBinary(
+	trpcClient: TRPCClient<AppRouter>,
 	blob: Blob,
 	merchantId: string,
 	type: ImageType,
 	filename?: string,
-): Promise<Image | undefined> {
+): Promise<UploadImageResult | undefined> {
 	const formData = new FormData();
 	formData.append("file", blob, filename || "image.jpg");
 	formData.append("merchantId", String(merchantId));

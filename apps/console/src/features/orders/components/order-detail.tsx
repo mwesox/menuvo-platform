@@ -3,12 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { de, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
-import {
-	type OrderStatus,
-	type OrderTypeValue,
-	orderQueries,
-} from "@/features/orders";
+import type { OrderStatus, OrderType } from "@/features/orders";
 import { formatPrice } from "@/features/orders/logic/order-pricing";
+import type { OrderDetail as OrderDetailType } from "@/features/orders/types";
+import { useTRPC } from "@/lib/trpc";
 
 interface OrderDetailProps {
 	orderId: string;
@@ -27,7 +25,7 @@ const statusVariants: Record<
 };
 
 const orderTypeVariants: Record<
-	OrderTypeValue,
+	OrderType,
 	"default" | "secondary" | "outline"
 > = {
 	dine_in: "outline",
@@ -38,12 +36,12 @@ const orderTypeVariants: Record<
 export function OrderDetail({ orderId }: OrderDetailProps) {
 	const { t, i18n } = useTranslation("console-orders");
 	const locale = i18n.language === "de" ? de : enUS;
+	const trpc = useTRPC();
 
-	const {
-		data: order,
-		isLoading,
-		error,
-	} = useQuery(orderQueries.detail(orderId));
+	const { data, isLoading, error } = useQuery(
+		trpc.order.getById.queryOptions({ orderId }),
+	);
+	const order = data as OrderDetailType | undefined;
 
 	if (isLoading) {
 		return <OrderDetailSkeleton />;

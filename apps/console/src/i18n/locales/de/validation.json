@@ -66,6 +66,7 @@
 		"fullName": "Bitte Vor- und Nachname eingeben"
 	},
 	"email": {
+		"required": "E-Mail ist erforderlich",
 		"invalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein"
 	},
 	"phone": {

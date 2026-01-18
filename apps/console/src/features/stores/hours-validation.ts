@@ -1,53 +1,19 @@
-import { daysOfWeek } from "@menuvo/trpc/schemas";
-import { z } from "zod";
+import { z } from "zod/v4";
 
-// Re-export for convenience
-export { daysOfWeek };
-
-export const dayLabels: Record<(typeof daysOfWeek)[number], string> = {
-	monday: "Monday",
-	tuesday: "Tuesday",
-	wednesday: "Wednesday",
-	thursday: "Thursday",
-	friday: "Friday",
-	saturday: "Saturday",
-	sunday: "Sunday",
-};
+export const daysOfWeek = [
+	"monday",
+	"tuesday",
+	"wednesday",
+	"thursday",
+	"friday",
+	"saturday",
+	"sunday",
+] as const;
 
 // Time format regex (HH:MM)
 const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
-// Single time slot schema
-export const timeSlotSchema = z
-	.object({
-		openTime: z.string().regex(timeRegex, "Invalid time format (HH:MM)"),
-		closeTime: z.string().regex(timeRegex, "Invalid time format (HH:MM)"),
-	})
-	.refine((data) => data.openTime < data.closeTime, {
-		message: "Close time must be after open time",
-		path: ["closeTime"],
-	});
-
-export type TimeSlot = z.infer<typeof timeSlotSchema>;
-
-// Single store hour entry schema (for database)
-export const storeHourSchema = z
-	.object({
-		id: z.string().uuid().optional(),
-		dayOfWeek: z.enum(daysOfWeek),
-		openTime: z.string().regex(timeRegex, "Invalid time format (HH:MM)"),
-		closeTime: z.string().regex(timeRegex, "Invalid time format (HH:MM)"),
-		displayOrder: z.number().int().min(0).default(0),
-	})
-	.refine((data) => data.openTime < data.closeTime, {
-		message: "Close time must be after open time",
-		path: ["closeTime"],
-	});
-
-export type StoreHourInput = z.infer<typeof storeHourSchema>;
-
-// Day with multiple slots schema (for form)
-export const dayHoursSchema = z
+const dayHoursSchema = z
 	.object({
 		dayOfWeek: z.enum(daysOfWeek),
 		isOpen: z.boolean(),
@@ -95,7 +61,10 @@ export const dayHoursSchema = z
 				a.openTime.localeCompare(b.openTime),
 			);
 			for (let i = 0; i < sortedSlots.length - 1; i++) {
-				if (sortedSlots[i].closeTime > sortedSlots[i + 1].openTime) {
+				const current = sortedSlots[i];
+				const next = sortedSlots[i + 1];
+				if (!current || !next) continue;
+				if (current.closeTime > next.openTime) {
 					return false;
 				}
 			}
@@ -108,26 +77,3 @@ export const dayHoursSchema = z
 	);
 
 export type DayHoursInput = z.infer<typeof dayHoursSchema>;
-
-// Full week hours schema (for form)
-export const weekHoursSchema = z.array(dayHoursSchema).length(7);
-export type WeekHoursInput = z.infer<typeof weekHoursSchema>;
-
-// Server function input schemas
-export const getStoreHoursSchema = z.object({
-	storeId: z.string().uuid(),
-});
-
-export const saveStoreHoursSchema = z.object({
-	storeId: z.string().uuid(),
-	hours: z.array(
-		z.object({
-			dayOfWeek: z.enum(daysOfWeek),
-			openTime: z.string().regex(timeRegex),
-			closeTime: z.string().regex(timeRegex),
-			displayOrder: z.number().int().min(0),
-		}),
-	),
-});
-
-export type SaveStoreHoursInput = z.infer<typeof saveStoreHoursSchema>;

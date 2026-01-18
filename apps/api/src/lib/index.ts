@@ -33,25 +33,5 @@
  * ```
  */
 
-// Base error classes
-export {
-	AppError,
-	BusinessRuleError,
-	DatabaseError,
-	ExternalServiceError,
-	ForbiddenError,
-	NotFoundError,
-	type SerializedError,
-	UnauthorizedError,
-	ValidationError,
-} from "./base";
-
-// Client utilities
-export {
-	createErrorHandler,
-	type ErrorHandlers,
-	extractError,
-	getErrorKey,
-	isSerializedError,
-	matchError,
-} from "./client";
+// Re-export all error types and utilities from errors module
+export * from "./errors/index.js";

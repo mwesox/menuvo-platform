@@ -1,15 +1,10 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-import { StrictMode, useState } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { I18nextProvider } from "react-i18next";
 import { i18n, initI18n } from "./i18n";
-import {
-	createTRPCReactClient,
-	getQueryClient,
-	TRPCProvider,
-	trpcClient,
-} from "./lib/trpc";
+import { queryClient, TRPCProvider, trpcClient } from "./lib/trpc";
 import { routeTree } from "./routeTree.gen";
 import "./index.css";
 
@@ -20,7 +15,7 @@ initI18n();
 const router = createRouter({
 	routeTree,
 	context: {
-		queryClient: getQueryClient(),
+		queryClient,
 		trpcClient,
 	},
 	defaultPreload: "intent",
@@ -35,12 +30,9 @@ declare module "@tanstack/react-router" {
 }
 
 function App() {
-	const queryClient = getQueryClient();
-	const [trpcReactClient] = useState(() => createTRPCReactClient());
-
 	return (
 		<QueryClientProvider client={queryClient}>
-			<TRPCProvider trpcClient={trpcReactClient} queryClient={queryClient}>
+			<TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
 				<I18nextProvider i18n={i18n}>
 					<RouterProvider router={router} />
 				</I18nextProvider>

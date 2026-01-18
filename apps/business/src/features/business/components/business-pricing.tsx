@@ -52,7 +52,7 @@ export function BusinessPricing() {
 
 					{/* CTA */}
 					<a
-						href="/console/onboarding"
+						href="https://console.menuvo.app/onboarding"
 						className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-red px-5 py-3 font-medium text-sm text-white transition-colors hover:bg-brand-red-dark"
 					>
 						{t("pricing.ctaButton")}

@@ -1,4 +1,4 @@
-import type { ImageType } from "@menuvo/trpc/schemas";
+import type { ImageType } from "../constants.ts";
 
 /**
  * S3 storage keys for image variants.

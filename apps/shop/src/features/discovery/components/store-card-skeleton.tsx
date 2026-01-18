@@ -2,7 +2,7 @@ import { Skeleton } from "@menuvo/ui/components/skeleton";
 
 export function StoreCardSkeleton() {
 	return (
-		<div className="overflow-hidden rounded-2xl bg-card ring-1 ring-border/50">
+		<div className="overflow-hidden rounded-xl bg-card ring-1 ring-border/50">
 			{/* Image skeleton - 16:10 aspect ratio to match card */}
 			<Skeleton className="aspect-[16/10] rounded-none bg-muted" />
 

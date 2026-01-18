@@ -13,9 +13,9 @@ import { Route as SlugRouteRouteImport } from './routes/$slug/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SlugIndexRouteImport } from './routes/$slug/index'
 import { Route as QShortCodeRouteImport } from './routes/q/$shortCode'
-import { Route as SlugCheckoutIndexRouteImport } from './routes/$slug/checkout/index'
+import { Route as SlugOrderingIndexRouteImport } from './routes/$slug/ordering/index'
+import { Route as SlugOrderingReturnRouteImport } from './routes/$slug/ordering/return'
 import { Route as SlugOrderOrderIdRouteImport } from './routes/$slug/order/$orderId'
-import { Route as SlugCheckoutReturnRouteImport } from './routes/$slug/checkout/return'
 
 const SlugRouteRoute = SlugRouteRouteImport.update({
   id: '/$slug',
@@ -37,19 +37,19 @@ const QShortCodeRoute = QShortCodeRouteImport.update({
   path: '/q/$shortCode',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SlugCheckoutIndexRoute = SlugCheckoutIndexRouteImport.update({
-  id: '/checkout/',
-  path: '/checkout/',
+const SlugOrderingIndexRoute = SlugOrderingIndexRouteImport.update({
+  id: '/ordering/',
+  path: '/ordering/',
+  getParentRoute: () => SlugRouteRoute,
+} as any)
+const SlugOrderingReturnRoute = SlugOrderingReturnRouteImport.update({
+  id: '/ordering/return',
+  path: '/ordering/return',
   getParentRoute: () => SlugRouteRoute,
 } as any)
 const SlugOrderOrderIdRoute = SlugOrderOrderIdRouteImport.update({
   id: '/order/$orderId',
   path: '/order/$orderId',
-  getParentRoute: () => SlugRouteRoute,
-} as any)
-const SlugCheckoutReturnRoute = SlugCheckoutReturnRouteImport.update({
-  id: '/checkout/return',
-  path: '/checkout/return',
   getParentRoute: () => SlugRouteRoute,
 } as any)
 
@@ -58,17 +58,17 @@ export interface FileRoutesByFullPath {
   '/$slug': typeof SlugRouteRouteWithChildren
   '/q/$shortCode': typeof QShortCodeRoute
   '/$slug/': typeof SlugIndexRoute
-  '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
   '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
-  '/$slug/checkout': typeof SlugCheckoutIndexRoute
+  '/$slug/ordering/return': typeof SlugOrderingReturnRoute
+  '/$slug/ordering': typeof SlugOrderingIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/q/$shortCode': typeof QShortCodeRoute
   '/$slug': typeof SlugIndexRoute
-  '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
   '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
-  '/$slug/checkout': typeof SlugCheckoutIndexRoute
+  '/$slug/ordering/return': typeof SlugOrderingReturnRoute
+  '/$slug/ordering': typeof SlugOrderingIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -76,9 +76,9 @@ export interface FileRoutesById {
   '/$slug': typeof SlugRouteRouteWithChildren
   '/q/$shortCode': typeof QShortCodeRoute
   '/$slug/': typeof SlugIndexRoute
-  '/$slug/checkout/return': typeof SlugCheckoutReturnRoute
   '/$slug/order/$orderId': typeof SlugOrderOrderIdRoute
-  '/$slug/checkout/': typeof SlugCheckoutIndexRoute
+  '/$slug/ordering/return': typeof SlugOrderingReturnRoute
+  '/$slug/ordering/': typeof SlugOrderingIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,26 +87,26 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/q/$shortCode'
     | '/$slug/'
-    | '/$slug/checkout/return'
     | '/$slug/order/$orderId'
-    | '/$slug/checkout'
+    | '/$slug/ordering/return'
+    | '/$slug/ordering'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/q/$shortCode'
     | '/$slug'
-    | '/$slug/checkout/return'
     | '/$slug/order/$orderId'
-    | '/$slug/checkout'
+    | '/$slug/ordering/return'
+    | '/$slug/ordering'
   id:
     | '__root__'
     | '/'
     | '/$slug'
     | '/q/$shortCode'
     | '/$slug/'
-    | '/$slug/checkout/return'
     | '/$slug/order/$orderId'
-    | '/$slug/checkout/'
+    | '/$slug/ordering/return'
+    | '/$slug/ordering/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,11 +145,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QShortCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$slug/checkout/': {
-      id: '/$slug/checkout/'
-      path: '/checkout'
-      fullPath: '/$slug/checkout'
-      preLoaderRoute: typeof SlugCheckoutIndexRouteImport
+    '/$slug/ordering/': {
+      id: '/$slug/ordering/'
+      path: '/ordering'
+      fullPath: '/$slug/ordering'
+      preLoaderRoute: typeof SlugOrderingIndexRouteImport
+      parentRoute: typeof SlugRouteRoute
+    }
+    '/$slug/ordering/return': {
+      id: '/$slug/ordering/return'
+      path: '/ordering/return'
+      fullPath: '/$slug/ordering/return'
+      preLoaderRoute: typeof SlugOrderingReturnRouteImport
       parentRoute: typeof SlugRouteRoute
     }
     '/$slug/order/$orderId': {
@@ -159,28 +166,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SlugOrderOrderIdRouteImport
       parentRoute: typeof SlugRouteRoute
     }
-    '/$slug/checkout/return': {
-      id: '/$slug/checkout/return'
-      path: '/checkout/return'
-      fullPath: '/$slug/checkout/return'
-      preLoaderRoute: typeof SlugCheckoutReturnRouteImport
-      parentRoute: typeof SlugRouteRoute
-    }
   }
 }
 
 interface SlugRouteRouteChildren {
   SlugIndexRoute: typeof SlugIndexRoute
-  SlugCheckoutReturnRoute: typeof SlugCheckoutReturnRoute
   SlugOrderOrderIdRoute: typeof SlugOrderOrderIdRoute
-  SlugCheckoutIndexRoute: typeof SlugCheckoutIndexRoute
+  SlugOrderingReturnRoute: typeof SlugOrderingReturnRoute
+  SlugOrderingIndexRoute: typeof SlugOrderingIndexRoute
 }
 
 const SlugRouteRouteChildren: SlugRouteRouteChildren = {
   SlugIndexRoute: SlugIndexRoute,
-  SlugCheckoutReturnRoute: SlugCheckoutReturnRoute,
   SlugOrderOrderIdRoute: SlugOrderOrderIdRoute,
-  SlugCheckoutIndexRoute: SlugCheckoutIndexRoute,
+  SlugOrderingReturnRoute: SlugOrderingReturnRoute,
+  SlugOrderingIndexRoute: SlugOrderingIndexRoute,
 }
 
 const SlugRouteRouteWithChildren = SlugRouteRoute._addFileChildren(

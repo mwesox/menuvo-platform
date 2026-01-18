@@ -1,4 +1,5 @@
-import QRCode from "qrcode";
+// QRCode is dynamically imported to avoid loading ~80ms on initial bundle
+// It's only loaded when QR generation functions are actually called
 
 export interface QRCodeOptions {
 	shortCode: string;
@@ -45,6 +46,9 @@ export async function generateQRCodeDataUrl(
 	const { shortCode, size = 256 } = options;
 	const url = buildShortUrl(shortCode);
 
+	// Dynamic import - only loads when QR generation is needed
+	const QRCode = await import("qrcode");
+
 	return QRCode.toDataURL(url, {
 		width: size,
 		margin: 2,
@@ -65,6 +69,9 @@ export async function generateQRCodeSVG(
 ): Promise<string> {
 	const { shortCode, size = 256 } = options;
 	const url = buildShortUrl(shortCode);
+
+	// Dynamic import - only loads when QR generation is needed
+	const QRCode = await import("qrcode");
 
 	return QRCode.toString(url, {
 		type: "svg",

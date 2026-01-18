@@ -1,4 +1,4 @@
-import type { Category } from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Button,
 	Card,
@@ -15,16 +15,22 @@ import {
 	Textarea,
 } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { getLocalizedContent } from "@/features/translations/logic/localization";
-import { useCreateCategory, useUpdateCategory } from "../queries";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
+import { getLocalizedContent } from "../logic/localization";
 import {
 	type CategoryFormInput,
 	categoryFormSchema,
 	formToTranslations,
 } from "../schemas";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type Category = NonNullable<RouterOutput["menu"]["categories"]["getById"]>;
 
 interface CategoryFormProps {
 	storeId: string;
@@ -40,8 +46,53 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 	const isEditing = !!category;
 	const language = "de"; // Primary language
 
-	const createMutation = useCreateCategory(storeId);
-	const updateMutation = useUpdateCategory(storeId);
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+	const { t: tToasts } = useTranslation("toasts");
+
+	type RouterInput = inferRouterInputs<AppRouter>;
+	type CreateCategoryInput = RouterInput["menu"]["categories"]["create"];
+
+	const createMutation = useMutation({
+		mutationKey: trpc.menu.categories.create.mutationKey(),
+		mutationFn: async (input: Omit<CreateCategoryInput, "storeId">) =>
+			trpcClient.menu.categories.create.mutate({
+				storeId,
+				...input,
+			}),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({
+				queryKey: trpc.menu.categories.list.queryKey({ storeId }),
+			});
+			toast.success(tToasts("success.categoryCreated"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.createCategory"));
+		},
+	});
+
+	type UpdateCategoryInput = RouterInput["menu"]["categories"]["update"];
+
+	const updateMutation = useMutation({
+		mutationKey: trpc.menu.categories.update.mutationKey(),
+		mutationFn: async (input: UpdateCategoryInput) =>
+			trpcClient.menu.categories.update.mutate(input),
+		onSuccess: async (_, variables) => {
+			await queryClient.invalidateQueries({
+				queryKey: trpc.menu.categories.list.queryKey({ storeId }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.menu.categories.getById.queryKey({
+					id: variables.id,
+				}),
+			});
+			toast.success(tToasts("success.categoryUpdated"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.updateCategory"));
+		},
+	});
 
 	const form = useForm({
 		defaultValues: {
@@ -60,12 +111,11 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 
 			if (isEditing && category) {
 				await updateMutation.mutateAsync({
-					categoryId: category.id,
+					id: category.id,
 					translations,
 				});
 			} else {
 				await createMutation.mutateAsync({
-					storeId,
 					translations,
 				});
 			}

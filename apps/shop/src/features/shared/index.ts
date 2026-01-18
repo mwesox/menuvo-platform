@@ -11,9 +11,9 @@ export {
 	useCookieConsent,
 	useCookieConsentOptional,
 } from "./contexts/cookie-consent-context";
+export { MenuContext, MenuProvider } from "./contexts/menu-context";
 // Contexts
-export {
-	ShopProvider,
-	useShop,
-	useShopOptional,
-} from "./contexts/shop-context";
+export { StoreContext, StoreProvider } from "./contexts/store-context";
+
+// Stores
+export { useShopUIStore } from "./stores/shop-ui-store";

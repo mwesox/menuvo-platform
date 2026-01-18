@@ -45,7 +45,7 @@ export function QuantityStepper({
 	return (
 		<div
 			className={cn(
-				"inline-flex items-center gap-1 rounded-full bg-muted",
+				"inline-flex items-center gap-1 rounded-xl bg-muted",
 				isSm ? "p-0.5" : "p-1",
 			)}
 		>

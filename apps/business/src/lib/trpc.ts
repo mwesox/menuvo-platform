@@ -6,7 +6,7 @@
  * - In components: use `useTRPC()` hook with TanStack Query
  */
 
-import type { AppRouter } from "@menuvo/trpc";
+import type { AppRouter } from "@menuvo/api/trpc";
 import { QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import {

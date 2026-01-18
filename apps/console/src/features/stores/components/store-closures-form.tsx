@@ -1,4 +1,4 @@
-import type { StoreClosure } from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -24,18 +24,18 @@ import {
 	PopoverTrigger,
 } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { inferRouterOutputs } from "@trpc/server";
 import { format, parseISO } from "date-fns";
 import { CalendarIcon, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	storeClosuresQueries,
-	useCreateStoreClosure,
-	useDeleteStoreClosure,
-	useUpdateStoreClosure,
-} from "@/features/stores/queries.ts";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { cn } from "@/lib/utils.ts";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type StoreClosure = RouterOutput["store"]["closures"]["list"][number];
 
 interface StoreClosuresFormProps {
 	storeId: string;
@@ -43,9 +43,10 @@ interface StoreClosuresFormProps {
 
 export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 	const { t } = useTranslation("settings");
-	const { data: closures } = useSuspenseQuery(
-		storeClosuresQueries.list(storeId),
-	);
+	const trpc = useTRPC();
+	const { data: closures = [] } = useQuery({
+		...trpc.store.closures.list.queryOptions({ storeId }),
+	});
 	const [isAdding, setIsAdding] = useState(false);
 	const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -111,7 +112,25 @@ interface ClosureListItemProps {
 function ClosureListItem({ closure, storeId, onEdit }: ClosureListItemProps) {
 	const { t } = useTranslation("settings");
 	const { t: tCommon } = useTranslation("common");
-	const deleteMutation = useDeleteStoreClosure(storeId);
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+
+	const deleteMutation = useMutation({
+		...trpc.store.closures.delete.mutationOptions(),
+		mutationFn: async (input: { id: string }) =>
+			trpcClient.store.closures.delete.mutate(input),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: trpc.store.closures.list.queryKey({ storeId }),
+			});
+			toast.success(tToasts("success.closureDeleted"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.deleteClosure"));
+		},
+	});
 
 	const startDate = parseISO(closure.startDate);
 	const endDate = parseISO(closure.endDate);
@@ -176,8 +195,52 @@ function ClosureForm({
 }: ClosureFormProps) {
 	const { t } = useTranslation("settings");
 	const { t: tCommon } = useTranslation("common");
-	const createMutation = useCreateStoreClosure();
-	const updateMutation = useUpdateStoreClosure(storeId);
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+
+	const createMutation = useMutation({
+		...trpc.store.closures.create.mutationOptions(),
+		mutationFn: async (input: {
+			storeId: string;
+			startDate: string;
+			endDate: string;
+			reason?: string;
+		}) => trpcClient.store.closures.create.mutate(input),
+		onSuccess: (_, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: trpc.store.closures.list.queryKey({
+					storeId: variables.storeId,
+				}),
+			});
+			toast.success(tToasts("success.closureCreated"));
+			onSuccess();
+		},
+		onError: () => {
+			toast.error(tToasts("error.createClosure"));
+		},
+	});
+
+	const updateMutation = useMutation({
+		...trpc.store.closures.update.mutationOptions(),
+		mutationFn: async (input: {
+			id: string;
+			startDate: string;
+			endDate: string;
+			reason?: string;
+		}) => trpcClient.store.closures.update.mutate(input),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: trpc.store.closures.list.queryKey({ storeId }),
+			});
+			toast.success(tToasts("success.closureUpdated"));
+			onSuccess();
+		},
+		onError: () => {
+			toast.error(tToasts("error.updateClosure"));
+		},
+	});
 
 	const today = new Date();
 	const todayStr = format(today, "yyyy-MM-dd");
@@ -190,21 +253,20 @@ function ClosureForm({
 		},
 		onSubmit: async ({ value }) => {
 			if (closure) {
-				await updateMutation.mutateAsync({
+				updateMutation.mutate({
 					id: closure.id,
 					startDate: value.startDate,
 					endDate: value.endDate,
 					reason: value.reason || undefined,
 				});
 			} else {
-				await createMutation.mutateAsync({
+				createMutation.mutate({
 					storeId,
 					startDate: value.startDate,
 					endDate: value.endDate,
 					reason: value.reason || undefined,
 				});
 			}
-			onSuccess();
 		},
 	});
 

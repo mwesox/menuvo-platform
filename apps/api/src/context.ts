@@ -5,24 +5,47 @@
  * Handles session extraction from cookies/headers and service injection.
  */
 
-import type { db } from "@menuvo/db";
-import type { Context, MenuImportService, StorageService } from "@menuvo/trpc";
-import { extractSession } from "./services/auth/session.service.js";
-import { processMenuImportJob } from "./services/menu-import/index.js";
-import { createStorageService } from "./services/storage/s3.service.js";
+import type { Database } from "@menuvo/db";
+import { db } from "@menuvo/db";
+import { getServerUrl } from "./domains/payments/mollie.js";
+import { DomainServices } from "./domains/services.js";
+import { extractSession } from "./infrastructure/auth/session.service.js";
+
+/**
+ * User session data available in authenticated procedures
+ */
+export interface Session {
+	userId: string;
+	merchantId: string;
+	storeId?: string;
+	role: "owner" | "staff" | "admin";
+}
+
+/**
+ * Context available to all procedures.
+ *
+ * Services are accessed through the `services` aggregator.
+ */
+export interface Context extends Record<string, unknown> {
+	/** Database instance */
+	db: Database;
+	/** User session (undefined if not authenticated) */
+	session: Session | undefined;
+	/** Domain services aggregator */
+	services: DomainServices;
+	/** Response headers for setting cookies */
+	resHeaders?: Headers;
+	/** Server URL for webhooks */
+	serverUrl?: string;
+}
 
 interface CreateContextOptions {
 	db: typeof db;
 	req: Request;
 }
 
-// Create singleton storage service instance
-const storageService: StorageService = createStorageService();
-
-// Create singleton menu import service instance
-const menuImportService: MenuImportService = {
-	processJob: processMenuImportJob,
-};
+// Create singleton DomainServices instance
+const services = new DomainServices({ db });
 
 /**
  * Creates the tRPC context for a request
@@ -36,8 +59,8 @@ export async function createContext(
 	return {
 		db: opts.db,
 		session,
-		storage: storageService,
-		menuImport: menuImportService,
+		services,
 		resHeaders: opts.resHeaders,
+		serverUrl: getServerUrl(),
 	};
 }

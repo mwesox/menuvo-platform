@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { OrderStatus } from "@/features/orders";
 import type { ExportOrderRow } from "@/features/orders/schemas";
-import { trpcClient } from "@/lib/trpc";
+import { useTRPCClient } from "@/lib/trpc";
 import {
 	downloadCSV,
 	generateExportFilename,
@@ -29,6 +29,7 @@ export function ExportOrdersButton({
 }: ExportOrdersButtonProps) {
 	const { t } = useTranslation("console-orders");
 	const [isExporting, setIsExporting] = useState(false);
+	const trpcClient = useTRPCClient();
 
 	const handleExport = async () => {
 		setIsExporting(true);

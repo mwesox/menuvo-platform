@@ -148,6 +148,8 @@ export function getErrorKey(error: SerializedError): string {
 		DatabaseError: "error.database",
 		UnauthorizedError: "error.unauthorized",
 		ForbiddenError: "error.forbidden",
+		ConflictError: "error.conflict",
+		DomainError: "error.domain",
 		UnexpectedError: "error.unexpected",
 	};
 

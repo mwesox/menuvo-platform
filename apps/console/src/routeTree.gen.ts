@@ -9,229 +9,270 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as StoresIndexRouteImport } from './routes/stores/index'
-import { Route as SettingsIndexRouteImport } from './routes/settings/index'
-import { Route as OrdersIndexRouteImport } from './routes/orders/index'
-import { Route as MenuIndexRouteImport } from './routes/menu/index'
-import { Route as KitchenIndexRouteImport } from './routes/kitchen/index'
-import { Route as HelpIndexRouteImport } from './routes/help/index'
-import { Route as StoresNewRouteImport } from './routes/stores/new'
-import { Route as StoresStoreIdRouteImport } from './routes/stores/$storeId'
-import { Route as SettingsSubscriptionRouteImport } from './routes/settings/subscription'
-import { Route as SettingsPaymentsRouteImport } from './routes/settings/payments'
-import { Route as SettingsMerchantRouteImport } from './routes/settings/merchant'
-import { Route as MenuImportRouteImport } from './routes/menu/import'
-import { Route as MenuOptionsIndexRouteImport } from './routes/menu/options/index'
-import { Route as MenuOptionsNewRouteImport } from './routes/menu/options/new'
-import { Route as MenuOptionsOptionGroupIdRouteImport } from './routes/menu/options/$optionGroupId'
-import { Route as MenuCategoriesNewRouteImport } from './routes/menu/categories/new'
-import { Route as MenuCategoriesCategoryIdIndexRouteImport } from './routes/menu/categories/$categoryId/index'
-import { Route as MenuCategoriesCategoryIdEditRouteImport } from './routes/menu/categories/$categoryId/edit'
-import { Route as MenuCategoriesCategoryIdItemsNewRouteImport } from './routes/menu/categories/$categoryId/items/new'
-import { Route as MenuCategoriesCategoryIdItemsItemIdRouteImport } from './routes/menu/categories/$categoryId/items/$itemId'
+import { Route as PublicRouteImport } from './routes/_public'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as PublicOnboardingRouteImport } from './routes/_public/onboarding'
+import { Route as AppStoresIndexRouteImport } from './routes/_app/stores/index'
+import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
+import { Route as AppOrdersIndexRouteImport } from './routes/_app/orders/index'
+import { Route as AppMenuIndexRouteImport } from './routes/_app/menu/index'
+import { Route as AppKitchenIndexRouteImport } from './routes/_app/kitchen/index'
+import { Route as AppHelpIndexRouteImport } from './routes/_app/help/index'
+import { Route as PublicLegalPrivacyRouteImport } from './routes/_public/legal/privacy'
+import { Route as PublicLegalImpressumRouteImport } from './routes/_public/legal/impressum'
+import { Route as AppStoresNewRouteImport } from './routes/_app/stores/new'
+import { Route as AppStoresStoreIdRouteImport } from './routes/_app/stores/$storeId'
+import { Route as AppSettingsPaymentsRouteImport } from './routes/_app/settings/payments'
+import { Route as AppSettingsMerchantRouteImport } from './routes/_app/settings/merchant'
+import { Route as AppOrdersOrderIdRouteImport } from './routes/_app/orders/$orderId'
+import { Route as AppMenuImportRouteImport } from './routes/_app/menu/import'
+import { Route as AppMenuOptionsIndexRouteImport } from './routes/_app/menu/options/index'
+import { Route as PublicAuthMerchantLoginRouteImport } from './routes/_public/auth/merchant/login'
+import { Route as AppMenuOptionsNewRouteImport } from './routes/_app/menu/options/new'
+import { Route as AppMenuOptionsOptionGroupIdRouteImport } from './routes/_app/menu/options/$optionGroupId'
+import { Route as AppMenuCategoriesNewRouteImport } from './routes/_app/menu/categories/new'
+import { Route as AppMenuCategoriesCategoryIdIndexRouteImport } from './routes/_app/menu/categories/$categoryId/index'
+import { Route as AppMenuCategoriesCategoryIdEditRouteImport } from './routes/_app/menu/categories/$categoryId/edit'
+import { Route as AppMenuCategoriesCategoryIdItemsNewRouteImport } from './routes/_app/menu/categories/$categoryId/items/new'
+import { Route as AppMenuCategoriesCategoryIdItemsItemIdRouteImport } from './routes/_app/menu/categories/$categoryId/items/$itemId'
 
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const StoresIndexRoute = StoresIndexRouteImport.update({
+const PublicOnboardingRoute = PublicOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => PublicRoute,
+} as any)
+const AppStoresIndexRoute = AppStoresIndexRouteImport.update({
   id: '/stores/',
   path: '/stores/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const SettingsIndexRoute = SettingsIndexRouteImport.update({
+const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const OrdersIndexRoute = OrdersIndexRouteImport.update({
+const AppOrdersIndexRoute = AppOrdersIndexRouteImport.update({
   id: '/orders/',
   path: '/orders/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const MenuIndexRoute = MenuIndexRouteImport.update({
+const AppMenuIndexRoute = AppMenuIndexRouteImport.update({
   id: '/menu/',
   path: '/menu/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const KitchenIndexRoute = KitchenIndexRouteImport.update({
+const AppKitchenIndexRoute = AppKitchenIndexRouteImport.update({
   id: '/kitchen/',
   path: '/kitchen/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const HelpIndexRoute = HelpIndexRouteImport.update({
+const AppHelpIndexRoute = AppHelpIndexRouteImport.update({
   id: '/help/',
   path: '/help/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const StoresNewRoute = StoresNewRouteImport.update({
+const PublicLegalPrivacyRoute = PublicLegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicLegalImpressumRoute = PublicLegalImpressumRouteImport.update({
+  id: '/legal/impressum',
+  path: '/legal/impressum',
+  getParentRoute: () => PublicRoute,
+} as any)
+const AppStoresNewRoute = AppStoresNewRouteImport.update({
   id: '/stores/new',
   path: '/stores/new',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const StoresStoreIdRoute = StoresStoreIdRouteImport.update({
+const AppStoresStoreIdRoute = AppStoresStoreIdRouteImport.update({
   id: '/stores/$storeId',
   path: '/stores/$storeId',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const SettingsSubscriptionRoute = SettingsSubscriptionRouteImport.update({
-  id: '/settings/subscription',
-  path: '/settings/subscription',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsPaymentsRoute = SettingsPaymentsRouteImport.update({
+const AppSettingsPaymentsRoute = AppSettingsPaymentsRouteImport.update({
   id: '/settings/payments',
   path: '/settings/payments',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const SettingsMerchantRoute = SettingsMerchantRouteImport.update({
+const AppSettingsMerchantRoute = AppSettingsMerchantRouteImport.update({
   id: '/settings/merchant',
   path: '/settings/merchant',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const MenuImportRoute = MenuImportRouteImport.update({
+const AppOrdersOrderIdRoute = AppOrdersOrderIdRouteImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMenuImportRoute = AppMenuImportRouteImport.update({
   id: '/menu/import',
   path: '/menu/import',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const MenuOptionsIndexRoute = MenuOptionsIndexRouteImport.update({
+const AppMenuOptionsIndexRoute = AppMenuOptionsIndexRouteImport.update({
   id: '/menu/options/',
   path: '/menu/options/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const MenuOptionsNewRoute = MenuOptionsNewRouteImport.update({
+const PublicAuthMerchantLoginRoute = PublicAuthMerchantLoginRouteImport.update({
+  id: '/auth/merchant/login',
+  path: '/auth/merchant/login',
+  getParentRoute: () => PublicRoute,
+} as any)
+const AppMenuOptionsNewRoute = AppMenuOptionsNewRouteImport.update({
   id: '/menu/options/new',
   path: '/menu/options/new',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const MenuOptionsOptionGroupIdRoute =
-  MenuOptionsOptionGroupIdRouteImport.update({
+const AppMenuOptionsOptionGroupIdRoute =
+  AppMenuOptionsOptionGroupIdRouteImport.update({
     id: '/menu/options/$optionGroupId',
     path: '/menu/options/$optionGroupId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AppRoute,
   } as any)
-const MenuCategoriesNewRoute = MenuCategoriesNewRouteImport.update({
+const AppMenuCategoriesNewRoute = AppMenuCategoriesNewRouteImport.update({
   id: '/menu/categories/new',
   path: '/menu/categories/new',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const MenuCategoriesCategoryIdIndexRoute =
-  MenuCategoriesCategoryIdIndexRouteImport.update({
+const AppMenuCategoriesCategoryIdIndexRoute =
+  AppMenuCategoriesCategoryIdIndexRouteImport.update({
     id: '/menu/categories/$categoryId/',
     path: '/menu/categories/$categoryId/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AppRoute,
   } as any)
-const MenuCategoriesCategoryIdEditRoute =
-  MenuCategoriesCategoryIdEditRouteImport.update({
+const AppMenuCategoriesCategoryIdEditRoute =
+  AppMenuCategoriesCategoryIdEditRouteImport.update({
     id: '/menu/categories/$categoryId/edit',
     path: '/menu/categories/$categoryId/edit',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AppRoute,
   } as any)
-const MenuCategoriesCategoryIdItemsNewRoute =
-  MenuCategoriesCategoryIdItemsNewRouteImport.update({
+const AppMenuCategoriesCategoryIdItemsNewRoute =
+  AppMenuCategoriesCategoryIdItemsNewRouteImport.update({
     id: '/menu/categories/$categoryId/items/new',
     path: '/menu/categories/$categoryId/items/new',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AppRoute,
   } as any)
-const MenuCategoriesCategoryIdItemsItemIdRoute =
-  MenuCategoriesCategoryIdItemsItemIdRouteImport.update({
+const AppMenuCategoriesCategoryIdItemsItemIdRoute =
+  AppMenuCategoriesCategoryIdItemsItemIdRouteImport.update({
     id: '/menu/categories/$categoryId/items/$itemId',
     path: '/menu/categories/$categoryId/items/$itemId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AppRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/onboarding': typeof OnboardingRoute
-  '/menu/import': typeof MenuImportRoute
-  '/settings/merchant': typeof SettingsMerchantRoute
-  '/settings/payments': typeof SettingsPaymentsRoute
-  '/settings/subscription': typeof SettingsSubscriptionRoute
-  '/stores/$storeId': typeof StoresStoreIdRoute
-  '/stores/new': typeof StoresNewRoute
-  '/help': typeof HelpIndexRoute
-  '/kitchen': typeof KitchenIndexRoute
-  '/menu': typeof MenuIndexRoute
-  '/orders': typeof OrdersIndexRoute
-  '/settings': typeof SettingsIndexRoute
-  '/stores': typeof StoresIndexRoute
-  '/menu/categories/new': typeof MenuCategoriesNewRoute
-  '/menu/options/$optionGroupId': typeof MenuOptionsOptionGroupIdRoute
-  '/menu/options/new': typeof MenuOptionsNewRoute
-  '/menu/options': typeof MenuOptionsIndexRoute
-  '/menu/categories/$categoryId/edit': typeof MenuCategoriesCategoryIdEditRoute
-  '/menu/categories/$categoryId': typeof MenuCategoriesCategoryIdIndexRoute
-  '/menu/categories/$categoryId/items/$itemId': typeof MenuCategoriesCategoryIdItemsItemIdRoute
-  '/menu/categories/$categoryId/items/new': typeof MenuCategoriesCategoryIdItemsNewRoute
+  '/onboarding': typeof PublicOnboardingRoute
+  '/': typeof AppIndexRoute
+  '/menu/import': typeof AppMenuImportRoute
+  '/orders/$orderId': typeof AppOrdersOrderIdRoute
+  '/settings/merchant': typeof AppSettingsMerchantRoute
+  '/settings/payments': typeof AppSettingsPaymentsRoute
+  '/stores/$storeId': typeof AppStoresStoreIdRoute
+  '/stores/new': typeof AppStoresNewRoute
+  '/legal/impressum': typeof PublicLegalImpressumRoute
+  '/legal/privacy': typeof PublicLegalPrivacyRoute
+  '/help': typeof AppHelpIndexRoute
+  '/kitchen': typeof AppKitchenIndexRoute
+  '/menu': typeof AppMenuIndexRoute
+  '/orders': typeof AppOrdersIndexRoute
+  '/settings': typeof AppSettingsIndexRoute
+  '/stores': typeof AppStoresIndexRoute
+  '/menu/categories/new': typeof AppMenuCategoriesNewRoute
+  '/menu/options/$optionGroupId': typeof AppMenuOptionsOptionGroupIdRoute
+  '/menu/options/new': typeof AppMenuOptionsNewRoute
+  '/auth/merchant/login': typeof PublicAuthMerchantLoginRoute
+  '/menu/options': typeof AppMenuOptionsIndexRoute
+  '/menu/categories/$categoryId/edit': typeof AppMenuCategoriesCategoryIdEditRoute
+  '/menu/categories/$categoryId': typeof AppMenuCategoriesCategoryIdIndexRoute
+  '/menu/categories/$categoryId/items/$itemId': typeof AppMenuCategoriesCategoryIdItemsItemIdRoute
+  '/menu/categories/$categoryId/items/new': typeof AppMenuCategoriesCategoryIdItemsNewRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/onboarding': typeof OnboardingRoute
-  '/menu/import': typeof MenuImportRoute
-  '/settings/merchant': typeof SettingsMerchantRoute
-  '/settings/payments': typeof SettingsPaymentsRoute
-  '/settings/subscription': typeof SettingsSubscriptionRoute
-  '/stores/$storeId': typeof StoresStoreIdRoute
-  '/stores/new': typeof StoresNewRoute
-  '/help': typeof HelpIndexRoute
-  '/kitchen': typeof KitchenIndexRoute
-  '/menu': typeof MenuIndexRoute
-  '/orders': typeof OrdersIndexRoute
-  '/settings': typeof SettingsIndexRoute
-  '/stores': typeof StoresIndexRoute
-  '/menu/categories/new': typeof MenuCategoriesNewRoute
-  '/menu/options/$optionGroupId': typeof MenuOptionsOptionGroupIdRoute
-  '/menu/options/new': typeof MenuOptionsNewRoute
-  '/menu/options': typeof MenuOptionsIndexRoute
-  '/menu/categories/$categoryId/edit': typeof MenuCategoriesCategoryIdEditRoute
-  '/menu/categories/$categoryId': typeof MenuCategoriesCategoryIdIndexRoute
-  '/menu/categories/$categoryId/items/$itemId': typeof MenuCategoriesCategoryIdItemsItemIdRoute
-  '/menu/categories/$categoryId/items/new': typeof MenuCategoriesCategoryIdItemsNewRoute
+  '/onboarding': typeof PublicOnboardingRoute
+  '/': typeof AppIndexRoute
+  '/menu/import': typeof AppMenuImportRoute
+  '/orders/$orderId': typeof AppOrdersOrderIdRoute
+  '/settings/merchant': typeof AppSettingsMerchantRoute
+  '/settings/payments': typeof AppSettingsPaymentsRoute
+  '/stores/$storeId': typeof AppStoresStoreIdRoute
+  '/stores/new': typeof AppStoresNewRoute
+  '/legal/impressum': typeof PublicLegalImpressumRoute
+  '/legal/privacy': typeof PublicLegalPrivacyRoute
+  '/help': typeof AppHelpIndexRoute
+  '/kitchen': typeof AppKitchenIndexRoute
+  '/menu': typeof AppMenuIndexRoute
+  '/orders': typeof AppOrdersIndexRoute
+  '/settings': typeof AppSettingsIndexRoute
+  '/stores': typeof AppStoresIndexRoute
+  '/menu/categories/new': typeof AppMenuCategoriesNewRoute
+  '/menu/options/$optionGroupId': typeof AppMenuOptionsOptionGroupIdRoute
+  '/menu/options/new': typeof AppMenuOptionsNewRoute
+  '/auth/merchant/login': typeof PublicAuthMerchantLoginRoute
+  '/menu/options': typeof AppMenuOptionsIndexRoute
+  '/menu/categories/$categoryId/edit': typeof AppMenuCategoriesCategoryIdEditRoute
+  '/menu/categories/$categoryId': typeof AppMenuCategoriesCategoryIdIndexRoute
+  '/menu/categories/$categoryId/items/$itemId': typeof AppMenuCategoriesCategoryIdItemsItemIdRoute
+  '/menu/categories/$categoryId/items/new': typeof AppMenuCategoriesCategoryIdItemsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/onboarding': typeof OnboardingRoute
-  '/menu/import': typeof MenuImportRoute
-  '/settings/merchant': typeof SettingsMerchantRoute
-  '/settings/payments': typeof SettingsPaymentsRoute
-  '/settings/subscription': typeof SettingsSubscriptionRoute
-  '/stores/$storeId': typeof StoresStoreIdRoute
-  '/stores/new': typeof StoresNewRoute
-  '/help/': typeof HelpIndexRoute
-  '/kitchen/': typeof KitchenIndexRoute
-  '/menu/': typeof MenuIndexRoute
-  '/orders/': typeof OrdersIndexRoute
-  '/settings/': typeof SettingsIndexRoute
-  '/stores/': typeof StoresIndexRoute
-  '/menu/categories/new': typeof MenuCategoriesNewRoute
-  '/menu/options/$optionGroupId': typeof MenuOptionsOptionGroupIdRoute
-  '/menu/options/new': typeof MenuOptionsNewRoute
-  '/menu/options/': typeof MenuOptionsIndexRoute
-  '/menu/categories/$categoryId/edit': typeof MenuCategoriesCategoryIdEditRoute
-  '/menu/categories/$categoryId/': typeof MenuCategoriesCategoryIdIndexRoute
-  '/menu/categories/$categoryId/items/$itemId': typeof MenuCategoriesCategoryIdItemsItemIdRoute
-  '/menu/categories/$categoryId/items/new': typeof MenuCategoriesCategoryIdItemsNewRoute
+  '/_app': typeof AppRouteWithChildren
+  '/_public': typeof PublicRouteWithChildren
+  '/_public/onboarding': typeof PublicOnboardingRoute
+  '/_app/': typeof AppIndexRoute
+  '/_app/menu/import': typeof AppMenuImportRoute
+  '/_app/orders/$orderId': typeof AppOrdersOrderIdRoute
+  '/_app/settings/merchant': typeof AppSettingsMerchantRoute
+  '/_app/settings/payments': typeof AppSettingsPaymentsRoute
+  '/_app/stores/$storeId': typeof AppStoresStoreIdRoute
+  '/_app/stores/new': typeof AppStoresNewRoute
+  '/_public/legal/impressum': typeof PublicLegalImpressumRoute
+  '/_public/legal/privacy': typeof PublicLegalPrivacyRoute
+  '/_app/help/': typeof AppHelpIndexRoute
+  '/_app/kitchen/': typeof AppKitchenIndexRoute
+  '/_app/menu/': typeof AppMenuIndexRoute
+  '/_app/orders/': typeof AppOrdersIndexRoute
+  '/_app/settings/': typeof AppSettingsIndexRoute
+  '/_app/stores/': typeof AppStoresIndexRoute
+  '/_app/menu/categories/new': typeof AppMenuCategoriesNewRoute
+  '/_app/menu/options/$optionGroupId': typeof AppMenuOptionsOptionGroupIdRoute
+  '/_app/menu/options/new': typeof AppMenuOptionsNewRoute
+  '/_public/auth/merchant/login': typeof PublicAuthMerchantLoginRoute
+  '/_app/menu/options/': typeof AppMenuOptionsIndexRoute
+  '/_app/menu/categories/$categoryId/edit': typeof AppMenuCategoriesCategoryIdEditRoute
+  '/_app/menu/categories/$categoryId/': typeof AppMenuCategoriesCategoryIdIndexRoute
+  '/_app/menu/categories/$categoryId/items/$itemId': typeof AppMenuCategoriesCategoryIdItemsItemIdRoute
+  '/_app/menu/categories/$categoryId/items/new': typeof AppMenuCategoriesCategoryIdItemsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/onboarding'
+    | '/'
     | '/menu/import'
+    | '/orders/$orderId'
     | '/settings/merchant'
     | '/settings/payments'
-    | '/settings/subscription'
     | '/stores/$storeId'
     | '/stores/new'
+    | '/legal/impressum'
+    | '/legal/privacy'
     | '/help'
     | '/kitchen'
     | '/menu'
@@ -241,6 +282,7 @@ export interface FileRouteTypes {
     | '/menu/categories/new'
     | '/menu/options/$optionGroupId'
     | '/menu/options/new'
+    | '/auth/merchant/login'
     | '/menu/options'
     | '/menu/categories/$categoryId/edit'
     | '/menu/categories/$categoryId'
@@ -248,14 +290,16 @@ export interface FileRouteTypes {
     | '/menu/categories/$categoryId/items/new'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/onboarding'
+    | '/'
     | '/menu/import'
+    | '/orders/$orderId'
     | '/settings/merchant'
     | '/settings/payments'
-    | '/settings/subscription'
     | '/stores/$storeId'
     | '/stores/new'
+    | '/legal/impressum'
+    | '/legal/privacy'
     | '/help'
     | '/kitchen'
     | '/menu'
@@ -265,6 +309,7 @@ export interface FileRouteTypes {
     | '/menu/categories/new'
     | '/menu/options/$optionGroupId'
     | '/menu/options/new'
+    | '/auth/merchant/login'
     | '/menu/options'
     | '/menu/categories/$categoryId/edit'
     | '/menu/categories/$categoryId'
@@ -272,238 +317,306 @@ export interface FileRouteTypes {
     | '/menu/categories/$categoryId/items/new'
   id:
     | '__root__'
-    | '/'
-    | '/onboarding'
-    | '/menu/import'
-    | '/settings/merchant'
-    | '/settings/payments'
-    | '/settings/subscription'
-    | '/stores/$storeId'
-    | '/stores/new'
-    | '/help/'
-    | '/kitchen/'
-    | '/menu/'
-    | '/orders/'
-    | '/settings/'
-    | '/stores/'
-    | '/menu/categories/new'
-    | '/menu/options/$optionGroupId'
-    | '/menu/options/new'
-    | '/menu/options/'
-    | '/menu/categories/$categoryId/edit'
-    | '/menu/categories/$categoryId/'
-    | '/menu/categories/$categoryId/items/$itemId'
-    | '/menu/categories/$categoryId/items/new'
+    | '/_app'
+    | '/_public'
+    | '/_public/onboarding'
+    | '/_app/'
+    | '/_app/menu/import'
+    | '/_app/orders/$orderId'
+    | '/_app/settings/merchant'
+    | '/_app/settings/payments'
+    | '/_app/stores/$storeId'
+    | '/_app/stores/new'
+    | '/_public/legal/impressum'
+    | '/_public/legal/privacy'
+    | '/_app/help/'
+    | '/_app/kitchen/'
+    | '/_app/menu/'
+    | '/_app/orders/'
+    | '/_app/settings/'
+    | '/_app/stores/'
+    | '/_app/menu/categories/new'
+    | '/_app/menu/options/$optionGroupId'
+    | '/_app/menu/options/new'
+    | '/_public/auth/merchant/login'
+    | '/_app/menu/options/'
+    | '/_app/menu/categories/$categoryId/edit'
+    | '/_app/menu/categories/$categoryId/'
+    | '/_app/menu/categories/$categoryId/items/$itemId'
+    | '/_app/menu/categories/$categoryId/items/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  OnboardingRoute: typeof OnboardingRoute
-  MenuImportRoute: typeof MenuImportRoute
-  SettingsMerchantRoute: typeof SettingsMerchantRoute
-  SettingsPaymentsRoute: typeof SettingsPaymentsRoute
-  SettingsSubscriptionRoute: typeof SettingsSubscriptionRoute
-  StoresStoreIdRoute: typeof StoresStoreIdRoute
-  StoresNewRoute: typeof StoresNewRoute
-  HelpIndexRoute: typeof HelpIndexRoute
-  KitchenIndexRoute: typeof KitchenIndexRoute
-  MenuIndexRoute: typeof MenuIndexRoute
-  OrdersIndexRoute: typeof OrdersIndexRoute
-  SettingsIndexRoute: typeof SettingsIndexRoute
-  StoresIndexRoute: typeof StoresIndexRoute
-  MenuCategoriesNewRoute: typeof MenuCategoriesNewRoute
-  MenuOptionsOptionGroupIdRoute: typeof MenuOptionsOptionGroupIdRoute
-  MenuOptionsNewRoute: typeof MenuOptionsNewRoute
-  MenuOptionsIndexRoute: typeof MenuOptionsIndexRoute
-  MenuCategoriesCategoryIdEditRoute: typeof MenuCategoriesCategoryIdEditRoute
-  MenuCategoriesCategoryIdIndexRoute: typeof MenuCategoriesCategoryIdIndexRoute
-  MenuCategoriesCategoryIdItemsItemIdRoute: typeof MenuCategoriesCategoryIdItemsItemIdRoute
-  MenuCategoriesCategoryIdItemsNewRoute: typeof MenuCategoriesCategoryIdItemsNewRoute
+  AppRoute: typeof AppRouteWithChildren
+  PublicRoute: typeof PublicRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
+    '/_public': {
+      id: '/_public'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/': {
+      id: '/_app/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/stores/': {
-      id: '/stores/'
+    '/_public/onboarding': {
+      id: '/_public/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof PublicOnboardingRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_app/stores/': {
+      id: '/_app/stores/'
       path: '/stores'
       fullPath: '/stores'
-      preLoaderRoute: typeof StoresIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppStoresIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/settings/': {
-      id: '/settings/'
+    '/_app/settings/': {
+      id: '/_app/settings/'
       path: '/settings'
       fullPath: '/settings'
-      preLoaderRoute: typeof SettingsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppSettingsIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/orders/': {
-      id: '/orders/'
+    '/_app/orders/': {
+      id: '/_app/orders/'
       path: '/orders'
       fullPath: '/orders'
-      preLoaderRoute: typeof OrdersIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppOrdersIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/menu/': {
-      id: '/menu/'
+    '/_app/menu/': {
+      id: '/_app/menu/'
       path: '/menu'
       fullPath: '/menu'
-      preLoaderRoute: typeof MenuIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppMenuIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/kitchen/': {
-      id: '/kitchen/'
+    '/_app/kitchen/': {
+      id: '/_app/kitchen/'
       path: '/kitchen'
       fullPath: '/kitchen'
-      preLoaderRoute: typeof KitchenIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppKitchenIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/help/': {
-      id: '/help/'
+    '/_app/help/': {
+      id: '/_app/help/'
       path: '/help'
       fullPath: '/help'
-      preLoaderRoute: typeof HelpIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppHelpIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/stores/new': {
-      id: '/stores/new'
+    '/_public/legal/privacy': {
+      id: '/_public/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof PublicLegalPrivacyRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/legal/impressum': {
+      id: '/_public/legal/impressum'
+      path: '/legal/impressum'
+      fullPath: '/legal/impressum'
+      preLoaderRoute: typeof PublicLegalImpressumRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_app/stores/new': {
+      id: '/_app/stores/new'
       path: '/stores/new'
       fullPath: '/stores/new'
-      preLoaderRoute: typeof StoresNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppStoresNewRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/stores/$storeId': {
-      id: '/stores/$storeId'
+    '/_app/stores/$storeId': {
+      id: '/_app/stores/$storeId'
       path: '/stores/$storeId'
       fullPath: '/stores/$storeId'
-      preLoaderRoute: typeof StoresStoreIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppStoresStoreIdRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/settings/subscription': {
-      id: '/settings/subscription'
-      path: '/settings/subscription'
-      fullPath: '/settings/subscription'
-      preLoaderRoute: typeof SettingsSubscriptionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/payments': {
-      id: '/settings/payments'
+    '/_app/settings/payments': {
+      id: '/_app/settings/payments'
       path: '/settings/payments'
       fullPath: '/settings/payments'
-      preLoaderRoute: typeof SettingsPaymentsRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppSettingsPaymentsRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/settings/merchant': {
-      id: '/settings/merchant'
+    '/_app/settings/merchant': {
+      id: '/_app/settings/merchant'
       path: '/settings/merchant'
       fullPath: '/settings/merchant'
-      preLoaderRoute: typeof SettingsMerchantRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppSettingsMerchantRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/menu/import': {
-      id: '/menu/import'
+    '/_app/orders/$orderId': {
+      id: '/_app/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/orders/$orderId'
+      preLoaderRoute: typeof AppOrdersOrderIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/menu/import': {
+      id: '/_app/menu/import'
       path: '/menu/import'
       fullPath: '/menu/import'
-      preLoaderRoute: typeof MenuImportRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppMenuImportRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/menu/options/': {
-      id: '/menu/options/'
+    '/_app/menu/options/': {
+      id: '/_app/menu/options/'
       path: '/menu/options'
       fullPath: '/menu/options'
-      preLoaderRoute: typeof MenuOptionsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppMenuOptionsIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/menu/options/new': {
-      id: '/menu/options/new'
+    '/_public/auth/merchant/login': {
+      id: '/_public/auth/merchant/login'
+      path: '/auth/merchant/login'
+      fullPath: '/auth/merchant/login'
+      preLoaderRoute: typeof PublicAuthMerchantLoginRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_app/menu/options/new': {
+      id: '/_app/menu/options/new'
       path: '/menu/options/new'
       fullPath: '/menu/options/new'
-      preLoaderRoute: typeof MenuOptionsNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppMenuOptionsNewRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/menu/options/$optionGroupId': {
-      id: '/menu/options/$optionGroupId'
+    '/_app/menu/options/$optionGroupId': {
+      id: '/_app/menu/options/$optionGroupId'
       path: '/menu/options/$optionGroupId'
       fullPath: '/menu/options/$optionGroupId'
-      preLoaderRoute: typeof MenuOptionsOptionGroupIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppMenuOptionsOptionGroupIdRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/menu/categories/new': {
-      id: '/menu/categories/new'
+    '/_app/menu/categories/new': {
+      id: '/_app/menu/categories/new'
       path: '/menu/categories/new'
       fullPath: '/menu/categories/new'
-      preLoaderRoute: typeof MenuCategoriesNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppMenuCategoriesNewRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/menu/categories/$categoryId/': {
-      id: '/menu/categories/$categoryId/'
+    '/_app/menu/categories/$categoryId/': {
+      id: '/_app/menu/categories/$categoryId/'
       path: '/menu/categories/$categoryId'
       fullPath: '/menu/categories/$categoryId'
-      preLoaderRoute: typeof MenuCategoriesCategoryIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppMenuCategoriesCategoryIdIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/menu/categories/$categoryId/edit': {
-      id: '/menu/categories/$categoryId/edit'
+    '/_app/menu/categories/$categoryId/edit': {
+      id: '/_app/menu/categories/$categoryId/edit'
       path: '/menu/categories/$categoryId/edit'
       fullPath: '/menu/categories/$categoryId/edit'
-      preLoaderRoute: typeof MenuCategoriesCategoryIdEditRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppMenuCategoriesCategoryIdEditRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/menu/categories/$categoryId/items/new': {
-      id: '/menu/categories/$categoryId/items/new'
+    '/_app/menu/categories/$categoryId/items/new': {
+      id: '/_app/menu/categories/$categoryId/items/new'
       path: '/menu/categories/$categoryId/items/new'
       fullPath: '/menu/categories/$categoryId/items/new'
-      preLoaderRoute: typeof MenuCategoriesCategoryIdItemsNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppMenuCategoriesCategoryIdItemsNewRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/menu/categories/$categoryId/items/$itemId': {
-      id: '/menu/categories/$categoryId/items/$itemId'
+    '/_app/menu/categories/$categoryId/items/$itemId': {
+      id: '/_app/menu/categories/$categoryId/items/$itemId'
       path: '/menu/categories/$categoryId/items/$itemId'
       fullPath: '/menu/categories/$categoryId/items/$itemId'
-      preLoaderRoute: typeof MenuCategoriesCategoryIdItemsItemIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppMenuCategoriesCategoryIdItemsItemIdRouteImport
+      parentRoute: typeof AppRoute
     }
   }
 }
 
+interface AppRouteChildren {
+  AppIndexRoute: typeof AppIndexRoute
+  AppMenuImportRoute: typeof AppMenuImportRoute
+  AppOrdersOrderIdRoute: typeof AppOrdersOrderIdRoute
+  AppSettingsMerchantRoute: typeof AppSettingsMerchantRoute
+  AppSettingsPaymentsRoute: typeof AppSettingsPaymentsRoute
+  AppStoresStoreIdRoute: typeof AppStoresStoreIdRoute
+  AppStoresNewRoute: typeof AppStoresNewRoute
+  AppHelpIndexRoute: typeof AppHelpIndexRoute
+  AppKitchenIndexRoute: typeof AppKitchenIndexRoute
+  AppMenuIndexRoute: typeof AppMenuIndexRoute
+  AppOrdersIndexRoute: typeof AppOrdersIndexRoute
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+  AppStoresIndexRoute: typeof AppStoresIndexRoute
+  AppMenuCategoriesNewRoute: typeof AppMenuCategoriesNewRoute
+  AppMenuOptionsOptionGroupIdRoute: typeof AppMenuOptionsOptionGroupIdRoute
+  AppMenuOptionsNewRoute: typeof AppMenuOptionsNewRoute
+  AppMenuOptionsIndexRoute: typeof AppMenuOptionsIndexRoute
+  AppMenuCategoriesCategoryIdEditRoute: typeof AppMenuCategoriesCategoryIdEditRoute
+  AppMenuCategoriesCategoryIdIndexRoute: typeof AppMenuCategoriesCategoryIdIndexRoute
+  AppMenuCategoriesCategoryIdItemsItemIdRoute: typeof AppMenuCategoriesCategoryIdItemsItemIdRoute
+  AppMenuCategoriesCategoryIdItemsNewRoute: typeof AppMenuCategoriesCategoryIdItemsNewRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppIndexRoute: AppIndexRoute,
+  AppMenuImportRoute: AppMenuImportRoute,
+  AppOrdersOrderIdRoute: AppOrdersOrderIdRoute,
+  AppSettingsMerchantRoute: AppSettingsMerchantRoute,
+  AppSettingsPaymentsRoute: AppSettingsPaymentsRoute,
+  AppStoresStoreIdRoute: AppStoresStoreIdRoute,
+  AppStoresNewRoute: AppStoresNewRoute,
+  AppHelpIndexRoute: AppHelpIndexRoute,
+  AppKitchenIndexRoute: AppKitchenIndexRoute,
+  AppMenuIndexRoute: AppMenuIndexRoute,
+  AppOrdersIndexRoute: AppOrdersIndexRoute,
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
+  AppStoresIndexRoute: AppStoresIndexRoute,
+  AppMenuCategoriesNewRoute: AppMenuCategoriesNewRoute,
+  AppMenuOptionsOptionGroupIdRoute: AppMenuOptionsOptionGroupIdRoute,
+  AppMenuOptionsNewRoute: AppMenuOptionsNewRoute,
+  AppMenuOptionsIndexRoute: AppMenuOptionsIndexRoute,
+  AppMenuCategoriesCategoryIdEditRoute: AppMenuCategoriesCategoryIdEditRoute,
+  AppMenuCategoriesCategoryIdIndexRoute: AppMenuCategoriesCategoryIdIndexRoute,
+  AppMenuCategoriesCategoryIdItemsItemIdRoute:
+    AppMenuCategoriesCategoryIdItemsItemIdRoute,
+  AppMenuCategoriesCategoryIdItemsNewRoute:
+    AppMenuCategoriesCategoryIdItemsNewRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
+interface PublicRouteChildren {
+  PublicOnboardingRoute: typeof PublicOnboardingRoute
+  PublicLegalImpressumRoute: typeof PublicLegalImpressumRoute
+  PublicLegalPrivacyRoute: typeof PublicLegalPrivacyRoute
+  PublicAuthMerchantLoginRoute: typeof PublicAuthMerchantLoginRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicOnboardingRoute: PublicOnboardingRoute,
+  PublicLegalImpressumRoute: PublicLegalImpressumRoute,
+  PublicLegalPrivacyRoute: PublicLegalPrivacyRoute,
+  PublicAuthMerchantLoginRoute: PublicAuthMerchantLoginRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  OnboardingRoute: OnboardingRoute,
-  MenuImportRoute: MenuImportRoute,
-  SettingsMerchantRoute: SettingsMerchantRoute,
-  SettingsPaymentsRoute: SettingsPaymentsRoute,
-  SettingsSubscriptionRoute: SettingsSubscriptionRoute,
-  StoresStoreIdRoute: StoresStoreIdRoute,
-  StoresNewRoute: StoresNewRoute,
-  HelpIndexRoute: HelpIndexRoute,
-  KitchenIndexRoute: KitchenIndexRoute,
-  MenuIndexRoute: MenuIndexRoute,
-  OrdersIndexRoute: OrdersIndexRoute,
-  SettingsIndexRoute: SettingsIndexRoute,
-  StoresIndexRoute: StoresIndexRoute,
-  MenuCategoriesNewRoute: MenuCategoriesNewRoute,
-  MenuOptionsOptionGroupIdRoute: MenuOptionsOptionGroupIdRoute,
-  MenuOptionsNewRoute: MenuOptionsNewRoute,
-  MenuOptionsIndexRoute: MenuOptionsIndexRoute,
-  MenuCategoriesCategoryIdEditRoute: MenuCategoriesCategoryIdEditRoute,
-  MenuCategoriesCategoryIdIndexRoute: MenuCategoriesCategoryIdIndexRoute,
-  MenuCategoriesCategoryIdItemsItemIdRoute:
-    MenuCategoriesCategoryIdItemsItemIdRoute,
-  MenuCategoriesCategoryIdItemsNewRoute: MenuCategoriesCategoryIdItemsNewRoute,
+  AppRoute: AppRouteWithChildren,
+  PublicRoute: PublicRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

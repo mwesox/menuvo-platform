@@ -13,22 +13,57 @@ import {
 	PopoverTrigger,
 } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GripVertical, Plus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { LANGUAGE_OPTIONS } from "@/features/translations/constants.ts";
-import { useUpdateMerchantLanguages } from "@/features/translations/queries.ts";
 import {
 	type LanguageCode,
 	supportedLanguagesFormSchema,
 } from "@/features/translations/schemas.ts";
-import { merchantQueries } from "../../queries.ts";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 export function MerchantLanguageForm() {
 	const { t } = useTranslation("settings");
 	const { t: tCommon } = useTranslation("common");
-	const { data: merchant } = useSuspenseQuery(merchantQueries.detail());
-	const updateMutation = useUpdateMerchantLanguages();
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+	const { data: merchant } = useQuery({
+		...trpc.merchant.getCurrent.queryOptions(),
+	});
+
+	const updateMutation = useMutation({
+		...trpc.merchant.updateLanguages.mutationOptions(),
+		mutationFn: async ({
+			supportedLanguages,
+		}: {
+			supportedLanguages: LanguageCode[];
+		}) =>
+			trpcClient.merchant.updateLanguages.mutate({
+				supportedLanguages,
+			}),
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: trpc.merchant.getCurrent.queryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.menu.translations.getStatus.pathKey(),
+			});
+			toast.success(tToasts("success.languagesUpdated", "Languages updated"));
+		},
+		onError: () => {
+			toast.error(
+				tToasts("error.updateLanguages", "Failed to update languages"),
+			);
+		},
+	});
+
+	if (!merchant) {
+		return null;
+	}
 
 	// Get supported languages (default to ['de'] if empty)
 	const supportedLanguages = (merchant.supportedLanguages ?? [

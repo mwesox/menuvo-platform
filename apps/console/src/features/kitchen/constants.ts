@@ -90,6 +90,13 @@ export const COLUMN_TO_STATUS: Record<KanbanColumnId, OrderStatus> = {
 export const DONE_ARCHIVE_HOURS = 2;
 
 // ============================================================================
+// DEPRIORITIZATION
+// ============================================================================
+
+/** Hours until pickup time to consider an order "too far away" for deprioritization */
+export const FAR_AWAY_THRESHOLD_HOURS = 2;
+
+// ============================================================================
 // NOTIFICATION
 // ============================================================================
 

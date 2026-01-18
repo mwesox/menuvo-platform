@@ -1,36 +1,23 @@
 /**
- * Schemas for console orders features (export, etc.)
+ * Schemas for console orders domains (export, etc.)
  */
 
-import { z } from "zod";
-import { orderStatuses } from "@/features/orders";
-
-/**
- * Schema for exporting orders to CSV
- * Max 1000 orders for performance
- */
-export const exportOrdersSchema = z.object({
-	storeId: z.string().uuid(),
-	status: z.enum(orderStatuses).optional(),
-	fromDate: z.string().optional(),
-	toDate: z.string().optional(),
-	search: z.string().optional(),
-});
-
-export type ExportOrdersInput = z.infer<typeof exportOrdersSchema>;
+import { z } from "zod/v4";
 
 /**
  * Flat response type for CSV export - uses names instead of IDs
  */
-export interface ExportOrderRow {
-	orderId: string;
-	date: string;
-	storeName: string;
-	customerName: string;
-	customerEmail: string;
-	customerPhone: string;
-	orderType: string;
-	status: string;
-	paymentStatus: string;
-	totalAmount: number;
-}
+export const exportOrderRowSchema = z.object({
+	orderId: z.string().uuid(),
+	date: z.string(),
+	storeName: z.string(),
+	customerName: z.string(),
+	customerEmail: z.string(),
+	customerPhone: z.string(),
+	orderType: z.string(),
+	status: z.string(),
+	paymentStatus: z.string(),
+	totalAmount: z.number(),
+});
+
+export type ExportOrderRow = z.infer<typeof exportOrderRowSchema>;

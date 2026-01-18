@@ -2,6 +2,8 @@
  * Image upload constants.
  */
 
+import { z } from "zod/v4";
+
 /** Maximum file size in bytes (4MB) */
 export const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
@@ -29,3 +31,13 @@ export const SUPPORTED_MIME_TYPES = [
 ] as const;
 
 export type SupportedMimeType = (typeof SUPPORTED_MIME_TYPES)[number];
+
+export const imageTypes = [
+	"item_image",
+	"store_logo",
+	"store_banner",
+	"merchant_logo",
+] as const;
+
+export const imageTypeSchema = z.enum(imageTypes);
+export type ImageType = z.infer<typeof imageTypeSchema>;

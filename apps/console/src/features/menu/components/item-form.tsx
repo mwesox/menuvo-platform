@@ -1,4 +1,4 @@
-import type { Category, Item } from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Button,
 	Card,
@@ -31,12 +31,13 @@ import {
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { ImageUploadField } from "@/features/images/components/image-upload-field.tsx";
 import { useDisplayLanguage } from "@/features/menu/contexts/display-language-context";
-import { trpcClient, useTRPC } from "@/lib/trpc";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { ALLERGEN_KEYS } from "../constants.ts";
 import { getDisplayName } from "../logic/display.ts";
 import {
@@ -46,7 +47,18 @@ import {
 } from "../schemas.ts";
 import { ItemOptionsSelector } from "./item-options-selector.tsx";
 
-export type CategoryWithItems = Category & { items: unknown[] };
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type RouterInput = inferRouterInputs<AppRouter>;
+type Category = RouterOutput["menu"]["categories"]["list"][number];
+type Item = NonNullable<RouterOutput["menu"]["items"]["getById"]>;
+type CreateItemInput = RouterInput["menu"]["items"]["create"];
+type UpdateItemInput = RouterInput["menu"]["items"]["update"];
+type CategoryItemSummary = {
+	id: string;
+	isAvailable: boolean;
+	imageUrl: string | null;
+};
+export type CategoryWithItems = Category & { items: CategoryItemSummary[] };
 
 interface ItemFormProps {
 	item?: Item;
@@ -72,6 +84,7 @@ export function ItemForm({
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
 	const language = useDisplayLanguage();
 	const isEditing = !!item;
 
@@ -84,28 +97,16 @@ export function ItemForm({
 
 	// Mutations that work with dynamic categoryId from form
 	const createItemMutation = useMutation({
-		mutationFn: (input: {
-			categoryId: string;
-			translations: Record<string, { name: string; description?: string }>;
-			price: number;
-			imageUrl?: string;
-			allergens: string[];
-			kitchenName?: string;
-		}) =>
-			trpcClient.item.create.mutate({
-				categoryId: input.categoryId,
-				translations: input.translations,
-				price: input.price,
-				imageUrl: input.imageUrl,
-				allergens: input.allergens,
-				kitchenName: input.kitchenName,
-			}),
+		mutationFn: (input: CreateItemInput) =>
+			trpcClient.menu.items.create.mutate(input),
 		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({
-				queryKey: trpc.item.listByStore.queryKey({ storeId }),
+				queryKey: trpc.menu.items.listByStore.queryKey({ storeId }),
 			});
 			queryClient.invalidateQueries({
-				queryKey: trpc.category.getById.queryKey({ id: variables.categoryId }),
+				queryKey: trpc.menu.categories.getById.queryKey({
+					id: variables.categoryId,
+				}),
 			});
 			toast.success(tToasts("success.itemCreated"));
 		},
@@ -115,44 +116,30 @@ export function ItemForm({
 	});
 
 	const updateItemMutation = useMutation({
-		mutationFn: (input: {
-			itemId: string;
-			categoryId?: string;
-			translations?: Record<string, { name: string; description?: string }>;
-			price?: number;
-			imageUrl?: string;
-			allergens?: string[];
-			kitchenName?: string;
-		}) =>
-			trpcClient.item.update.mutate({
-				id: input.itemId,
-				categoryId: input.categoryId,
-				translations: input.translations,
-				price: input.price,
-				imageUrl: input.imageUrl,
-				allergens: input.allergens,
-				kitchenName: input.kitchenName,
-			}),
+		mutationFn: (input: UpdateItemInput) =>
+			trpcClient.menu.items.update.mutate(input),
 		onSuccess: (updatedItem, variables) => {
 			// Invalidate item detail cache (setQueryData not used because API returns flat item, not full nested structure)
 			queryClient.invalidateQueries({
-				queryKey: trpc.item.getById.queryKey({ id: updatedItem.id }),
+				queryKey: trpc.menu.items.getById.queryKey({ id: updatedItem.id }),
 			});
 			// Invalidate list query to ensure fresh data on navigation
 			queryClient.invalidateQueries({
-				queryKey: trpc.item.listByStore.queryKey({ storeId }),
+				queryKey: trpc.menu.items.listByStore.queryKey({ storeId }),
 			});
 			// Invalidate category detail (if category changed, invalidate both old and new)
 			if (variables.categoryId) {
 				queryClient.invalidateQueries({
-					queryKey: trpc.category.getById.queryKey({
+					queryKey: trpc.menu.categories.getById.queryKey({
 						id: variables.categoryId,
 					}),
 				});
 			}
 			if (initialCategoryId && initialCategoryId !== variables.categoryId) {
 				queryClient.invalidateQueries({
-					queryKey: trpc.category.getById.queryKey({ id: initialCategoryId }),
+					queryKey: trpc.menu.categories.getById.queryKey({
+						id: initialCategoryId,
+					}),
 				});
 			}
 			toast.success(tToasts("success.itemUpdated"));
@@ -195,7 +182,7 @@ export function ItemForm({
 
 				if (isEditing) {
 					await updateItemMutation.mutateAsync({
-						itemId: item.id,
+						id: item.id,
 						categoryId: selectedCategoryId,
 						translations,
 						price: priceInCents,
@@ -217,7 +204,7 @@ export function ItemForm({
 				}
 
 				// Save item options
-				await trpcClient.option.updateItemOptions.mutate({
+				await trpcClient.menu.options.updateItemOptions.mutate({
 					itemId,
 					optionGroupIds: selectedOptionGroupIds,
 				});

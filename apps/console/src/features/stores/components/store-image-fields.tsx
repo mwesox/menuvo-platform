@@ -38,7 +38,7 @@ export function StoreImageFields({
 					imageUrl: url ?? null,
 				});
 				queryClient.invalidateQueries({
-					queryKey: trpc.store.getById.queryKey({ storeId }),
+					queryKey: trpc.store.getWithDetails.queryKey({ storeId }),
 				});
 			} catch {
 				toast.error(t("errors.updateLogoFailed"));

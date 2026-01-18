@@ -1,4 +1,3 @@
-import type { ServicePoint } from "@menuvo/db/schema";
 import {
 	Dialog,
 	DialogContent,
@@ -8,6 +7,7 @@ import {
 } from "@menuvo/ui";
 import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
+import type { ServicePoint } from "../types.ts";
 import { ServicePointForm } from "./service-point-form.tsx";
 
 interface ServicePointDialogProps {

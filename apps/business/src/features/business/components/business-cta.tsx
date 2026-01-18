@@ -25,7 +25,7 @@ export function BusinessCTA() {
 
 					<div className="flex flex-col justify-center gap-3 sm:flex-row">
 						<a
-							href="/console/onboarding"
+							href="https://console.menuvo.app/onboarding"
 							className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-gradient-to-r from-brand-red to-brand-red-light px-10 py-6 font-bold text-lg text-white uppercase tracking-wide transition-all duration-300 hover:scale-[1.02] hover:from-brand-red-dark hover:to-brand-red hover:shadow-brand-red/20 hover:shadow-xl active:scale-[0.98]"
 						>
 							<span className="flex items-center gap-2">

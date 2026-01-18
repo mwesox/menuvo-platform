@@ -1,4 +1,4 @@
-import type { ImageType } from "@menuvo/trpc/schemas";
+import type { ImageType } from "../constants.ts";
 
 export interface CropPreset {
 	id: string;
@@ -64,17 +64,21 @@ export function getPresetsForImageType(imageType: ImageType): CropPreset[] {
 	switch (imageType) {
 		case "item_image":
 			// Item images: thumbnail for lists, detail for drawer view
-			return [CROP_PRESETS.thumbnail, CROP_PRESETS.detail, CROP_PRESETS.free];
+			return [
+				CROP_PRESETS.thumbnail!,
+				CROP_PRESETS.detail!,
+				CROP_PRESETS.free!,
+			];
 		case "store_logo":
 		case "merchant_logo":
 			// Logos are square for consistent display
-			return [CROP_PRESETS.thumbnail, CROP_PRESETS.free];
+			return [CROP_PRESETS.thumbnail!, CROP_PRESETS.free!];
 		default:
 			return [
-				CROP_PRESETS.thumbnail,
-				CROP_PRESETS.detail,
-				CROP_PRESETS.banner,
-				CROP_PRESETS.free,
+				CROP_PRESETS.thumbnail!,
+				CROP_PRESETS.detail!,
+				CROP_PRESETS.banner!,
+				CROP_PRESETS.free!,
 			];
 	}
 }
@@ -84,7 +88,11 @@ export function getPresetsForImageType(imageType: ImageType): CropPreset[] {
  */
 export function getDefaultPreset(imageType: ImageType): CropPreset {
 	const presets = getPresetsForImageType(imageType);
-	return presets[0];
+	const preset = presets[0];
+	if (!preset) {
+		throw new Error(`No preset found for image type: ${imageType}`);
+	}
+	return preset;
 }
 
 /**

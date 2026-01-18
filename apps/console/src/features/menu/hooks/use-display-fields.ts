@@ -1,7 +1,3 @@
-import type {
-	ChoiceTranslations,
-	EntityTranslations,
-} from "@menuvo/trpc/schemas";
 import { useDisplayLanguage } from "../contexts/display-language-context.tsx";
 import {
 	getDisplayDescription,
@@ -9,6 +5,10 @@ import {
 	withChoiceDisplayName,
 	withDisplayFields,
 } from "../logic/display.ts";
+import type {
+	ChoiceTranslations,
+	EntityTranslations,
+} from "../options.schemas";
 
 /**
  * Hook to get display name from an entity's translations.

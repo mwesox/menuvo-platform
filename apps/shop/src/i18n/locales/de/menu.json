@@ -1,0 +1,18 @@
+{
+	"allergens": {
+		"gluten": "Gluten",
+		"dairy": "Milchprodukte",
+		"eggs": "Eier",
+		"nuts": "Nüsse",
+		"peanuts": "Erdnüsse",
+		"soy": "Soja",
+		"fish": "Fisch",
+		"shellfish": "Schalentiere",
+		"sesame": "Sesam",
+		"celery": "Sellerie",
+		"mustard": "Senf",
+		"lupin": "Lupinen",
+		"molluscs": "Weichtiere",
+		"sulphites": "Sulfite"
+	}
+}

@@ -1,7 +1,5 @@
 // Components
 
-// Re-export order type enum value from trpc
-export type { OrderTypeValue } from "@menuvo/trpc";
 export { ExportOrdersButton } from "./components/export-orders-button";
 export { RefundButton } from "./components/refund-button";
 // Constants
@@ -11,15 +9,12 @@ export {
 	ORDER_STATUS_LABELS,
 	ORDER_STATUSES as orderStatuses,
 	type OrderStatus,
+	type OrderType,
+	type PaymentProvider,
 } from "./constants";
-// Queries/Mutations
-export { orderQueries, useCreateMollieRefund } from "./queries";
+// Queries/Mutations - Custom hooks removed, use direct tRPC patterns in components
 // Schemas
-export {
-	type ExportOrderRow,
-	type ExportOrdersInput,
-	exportOrdersSchema,
-} from "./schemas";
+export type { ExportOrderRow } from "./schemas";
 // Types
 export type {
 	OrderDetail,
