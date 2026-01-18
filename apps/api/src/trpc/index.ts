@@ -5,6 +5,7 @@
  */
 
 export type { AppRouter } from "../domains/router.js";
+export { mapDomainErrorToTRPC } from "./error-mapper.js";
 export {
 	mergeRouters,
 	middleware,

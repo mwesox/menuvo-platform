@@ -546,7 +546,7 @@ export class StoreStatusService implements IStoreStatusService {
 		const tomorrow = addDays(today, 1);
 
 		// Determine locale for translations
-		const locale = languageCode === "de" ? "de-DE" : "en-US";
+		const locale = languageCode === "de" ? "de-DE" : "en-GB";
 
 		// Format time in store timezone
 		const timeStr = new Intl.DateTimeFormat("en-US", {

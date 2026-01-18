@@ -30,9 +30,16 @@ import { StoreClosuresForm } from "@/features/stores/components/store-closures-f
 import { StoreForm } from "@/features/stores/components/store-form";
 import { StoreHoursForm } from "@/features/stores/components/store-hours-form";
 import { StoreImageFields } from "@/features/stores/components/store-image-fields";
+import { StoreOrderTypesForm } from "@/features/stores/components/store-order-types-form";
 import { trpcUtils, useTRPC, useTRPCClient } from "@/lib/trpc";
 
-const tabSchema = z.enum(["details", "hours", "closures", "qr-codes"]);
+const tabSchema = z.enum([
+	"details",
+	"hours",
+	"closures",
+	"order-types",
+	"qr-codes",
+]);
 type TabValue = z.infer<typeof tabSchema>;
 
 const searchSchema = z.object({
@@ -76,6 +83,7 @@ function StoreDetailPage() {
 		{ value: "details", label: t("tabs.details") },
 		{ value: "hours", label: t("tabs.hours") },
 		{ value: "closures", label: t("tabs.closures") },
+		{ value: "order-types", label: t("tabs.orderTypes") },
 		{ value: "qr-codes", label: t("tabs.qrCodes") },
 	];
 
@@ -225,6 +233,7 @@ function StoreDetailContent({
 				)}
 				{tab === "hours" && <StoreHoursForm storeId={storeId} />}
 				{tab === "closures" && <StoreClosuresForm storeId={storeId} />}
+				{tab === "order-types" && <StoreOrderTypesForm storeId={storeId} />}
 				{tab === "qr-codes" && (
 					<Suspense
 						fallback={<div className="py-8 text-center">Loading...</div>}

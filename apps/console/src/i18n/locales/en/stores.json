@@ -54,7 +54,18 @@
 		"details": "Details",
 		"hours": "Hours",
 		"closures": "Closures",
+		"orderTypes": "Order Types",
 		"qrCodes": "QR Codes"
+	},
+	"orderTypes": {
+		"title": "Order Types",
+		"description": "Which order types are available at this location?",
+		"dine_in": "Dine In",
+		"takeaway": "Takeaway",
+		"delivery": "Delivery"
+	},
+	"validation": {
+		"atLeastOneOrderType": "At least one order type must be enabled"
 	},
 	"dialogs": {
 		"deleteTitle": "Delete Store",

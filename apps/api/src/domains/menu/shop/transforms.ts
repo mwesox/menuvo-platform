@@ -4,6 +4,7 @@
  * Transforms DB data to shop format.
  */
 
+import { DEFAULT_ORDER_TYPES } from "../../stores/settings/types.js";
 import type { MenuResponse } from "../schemas.js";
 import { getTranslatedDescription, getTranslatedName } from "../utils.js";
 
@@ -20,6 +21,14 @@ export function transformMenuToShop(
 	languageCode: string,
 	status?: { isOpen: boolean; nextOpenTime: string | null },
 ): MenuResponse {
+	// Get order types config with defaults
+	const orderTypesConfig = store.settings?.orderTypes ?? DEFAULT_ORDER_TYPES;
+	const enabledOrderTypes = {
+		dine_in: orderTypesConfig.dine_in.enabled,
+		takeaway: orderTypesConfig.takeaway.enabled,
+		delivery: orderTypesConfig.delivery.enabled,
+	};
+
 	return {
 		store: {
 			id: store.id,
@@ -31,6 +40,7 @@ export function transformMenuToShop(
 			postalCode: store.postalCode,
 			country: store.country,
 			currency: store.currency,
+			enabledOrderTypes,
 			...(status && { status }),
 		},
 		categories: store.categories.map((category) => ({

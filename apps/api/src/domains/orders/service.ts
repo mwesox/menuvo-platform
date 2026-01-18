@@ -7,6 +7,7 @@
 import type { Database } from "@menuvo/db";
 import {
 	items as itemsTable,
+	type OrderTypesConfig,
 	optionChoices,
 	optionGroups,
 	orderItemOptions,
@@ -14,6 +15,7 @@ import {
 	orders,
 	servicePoints,
 	storeCounters,
+	storeSettings,
 	stores,
 } from "@menuvo/db/schema";
 import {
@@ -29,6 +31,7 @@ import {
 	sum,
 } from "drizzle-orm";
 import { ForbiddenError, NotFoundError, ValidationError } from "../errors.js";
+import { DEFAULT_ORDER_TYPES } from "../stores/settings/types.js";
 import type { IStoreStatusService } from "../stores/status/index.js";
 import type { IOrderService } from "./interface.js";
 import type {
@@ -87,6 +90,22 @@ export class OrderService implements IOrderService {
 
 		if (!store) {
 			throw new NotFoundError("Store not found or is not active");
+		}
+
+		// 1.2. Validate order type is enabled for this store
+		const settings = await this.db.query.storeSettings.findFirst({
+			where: eq(storeSettings.storeId, input.storeId),
+		});
+
+		const orderTypesConfig = settings?.orderTypes ?? DEFAULT_ORDER_TYPES;
+
+		const isOrderTypeEnabled =
+			orderTypesConfig[input.orderType as keyof OrderTypesConfig]?.enabled ??
+			true;
+		if (!isOrderTypeEnabled) {
+			throw new ValidationError(
+				`Order type "${input.orderType}" is not available for this store.`,
+			);
 		}
 
 		// 1.5. Validate order based on store status (if status service is available)

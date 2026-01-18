@@ -11,9 +11,7 @@ function NewStorePage() {
 	const { t } = useTranslation("stores");
 	const { merchantId } = Route.useRouteContext();
 
-	// merchantId is guaranteed by parent route redirect
-	if (!merchantId) return null;
-
+	// merchantId is guaranteed by _app beforeLoad - no null check needed
 	return (
 		<div className="space-y-6">
 			<PageActionBar backHref="/stores" backLabel={t("titles.createStore")} />

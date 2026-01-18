@@ -1,0 +1,174 @@
+{
+	"meta": {
+		"title": "Menuvo - QR-Bestellung für Ihr Restaurant",
+		"description": "Gäste scannen, bestellen, bezahlen. In 5 Minuten live. Keine monatlichen Gebühren, nur 2,9% pro Bestellung. Ohne neues Kassensystem."
+	},
+	"header": {
+		"features": "Features",
+		"pricing": "Preise",
+		"faq": "FAQ",
+		"cta": "Jetzt starten"
+	},
+	"hero": {
+		"badge": "Keine monatlichen Gebühren",
+		"headline": "Gäste scannen. Bestellen. Bezahlen.",
+		"subtitle": "QR-Bestellung ohne neues Kassensystem.",
+		"description": "Kunden scannen den QR-Code, wählen aus Ihrer Speisekarte und bezahlen – die Bestellung landet direkt in der Küche. In 5 Minuten eingerichtet, funktioniert mit Ihrem bestehenden Setup."
+	},
+	"cta": {
+		"primary": "Kostenlos starten",
+		"secondary": "Mehr erfahren",
+		"title": "Bereit für weniger Stress und mehr Bestellungen?",
+		"subtitle": "Starten Sie jetzt – keine Kreditkarte, keine monatlichen Gebühren. Sie zahlen nur, wenn Sie verdienen.",
+		"button": "Jetzt kostenlos starten",
+		"trustStatement": "In 5 Minuten live · Keine monatlichen Kosten · Jederzeit kündbar"
+	},
+	"trust": {
+		"noMonthlyFee": "0€ monatlich",
+		"payPerOrder": "2,9% pro Bestellung",
+		"noHardware": "Keine Hardware nötig"
+	},
+	"ai": {
+		"headline": "Speisekarte hochladen. Fertig.",
+		"description": "Laden Sie ein Foto oder PDF hoch – unsere KI erstellt Ihr digitales Menü in Minuten. Kein manuelles Eintippen."
+	},
+	"features": {
+		"title": "Alles inklusive. Keine versteckten Kosten.",
+		"subtitle": "Volle QR-Bestellung – nicht nur Bezahlung",
+		"ordering": {
+			"title": "Echte Bestellung, nicht nur Zahlung",
+			"description": "Kunden sehen Ihre Speisekarte, wählen Gerichte aus, legen in den Warenkorb und bezahlen – direkt in Ihre Küche."
+		},
+		"kitchen": {
+			"title": "Direkt in die Küche",
+			"description": "Bestellungen erscheinen sofort auf dem Küchendisplay oder Drucker. Kein Zettelschreiben, keine Missverständnisse."
+		},
+		"aiMenu": {
+			"title": "KI-Menü-Import",
+			"description": "Speisekarte fotografieren oder PDF hochladen – in 5 Minuten online. Andere Systeme brauchen Stunden für die manuelle Eingabe."
+		},
+		"noHardware": {
+			"title": "Keine Hardware",
+			"description": "Funktioniert auf Ihrem vorhandenen Smartphone oder Tablet. Kein Kartenleser, kein Terminal, kein neues Kassensystem."
+		},
+		"standalone": {
+			"title": "Funktioniert eigenständig",
+			"description": "Kein zusätzliches System nötig. Menuvo funktioniert unabhängig oder ergänzt Ihr bestehendes Kassensystem."
+		},
+		"gdpr": {
+			"title": "DSGVO-konform",
+			"description": "Gehostet in Deutschland. Ihre Kundendaten gehören Ihnen, nicht einer Plattform."
+		}
+	},
+	"pricing": {
+		"title": "Einfach. Transparent. Fair.",
+		"subtitle": "Keine monatlichen Gebühren. Sie zahlen nur, wenn Sie verdienen.",
+		"plan": {
+			"name": "Menuvo",
+			"description": "Alles inklusive",
+			"monthlyFee": "0€",
+			"monthlyLabel": "monatlich",
+			"transactionFee": "2,9%",
+			"transactionLabel": "pro Bestellung",
+			"features": [
+				"Unbegrenzte Bestellungen",
+				"Digitale Speisekarte mit QR-Code",
+				"KI-Menü-Import aus Foto/PDF",
+				"Küchendisplay",
+				"Bestellverwaltung",
+				"Kundenbenachrichtigungen",
+				"Analysen & Berichte",
+				"E-Mail Support"
+			]
+		},
+		"ctaButton": "Jetzt kostenlos starten",
+		"fees": {
+			"title": "Alle Gebühren auf einen Blick",
+			"menuvo": {
+				"label": "Menuvo-Gebühr",
+				"value": "2,9%",
+				"description": "Bestellsystem, Menü, Küchendisplay, Support"
+			},
+			"mollie": {
+				"label": "Zahlungsgebühr (Mollie)",
+				"value": "~1,8% + 0,25€",
+				"description": "Für Kartenzahlung, Apple Pay, Google Pay"
+			},
+			"paypal": {
+				"label": "PayPal (optional)",
+				"value": "2,49% + 0,35€",
+				"description": "Wenn Kunde mit PayPal zahlt"
+			},
+			"total": {
+				"label": "Gesamt pro Bestellung",
+				"value": "ca. 5%",
+				"description": "Bei Kartenzahlung – deutlich weniger als Lieferplattformen"
+			}
+		},
+		"example": {
+			"title": "Beispiel: 50€ Bestellung mit Karte",
+			"rows": [
+				{ "label": "Bestellwert", "value": "50,00€" },
+				{ "label": "Menuvo (2,9%)", "value": "−1,45€" },
+				{ "label": "Mollie Karte (1,8% + 0,25€)", "value": "−1,15€" },
+				{ "label": "Sie erhalten", "value": "47,40€", "highlight": true }
+			],
+			"comparison": "Bei Lieferplattformen: deutlich weniger",
+			"savings": "Mit Menuvo behalten Sie mehr"
+		},
+		"note": "Alle Gebühren werden automatisch abgezogen. Sie erhalten den Nettobetrag direkt auf Ihr Konto."
+	},
+	"faq": {
+		"title": "Häufige Fragen",
+		"subtitle": "Alles, was Sie wissen müssen",
+		"items": [
+			{
+				"question": "Was kostet Menuvo?",
+				"answer": "Keine monatlichen Gebühren. Sie zahlen nur 2,9% pro Bestellung. Dazu kommen die normalen Zahlungsgebühren (ca. 1,8% + 0,25€ für Kartenzahlung). Bei einer 50€ Bestellung sind das insgesamt etwa 2,60€ – Sie behalten 47,40€."
+			},
+			{
+				"question": "Brauche ich ein neues Kassensystem?",
+				"answer": "Nein. Menuvo funktioniert standalone – Sie brauchen nur ein Smartphone oder Tablet, um Bestellungen zu empfangen. Es funktioniert auch parallel zu Ihrem bestehenden Kassensystem."
+			},
+			{
+				"question": "Wie schnell bin ich online?",
+				"answer": "In 5 Minuten. Laden Sie ein Foto Ihrer Speisekarte hoch, unsere KI erstellt das digitale Menü, und Sie können sofort Bestellungen empfangen."
+			},
+			{
+				"question": "Brauche ich Hardware?",
+				"answer": "Nein. Kein Kartenleser, kein Terminal. Kunden zahlen mit ihrem Smartphone (Karte, Apple Pay, Google Pay). Sie sehen Bestellungen auf Ihrem vorhandenen Gerät."
+			},
+			{
+				"question": "Für wen ist Menuvo geeignet?",
+				"answer": "Restaurants, Cafés, Food Trucks, Imbisse, Pop-ups – alle, die QR-Bestellungen anbieten wollen, ohne ein teures Kassensystem zu kaufen oder hohe Provisionen zu zahlen."
+			},
+			{
+				"question": "Wie funktioniert die Zahlung?",
+				"answer": "Kunden zahlen direkt beim Bestellen mit Karte, Apple Pay, Google Pay oder PayPal. Das Geld geht auf Ihr Konto. Wir nutzen Mollie für die Zahlungsabwicklung."
+			},
+			{
+				"question": "Kann ich jederzeit kündigen?",
+				"answer": "Ja, jederzeit. Keine Mindestlaufzeit, keine Kündigungsfrist. Wenn Sie keine Bestellungen haben, zahlen Sie nichts."
+			},
+			{
+				"question": "Ist Menuvo DSGVO-konform?",
+				"answer": "Ja. Alle Daten werden in Deutschland gehostet. Ihre Kundendaten gehören ausschließlich Ihnen."
+			},
+			{
+				"question": "Was passiert mit meinen Kundendaten?",
+				"answer": "Sie gehören Ihnen – nicht uns, nicht einer Plattform. Sie können sie für Marketing nutzen, Stammkunden pflegen und Ihre eigene Kundenbeziehung aufbauen."
+			}
+		]
+	},
+	"footer": {
+		"tagline": "QR-Bestellung ohne neues Kassensystem. 0€ monatlich, 2,9% pro Bestellung.",
+		"product": "Produkt",
+		"company": "Unternehmen",
+		"legal": "Rechtliches",
+		"contact": "Kontakt",
+		"privacy": "Datenschutz",
+		"terms": "AGB",
+		"impressum": "Impressum",
+		"copyright": "© {{year}} Menuvo. Alle Rechte vorbehalten."
+	}
+}

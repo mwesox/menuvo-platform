@@ -130,10 +130,11 @@ Domains follow one of two patterns depending on complexity:
 ### Dependency Injection Flow
 
 1. `DomainServices` class receives `db` in constructor
-2. Instantiates all service classes (both simple domain services and feature services), passing `db`
-3. Exposes services as public readonly properties
-4. API context creates single `DomainServices` instance
-5. Routers access via `ctx.services.{service}.{method}()` (e.g., `ctx.services.stores.list()`, `ctx.services.categories.create()`)
+2. Instantiates all service classes (both simple domain services and feature services), passing `db` and other services as needed
+3. Services can receive other services as dependencies (not just `db`)
+4. Exposes services as public readonly properties
+5. API context creates single `DomainServices` instance
+6. Routers access via `ctx.services.{service}.{method}()` (e.g., `ctx.services.stores.list()`, `ctx.services.categories.create()`)
 
 ### Domain Function Rules
 
@@ -141,6 +142,15 @@ Domains follow one of two patterns depending on complexity:
 - Explicit dependencies as first parameter
 - Returns domain types, not raw DB types
 - Throws domain errors (NotFoundError, ValidationError), not TRPCError
+
+### Service Composition
+
+Services MAY depend on other services via constructor injection:
+
+- Reuse existing service methods instead of reimplementing database operations
+- Example: `OrderService` can use `StoreService` to validate store status
+- `DomainServices` class handles wiring - services receive other services as dependencies
+- Keep dependency direction clear: avoid circular dependencies
 
 ---
 

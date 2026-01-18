@@ -4,6 +4,7 @@
  * Defines the contract for store operations.
  */
 
+import type { Transaction } from "@menuvo/db";
 import type { storeClosures, storeHours, stores } from "@menuvo/db/schema";
 import type {
 	CreateStoreInput,
@@ -45,10 +46,15 @@ export interface IStoreService {
 	/** Get unique cities where merchant has stores */
 	getCities: (merchantId: string) => Promise<string[]>;
 
-	/** Create a new store */
+	/** Create a new store
+	 * @param merchantId - The merchant ID
+	 * @param input - Store data (slug is optional - generated from name if not provided)
+	 * @param tx - Optional transaction for atomic operations
+	 */
 	create: (
 		merchantId: string,
 		input: CreateStoreInput,
+		tx?: Transaction,
 	) => Promise<typeof stores.$inferSelect>;
 
 	/** Update store details */

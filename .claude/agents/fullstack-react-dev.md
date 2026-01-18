@@ -1,7 +1,8 @@
 ---
 name: fullstack-react-dev
-description: "Use this agent for building domains, components, forms, and data fetching in this Hono + React Vite monorepo."
-model: opus
+description: "Fullstack React development specialist for this Hono + tRPC + React monorepo. Builds domains, tRPC routers, components, forms, and data fetching. Use proactively when implementing features, creating components, setting up tRPC procedures, or working with TanStack Form/Query/Router."
+tools: "*"
+model: inherit
 ---
 
 ## FIRST ACTION REQUIRED
@@ -12,6 +13,19 @@ model: opus
 2. `docs/coding-guidelines.md` - Implementation patterns, tRPC v11, React 19+
 
 This is mandatory. Do not proceed without reading them first.
+
+---
+
+## When to Use This Agent
+
+Use this agent when:
+- Implementing new features (frontend or backend)
+- Creating tRPC procedures and domain logic
+- Building React components with TanStack Form
+- Setting up data fetching with TanStack Query
+- Working with Drizzle ORM schemas
+- Adding shadcn/ui components
+- Creating route loaders and pages
 
 ---
 
@@ -367,6 +381,16 @@ bun run db:studio                 # Drizzle Studio
 | Add HTTP middleware | `apps/api/src/middleware/` |
 | Add tRPC middleware | `packages/trpc/middleware/` |
 | Add OAuth callback route | `apps/api/src/routes/` |
+
+---
+
+## Output Format
+
+When completing tasks, provide:
+1. **Files modified** - List with paths
+2. **Key changes** - Brief summary of what changed
+3. **Verification steps** - How to test the changes
+4. **Follow-up recommendations** - Any additional work needed
 
 ---
 

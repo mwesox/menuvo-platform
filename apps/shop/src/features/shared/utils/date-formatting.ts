@@ -15,9 +15,9 @@ function getLocaleForLanguage(languageCode: string): string {
 		case "de":
 			return "de-DE";
 		case "en":
-			return "en-US";
+			return "en-GB";
 		default:
-			return "en-US";
+			return "en-GB";
 	}
 }
 

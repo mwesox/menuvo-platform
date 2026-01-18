@@ -140,6 +140,7 @@ export const storesRelations = relations(stores, ({ one, many }) => ({
 	closures: many(storeClosures),
 	servicePoints: many(servicePoints),
 	orders: many(orders),
+	settings: one(storeSettings),
 }));
 
 // ============================================================================
@@ -163,6 +164,48 @@ export const storeCounters = pgTable("store_counters", {
 export const storeCountersRelations = relations(storeCounters, ({ one }) => ({
 	store: one(stores, {
 		fields: [storeCounters.storeId],
+		references: [stores.id],
+	}),
+}));
+
+// ============================================================================
+// STORE SETTINGS (Consolidated settings - separate from store config)
+// ============================================================================
+
+/**
+ * Type for order types configuration.
+ * Configures which order types are available for a store.
+ */
+export type OrderTypesConfig = {
+	dine_in: { enabled: boolean; displayOrder: number };
+	takeaway: { enabled: boolean; displayOrder: number };
+	delivery: { enabled: boolean; displayOrder: number };
+};
+
+/**
+ * Store settings table for extensible store configuration.
+ * 1:1 relationship with stores - storeId is the primary key.
+ * Uses JSONB columns for flexible, extensible settings.
+ */
+export const storeSettings = pgTable("store_settings", {
+	storeId: uuid("store_id")
+		.primaryKey()
+		.references(() => stores.id, { onDelete: "cascade" }),
+	// Order types configuration (JSONB for flexibility)
+	orderTypes: jsonb("order_types").$type<OrderTypesConfig>(),
+	// Future: add more JSONB columns for other settings
+	// e.g., paymentConfig, notificationConfig, etc.
+	// Timestamps
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at")
+		.notNull()
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
+
+export const storeSettingsRelations = relations(storeSettings, ({ one }) => ({
+	store: one(stores, {
+		fields: [storeSettings.storeId],
 		references: [stores.id],
 	}),
 }));
@@ -753,6 +796,14 @@ export const orders = pgTable(
 		index("idx_orders_mollie_payment").on(table.molliePaymentId),
 		index("idx_orders_store_pickup").on(table.storeId, table.pickupNumber),
 		unique("idx_orders_idempotency_key").on(table.idempotencyKey),
+		// Polling optimization indexes
+		index("idx_orders_store_completed_at").on(table.storeId, table.completedAt), // For kitchenDone query
+		index("idx_orders_store_status_created").on(
+			table.storeId,
+			table.status,
+			table.createdAt,
+		), // For listForKitchen query
+		index("idx_orders_store_created_at").on(table.storeId, table.createdAt), // For listByStore date range queries
 	],
 );
 
@@ -871,6 +922,10 @@ export type NewStore = InferInsertModel<typeof stores>;
 // Store Counter types
 export type StoreCounter = InferSelectModel<typeof storeCounters>;
 export type NewStoreCounter = InferInsertModel<typeof storeCounters>;
+
+// Store Settings types
+export type StoreSettingsRow = InferSelectModel<typeof storeSettings>;
+export type NewStoreSettingsRow = InferInsertModel<typeof storeSettings>;
 
 // Category types
 export type Category = InferSelectModel<typeof categories>;

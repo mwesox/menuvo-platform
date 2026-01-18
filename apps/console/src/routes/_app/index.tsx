@@ -1,81 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle, Skeleton } from "@menuvo/ui";
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Card, CardContent, CardHeader, CardTitle } from "@menuvo/ui";
+import { createFileRoute } from "@tanstack/react-router";
 import { ShoppingCart, Store, UtensilsCrossed } from "lucide-react";
-import { useEffect } from "react";
-import { useTRPC } from "@/lib/trpc";
 
 export const Route = createFileRoute("/_app/")({
 	component: DashboardPage,
 });
 
 function DashboardPage() {
-	const navigate = useNavigate();
-	const trpc = useTRPC();
-
-	// Use tRPC v11 best practice: useTRPC() + queryOptions()
-	const { data: merchant, isLoading } = useQuery(
-		trpc.auth.getMerchantOrNull.queryOptions(),
-	);
-
-	// Debug logging for auth flow
-	useEffect(() => {
-		console.log("[dashboard] Auth state:", {
-			isLoading,
-			hasMerchant: !!merchant,
-			merchantId: merchant?.id || "(none)",
-			cookies: document.cookie,
-		});
-	}, [isLoading, merchant]);
-
-	// Redirect to onboarding if no merchant (after loading completes)
-	useEffect(() => {
-		if (!isLoading && !merchant) {
-			console.log("[dashboard] No merchant found, redirecting to /onboarding");
-			navigate({ to: "/onboarding" });
-		}
-	}, [merchant, isLoading, navigate]);
-
-	// Show loading state while checking auth
-	if (isLoading) {
-		return (
-			<div>
-				<Skeleton className="mb-6 h-8 w-48" />
-				<div className="grid gap-4 md:grid-cols-3">
-					<Card>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<Skeleton className="h-4 w-24" />
-						</CardHeader>
-						<CardContent>
-							<Skeleton className="h-8 w-16" />
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<Skeleton className="h-4 w-24" />
-						</CardHeader>
-						<CardContent>
-							<Skeleton className="h-8 w-16" />
-						</CardContent>
-					</Card>
-					<Card>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<Skeleton className="h-4 w-24" />
-						</CardHeader>
-						<CardContent>
-							<Skeleton className="h-8 w-16" />
-						</CardContent>
-					</Card>
-				</div>
-			</div>
-		);
-	}
-
-	// Don't render if redirecting
-	if (!merchant) {
-		return null;
-	}
-
+	// Auth is handled centrally by _app beforeLoad - no check needed here
 	return (
 		<div>
 			<h1 className="mb-6 font-bold text-2xl tracking-tight">Dashboard</h1>

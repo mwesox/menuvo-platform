@@ -29,6 +29,7 @@ export async function getMenuDataForShop(db: Database, storeSlug: string) {
 					supportedLanguages: true,
 				},
 			},
+			settings: true,
 			categories: {
 				where: eq(categories.isActive, true),
 				orderBy: [asc(categories.displayOrder)],

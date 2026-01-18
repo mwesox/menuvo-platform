@@ -13,15 +13,13 @@
 		"creating": "Wird erstellt...",
 		"welcome": {
 			"title": "Schön, dass du hier bist",
-			"description": "Bevor wir loslegen, brauchen wir ein paar Infos über dich und dein Restaurant. Dauert nur",
-			"duration": "2 Minuten",
+			"description": "Bevor wir loslegen, brauchen wir ein paar Infos über dich und dein Restaurant. Dauert nur wenige Minuten.",
 			"pills": {
 				"business": "Geschäftsinfos",
 				"contact": "Kontaktdaten",
 				"store": "Dein Store"
 			},
-			"cta": "Los geht's",
-			"timeHint": ""
+			"cta": "Los geht's"
 		},
 		"business": {
 			"title": "Wie heißt dein Unternehmen?",

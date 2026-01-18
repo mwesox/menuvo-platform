@@ -3,33 +3,95 @@
 /* Tell Tailwind to scan the UI package for utility classes */
 @source "../../../packages/ui/src";
 
-/* Business Theme - Professional blue palette */
-@theme {
-	--color-background: oklch(100% 0 0);
-	--color-foreground: oklch(14.1% 0.005 285.823);
-	--color-card: oklch(100% 0 0);
-	--color-card-foreground: oklch(14.1% 0.005 285.823);
-	--color-popover: oklch(100% 0 0);
-	--color-popover-foreground: oklch(14.1% 0.005 285.823);
-	--color-primary: oklch(50% 0.15 250);
-	--color-primary-foreground: oklch(98.5% 0 0);
-	--color-secondary: oklch(96% 0.01 250);
-	--color-secondary-foreground: oklch(30% 0.05 250);
-	--color-muted: oklch(96.7% 0.001 286.375);
-	--color-muted-foreground: oklch(55.2% 0.016 285.938);
-	--color-accent: oklch(96% 0.01 250);
-	--color-accent-foreground: oklch(30% 0.05 250);
-	--color-destructive: oklch(57.7% 0.245 27.325);
-	--color-destructive-foreground: oklch(98.5% 0 0);
-	--color-border: oklch(91.3% 0.004 286.32);
-	--color-input: oklch(91.3% 0.004 286.32);
-	--color-ring: oklch(50% 0.15 250);
-	--radius: 0.5rem;
-	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+@custom-variant dark (&:is(.dark *));
+
+/**
+ * Business Landing Page Theme - Marketing site with Menuvo brand colors
+ */
+
+:root {
+	--radius: 0.75rem;
+
+	/* Core colors - Menuvo brand palette */
+	--background: oklch(0.985 0.001 90);
+	--foreground: oklch(0.15 0.01 280);
+	--card: oklch(1 0 0);
+	--card-foreground: oklch(0.15 0.01 280);
+	--popover: oklch(1 0 0);
+	--popover-foreground: oklch(0.15 0.01 280);
+
+	/* Primary: Menuvo Red */
+	--primary: oklch(0.55 0.22 27);
+	--primary-foreground: oklch(0.99 0 0);
+
+	/* Secondary */
+	--secondary: oklch(0.97 0.002 280);
+	--secondary-foreground: oklch(0.15 0.01 280);
+
+	/* Muted */
+	--muted: oklch(0.97 0.002 280);
+	--muted-foreground: oklch(0.5 0.01 280);
+
+	/* Accent: Same as primary for CTAs */
+	--accent: oklch(0.55 0.22 27);
+	--accent-foreground: oklch(0.99 0 0);
+
+	/* Destructive */
+	--destructive: oklch(0.55 0.22 27);
+	--destructive-foreground: oklch(0.99 0 0);
+
+	/* UI Elements */
+	--border: oklch(0.92 0.004 280);
+	--input: oklch(0.92 0.004 280);
+	--ring: oklch(0.55 0.22 27);
+
+	/* Typography */
+	--font-sans: system-ui, -apple-system, sans-serif;
 }
 
-body {
-	font-family: var(--font-sans);
-	background-color: var(--color-background);
-	color: var(--color-foreground);
+/* Map CSS Variables to Tailwind Colors */
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+
+	/* Brand colors - defined directly for opacity modifier support */
+	--color-brand-red: oklch(0.55 0.22 27);
+	--color-brand-red-dark: oklch(0.48 0.2 27);
+	--color-brand-red-light: oklch(0.68 0.18 20);
+	--color-brand-red-lighter: oklch(0.72 0.16 18);
+	--color-brand-orange: oklch(0.77 0.17 65);
+	--color-brand-dark: oklch(0.15 0.01 280);
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply m-0 bg-background text-foreground;
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
 }

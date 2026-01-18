@@ -4,7 +4,7 @@
  * Service facade for store operations.
  */
 
-import type { Database } from "@menuvo/db";
+import type { Database, Transaction } from "@menuvo/db";
 import { stores } from "@menuvo/db/schema";
 import slugify from "@sindresorhus/slugify";
 import { and, asc, eq, gt, ilike, ne, or } from "drizzle-orm";
@@ -107,27 +107,35 @@ export class StoreService implements IStoreService {
 	async create(
 		merchantId: string,
 		input: CreateStoreInput,
+		tx?: Transaction,
 	): Promise<typeof stores.$inferSelect> {
-		// Generate unique slug from store name
-		const baseSlug = this.generateSlug(input.name);
-		const slug = await this.findUniqueSlug(baseSlug);
+		const db = tx ?? this.db;
 
-		const [newStore] = await this.db
-			.insert(stores)
-			.values({
-				merchantId: merchantId,
-				name: input.name,
-				slug,
-				street: input.street ?? null,
-				city: input.city ?? null,
-				postalCode: input.postalCode ?? null,
-				country: input.country ?? null,
-				phone: input.phone,
-				email: input.email ?? null,
-				timezone: input.timezone ?? null,
-				currency: input.currency ?? null,
-			} as typeof stores.$inferInsert)
-			.returning();
+		// Use provided slug or generate unique slug from store name
+		const slug =
+			input.slug ?? (await this.findUniqueSlug(this.generateSlug(input.name)));
+
+		// Build insert values
+		// Address, contact fields are now required (aligned with onboarding)
+		// Timezone/currency are optional - use defaults if not provided
+		const insertValues: typeof stores.$inferInsert = {
+			merchantId: merchantId,
+			name: input.name,
+			slug,
+			// Address - required
+			street: input.street,
+			city: input.city,
+			postalCode: input.postalCode,
+			country: input.country,
+			// Contact - required
+			phone: input.phone,
+			email: input.email,
+			// Settings - optional with defaults
+			...(input.timezone && { timezone: input.timezone }),
+			...(input.currency && { currency: input.currency }),
+		};
+
+		const [newStore] = await db.insert(stores).values(insertValues).returning();
 
 		if (!newStore) {
 			throw new ValidationError("Failed to create store");

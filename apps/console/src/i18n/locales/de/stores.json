@@ -54,7 +54,18 @@
 		"details": "Details",
 		"hours": "Öffnungszeiten",
 		"closures": "Schließungen",
+		"orderTypes": "Bestellarten",
 		"qrCodes": "QR-Codes"
+	},
+	"orderTypes": {
+		"title": "Bestellarten",
+		"description": "Welche Bestellarten sind in diesem Standort verfügbar?",
+		"dine_in": "Vor Ort",
+		"takeaway": "Zum Mitnehmen",
+		"delivery": "Lieferung"
+	},
+	"validation": {
+		"atLeastOneOrderType": "Mindestens eine Bestellart muss aktiviert sein"
 	},
 	"dialogs": {
 		"deleteTitle": "Filiale löschen",

@@ -7,10 +7,7 @@
  * - Store configuration
  */
 
-import { stores } from "@menuvo/db/schema";
-import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
-import { router } from "../../trpc/index.js";
+import { mapDomainErrorToTRPC, router } from "../../trpc/index.js";
 import { protectedProcedure, publicProcedure } from "../../trpc/trpc.js";
 import { closuresRouter } from "./closures/index.js";
 import { hoursRouter } from "./hours/index.js";
@@ -28,6 +25,7 @@ import {
 	updateStoreImageApiSchema,
 } from "./schemas.js";
 import { servicePointsRouter } from "./service-points/index.js";
+import { settingsRouter } from "./settings/index.js";
 import { statusRouter } from "./status/index.js";
 
 export const storeRouter = router({
@@ -50,13 +48,7 @@ export const storeRouter = router({
 					ctx.session.merchantId,
 				);
 			} catch (error) {
-				if (error instanceof Error && error.message === "Store not found") {
-					throw new TRPCError({
-						code: "NOT_FOUND",
-						message: "Store not found",
-					});
-				}
-				throw error;
+				mapDomainErrorToTRPC(error);
 			}
 		}),
 
@@ -73,13 +65,7 @@ export const storeRouter = router({
 					ctx.session.merchantId,
 				);
 			} catch (error) {
-				if (error instanceof Error && error.message === "Store not found") {
-					throw new TRPCError({
-						code: "NOT_FOUND",
-						message: "Store not found",
-					});
-				}
-				throw error;
+				mapDomainErrorToTRPC(error);
 			}
 		}),
 
@@ -92,13 +78,7 @@ export const storeRouter = router({
 			try {
 				return await ctx.services.stores.getBySlug(input.slug);
 			} catch (error) {
-				if (error instanceof Error && error.message === "Store not found") {
-					throw new TRPCError({
-						code: "NOT_FOUND",
-						message: "Store not found",
-					});
-				}
-				throw error;
+				mapDomainErrorToTRPC(error);
 			}
 		}),
 
@@ -118,24 +98,7 @@ export const storeRouter = router({
 			try {
 				return await ctx.services.stores.create(ctx.session.merchantId, input);
 			} catch (error) {
-				if (error instanceof Error) {
-					if (error.message.includes("not found")) {
-						throw new TRPCError({
-							code: "NOT_FOUND",
-							message: error.message,
-						});
-					}
-					if (
-						error.message.includes("validation") ||
-						error.message.includes("invalid")
-					) {
-						throw new TRPCError({
-							code: "BAD_REQUEST",
-							message: error.message,
-						});
-					}
-				}
-				throw error;
+				mapDomainErrorToTRPC(error);
 			}
 		}),
 
@@ -153,13 +116,7 @@ export const storeRouter = router({
 					updates,
 				);
 			} catch (error) {
-				if (error instanceof Error && error.message === "Store not found") {
-					throw new TRPCError({
-						code: "NOT_FOUND",
-						message: "Store not found",
-					});
-				}
-				throw error;
+				mapDomainErrorToTRPC(error);
 			}
 		}),
 
@@ -173,13 +130,7 @@ export const storeRouter = router({
 				await ctx.services.stores.delete(input.storeId, ctx.session.merchantId);
 				return { success: true };
 			} catch (error) {
-				if (error instanceof Error && error.message === "Store not found") {
-					throw new TRPCError({
-						code: "NOT_FOUND",
-						message: "Store not found",
-					});
-				}
-				throw error;
+				mapDomainErrorToTRPC(error);
 			}
 		}),
 
@@ -196,13 +147,7 @@ export const storeRouter = router({
 					input.isActive,
 				);
 			} catch (error) {
-				if (error instanceof Error && error.message === "Store not found") {
-					throw new TRPCError({
-						code: "NOT_FOUND",
-						message: "Store not found",
-					});
-				}
-				throw error;
+				mapDomainErrorToTRPC(error);
 			}
 		}),
 
@@ -219,13 +164,7 @@ export const storeRouter = router({
 					input.imageUrl ?? null,
 				);
 			} catch (error) {
-				if (error instanceof Error && error.message === "Store not found") {
-					throw new TRPCError({
-						code: "NOT_FOUND",
-						message: "Store not found",
-					});
-				}
-				throw error;
+				mapDomainErrorToTRPC(error);
 			}
 		}),
 
@@ -296,6 +235,9 @@ export const storeRouter = router({
 
 	/** Store closures operations */
 	closures: closuresRouter,
+
+	/** Store settings operations */
+	settings: settingsRouter,
 
 	/** Store status operations */
 	status: statusRouter,

@@ -1,7 +1,9 @@
+import type { AppRouter } from "@menuvo/api/trpc";
 import { Input } from "@menuvo/ui/components/input";
 import { Label } from "@menuvo/ui/components/label";
 import { Textarea } from "@menuvo/ui/components/textarea";
 import { cn } from "@menuvo/ui/lib/utils";
+import type { inferRouterOutputs } from "@trpc/server";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,6 +28,12 @@ import { PickupTimeSelector } from "./pickup-time-selector";
 type CreateOrderInput = Parameters<TrpcClient["order"]["create"]["mutate"]>[0];
 type OrderType = CreateOrderInput["orderType"];
 
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type MenuResponse = RouterOutput["menu"]["shop"]["getMenu"];
+type EnabledOrderTypes = NonNullable<
+	MenuResponse["store"]["enabledOrderTypes"]
+>;
+
 interface OrderingPageProps {
 	storeId: string;
 	storeSlug: string;
@@ -34,6 +42,7 @@ interface OrderingPageProps {
 		isOpen: boolean;
 		nextOpenTime: string | null;
 	};
+	enabledOrderTypes: EnabledOrderTypes;
 }
 
 export function OrderingPage({
@@ -41,6 +50,7 @@ export function OrderingPage({
 	storeSlug,
 	capabilities,
 	storeStatus,
+	enabledOrderTypes,
 }: OrderingPageProps) {
 	const { t } = useTranslation("shop");
 
@@ -51,12 +61,56 @@ export function OrderingPage({
 	// Determine if shop is closed
 	const isClosed = storeStatus ? !storeStatus.isOpen : false;
 
+	// Build list of available order types based on enabled settings
+	const availableOrderTypes = [
+		...(enabledOrderTypes.dine_in && !isClosed
+			? [
+					{
+						value: "dine_in" as const,
+						label: t("ordering.orderTypes.dineIn"),
+						disabled: false,
+					},
+				]
+			: []),
+		...(enabledOrderTypes.takeaway
+			? [
+					{
+						value: "takeaway" as const,
+						label: t("ordering.orderTypes.takeaway"),
+						disabled: false,
+					},
+				]
+			: []),
+		...(enabledOrderTypes.delivery
+			? [
+					{
+						value: "delivery" as const,
+						label: t("ordering.orderTypes.delivery"),
+						disabled: false,
+					},
+				]
+			: []),
+	];
+
+	// Get default order type: first available, fallback to takeaway
+	const getDefaultOrderType = (): OrderType => {
+		if (isClosed) {
+			// When closed, prefer takeaway if enabled, then delivery
+			if (enabledOrderTypes.takeaway) return "takeaway";
+			if (enabledOrderTypes.delivery) return "delivery";
+		} else {
+			// When open, prefer dine_in if enabled
+			if (enabledOrderTypes.dine_in) return "dine_in";
+			if (enabledOrderTypes.takeaway) return "takeaway";
+			if (enabledOrderTypes.delivery) return "delivery";
+		}
+		return "takeaway"; // Fallback
+	};
+
 	// Form state
 	const [customerName, setCustomerName] = useState("");
 	const [customerNotes, setCustomerNotes] = useState("");
-	const [orderType, setOrderType] = useState<OrderType>(
-		isClosed ? "takeaway" : "dine_in",
-	);
+	const [orderType, setOrderType] = useState<OrderType>(getDefaultOrderType());
 	const [scheduledPickupTime, setScheduledPickupTime] = useState<string | null>(
 		null,
 	);
@@ -246,90 +300,86 @@ export function OrderingPage({
 						</ShopCard>
 					)}
 
-					{/* Order Type Selection */}
-					<ShopCard padding="md" className="space-y-4">
-						<ShopHeading as="h2" size="md">
-							{t("ordering.orderType")}
-						</ShopHeading>
+					{/* Order Type Selection - only show if more than one option available */}
+					{availableOrderTypes.length > 1 && (
+						<ShopCard padding="md" className="space-y-4">
+							<ShopHeading as="h2" size="md">
+								{t("ordering.orderType")}
+							</ShopHeading>
 
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-							{[
-								{
-									value: "dine_in",
-									label: t("ordering.orderTypes.dineIn"),
-									disabled: isClosed,
-								},
-								{
-									value: "takeaway",
-									label: t("ordering.orderTypes.takeaway"),
-									disabled: false,
-								},
-								{
-									value: "delivery",
-									label: t("ordering.orderTypes.delivery"),
-									disabled: false,
-								},
-							].map((option) => {
-								const isSelected = orderType === option.value;
-								const isDisabled = option.disabled;
+							<div
+								className={cn(
+									"grid grid-cols-1 gap-3",
+									availableOrderTypes.length === 2
+										? "sm:grid-cols-2"
+										: "sm:grid-cols-3",
+								)}
+							>
+								{availableOrderTypes.map((option) => {
+									const isSelected = orderType === option.value;
+									const isDisabled = option.disabled;
 
-								return (
-									<ShopCard
-										key={option.value}
-										variant="interactive"
-										padding="md"
-										className={cn(
-											"cursor-pointer transition-all",
-											isSelected
-												? "border-2 border-primary bg-primary/10"
-												: "border border-border hover:border-primary/50 hover:bg-muted/50",
-											isDisabled && "cursor-not-allowed opacity-50",
-										)}
-										onClick={() =>
-											!isDisabled && setOrderType(option.value as OrderType)
-										}
-										onKeyDown={(e) => {
-											if (!isDisabled && (e.key === "Enter" || e.key === " ")) {
-												e.preventDefault();
-												setOrderType(option.value as OrderType);
+									return (
+										<ShopCard
+											key={option.value}
+											variant="interactive"
+											padding="md"
+											className={cn(
+												"cursor-pointer transition-all",
+												isSelected
+													? "border-2 border-primary bg-primary/10"
+													: "border border-border hover:border-primary/50 hover:bg-muted/50",
+												isDisabled && "cursor-not-allowed opacity-50",
+											)}
+											onClick={() =>
+												!isDisabled && setOrderType(option.value as OrderType)
 											}
-										}}
-										role="button"
-										tabIndex={isDisabled ? -1 : 0}
-										aria-pressed={isSelected}
-										aria-disabled={isDisabled}
-									>
-										<div className="flex items-center gap-3">
-											{/* Radio indicator */}
-											<div
-												className={cn(
-													"size-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-all",
-													isSelected
-														? "border-primary bg-primary"
-														: "border-border",
-													isDisabled && "opacity-50",
-												)}
-											>
-												{isSelected && (
-													<div className="size-2 rounded-full bg-white" />
-												)}
+											onKeyDown={(e) => {
+												if (
+													!isDisabled &&
+													(e.key === "Enter" || e.key === " ")
+												) {
+													e.preventDefault();
+													setOrderType(option.value as OrderType);
+												}
+											}}
+											role="button"
+											tabIndex={isDisabled ? -1 : 0}
+											aria-pressed={isSelected}
+											aria-disabled={isDisabled}
+										>
+											<div className="flex items-center gap-3">
+												{/* Radio indicator */}
+												<div
+													className={cn(
+														"size-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-all",
+														isSelected
+															? "border-primary bg-primary"
+															: "border-border",
+														isDisabled && "opacity-50",
+													)}
+												>
+													{isSelected && (
+														<div className="size-2 rounded-full bg-white" />
+													)}
+												</div>
+												{/* Label */}
+												<ShopText
+													className={cn(
+														"font-medium",
+														isSelected ? "text-foreground" : "text-foreground",
+														isDisabled && "opacity-50",
+													)}
+												>
+													{option.label}
+												</ShopText>
 											</div>
-											{/* Label */}
-											<ShopText
-												className={cn(
-													"font-medium",
-													isSelected ? "text-foreground" : "text-foreground",
-													isDisabled && "opacity-50",
-												)}
-											>
-												{option.label}
-											</ShopText>
-										</div>
-									</ShopCard>
-								);
-							})}
-						</div>
-					</ShopCard>
+										</ShopCard>
+									);
+								})}
+							</div>
+						</ShopCard>
+					)}
 
 					{/* Pickup/Delivery Time Selection (for takeaway orders, or delivery when closed) */}
 					{(orderType === "takeaway" ||

@@ -6,15 +6,21 @@
 
 /**
  * Input for creating a store
+ * Aligned with onboarding flow - address and contact are required
  */
 export interface CreateStoreInput {
 	name: string;
-	street?: string;
-	city?: string;
-	postalCode?: string;
-	country?: string;
+	// Slug - optional, generated from name if not provided
+	slug?: string;
+	// Address - required
+	street: string;
+	city: string;
+	postalCode: string;
+	country: string;
+	// Contact - required
 	phone: string;
-	email?: string;
+	email: string;
+	// Settings - optional, defaults applied by service/database
 	timezone?: string;
 	currency?: string;
 }

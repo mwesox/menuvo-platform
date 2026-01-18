@@ -39,12 +39,20 @@ function OrderingRouteComponent() {
 		isOpen: store.status?.isOpen ?? true,
 	};
 
+	// Get enabled order types from store settings (default all true)
+	const enabledOrderTypes = store.enabledOrderTypes ?? {
+		dine_in: true,
+		takeaway: true,
+		delivery: true,
+	};
+
 	return (
 		<OrderingPage
 			storeId={store.id}
 			storeSlug={store.slug}
 			capabilities={merchantCapabilities}
 			storeStatus={store.status}
+			enabledOrderTypes={enabledOrderTypes}
 		/>
 	);
 }

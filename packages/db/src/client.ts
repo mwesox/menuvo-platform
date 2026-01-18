@@ -18,3 +18,9 @@ const client = postgres(databaseUrl, {
 export const db = drizzle(client, { schema });
 
 export type Database = typeof db;
+
+// Transaction type for passing to services
+type TransactionFn = Parameters<typeof db.transaction>[0];
+export type Transaction = TransactionFn extends (tx: infer T) => unknown
+	? T
+	: never;

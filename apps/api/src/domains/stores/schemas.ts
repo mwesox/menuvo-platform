@@ -16,17 +16,28 @@ import { z } from "zod";
 /**
  * Create store - API schema
  * Used by tRPC create procedure
+ *
+ * Note: This schema is aligned with the onboarding flow.
+ * Address fields are required to ensure complete store data.
+ * Timezone/currency have defaults matching the onboarding defaults.
  */
 export const createStoreApiSchema = z.object({
-	name: z.string().min(1, "Store name is required").max(255),
-	street: z.string().max(255).optional(),
-	city: z.string().max(100).optional(),
-	postalCode: z.string().max(20).optional(),
-	country: z.string().max(100).optional(),
+	name: z.string().min(2, "Store name is required").max(255),
+	// Address fields - required for complete store data
+	street: z.string().min(1, "Street is required").max(255),
+	city: z.string().min(1, "City is required").max(100),
+	postalCode: z.string().min(1, "Postal code is required").max(20),
+	country: z.string().min(1, "Country is required").max(100),
+	// Contact fields - required
 	phone: z.string().min(1, "Phone is required").max(50),
 	email: z.string().min(1, "Email is required").email("Invalid email address"),
-	timezone: z.string().max(50).optional(),
-	currency: z.string().length(3, "Currency must be 3 characters").optional(),
+	// Settings - optional with defaults applied by database
+	timezone: z.string().max(50).optional().default("Europe/Berlin"),
+	currency: z
+		.string()
+		.length(3, "Currency must be 3 characters")
+		.optional()
+		.default("EUR"),
 });
 
 /**
@@ -145,15 +156,19 @@ export const resolveQRCodeSchema = z.object({
 /**
  * Create store - Form schema
  * All fields are strings for HTML input compatibility
+ * Aligned with onboarding flow requirements
  */
 export const createStoreFormSchema = z.object({
-	name: z.string().min(1, "Store name is required").max(255),
-	street: z.string().max(255).optional(),
-	city: z.string().max(100).optional(),
-	postalCode: z.string().max(20).optional(),
-	country: z.string().max(100).optional(),
+	name: z.string().min(2, "Store name is required").max(255),
+	// Address fields - required
+	street: z.string().min(1, "Street is required").max(255),
+	city: z.string().min(1, "City is required").max(100),
+	postalCode: z.string().min(1, "Postal code is required").max(20),
+	country: z.string().min(1, "Country is required").max(100),
+	// Contact fields - required
 	phone: z.string().min(1, "Phone is required").max(50),
 	email: z.string().min(1, "Email is required").email("Invalid email address"),
+	// Settings - optional, defaults applied server-side
 	timezone: z.string().max(50).optional(),
 	currency: z.string().length(3, "Currency must be 3 characters").optional(),
 });

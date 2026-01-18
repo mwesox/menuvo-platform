@@ -13,15 +13,13 @@
 		"creating": "Creating...",
 		"welcome": {
 			"title": "Great to have you here",
-			"description": "Before we start, we need some info about you and your restaurant. Takes only",
-			"duration": "~2 minutes",
+			"description": "Before we start, we need some info about you and your restaurant. It only takes a few minutes.",
 			"pills": {
 				"business": "Business info",
 				"contact": "Contact details",
 				"store": "Your store"
 			},
-			"cta": "Let's go",
-			"timeHint": "⏱ About 2 minutes"
+			"cta": "Let's go"
 		},
 		"business": {
 			"title": "What's your business called?",

@@ -6,6 +6,9 @@
 
 import { z } from "zod";
 
+// Re-export domain type from settings for consistency
+export type { EnabledOrderTypes } from "../stores/settings/types.js";
+
 // ============================================================================
 // GET MENU
 // ============================================================================
@@ -27,6 +30,15 @@ export type GetMenuInput = z.infer<typeof getMenuSchema>;
 // ============================================================================
 
 /**
+ * Enabled order types schema (for API validation)
+ */
+export const enabledOrderTypesSchema = z.object({
+	dine_in: z.boolean(),
+	takeaway: z.boolean(),
+	delivery: z.boolean(),
+});
+
+/**
  * Public store info (minimal, safe for public exposure)
  */
 export const publicStoreSchema = z.object({
@@ -39,6 +51,7 @@ export const publicStoreSchema = z.object({
 	postalCode: z.string().nullable(),
 	country: z.string().nullable(),
 	currency: z.string(),
+	enabledOrderTypes: enabledOrderTypesSchema.optional(),
 	status: z
 		.object({
 			isOpen: z.boolean(),

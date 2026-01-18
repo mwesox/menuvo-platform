@@ -19,6 +19,10 @@ import {
 import { type IItemsService, ItemsService } from "./menu/items/index.js";
 import { type IShopMenuService, ShopMenuService } from "./menu/shop/index.js";
 import { type IMerchantsService, MerchantsService } from "./merchants/index.js";
+import {
+	type IOnboardingService,
+	OnboardingService,
+} from "./onboarding/index.js";
 import { type IOrderService, OrderService } from "./orders/index.js";
 import { type IPaymentService, PaymentService } from "./payments/index.js";
 import {
@@ -31,6 +35,10 @@ import {
 	type IServicePointsService,
 	ServicePointsService,
 } from "./stores/service-points/index.js";
+import {
+	type IStoreSettingsService,
+	StoreSettingsService,
+} from "./stores/settings/index.js";
 import {
 	type IStoreStatusService,
 	StoreStatusService,
@@ -58,11 +66,13 @@ export class DomainServices {
 	readonly items: IItemsService;
 	readonly menuImport: IMenuImportService;
 	readonly merchants: IMerchantsService;
+	readonly onboarding: IOnboardingService;
 	readonly orders: IOrderService;
 	readonly payments: IPaymentService;
 	readonly servicePoints: IServicePointsService;
 	readonly shopMenu: IShopMenuService;
 	readonly status: IStoreStatusService;
+	readonly storeSettings: IStoreSettingsService;
 	readonly stores: IStoreService;
 
 	constructor(deps: DomainServicesDeps) {
@@ -78,8 +88,15 @@ export class DomainServices {
 		this.servicePoints = new ServicePointsService(deps.db);
 		this.shopMenu = new ShopMenuService(deps.db);
 		this.status = new StoreStatusService(deps.db);
+		this.storeSettings = new StoreSettingsService(deps.db);
 		this.orders = new OrderService(deps.db, this.status);
 		this.stores = new StoreService(deps.db, this.status);
+		// Onboarding depends on merchants and stores services
+		this.onboarding = new OnboardingService(
+			deps.db,
+			this.merchants,
+			this.stores,
+		);
 	}
 }
 
@@ -91,10 +108,12 @@ export type { IMenuImportService } from "./menu/import/index.js";
 export type { IItemsService } from "./menu/items/index.js";
 export type { IShopMenuService } from "./menu/shop/index.js";
 export type { IMerchantsService } from "./merchants/index.js";
+export type { IOnboardingService } from "./onboarding/index.js";
 export type { IOrderService } from "./orders/index.js";
 export type { IPaymentService } from "./payments/index.js";
 export type { IClosuresService } from "./stores/closures/index.js";
 export type { IHoursService } from "./stores/hours/index.js";
 export type { IStoreService } from "./stores/index.js";
 export type { IServicePointsService } from "./stores/service-points/index.js";
+export type { IStoreSettingsService } from "./stores/settings/index.js";
 export type { IStoreStatusService } from "./stores/status/index.js";
