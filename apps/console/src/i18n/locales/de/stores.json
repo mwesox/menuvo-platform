@@ -61,8 +61,11 @@
 		"title": "Bestellarten",
 		"description": "Welche Bestellarten sind in diesem Standort verfügbar?",
 		"dine_in": "Vor Ort",
+		"dine_inDescription": "Gäste bestellen und essen im Restaurant",
 		"takeaway": "Zum Mitnehmen",
-		"delivery": "Lieferung"
+		"takeawayDescription": "Gäste holen ihre Bestellung ab",
+		"delivery": "Lieferung",
+		"deliveryDescription": "Bestellungen werden an Kunden geliefert"
 	},
 	"validation": {
 		"atLeastOneOrderType": "Mindestens eine Bestellart muss aktiviert sein"

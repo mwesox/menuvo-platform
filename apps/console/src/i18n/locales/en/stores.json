@@ -61,8 +61,11 @@
 		"title": "Order Types",
 		"description": "Which order types are available at this location?",
 		"dine_in": "Dine In",
+		"dine_inDescription": "Guests order and eat at the restaurant",
 		"takeaway": "Takeaway",
-		"delivery": "Delivery"
+		"takeawayDescription": "Guests pick up their orders",
+		"delivery": "Delivery",
+		"deliveryDescription": "Orders are delivered to customers"
 	},
 	"validation": {
 		"atLeastOneOrderType": "At least one order type must be enabled"
