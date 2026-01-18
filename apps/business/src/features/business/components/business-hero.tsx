@@ -84,7 +84,7 @@ export function BusinessHero() {
 							}}
 						>
 							<a
-								href="/console/onboarding"
+								href="https://console.menuvo.app/onboarding"
 								className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-gradient-to-r from-brand-red to-brand-red-light px-8 py-4 font-semibold text-lg text-white uppercase tracking-wide transition-all duration-300 hover:scale-[1.02] hover:from-brand-red-dark hover:to-brand-red hover:shadow-lg active:scale-[0.98]"
 							>
 								{t("cta.primary")} →
