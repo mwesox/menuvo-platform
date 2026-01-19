@@ -21,7 +21,7 @@ export interface CropPreset {
  * - Item drawer hero: full-width × 192-224px (~4:3)
  * - Store card banner: 16:9 aspect
  */
-export const CROP_PRESETS: Record<string, CropPreset> = {
+export const CROP_PRESETS = {
 	thumbnail: {
 		id: "thumbnail",
 		labelKey: "thumbnail",
@@ -54,7 +54,7 @@ export const CROP_PRESETS: Record<string, CropPreset> = {
 		minWidth: 0,
 		minHeight: 0,
 	},
-};
+} as const satisfies Record<string, CropPreset>;
 
 /**
  * Get available presets for a given image type.
@@ -64,21 +64,17 @@ export function getPresetsForImageType(imageType: ImageType): CropPreset[] {
 	switch (imageType) {
 		case "item_image":
 			// Item images: thumbnail for lists, detail for drawer view
-			return [
-				CROP_PRESETS.thumbnail!,
-				CROP_PRESETS.detail!,
-				CROP_PRESETS.free!,
-			];
+			return [CROP_PRESETS.thumbnail, CROP_PRESETS.detail, CROP_PRESETS.free];
 		case "store_logo":
 		case "merchant_logo":
 			// Logos are square for consistent display
-			return [CROP_PRESETS.thumbnail!, CROP_PRESETS.free!];
+			return [CROP_PRESETS.thumbnail, CROP_PRESETS.free];
 		default:
 			return [
-				CROP_PRESETS.thumbnail!,
-				CROP_PRESETS.detail!,
-				CROP_PRESETS.banner!,
-				CROP_PRESETS.free!,
+				CROP_PRESETS.thumbnail,
+				CROP_PRESETS.detail,
+				CROP_PRESETS.banner,
+				CROP_PRESETS.free,
 			];
 	}
 }

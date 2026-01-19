@@ -352,7 +352,7 @@ export function OrderingPage({
 												{/* Radio indicator */}
 												<div
 													className={cn(
-														"size-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-all",
+														"flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-all",
 														isSelected
 															? "border-primary bg-primary"
 															: "border-border",

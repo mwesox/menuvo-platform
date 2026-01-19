@@ -362,7 +362,7 @@ export class StoreService implements IStoreService {
 			const storesWithStatus = await Promise.all(
 				results.map(async (store) => {
 					try {
-						const status = await this.statusService!.getStatusBySlug(
+						const status = await this.statusService?.getStatusBySlug(
 							store.slug,
 						);
 						return {

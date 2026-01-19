@@ -420,7 +420,7 @@ export function ItemForm({
 											/>
 											<span
 												className={cn(
-													"text-sm font-medium whitespace-nowrap",
+													"whitespace-nowrap font-medium text-sm",
 													item.isActive
 														? "text-green-600 dark:text-green-500"
 														: "text-muted-foreground",

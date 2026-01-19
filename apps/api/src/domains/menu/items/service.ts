@@ -33,20 +33,6 @@ export class ItemsService implements IItemsService {
 		this.validationService = new ItemValidationService();
 	}
 
-	/**
-	 * Build validation context from category data
-	 */
-	private buildValidationContext(
-		defaultLanguage: string,
-		category: { defaultVatGroupId: string | null; isActive: boolean },
-	): ItemValidationContext {
-		return {
-			defaultLanguage,
-			categoryDefaultVatGroupId: category.defaultVatGroupId,
-			categoryIsActive: category.isActive,
-		};
-	}
-
 	async listByCategory(categoryId: string) {
 		// Get the category first to get default VAT group and default language
 		const category = await this.db.query.categories.findFirst({
@@ -412,5 +398,19 @@ export class ItemsService implements IItemsService {
 
 		const updateInput: UpdateItemInput = { isActive };
 		return this.update(itemId, merchantId, updateInput);
+	}
+
+	/**
+	 * Build validation context from category data
+	 */
+	private buildValidationContext(
+		defaultLanguage: string,
+		category: { defaultVatGroupId: string | null; isActive: boolean },
+	): ItemValidationContext {
+		return {
+			defaultLanguage,
+			categoryDefaultVatGroupId: category.defaultVatGroupId,
+			categoryIsActive: category.isActive,
+		};
 	}
 }

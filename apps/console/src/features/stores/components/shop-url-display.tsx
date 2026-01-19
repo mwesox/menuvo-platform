@@ -104,7 +104,7 @@ export function ShopUrlDisplay({
 
 			{/* Show message when using alternative slug */}
 			{willUseAlternative && (
-				<p className="text-sm text-amber-600">
+				<p className="text-amber-600 text-sm">
 					{t("slugTaken", {
 						original: slug,
 						alternative: nextAvailable,

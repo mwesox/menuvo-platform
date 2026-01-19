@@ -6,7 +6,7 @@
 
 import type { Database } from "@menuvo/db";
 import { type storeClosures, type storeHours, stores } from "@menuvo/db/schema";
-import { addDays, addMinutes, format, parse, startOfDay } from "date-fns";
+import { addDays, addMinutes, parse } from "date-fns";
 import { eq } from "drizzle-orm";
 import { NotFoundError } from "../../errors.js";
 import type { IStoreStatusService } from "./interface.js";
@@ -265,12 +265,10 @@ export class StoreStatusService implements IStoreStatusService {
 		hours: (typeof storeHours.$inferSelect)[],
 		closures: (typeof storeClosures.$inferSelect)[],
 	): Date | null {
-		const timezone = store.timezone || "UTC";
-
 		// Find the closure that contains now
 		const activeClosure = closures.find((closure) => {
-			const start = new Date(closure.startDate + "T00:00:00");
-			const end = new Date(closure.endDate + "T23:59:59");
+			const start = new Date(`${closure.startDate}T00:00:00`);
+			const end = new Date(`${closure.endDate}T23:59:59`);
 			return now >= start && now <= end;
 		});
 
@@ -279,7 +277,7 @@ export class StoreStatusService implements IStoreStatusService {
 		}
 
 		// Start checking from the day after the closure ends
-		const closureEnd = new Date(activeClosure.endDate + "T23:59:59");
+		const closureEnd = new Date(`${activeClosure.endDate}T23:59:59`);
 		return this.getNextOpenTime(closureEnd, store, hours, closures);
 	}
 
@@ -457,7 +455,7 @@ export class StoreStatusService implements IStoreStatusService {
 
 		// Create date assuming it's in UTC, then adjust for timezone
 		// We'll use a workaround: create the date and calculate offset
-		const tempDate = new Date(isoString + "Z");
+		const tempDate = new Date(`${isoString}Z`);
 
 		// Get what this UTC time represents in the store's timezone
 		const tzFormatter = new Intl.DateTimeFormat("en-US", {
@@ -534,16 +532,12 @@ export class StoreStatusService implements IStoreStatusService {
 		const todayParts = todayStr.split("-").map(Number);
 		const slotParts = slotDateStr.split("-").map(Number);
 
-		const todayYear = todayParts[0] ?? 0;
-		const todayMonth = todayParts[1] ?? 0;
-		const todayDay = todayParts[2] ?? 0;
-		const slotYear = slotParts[0] ?? 0;
-		const slotMonth = slotParts[1] ?? 0;
-		const slotDay = slotParts[2] ?? 0;
-
-		const today = new Date(Date.UTC(todayYear, todayMonth - 1, todayDay));
-		const slotDayDate = new Date(Date.UTC(slotYear, slotMonth - 1, slotDay));
-		const tomorrow = addDays(today, 1);
+		const _todayYear = todayParts[0] ?? 0;
+		const _todayMonth = todayParts[1] ?? 0;
+		const _todayDay = todayParts[2] ?? 0;
+		const _slotYear = slotParts[0] ?? 0;
+		const _slotMonth = slotParts[1] ?? 0;
+		const _slotDay = slotParts[2] ?? 0;
 
 		// Determine locale for translations
 		const locale = languageCode === "de" ? "de-DE" : "en-GB";

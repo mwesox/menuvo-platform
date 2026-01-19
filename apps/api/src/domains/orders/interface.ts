@@ -19,21 +19,26 @@ import type {
  */
 export interface IOrderService {
 	createOrder(input: CreateOrderInput): Promise<typeof orders.$inferSelect>;
+
 	cancelOrder(
 		orderId: string,
 		merchantId: string,
 		reason?: string,
 	): Promise<typeof orders.$inferSelect>;
+
 	updateOrderStatus(
 		orderId: string,
 		merchantId: string,
 		newStatus: OrderStatusType,
 	): Promise<typeof orders.$inferSelect>;
+
 	getById(orderId: string): Promise<OrderWithRelations>;
+
 	getOrderStats(
 		storeId: string,
 		merchantId: string,
 		dateRange?: DateRange,
 	): Promise<OrderStats>;
+
 	getOrdersForExport(params: ExportParams): Promise<ExportOrder[]>;
 }

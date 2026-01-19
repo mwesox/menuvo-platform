@@ -116,11 +116,8 @@ export function useOrderNotifications(
 	// Alert state - true when new orders arrived, waiting for user interaction
 	const [alertActive, setAlertActive] = useState(false);
 
-	// Initialize audio context lazily (must be after user interaction)
+	// Get existing audio context (does NOT create one - that must happen in requestPermission after user gesture)
 	const getAudioContext = (): AudioContext | null => {
-		if (!audioContextRef.current && typeof AudioContext !== "undefined") {
-			audioContextRef.current = new AudioContext();
-		}
 		return audioContextRef.current;
 	};
 
@@ -158,10 +155,15 @@ export function useOrderNotifications(
 		}
 	});
 
-	// Request permission by interacting with audio context
+	// Request permission by creating/resuming audio context (must be called after user gesture)
 	const requestPermission = async (): Promise<boolean> => {
 		try {
-			const audioContext = getAudioContext();
+			// Create AudioContext if it doesn't exist (requires user gesture)
+			if (!audioContextRef.current && typeof AudioContext !== "undefined") {
+				audioContextRef.current = new AudioContext();
+			}
+
+			const audioContext = audioContextRef.current;
 			if (!audioContext) {
 				console.log("[Kitchen] requestPermission: No AudioContext");
 				return false;

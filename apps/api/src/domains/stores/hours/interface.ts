@@ -15,9 +15,11 @@ export interface IHoursService {
 		storeId: string,
 		merchantId: string,
 	): Promise<(typeof storeHours.$inferSelect)[]>;
+
 	save(
 		input: SaveHoursInput,
 		merchantId: string,
 	): Promise<(typeof storeHours.$inferSelect)[]>;
+
 	delete(hourId: string, merchantId: string): Promise<void>;
 }

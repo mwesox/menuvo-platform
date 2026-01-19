@@ -12,9 +12,12 @@ import type { SetAuthCookieInput } from "./types.js";
  */
 export interface IAuthService {
 	getMerchant(merchantId: string): Promise<typeof merchants.$inferSelect>;
+
 	getMerchantOrNull(
 		merchantId: string | undefined,
 	): Promise<typeof merchants.$inferSelect | null>;
+
 	createAuthCookie(input: SetAuthCookieInput): string;
+
 	createClearAuthCookie(cookieDomain?: string): string;
 }

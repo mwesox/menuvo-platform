@@ -269,7 +269,7 @@ export function StoreForm({ store, merchantId: _merchantId }: StoreFormProps) {
 											name={field.name}
 											value={field.state.value}
 											readOnly
-											className="bg-muted cursor-not-allowed"
+											className="cursor-not-allowed bg-muted"
 										/>
 									</Field>
 								)}

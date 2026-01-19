@@ -88,6 +88,7 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
+
 	body {
 		@apply m-0 bg-background text-foreground;
 		font-family: var(--font-sans);

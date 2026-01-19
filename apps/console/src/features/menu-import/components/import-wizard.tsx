@@ -186,7 +186,7 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 	};
 
 	return (
-		<div className="w-full px-4 py-4">
+		<div className="w-full">
 			{/* Progress Steps */}
 			<div className="mb-8 flex items-center justify-center gap-4">
 				<StepIndicator

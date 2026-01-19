@@ -56,10 +56,14 @@ export function OrderCard({
 		const el = cardRef.current;
 		invariant(el, "Card element should exist");
 
+		let cancelled = false;
 		let cleanup: (() => void) | undefined;
 
 		import("@atlaskit/pragmatic-drag-and-drop/element/adapter").then(
 			({ draggable }) => {
+				// Skip registration if effect was already cleaned up (StrictMode double-invocation)
+				if (cancelled) return;
+
 				cleanup = draggable({
 					element: el,
 					getInitialData: () => ({
@@ -74,6 +78,7 @@ export function OrderCard({
 		);
 
 		return () => {
+			cancelled = true;
 			cleanup?.();
 		};
 	}, [order.id, columnId]);

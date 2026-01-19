@@ -54,7 +54,7 @@ const InputComponent = React.forwardRef<
 	<input
 		className={cn(
 			"flex-1 border-0 bg-transparent py-1 outline-none",
-			"text-foreground text-base md:text-sm",
+			"text-base text-foreground md:text-sm",
 			"placeholder:text-muted-foreground",
 			className,
 		)}

@@ -20,8 +20,11 @@ export interface IImagesService {
 		sessionMerchantId: string,
 		input: UploadImageInput,
 	): Promise<typeof images.$inferSelect>;
+
 	getImage(imageId: string): Promise<typeof images.$inferSelect | null>;
+
 	deleteImage(input: DeleteImageInput): Promise<DeleteImageResult>;
+
 	createRecord(
 		input: CreateImageRecordInput,
 		merchantId: string,

@@ -47,15 +47,11 @@ export function MerchantGeneralForm() {
 		},
 	});
 
-	if (!merchant) {
-		return null;
-	}
-
 	const form = useForm({
 		defaultValues: {
-			name: merchant.name,
-			email: merchant.email,
-			phone: merchant.phone ?? "",
+			name: merchant?.name ?? "",
+			email: merchant?.email ?? "",
+			phone: merchant?.phone ?? "",
 		},
 		validators: {
 			onSubmit: merchantGeneralSchema,
@@ -64,6 +60,10 @@ export function MerchantGeneralForm() {
 			await updateMutation.mutateAsync(value);
 		},
 	});
+
+	if (!merchant) {
+		return null;
+	}
 
 	return (
 		<form

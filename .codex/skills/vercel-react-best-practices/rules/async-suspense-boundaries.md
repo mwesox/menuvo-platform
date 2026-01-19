@@ -7,7 +7,8 @@ tags: async, suspense, streaming, layout-shift
 
 ## Strategic Suspense Boundaries
 
-Instead of awaiting data in async components before returning JSX, use Suspense boundaries to show the wrapper UI faster while data loads.
+Instead of awaiting data in async components before returning JSX, use Suspense boundaries to show the wrapper UI faster
+while data loads.
 
 **Incorrect (wrapper blocked by data fetching):**
 
@@ -87,7 +88,8 @@ function DataSummary({ dataPromise }: { dataPromise: Promise<Data> }) {
 }
 ```
 
-Both components share the same promise, so only one fetch occurs. Layout renders immediately while both components wait together.
+Both components share the same promise, so only one fetch occurs. Layout renders immediately while both components wait
+together.
 
 **When NOT to use this pattern:**
 

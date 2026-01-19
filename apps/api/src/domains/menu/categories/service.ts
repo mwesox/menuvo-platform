@@ -164,10 +164,13 @@ export class CategoriesService implements ICategoriesService {
 
 		// Generate new fractional keys for all categories in new order
 		const orderKeys = generateOrderKeys(null, categoryIds.length);
-		const updates = categoryIds.map((categoryId, index) => ({
-			categoryId,
-			displayOrder: orderKeys[index]!,
-		}));
+		const updates = categoryIds.map((categoryId, index) => {
+			const displayOrder = orderKeys[index];
+			if (!displayOrder) {
+				throw new Error(`Missing order key at index ${index}`);
+			}
+			return { categoryId, displayOrder };
+		});
 
 		await reorderCategoriesInTransaction(this.db, updates);
 

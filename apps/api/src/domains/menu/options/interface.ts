@@ -21,12 +21,14 @@ export interface IOptionsService {
 		storeId: string,
 		merchantId: string,
 	): Promise<(PublicOptionGroup & { choices: PublicOptionChoice[] })[]>;
+
 	getGroup(
 		optionGroupId: string,
 		merchantId: string,
 	): Promise<
 		PublicOptionGroup & { choices: PublicOptionChoice[]; itemCount: number }
 	>;
+
 	createGroup(
 		storeId: string,
 		merchantId: string,
@@ -42,6 +44,7 @@ export interface IOptionsService {
 			displayOrder?: number;
 		},
 	): Promise<typeof optionGroups.$inferSelect>;
+
 	updateGroup(
 		optionGroupId: string,
 		merchantId: string,
@@ -56,12 +59,15 @@ export interface IOptionsService {
 			aggregateMaxQuantity?: number | null;
 		},
 	): Promise<typeof optionGroups.$inferSelect>;
+
 	toggleGroupActive(
 		optionGroupId: string,
 		merchantId: string,
 		isActive: boolean,
 	): Promise<typeof optionGroups.$inferSelect>;
+
 	deleteGroup(optionGroupId: string, merchantId: string): Promise<void>;
+
 	saveGroupWithChoices(input: {
 		optionGroupId?: string;
 		storeId: string;
@@ -82,10 +88,12 @@ export interface IOptionsService {
 		aggregateMaxQuantity?: number | null;
 		translations: EntityTranslations;
 	}): Promise<PublicOptionGroup & { choices: PublicOptionChoice[] }>;
+
 	listChoices(
 		optionGroupId: string,
 		merchantId: string,
 	): Promise<PublicOptionChoice[]>;
+
 	createChoice(
 		optionGroupId: string,
 		merchantId: string,
@@ -98,6 +106,7 @@ export interface IOptionsService {
 			displayOrder?: number;
 		},
 	): Promise<typeof optionChoices.$inferSelect>;
+
 	updateChoice(
 		optionChoiceId: string,
 		merchantId: string,
@@ -109,16 +118,20 @@ export interface IOptionsService {
 			maxQuantity?: number | null;
 		},
 	): Promise<typeof optionChoices.$inferSelect>;
+
 	toggleChoiceAvailable(
 		optionChoiceId: string,
 		merchantId: string,
 		isAvailable: boolean,
 	): Promise<typeof optionChoices.$inferSelect>;
+
 	deleteChoice(optionChoiceId: string, merchantId: string): Promise<void>;
+
 	getItemOptions(
 		itemId: string,
 		merchantId: string,
 	): Promise<(PublicOptionGroup & { choices: PublicOptionChoice[] })[]>;
+
 	updateItemOptions(
 		itemId: string,
 		merchantId: string,

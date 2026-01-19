@@ -56,9 +56,8 @@ function parseSlotLabel(label: string): {
 
 	if (parts.length >= 3) {
 		// Format: "Day, Date, Time"
-		const dayPart = parts[0]!;
-		const datePart = parts[1]!; // Date is the middle part
-		const timePart = parts[parts.length - 1]!; // Time is always the last part
+		const [dayPart = "", datePart = ""] = parts;
+		const timePart = parts[parts.length - 1] ?? ""; // Time is always the last part
 
 		// Check if it's "Today" or "Tomorrow" (case-insensitive, supports English and German)
 		const dayLower = dayPart.toLowerCase();
@@ -90,8 +89,7 @@ function parseSlotLabel(label: string): {
 
 	if (parts.length === 2) {
 		// Fallback for format: "Day, Time" (without date)
-		const dayPart = parts[0]!;
-		const timePart = parts[1]!;
+		const [dayPart = "", timePart = ""] = parts;
 
 		const dayLower = dayPart.toLowerCase();
 		if (dayLower === "today" || dayLower === "heute") {
@@ -152,7 +150,7 @@ function formatDateShort(datetimeISO: string, languageCode: string): string {
 
 	try {
 		const date = new Date(datetimeISO);
-		if (isNaN(date.getTime())) return "";
+		if (Number.isNaN(date.getTime())) return "";
 
 		const locale = getLocaleForLanguage(languageCode);
 
@@ -302,7 +300,7 @@ export function PickupTimeSelector({
 			<div className="max-h-96 overflow-y-auto">
 				<Accordion
 					type="multiple"
-					defaultValue={dayGroups.length > 0 ? [dayGroups[0]!.dayKey] : []}
+					defaultValue={dayGroups[0]?.dayKey ? [dayGroups[0].dayKey] : []}
 					className="space-y-0"
 				>
 					{dayGroups.map((group) => (

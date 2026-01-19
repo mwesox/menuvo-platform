@@ -91,7 +91,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 					</DrawerHeader>
 
 					{/* Scrollable cart items */}
-					<div className="flex-1 min-h-0 overflow-y-auto px-4">
+					<div className="min-h-0 flex-1 overflow-y-auto px-4">
 						{items.length === 0 ? (
 							<div className="flex flex-col items-center justify-center py-16 text-center">
 								<ShoppingBag className="mb-4 size-16 text-border" />
@@ -140,8 +140,8 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 		<aside
 			className={cn(
 				"hidden lg:flex",
-				"fixed right-0 top-14 bottom-0", // Fixed to viewport edges (acts as containing block for absolute children)
-				"w-80 flex-col border-l border-border bg-background shadow-sm",
+				"fixed top-14 right-0 bottom-0", // Fixed to viewport edges (acts as containing block for absolute children)
+				"w-80 flex-col border-border border-l bg-background shadow-sm",
 				"transition-transform duration-300 ease-in-out",
 				"overflow-hidden",
 				isCartSidebarCollapsed && "translate-x-full", // Slide out when collapsed
@@ -176,7 +176,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 			{/* Cart items - no internal scroll, overflow clipped */}
 			<div
 				className={cn(
-					"flex-1 min-h-0 overflow-hidden px-4",
+					"min-h-0 flex-1 overflow-hidden px-4",
 					items.length > 0 && "pb-40",
 				)}
 			>
@@ -206,7 +206,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 
 			{/* Footer - absolute positioned at bottom for sticky CTA */}
 			{items.length > 0 && (
-				<div className="absolute bottom-0 inset-x-0 border-border border-t bg-card">
+				<div className="absolute inset-x-0 bottom-0 border-border border-t bg-card">
 					<div className="px-4 py-4">
 						<CartSummary subtotal={subtotal} />
 						<ShopButton

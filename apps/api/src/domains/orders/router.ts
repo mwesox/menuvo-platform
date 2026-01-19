@@ -158,7 +158,6 @@ export const orderRouter = router({
 			}
 
 			// 3. Build payment params
-			const merchant = order.store.merchant;
 			const amount = {
 				value: (order.totalAmount / 100).toFixed(2),
 				currency: order.store.currency.toUpperCase(),

@@ -33,64 +33,6 @@ export class ServicePointsService implements IServicePointsService {
 		this.db = db;
 	}
 
-	/**
-	 * Generate a unique 8-character short code for QR URLs
-	 */
-	private async generateUniqueShortCode(): Promise<string> {
-		const maxAttempts = 5;
-		for (let attempt = 0; attempt < maxAttempts; attempt++) {
-			const shortCode = nanoid(8).toLowerCase();
-			const existing = await this.db.query.servicePoints.findFirst({
-				where: eq(servicePoints.shortCode, shortCode),
-				columns: { id: true },
-			});
-			if (!existing) {
-				return shortCode;
-			}
-		}
-		throw new ValidationError("Failed to generate unique short code");
-	}
-
-	/**
-	 * Generate a URL-safe code from prefix and number
-	 */
-	private generateCode(prefix: string, number: number): string {
-		return `${prefix.toLowerCase().replace(/\s+/g, "-")}-${number}`;
-	}
-
-	/**
-	 * Verify store ownership by merchantId
-	 */
-	private async requireStoreOwnership(
-		storeId: string,
-		merchantId: string,
-	): Promise<{ id: string; merchantId: string }> {
-		const store = await this.db.query.stores.findFirst({
-			where: eq(stores.id, storeId),
-			columns: { id: true, merchantId: true },
-		});
-		if (!store || store.merchantId !== merchantId) {
-			throw new ForbiddenError("Store not found or access denied");
-		}
-		return store;
-	}
-
-	/**
-	 * Verify service point ownership by merchantId
-	 */
-	private async requireServicePointOwnership(
-		servicePointId: string,
-		merchantId: string,
-	): Promise<void> {
-		const servicePoint = await this.db.query.servicePoints.findFirst({
-			where: eq(servicePoints.id, servicePointId),
-			with: { store: { columns: { merchantId: true } } },
-		});
-		if (!servicePoint || servicePoint.store.merchantId !== merchantId) {
-			throw new ForbiddenError("Service point not found or access denied");
-		}
-	}
-
 	async list(storeId: string, merchantId: string) {
 		await this.requireStoreOwnership(storeId, merchantId);
 		return this.db.query.servicePoints.findMany({
@@ -399,5 +341,63 @@ export class ServicePointsService implements IServicePointsService {
 			.returning();
 
 		return created;
+	}
+
+	/**
+	 * Generate a unique 8-character short code for QR URLs
+	 */
+	private async generateUniqueShortCode(): Promise<string> {
+		const maxAttempts = 5;
+		for (let attempt = 0; attempt < maxAttempts; attempt++) {
+			const shortCode = nanoid(8).toLowerCase();
+			const existing = await this.db.query.servicePoints.findFirst({
+				where: eq(servicePoints.shortCode, shortCode),
+				columns: { id: true },
+			});
+			if (!existing) {
+				return shortCode;
+			}
+		}
+		throw new ValidationError("Failed to generate unique short code");
+	}
+
+	/**
+	 * Generate a URL-safe code from prefix and number
+	 */
+	private generateCode(prefix: string, number: number): string {
+		return `${prefix.toLowerCase().replace(/\s+/g, "-")}-${number}`;
+	}
+
+	/**
+	 * Verify store ownership by merchantId
+	 */
+	private async requireStoreOwnership(
+		storeId: string,
+		merchantId: string,
+	): Promise<{ id: string; merchantId: string }> {
+		const store = await this.db.query.stores.findFirst({
+			where: eq(stores.id, storeId),
+			columns: { id: true, merchantId: true },
+		});
+		if (!store || store.merchantId !== merchantId) {
+			throw new ForbiddenError("Store not found or access denied");
+		}
+		return store;
+	}
+
+	/**
+	 * Verify service point ownership by merchantId
+	 */
+	private async requireServicePointOwnership(
+		servicePointId: string,
+		merchantId: string,
+	): Promise<void> {
+		const servicePoint = await this.db.query.servicePoints.findFirst({
+			where: eq(servicePoints.id, servicePointId),
+			with: { store: { columns: { merchantId: true } } },
+		});
+		if (!servicePoint || servicePoint.store.merchantId !== merchantId) {
+			throw new ForbiddenError("Service point not found or access denied");
+		}
 	}
 }

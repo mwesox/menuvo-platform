@@ -1,9 +1,14 @@
 {
-	"extends": ["//"],
-	"tasks": {
-		"check-types": {
-			"dependsOn": ["^build", "build"],
-			"outputs": []
-		}
-	}
+  "extends": [
+    "//"
+  ],
+  "tasks": {
+    "check-types": {
+      "dependsOn": [
+        "^build",
+        "build"
+      ],
+      "outputs": []
+    }
+  }
 }

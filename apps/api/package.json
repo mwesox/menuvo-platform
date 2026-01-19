@@ -40,7 +40,6 @@
     "papaparse": "^5.5.3",
     "pino": "catalog:",
     "sharp": "^0.34.5",
-    "stripe": "^20.1.2",
     "superjson": "catalog:",
     "xlsx": "^0.18.5",
     "zod": "catalog:"
@@ -50,7 +49,6 @@
     "@types/node": "catalog:",
     "@types/nodemailer": "^6.4.17",
     "@types/papaparse": "^5.3.15",
-    "@types/sharp": "^0.32.0",
     "postgres": "catalog:",
     "testcontainers": "^10.21.0",
     "typescript": "catalog:",

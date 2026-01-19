@@ -35,6 +35,7 @@ describe("Feature", () => {
 ```
 
 Key points:
+
 - `setupTestDb()` starts PostgreSQL 16, runs all migrations from `packages/db/drizzle/`
 - Returns `Database` type compatible with all services
 - Container is destroyed after tests (no cleanup needed)
@@ -66,6 +67,7 @@ const storesService = new StoreService(db);
 ## Environment
 
 `setup.ts` sets required env vars before tests:
+
 - `ENCRYPTION_KEY` - 64 hex chars
 - `OPENROUTER_API_KEY` - any string
 - `NODE_ENV=test`
@@ -90,5 +92,6 @@ bun --filter @menuvo/api test:watch  # Watch mode
 ## Timeouts
 
 Testcontainers needs time to start. Configured in `vitest.config.ts`:
+
 - `testTimeout: 60000` (60s per test)
 - `hookTimeout: 60000` (60s for beforeAll/afterAll)

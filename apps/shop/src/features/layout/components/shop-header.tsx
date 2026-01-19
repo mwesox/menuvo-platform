@@ -222,7 +222,7 @@ export function ShopHeader() {
 	const isDeepPage = useIsDeepPage();
 
 	return (
-		<header className="sticky top-0 z-50 border-b border-border bg-background">
+		<header className="sticky top-0 z-50 border-border border-b bg-background">
 			<div className="flex h-14 items-center gap-4 px-4">
 				{/* Left: Context-aware back link */}
 				{isDeepPage && slug ? (

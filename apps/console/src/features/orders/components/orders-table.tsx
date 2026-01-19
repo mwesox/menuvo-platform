@@ -264,7 +264,7 @@ export function OrdersTable({
 								</TableHead>
 								<TableHead className="w-[120px]">{t("table.type")}</TableHead>
 								<TableHead className="w-[120px]">{t("table.status")}</TableHead>
-								<TableHead className="text-right w-[100px]">
+								<TableHead className="w-[100px] text-right">
 									{t("table.total")}
 								</TableHead>
 								<TableHead className="w-[150px]">{t("table.date")}</TableHead>

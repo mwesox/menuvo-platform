@@ -7,7 +7,8 @@ tags: server, cache, lru, cross-request
 
 ## Cross-Request LRU Caching
 
-`React.cache()` only works within one request. For data shared across sequential requests (user clicks button A then button B), use an LRU cache.
+`React.cache()` only works within one request. For data shared across sequential requests (user clicks button A then
+button B), use an LRU cache.
 
 **Implementation:**
 
@@ -34,7 +35,9 @@ export async function getUser(id: string) {
 
 Use when sequential user actions hit multiple endpoints needing the same data within seconds.
 
-**With Vercel's [Fluid Compute](https://vercel.com/docs/fluid-compute):** LRU caching is especially effective because multiple concurrent requests can share the same function instance and cache. This means the cache persists across requests without needing external storage like Redis.
+**With Vercel's [Fluid Compute](https://vercel.com/docs/fluid-compute):** LRU caching is especially effective because
+multiple concurrent requests can share the same function instance and cache. This means the cache persists across
+requests without needing external storage like Redis.
 
 **In traditional serverless:** Each invocation runs in isolation, so consider Redis for cross-process caching.
 

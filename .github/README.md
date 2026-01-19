@@ -52,65 +52,65 @@ Note: Both platform (web server) and worker (background jobs) use the same image
 
 ### Database
 
-| Secret | Value | How to get |
-|--------|-------|------------|
+| Secret        | Value           | How to get                |
+|---------------|-----------------|---------------------------|
 | `DB_PASSWORD` | Secure password | `openssl rand -base64 32` |
 
 ### Auth
 
-| Secret | Value | How to get |
-|--------|-------|------------|
+| Secret        | Value       | How to get                |
+|---------------|-------------|---------------------------|
 | `AUTH_SECRET` | Auth secret | `openssl rand -base64 32` |
 
 ### S3/R2 Storage (Cloudflare R2)
 
-| Secret | Value | How to get |
-|--------|-------|------------|
-| `S3_ENDPOINT` | R2 endpoint URL | Cloudflare Dashboard → R2 → Your bucket → Settings |
-| `S3_ACCESS_KEY_ID` | R2 API token | Cloudflare Dashboard → R2 → Manage R2 API tokens |
-| `S3_SECRET_ACCESS_KEY` | R2 API secret | Same as above |
-| `S3_BUCKET` | Public bucket name | e.g., `menuvo-images` |
-| `S3_FILES_BUCKET` | Internal bucket name | e.g., `menuvo-files` |
-| `S3_PUBLIC_URL` | Public URL prefix | e.g., `https://images.menuvo.app` |
-| `S3_REGION` | Region | `auto` for R2 |
+| Secret                 | Value                | How to get                                         |
+|------------------------|----------------------|----------------------------------------------------|
+| `S3_ENDPOINT`          | R2 endpoint URL      | Cloudflare Dashboard → R2 → Your bucket → Settings |
+| `S3_ACCESS_KEY_ID`     | R2 API token         | Cloudflare Dashboard → R2 → Manage R2 API tokens   |
+| `S3_SECRET_ACCESS_KEY` | R2 API secret        | Same as above                                      |
+| `S3_BUCKET`            | Public bucket name   | e.g., `menuvo-images`                              |
+| `S3_FILES_BUCKET`      | Internal bucket name | e.g., `menuvo-files`                               |
+| `S3_PUBLIC_URL`        | Public URL prefix    | e.g., `https://images.menuvo.app`                  |
+| `S3_REGION`            | Region               | `auto` for R2                                      |
 
 ### Stripe
 
-| Secret | Value | How to get |
-|--------|-------|------------|
-| `STRIPE_SECRET_KEY` | Live secret key | Stripe Dashboard → Developers → API keys |
-| `VITE_STRIPE_PUBLISHABLE_KEY` | Live publishable key | Same as above |
-| `STRIPE_WEBHOOK_SECRET` | Webhook signing secret | Stripe Dashboard → Developers → Webhooks → Your endpoint |
-| `STRIPE_WEBHOOK_SECRET_THIN` | Thin webhook secret | (optional) For lightweight webhook handler |
+| Secret                        | Value                  | How to get                                               |
+|-------------------------------|------------------------|----------------------------------------------------------|
+| `STRIPE_SECRET_KEY`           | Live secret key        | Stripe Dashboard → Developers → API keys                 |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Live publishable key   | Same as above                                            |
+| `STRIPE_WEBHOOK_SECRET`       | Webhook signing secret | Stripe Dashboard → Developers → Webhooks → Your endpoint |
+| `STRIPE_WEBHOOK_SECRET_THIN`  | Thin webhook secret    | (optional) For lightweight webhook handler               |
 
 ### AI (OpenRouter)
 
-| Secret | Value | How to get |
-|--------|-------|------------|
+| Secret               | Value   | How to get                      |
+|----------------------|---------|---------------------------------|
 | `OPENROUTER_API_KEY` | API key | OpenRouter Dashboard → API Keys |
 
 ### Sentry (Optional)
 
-| Secret | Value | How to get |
-|--------|-------|------------|
-| `VITE_SENTRY_DSN` | Sentry DSN | Sentry Dashboard → Project Settings → Client Keys |
-| `SENTRY_AUTH_TOKEN` | Auth token | Sentry Dashboard → Settings → Auth Tokens |
+| Secret              | Value      | How to get                                        |
+|---------------------|------------|---------------------------------------------------|
+| `VITE_SENTRY_DSN`   | Sentry DSN | Sentry Dashboard → Project Settings → Client Keys |
+| `SENTRY_AUTH_TOKEN` | Auth token | Sentry Dashboard → Settings → Auth Tokens         |
 
 ### Infrastructure
 
-| Secret | Value | How to get |
-|--------|-------|------------|
-| `BESZEL_AGENT_KEY` | SSH public key | `ssh-keygen -t ed25519 -f beszel-key -N ""` then `cat beszel-key.pub` |
-| `GATUS_TELEGRAM_TOKEN` | Telegram bot token | BotFather |
-| `GATUS_TELEGRAM_CHAT_ID` | Telegram chat ID | Use your chat ID |
-| `BACKUP_S3_BUCKET` | Backup bucket name | e.g., `menuvo-backups` |
-| `BACKUP_S3_PREFIX` | Backup prefix/folder | e.g., `menuvo` |
-| `BACKUP_S3_ENDPOINT` | R2/S3 endpoint | Cloudflare R2 endpoint URL |
-| `BACKUP_S3_REGION` | Region | `auto` for R2 |
-| `BACKUP_S3_ACCESS_KEY_ID` | Backup access key | Cloudflare R2 API token |
-| `BACKUP_S3_SECRET_ACCESS_KEY` | Backup secret key | Cloudflare R2 API secret |
-| `BACKUP_KEEP_DAYS` | Local retention (days) | e.g., `7` |
-| `BACKUP_CRON` | Backup schedule | e.g., `0 3 * * *` |
+| Secret                        | Value                  | How to get                                                            |
+|-------------------------------|------------------------|-----------------------------------------------------------------------|
+| `BESZEL_AGENT_KEY`            | SSH public key         | `ssh-keygen -t ed25519 -f beszel-key -N ""` then `cat beszel-key.pub` |
+| `GATUS_TELEGRAM_TOKEN`        | Telegram bot token     | BotFather                                                             |
+| `GATUS_TELEGRAM_CHAT_ID`      | Telegram chat ID       | Use your chat ID                                                      |
+| `BACKUP_S3_BUCKET`            | Backup bucket name     | e.g., `menuvo-backups`                                                |
+| `BACKUP_S3_PREFIX`            | Backup prefix/folder   | e.g., `menuvo`                                                        |
+| `BACKUP_S3_ENDPOINT`          | R2/S3 endpoint         | Cloudflare R2 endpoint URL                                            |
+| `BACKUP_S3_REGION`            | Region                 | `auto` for R2                                                         |
+| `BACKUP_S3_ACCESS_KEY_ID`     | Backup access key      | Cloudflare R2 API token                                               |
+| `BACKUP_S3_SECRET_ACCESS_KEY` | Backup secret key      | Cloudflare R2 API secret                                              |
+| `BACKUP_KEEP_DAYS`            | Local retention (days) | e.g., `7`                                                             |
+| `BACKUP_CRON`                 | Backup schedule        | e.g., `0 3 * * *`                                                     |
 
 ---
 
@@ -158,8 +158,8 @@ cat beszel-key.pub
 
 ## GitHub Actions Workflows
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
+| Workflow    | Trigger              | Purpose                                  |
+|-------------|----------------------|------------------------------------------|
 | `build.yml` | PRs + pushes to main | Tests, build, push image, rolling deploy |
 
 Deploys are handled by the same workflow after a successful build on main.

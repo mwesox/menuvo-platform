@@ -46,6 +46,7 @@ export function KanbanBoard({
 	// Monitor all drag operations at board level
 	// Libraries are dynamically imported to reduce initial bundle size
 	useEffect(() => {
+		let cancelled = false;
 		let cleanup: (() => void) | undefined;
 
 		// Dynamically import drag-and-drop libraries
@@ -55,6 +56,9 @@ export function KanbanBoard({
 				"@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash"
 			),
 		]).then(([{ monitorForElements }, { triggerPostMoveFlash }]) => {
+			// Skip registration if effect was already cleaned up (StrictMode double-invocation)
+			if (cancelled) return;
+
 			cleanup = monitorForElements({
 				onDrop({ source, location }) {
 					// Get the innermost drop target (the column)
@@ -80,6 +84,7 @@ export function KanbanBoard({
 		});
 
 		return () => {
+			cancelled = true;
 			cleanup?.();
 		};
 	}, [moveCard]);

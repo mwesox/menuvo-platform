@@ -43,7 +43,7 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 			onClick={handleCardClick}
 			onPointerEnter={handlePointerEnter}
 			className={cn(
-				"group @container flex w-full gap-3 @xs:gap-4 rounded-xl bg-card p-3 @xs:p-4 text-start",
+				"group @container flex w-full @xs:gap-4 gap-3 rounded-xl bg-card @xs:p-4 p-3 text-start",
 				"border border-border shadow-sm",
 				"transition-all duration-200 ease-out",
 				"hover:-translate-y-0.5 hover:shadow-md",
@@ -51,7 +51,7 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 			)}
 		>
 			{/* Image - 4:3 ratio for better food photography, responsive via container queries */}
-			<div className="relative h-[4.5rem] @xs:h-[5.25rem] @md:h-24 w-24 @xs:w-28 @md:w-32 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
+			<div className="relative @md:h-24 @xs:h-[5.25rem] h-[4.5rem] @md:w-32 @xs:w-28 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
 				{item.imageUrl ? (
 					<img
 						src={item.imageUrl}
@@ -68,7 +68,7 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 			{/* Content - clear hierarchy */}
 			<div className="flex min-w-0 flex-1 flex-col">
 				{/* Row 1: Name (MOST PROMINENT - larger and bolder) */}
-				<h3 className="font-semibold text-lg @md:text-xl text-foreground leading-snug">
+				<h3 className="font-semibold @md:text-xl text-foreground text-lg leading-snug">
 					{item.name}
 				</h3>
 

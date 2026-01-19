@@ -44,7 +44,6 @@
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "cmdk": "catalog:",
-    "date-fns": "catalog:",
     "lucide-react": "catalog:",
     "react-day-picker": "catalog:",
     "react-phone-number-input": "^3.4.14",

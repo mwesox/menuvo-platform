@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod/v4";
+import { MenuTabs } from "@/features/menu/components/menu-tabs";
 import { ImportWizard } from "@/features/menu-import/components/import-wizard";
 import { trpcUtils } from "@/lib/trpc";
 
@@ -38,5 +39,10 @@ function RouteComponent() {
 		});
 	};
 
-	return <ImportWizard storeId={effectiveStoreId} onClose={handleClose} />;
+	return (
+		<div className="space-y-6">
+			<MenuTabs storeId={effectiveStoreId} />
+			<ImportWizard storeId={effectiveStoreId} onClose={handleClose} />
+		</div>
+	);
 }

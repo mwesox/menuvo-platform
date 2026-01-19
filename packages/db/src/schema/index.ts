@@ -94,7 +94,8 @@ export const merchants = pgTable("merchants", {
 	supportedLanguages: text("supported_languages")
 		.array()
 		.notNull()
-		.default(sql`ARRAY['de']::text[]`),
+		.default(sql`ARRAY
+        ['de']::text[]`),
 	// Stripe Connect (Payment provider integration)
 	paymentAccountId: text("payment_account_id"),
 	paymentOnboardingComplete: boolean("payment_onboarding_complete")

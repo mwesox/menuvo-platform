@@ -312,7 +312,10 @@ export class OptionsService implements IOptionsService {
 
 				// Update/create choices
 				for (const [i, choice] of input.choices.entries()) {
-					const orderKey = choiceOrderKeys[i]!;
+					const orderKey = choiceOrderKeys[i];
+					if (!orderKey) {
+						throw new Error(`Missing order key at index ${i}`);
+					}
 					if (choice.id) {
 						await tx
 							.update(optionChoices)
@@ -371,7 +374,10 @@ export class OptionsService implements IOptionsService {
 
 				// Create choices
 				for (const [i, choice] of input.choices.entries()) {
-					const orderKey = choiceOrderKeys[i]!;
+					const orderKey = choiceOrderKeys[i];
+					if (!orderKey) {
+						throw new Error(`Missing order key at index ${i}`);
+					}
 					await tx.insert(optionChoices).values({
 						optionGroupId: savedGroup.id,
 						translations: choice.translations,
@@ -549,11 +555,13 @@ export class OptionsService implements IOptionsService {
 		if (optionGroupIds.length > 0) {
 			const orderKeys = generateOrderKeys(null, optionGroupIds.length);
 			await this.db.insert(itemOptionGroups).values(
-				optionGroupIds.map((optionGroupId, index) => ({
-					itemId,
-					optionGroupId,
-					displayOrder: orderKeys[index]!,
-				})),
+				optionGroupIds.map((optionGroupId, index) => {
+					const displayOrder = orderKeys[index];
+					if (!displayOrder) {
+						throw new Error(`Missing order key at index ${index}`);
+					}
+					return { itemId, optionGroupId, displayOrder };
+				}),
 			);
 		}
 

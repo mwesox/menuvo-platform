@@ -7,7 +7,9 @@ tags: javascript, dom, css, performance, reflow
 
 ## Batch DOM CSS Changes
 
-Avoid interleaving style writes with layout reads. When you read a layout property (like `offsetWidth`, `getBoundingClientRect()`, or `getComputedStyle()`) between style changes, the browser is forced to trigger a synchronous reflow.
+Avoid interleaving style writes with layout reads. When you read a layout property (like `offsetWidth`,
+`getBoundingClientRect()`, or `getComputedStyle()`) between style changes, the browser is forced to trigger a
+synchronous reflow.
 
 **Incorrect (interleaved reads and writes force reflows):**
 
@@ -54,4 +56,5 @@ function updateElementStyles(element: HTMLElement) {
 }
 ```
 
-Prefer CSS classes over inline styles when possible. CSS files are cached by the browser, and classes provide better separation of concerns and are easier to maintain.
+Prefer CSS classes over inline styles when possible. CSS files are cached by the browser, and classes provide better
+separation of concerns and are easier to maintain.

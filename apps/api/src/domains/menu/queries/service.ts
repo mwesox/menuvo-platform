@@ -36,7 +36,7 @@ export class MenuQueryService implements IMenuQueryService {
 
 	constructor(
 		private readonly db: Database,
-		private readonly itemsService: IItemsService,
+		_itemsService: IItemsService,
 	) {}
 
 	// ============================================================================

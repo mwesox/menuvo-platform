@@ -7,7 +7,8 @@ tags: rendering, ssr, hydration, localStorage, flicker
 
 ## Prevent Hydration Mismatch Without Flickering
 
-When rendering content that depends on client-side storage (localStorage, cookies), avoid both SSR breakage and post-hydration flickering by injecting a synchronous script that updates the DOM before React hydrates.
+When rendering content that depends on client-side storage (localStorage, cookies), avoid both SSR breakage and
+post-hydration flickering by injecting a synchronous script that updates the DOM before React hydrates.
 
 **Incorrect (breaks SSR):**
 
@@ -48,7 +49,8 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
 }
 ```
 
-Component first renders with default value (`light`), then updates after hydration, causing a visible flash of incorrect content.
+Component first renders with default value (`light`), then updates after hydration, causing a visible flash of incorrect
+content.
 
 **Correct (no flicker, no hydration mismatch):**
 
@@ -77,6 +79,8 @@ function ThemeWrapper({ children }: { children: ReactNode }) {
 }
 ```
 
-The inline script executes synchronously before showing the element, ensuring the DOM already has the correct value. No flickering, no hydration mismatch.
+The inline script executes synchronously before showing the element, ensuring the DOM already has the correct value. No
+flickering, no hydration mismatch.
 
-This pattern is especially useful for theme toggles, user preferences, authentication states, and any client-only data that should render immediately without flashing default values.
+This pattern is especially useful for theme toggles, user preferences, authentication states, and any client-only data
+that should render immediately without flashing default values.

@@ -19,6 +19,7 @@ This is mandatory. Do not proceed without reading them first.
 ## When to Use This Agent
 
 Use this agent when:
+
 - Implementing new features (frontend or backend)
 - Creating tRPC procedures and domain logic
 - Building React components with TanStack Form
@@ -31,18 +32,18 @@ Use this agent when:
 
 ## Project Stack
 
-| Tool | Purpose |
-|------|---------|
-| Hono | API framework |
-| tRPC v11 | Type-safe API layer |
-| TanStack Router | Client routing (Console) |
-| TanStack Query | Server state management |
-| TanStack Form | Forms with Zod validation |
-| Drizzle ORM | PostgreSQL database |
-| Shadcn/ui | Component library |
-| Tailwind CSS v4 | Styling |
-| Zustand | Client state with persist |
-| Biome | Linting (tabs, double quotes) |
+| Tool            | Purpose                       |
+|-----------------|-------------------------------|
+| Hono            | API framework                 |
+| tRPC v11        | Type-safe API layer           |
+| TanStack Router | Client routing (Console)      |
+| TanStack Query  | Server state management       |
+| TanStack Form   | Forms with Zod validation     |
+| Drizzle ORM     | PostgreSQL database           |
+| Shadcn/ui       | Component library             |
+| Tailwind CSS v4 | Styling                       |
+| Zustand         | Client state with persist     |
+| Biome           | Linting (tabs, double quotes) |
 
 ---
 
@@ -72,12 +73,12 @@ menuvo-platform/
 
 ### Key Rules
 
-| Rule | Detail |
-|------|--------|
-| Apps are independent | Each app builds/deploys separately |
-| API is the boundary | All data flows through tRPC |
-| Never import @menuvo/db in apps | Use tRPC procedures only |
-| Packages are shared | UI, types shared via workspaces |
+| Rule                            | Detail                             |
+|---------------------------------|------------------------------------|
+| Apps are independent            | Each app builds/deploys separately |
+| API is the boundary             | All data flows through tRPC        |
+| Never import @menuvo/db in apps | Use tRPC procedures only           |
+| Packages are shared             | UI, types shared via workspaces    |
 
 ---
 
@@ -86,17 +87,20 @@ menuvo-platform/
 ### 1. Layer Separation
 
 **tRPC routers are thin orchestration:**
+
 - Validate input → check authorization → call domain service → return result
 - Max 50-100 lines per procedure
 - No database queries or business logic
 
 **Domain layer owns business logic:**
+
 - Located at `apps/api/src/domain/{slice}/`
 - One function per file
 - Pure functions where possible
 - Dependencies passed explicitly
 
 **Infrastructure handles external services:**
+
 - Located at `apps/api/src/infrastructure/{service}/`
 - Mollie, Stripe, S3, Brevo, AI
 - Adapters only, no business logic
@@ -161,11 +165,11 @@ features/{feature}/
 
 ### 5. Three Schema Rule
 
-| Schema | Location | Types | Purpose |
-|--------|----------|-------|---------|
-| Form | `features/{f}/schemas.ts` | Strings | HTML input values |
-| API | `packages/trpc/routers/{domain}/schemas.ts` | Typed | tRPC validation |
-| Database | `packages/db/schema/` | Drizzle | Insert/select |
+| Schema   | Location                                    | Types   | Purpose           |
+|----------|---------------------------------------------|---------|-------------------|
+| Form     | `features/{f}/schemas.ts`                   | Strings | HTML input values |
+| API      | `packages/trpc/routers/{domain}/schemas.ts` | Typed   | tRPC validation   |
+| Database | `packages/db/schema/`                       | Drizzle | Insert/select     |
 
 ### 6. Transformations in Mutations
 
@@ -187,11 +191,11 @@ const form = useForm({
 
 ### 7. State by Type
 
-| State Type | Tool |
-|------------|------|
-| Server data | TanStack Query |
+| State Type        | Tool                          |
+|-------------------|-------------------------------|
+| Server data       | TanStack Query                |
 | Persistent client | Zustand + persist (`stores/`) |
-| Transient UI | Context / useState |
+| Transient UI      | Context / useState            |
 
 **Never store server data in Zustand.**
 
@@ -317,11 +321,11 @@ loader: async ({ context, params }) => {
 
 ## Procedure Types
 
-| Type | Use When |
-|------|----------|
-| `publicProcedure` | Unauthenticated access (storefront, public menu) |
-| `protectedProcedure` | Requires valid session |
-| `storeOwnerProcedure` | Requires owner/admin role |
+| Type                  | Use When                                         |
+|-----------------------|--------------------------------------------------|
+| `publicProcedure`     | Unauthenticated access (storefront, public menu) |
+| `protectedProcedure`  | Requires valid session                           |
+| `storeOwnerProcedure` | Requires owner/admin role                        |
 
 ---
 
@@ -336,6 +340,7 @@ import { Input } from "@menuvo/ui/input";
 ```
 
 Add new components to the shared package:
+
 ```bash
 cd packages/ui && bunx --bun shadcn@latest add <component>
 ```
@@ -365,28 +370,29 @@ bun run db:studio                 # Drizzle Studio
 
 ## Quick Reference
 
-| I need to... | Location |
-|--------------|----------|
-| Add database table | `packages/db/schema/` |
-| Add enum/const | `packages/db/schema/` → derive in `packages/trpc/routers/{domain}/schemas.ts` |
-| Add tRPC procedure | `packages/trpc/routers/{domain}/` |
-| Add API schema | `packages/trpc/routers/{domain}/schemas.ts` |
-| Add domain logic | `apps/api/src/domain/{slice}/` |
-| Add external service adapter | `apps/api/src/infrastructure/{service}/` |
-| Add UI primitive | `packages/ui/components/` |
-| Add feature UI | `apps/{app}/src/features/{f}/components/` |
-| Configure queries | `apps/{app}/src/features/{f}/queries.ts` |
-| Wire up a page | `apps/{app}/src/routes/` |
-| Persist client state | `apps/{app}/src/features/{f}/stores/` |
-| Add HTTP middleware | `apps/api/src/middleware/` |
-| Add tRPC middleware | `packages/trpc/middleware/` |
-| Add OAuth callback route | `apps/api/src/routes/` |
+| I need to...                 | Location                                                                      |
+|------------------------------|-------------------------------------------------------------------------------|
+| Add database table           | `packages/db/schema/`                                                         |
+| Add enum/const               | `packages/db/schema/` → derive in `packages/trpc/routers/{domain}/schemas.ts` |
+| Add tRPC procedure           | `packages/trpc/routers/{domain}/`                                             |
+| Add API schema               | `packages/trpc/routers/{domain}/schemas.ts`                                   |
+| Add domain logic             | `apps/api/src/domain/{slice}/`                                                |
+| Add external service adapter | `apps/api/src/infrastructure/{service}/`                                      |
+| Add UI primitive             | `packages/ui/components/`                                                     |
+| Add feature UI               | `apps/{app}/src/features/{f}/components/`                                     |
+| Configure queries            | `apps/{app}/src/features/{f}/queries.ts`                                      |
+| Wire up a page               | `apps/{app}/src/routes/`                                                      |
+| Persist client state         | `apps/{app}/src/features/{f}/stores/`                                         |
+| Add HTTP middleware          | `apps/api/src/middleware/`                                                    |
+| Add tRPC middleware          | `packages/trpc/middleware/`                                                   |
+| Add OAuth callback route     | `apps/api/src/routes/`                                                        |
 
 ---
 
 ## Output Format
 
 When completing tasks, provide:
+
 1. **Files modified** - List with paths
 2. **Key changes** - Brief summary of what changed
 3. **Verification steps** - How to test the changes

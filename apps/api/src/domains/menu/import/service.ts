@@ -23,11 +23,9 @@ import type {
 	AllowedFileType,
 	ApplyImportChangesInput,
 	ApplyImportChangesResult,
-	CategoryComparison,
 	GetImportJobStatusInput,
 	ImportJobStatus,
 	ImportJobStatusValue,
-	ItemComparison,
 	MenuComparisonData,
 	UploadImportFileInput,
 	UploadImportFileResult,
@@ -285,11 +283,12 @@ export class MenuImportService implements IMenuImportService {
 					? (vatCodeToId.get(catComp.extracted.defaultVatGroupCode) ?? null)
 					: null;
 
-				if (selection.matchedEntityId || catComp.existingId) {
+				const existingCategoryId =
+					selection.matchedEntityId || catComp.existingId;
+				if (existingCategoryId) {
 					// Update existing category
-					const categoryId = selection.matchedEntityId || catComp.existingId;
 					importLogger.debug(
-						{ categoryId, name: catComp.extracted.name },
+						{ categoryId: existingCategoryId, name: catComp.extracted.name },
 						"Updating category",
 					);
 
@@ -299,9 +298,9 @@ export class MenuImportService implements IMenuImportService {
 							translations,
 							defaultVatGroupId,
 						})
-						.where(eq(categories.id, categoryId!));
+						.where(eq(categories.id, existingCategoryId));
 
-					categoryNameToId.set(catComp.extracted.name, categoryId!);
+					categoryNameToId.set(catComp.extracted.name, existingCategoryId);
 					categoriesApplied++;
 				} else {
 					// Create new category
@@ -376,11 +375,12 @@ export class MenuImportService implements IMenuImportService {
 						? (vatCodeToId.get(itemComp.extracted.vatGroupCode) ?? null)
 						: null;
 
-					if (selection.matchedEntityId || itemComp.existingId) {
+					const existingItemId =
+						selection.matchedEntityId || itemComp.existingId;
+					if (existingItemId) {
 						// Update existing item
-						const itemId = selection.matchedEntityId || itemComp.existingId;
 						importLogger.debug(
-							{ itemId, name: itemComp.extracted.name },
+							{ itemId: existingItemId, name: itemComp.extracted.name },
 							"Updating item",
 						);
 
@@ -393,7 +393,7 @@ export class MenuImportService implements IMenuImportService {
 								allergens: itemComp.extracted.allergens ?? [],
 								vatGroupId,
 							})
-							.where(eq(items.id, itemId!));
+							.where(eq(items.id, existingItemId));
 
 						itemsApplied++;
 					} else {

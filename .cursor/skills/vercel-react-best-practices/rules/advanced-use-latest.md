@@ -7,7 +7,8 @@ tags: advanced, hooks, useLatest, refs, optimization
 
 ## useLatest for Stable Callback Refs
 
-Access latest values in callbacks without adding them to dependency arrays. Prevents effect re-runs while avoiding stale closures.
+Access latest values in callbacks without adding them to dependency arrays. Prevents effect re-runs while avoiding stale
+closures.
 
 **Implementation:**
 

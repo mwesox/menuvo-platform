@@ -77,4 +77,5 @@ async function updateResource(resourceId: string, userId: string) {
 }
 ```
 
-This optimization is especially valuable when the skipped branch is frequently taken, or when the deferred operation is expensive.
+This optimization is especially valuable when the skipped branch is frequently taken, or when the deferred operation is
+expensive.

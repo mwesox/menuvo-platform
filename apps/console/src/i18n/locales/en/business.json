@@ -108,10 +108,23 @@
 		"example": {
 			"title": "Example: €50 order paid by card",
 			"rows": [
-				{ "label": "Order value", "value": "€50.00" },
-				{ "label": "Menuvo (2.9%)", "value": "−€1.45" },
-				{ "label": "Mollie card (1.8% + €0.25)", "value": "−€1.15" },
-				{ "label": "You receive", "value": "€47.40", "highlight": true }
+				{
+					"label": "Order value",
+					"value": "€50.00"
+				},
+				{
+					"label": "Menuvo (2.9%)",
+					"value": "−€1.45"
+				},
+				{
+					"label": "Mollie card (1.8% + €0.25)",
+					"value": "−€1.15"
+				},
+				{
+					"label": "You receive",
+					"value": "€47.40",
+					"highlight": true
+				}
 			],
 			"comparison": "With delivery platforms: much less",
 			"savings": "With Menuvo you keep more"

@@ -4,11 +4,16 @@
     "composite": true,
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
-    "types": ["vite/client"],
+    "types": [
+      "vite/client"
+    ],
     "skipLibCheck": true,
-
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -16,17 +21,25 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@menuvo/ui": ["../../packages/ui/src"],
-      "@menuvo/ui/*": ["../../packages/ui/src/*"],
-      "@menuvo/api": ["../../apps/api/src"],
-      "@menuvo/api/*": ["../../apps/api/src/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@menuvo/ui": [
+        "../../packages/ui/src"
+      ],
+      "@menuvo/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@menuvo/api": [
+        "../../apps/api/src"
+      ],
+      "@menuvo/api/*": [
+        "../../apps/api/src/*"
+      ]
     },
-
     /* Linting */
     "strict": true,
     "noUncheckedIndexedAccess": true,
@@ -37,8 +50,14 @@
     "noUncheckedSideEffectImports": true
   },
   "references": [
-    { "path": "../api/tsconfig.json" },
-    { "path": "../../packages/ui/tsconfig.json" }
+    {
+      "path": "../api/tsconfig.json"
+    },
+    {
+      "path": "../../packages/ui/tsconfig.json"
+    }
   ],
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

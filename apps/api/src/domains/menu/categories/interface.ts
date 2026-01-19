@@ -32,23 +32,29 @@ export interface ICategoriesService {
 	): Promise<
 		(typeof categories.$inferSelect & { items: CategoryItemSummary[] })[]
 	>;
+
 	getById(
 		categoryId: string,
 	): Promise<typeof categories.$inferSelect & { items: CategoryItemDetail[] }>;
+
 	create(
 		merchantId: string,
 		input: CreateCategoryInput,
 	): Promise<typeof categories.$inferSelect>;
+
 	update(
 		categoryId: string,
 		merchantId: string,
 		input: UpdateCategoryInput,
 	): Promise<typeof categories.$inferSelect>;
+
 	delete(categoryId: string, merchantId: string): Promise<void>;
+
 	reorder(
 		storeId: string,
 		categoryIds: string[],
 	): Promise<{ success: boolean }>;
+
 	toggleActive(
 		categoryId: string,
 		merchantId: string,

@@ -34,10 +34,12 @@ export interface IMerchantsService {
 	): Promise<typeof merchants.$inferSelect>;
 
 	getMerchant(merchantId: string): Promise<typeof merchants.$inferSelect>;
+
 	updateMerchant(
 		merchantId: string,
 		input: UpdateMerchantInput,
 	): Promise<typeof merchants.$inferSelect>;
+
 	updateLanguages(
 		merchantId: string,
 		input: UpdateLanguagesInput,

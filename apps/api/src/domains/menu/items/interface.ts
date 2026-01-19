@@ -42,6 +42,7 @@ export interface IItemsService {
 			typeof items.$inferSelect & { optGroups: ItemOptionGroupRelation[] }
 		>[]
 	>;
+
 	listByStore(
 		storeId: string,
 		defaultLanguage: string,
@@ -53,6 +54,7 @@ export interface IItemsService {
 			}
 		>[]
 	>;
+
 	getById(
 		itemId: string,
 		defaultLanguage: string,
@@ -65,17 +67,22 @@ export interface IItemsService {
 			}
 		>
 	>;
+
 	create(
 		storeId: string,
 		input: CreateItemInput,
 	): Promise<typeof items.$inferSelect>;
+
 	update(
 		itemId: string,
 		merchantId: string,
 		input: UpdateItemInput,
 	): Promise<typeof items.$inferSelect>;
+
 	delete(itemId: string, merchantId: string): Promise<void>;
+
 	reorder(categoryId: string, itemIds: string[]): Promise<{ success: boolean }>;
+
 	toggleActive(
 		itemId: string,
 		merchantId: string,

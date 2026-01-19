@@ -38,8 +38,8 @@ SPAs (Cloudflare Pages):
 1. Log in to https://admin.menuvo.app
 2. Navigate to Projects → menuvo
 3. Services:
-   - **menuvo-api**: Docker build from repo root (api.menuvo.app)
-   - **menuvo-db**: PostgreSQL 17 database
+    - **menuvo-api**: Docker build from repo root (api.menuvo.app)
+    - **menuvo-db**: PostgreSQL 17 database
 4. Configure environment variables in the application settings
 5. Domains are managed via Traefik with Let's Encrypt SSL
 
@@ -47,14 +47,14 @@ SPAs (Cloudflare Pages):
 
 Configure these in Dokploy for the API service:
 
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | Postgres connection string |
-| `AUTH_SECRET` | Session encryption key |
-| `ENCRYPTION_KEY` | OAuth token encryption (32+ chars) |
-| `S3_*` | Cloudflare R2 storage config |
-| `OPENROUTER_API_KEY` | AI service key |
-| `MOLLIE_*` | Mollie payment keys |
+| Variable             | Description                        |
+|----------------------|------------------------------------|
+| `DATABASE_URL`       | Postgres connection string         |
+| `AUTH_SECRET`        | Session encryption key             |
+| `ENCRYPTION_KEY`     | OAuth token encryption (32+ chars) |
+| `S3_*`               | Cloudflare R2 storage config       |
+| `OPENROUTER_API_KEY` | AI service key                     |
+| `MOLLIE_*`           | Mollie payment keys                |
 
 ## CI/CD
 
@@ -65,6 +65,7 @@ Configure these in Dokploy for the API service:
 ## Database Migrations
 
 After deploying, run migrations:
+
 ```bash
 ssh root@91.99.96.224
 docker exec $(docker ps -q -f name=menuvo-api) bun run db:migrate

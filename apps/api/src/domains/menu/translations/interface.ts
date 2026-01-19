@@ -23,11 +23,13 @@ export interface ITranslationsService {
 		storeId: string,
 		merchantId: string,
 	): Promise<TranslationStatusResponse>;
+
 	getMissingReport(
 		storeId: string,
 		merchantId: string,
 		languageCode?: string,
 	): Promise<MissingTranslationReport>;
+
 	updateCategory(
 		categoryId: string,
 		merchantId: string,
@@ -35,6 +37,7 @@ export interface ITranslationsService {
 		name: string,
 		description?: string,
 	): Promise<typeof categories.$inferSelect>;
+
 	updateItem(
 		itemId: string,
 		merchantId: string,
@@ -42,12 +45,14 @@ export interface ITranslationsService {
 		name: string,
 		description?: string,
 	): Promise<typeof items.$inferSelect>;
+
 	updateOptionGroup(
 		optionGroupId: string,
 		merchantId: string,
 		languageCode: string,
 		name: string,
 	): Promise<typeof optionGroups.$inferSelect>;
+
 	updateOptionChoice(
 		optionChoiceId: string,
 		merchantId: string,

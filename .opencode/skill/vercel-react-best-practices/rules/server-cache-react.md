@@ -27,7 +27,8 @@ Within a single request, multiple calls to `getCurrentUser()` execute the query 
 
 **Avoid inline objects as arguments:**
 
-`React.cache()` uses shallow equality (`Object.is`) to determine cache hits. Inline objects create new references each call, preventing cache hits.
+`React.cache()` uses shallow equality (`Object.is`) to determine cache hits. Inline objects create new references each
+call, preventing cache hits.
 
 **Incorrect (always cache miss):**
 
@@ -63,7 +64,9 @@ getUser(params)  // Cache hit (same reference)
 
 **Next.js-Specific Note:**
 
-In Next.js, the `fetch` API is automatically extended with request memoization. Requests with the same URL and options are automatically deduplicated within a single request, so you don't need `React.cache()` for `fetch` calls. However, `React.cache()` is still essential for other async tasks:
+In Next.js, the `fetch` API is automatically extended with request memoization. Requests with the same URL and options
+are automatically deduplicated within a single request, so you don't need `React.cache()` for `fetch` calls. However,
+`React.cache()` is still essential for other async tasks:
 
 - Database queries (Prisma, Drizzle, etc.)
 - Heavy computations

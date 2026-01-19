@@ -8,12 +8,6 @@ import {
 	useState,
 } from "react";
 import type { CropperRef } from "react-advanced-cropper";
-
-// Lazy load the heavy cropper component (~89ms savings)
-const Cropper = lazy(() =>
-	import("react-advanced-cropper").then((m) => ({ default: m.Cropper })),
-);
-
 // CSS is loaded only when the cropper is used
 import "react-advanced-cropper/dist/style.css";
 import {
@@ -34,6 +28,11 @@ import {
 	getDefaultPreset,
 	getPresetsForImageType,
 } from "../utils/crop-presets";
+
+// Lazy load the heavy cropper component (~89ms savings)
+const Cropper = lazy(() =>
+	import("react-advanced-cropper").then((m) => ({ default: m.Cropper })),
+);
 
 interface ImageCropperProps {
 	open: boolean;

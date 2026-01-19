@@ -13,13 +13,16 @@ For API integration tests, read: `apps/api/src/test/README.md`
 - **Never `git reset`**
 - **Use ShadCN MCP** for component docs
 - **Subagents must read docs/** before code changes
-- Dont start DEV servers in sessions. usually there is a server already running. 
-- Avoid too defensive fallback solutions. check bigger picture, sometimes failing is better , thatn implementing anothe fallback. 
-- Use Jetbrains MCP for navigating through codebase. 
+- Dont start DEV servers in sessions. usually there is a server already running.
+- Avoid too defensive fallback solutions. check bigger picture, sometimes failing is better , thatn implementing anothe
+  fallback.
+- Use Jetbrains MCP for navigating through codebase.
 - Use GH CLI to push changes. never skip --no-verify when pushign (only when user wants it)
-- always run bun run check-types to make sure we are on track. 
-- Use fullstack-react-dev for subagent work in developement. 
-- Enforce type safety. fields which are mandatory must be mandatory and dont fill it with fallback values or model it optional or nullable. 
+- always run bun run check-types to make sure we are on track.
+- Use fullstack-react-dev for subagent work in developement.
+- Enforce type safety. fields which are mandatory must be mandatory and dont fill it with fallback values or model it
+  optional or nullable.
+
 ## Commands
 
 ```bash
@@ -53,14 +56,14 @@ cd packages/ui && bunx --bun shadcn@latest add <component>
 
 ## Where to Add Things
 
-| Need | Location |
-|------|----------|
-| DB table/enum | `packages/db/schema/` |
-| tRPC procedure | `packages/trpc/routers/` |
-| API schema | `packages/trpc/schemas/` |
-| UI primitive | `packages/ui/components/` |
-| Feature code | `apps/{app}/src/features/{f}/` |
-| Business logic | `apps/api/src/services/` |
+| Need           | Location                       |
+|----------------|--------------------------------|
+| DB table/enum  | `packages/db/schema/`          |
+| tRPC procedure | `packages/trpc/routers/`       |
+| API schema     | `packages/trpc/schemas/`       |
+| UI primitive   | `packages/ui/components/`      |
+| Feature code   | `apps/{app}/src/features/{f}/` |
+| Business logic | `apps/api/src/services/`       |
 
 ## Tech
 

@@ -60,7 +60,7 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 				<button
 					type="button"
 					onClick={onRemove}
-					className="p-1 -m-1 text-muted-foreground transition-colors hover:text-foreground"
+					className="-m-1 p-1 text-muted-foreground transition-colors hover:text-foreground"
 					aria-label={t("cart.removeItem", { name: item.name })}
 				>
 					<X className="size-4" />

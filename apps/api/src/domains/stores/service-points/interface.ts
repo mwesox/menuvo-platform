@@ -25,38 +25,49 @@ export interface IServicePointsService {
 		storeId: string,
 		merchantId: string,
 	): Promise<(typeof servicePoints.$inferSelect)[]>;
+
 	getById(
 		servicePointId: string,
 		merchantId: string,
 	): Promise<typeof servicePoints.$inferSelect>;
+
 	getByCode(
 		storeSlug: string,
 		code: string,
 	): Promise<typeof servicePoints.$inferSelect | null>;
+
 	getByShortCode(shortCode: string): Promise<GetByShortCodeResult>;
+
 	validateForStore(servicePointId: string, storeId: string): Promise<boolean>;
+
 	getZones(storeId: string, merchantId: string): Promise<string[]>;
+
 	create(
 		input: CreateServicePointInput,
 		merchantId: string,
 	): Promise<typeof servicePoints.$inferSelect>;
+
 	update(
 		servicePointId: string,
 		merchantId: string,
 		input: UpdateServicePointInput,
 	): Promise<typeof servicePoints.$inferSelect>;
+
 	toggleActive(
 		servicePointId: string,
 		merchantId: string,
 		isActive: boolean,
 	): Promise<typeof servicePoints.$inferSelect>;
+
 	toggleZoneActive(
 		storeId: string,
 		merchantId: string,
 		zone: string,
 		isActive: boolean,
 	): Promise<{ count: number; isActive: boolean }>;
+
 	delete(servicePointId: string, merchantId: string): Promise<void>;
+
 	batchCreate(
 		input: BatchCreateServicePointsInput,
 		merchantId: string,

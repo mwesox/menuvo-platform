@@ -7,7 +7,8 @@ tags: rendering, svg, css, animation, performance
 
 ## Animate SVG Wrapper Instead of SVG Element
 
-Many browsers don't have hardware acceleration for CSS3 animations on SVG elements. Wrap SVG in a `<div>` and animate the wrapper instead.
+Many browsers don't have hardware acceleration for CSS3 animations on SVG elements. Wrap SVG in a `<div>` and animate
+the wrapper instead.
 
 **Incorrect (animating SVG directly - no hardware acceleration):**
 
@@ -44,4 +45,5 @@ function LoadingSpinner() {
 }
 ```
 
-This applies to all CSS transforms and transitions (`transform`, `opacity`, `translate`, `scale`, `rotate`). The wrapper div allows browsers to use GPU acceleration for smoother animations.
+This applies to all CSS transforms and transitions (`transform`, `opacity`, `translate`, `scale`, `rotate`). The wrapper
+div allows browsers to use GPU acceleration for smoother animations.

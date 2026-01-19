@@ -108,10 +108,23 @@
 		"example": {
 			"title": "Beispiel: 50€ Bestellung mit Karte",
 			"rows": [
-				{ "label": "Bestellwert", "value": "50,00€" },
-				{ "label": "Menuvo (2,9%)", "value": "−1,45€" },
-				{ "label": "Mollie Karte (1,8% + 0,25€)", "value": "−1,15€" },
-				{ "label": "Sie erhalten", "value": "47,40€", "highlight": true }
+				{
+					"label": "Bestellwert",
+					"value": "50,00€"
+				},
+				{
+					"label": "Menuvo (2,9%)",
+					"value": "−1,45€"
+				},
+				{
+					"label": "Mollie Karte (1,8% + 0,25€)",
+					"value": "−1,15€"
+				},
+				{
+					"label": "Sie erhalten",
+					"value": "47,40€",
+					"highlight": true
+				}
 			],
 			"comparison": "Bei Lieferplattformen: deutlich weniger",
 			"savings": "Mit Menuvo behalten Sie mehr"
