@@ -7,6 +7,8 @@ export const categoryFormSchema = z.object({
 		.min(2, "validation:categoryName.min")
 		.max(100, "validation:categoryName.max"),
 	description: z.string(),
+	/** Default VAT group ID for items in this category (optional) */
+	defaultVatGroupId: z.string().nullable(),
 });
 export type CategoryFormInput = z.infer<typeof categoryFormSchema>;
 
@@ -38,6 +40,8 @@ export const itemFormSchema = z.object({
 	imageUrl: z.string(),
 	allergens: z.array(z.string()),
 	kitchenName: z.string().max(50),
+	/** VAT group ID for this item (null = inherit from category) */
+	vatGroupId: z.string().nullable(),
 });
 export type ItemFormInput = z.infer<typeof itemFormSchema>;
 

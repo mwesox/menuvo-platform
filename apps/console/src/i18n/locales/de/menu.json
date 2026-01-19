@@ -19,7 +19,8 @@
 		"itemDetails": "Artikeldetails",
 		"allergens": "Allergene",
 		"categoryDetails": "Kategoriedetails",
-		"optionGroupDetails": "Optionsgruppendetails"
+		"optionGroupDetails": "Optionsgruppendetails",
+		"aiDataImport": "KI Datenimport"
 	},
 	"table": {
 		"category": "Kategorie",
@@ -29,12 +30,15 @@
 		"price": "Preis",
 		"name": "Name",
 		"type": "Typ",
-		"choices": "Auswahlmöglichkeiten"
+		"choices": "Auswahlmöglichkeiten",
+		"description": "Beschreibung",
+		"validation": "Probleme"
 	},
 	"labels": {
 		"categoryName": "Kategoriename",
 		"itemName": "Artikelname",
 		"kitchenName": "Küchenname",
+		"active": "Aktiv",
 		"optionGroupName": "Optionsgruppenname",
 		"optionGroupType": "Modifikatortyp",
 		"sortOrder": "Sortierreihenfolge",
@@ -108,7 +112,8 @@
 		"numFreeOptions": "Anzahl der Optionen, die Kunden kostenlos hinzufügen können, bevor Kosten anfallen",
 		"aggregateMinQuantity": "Mindestgesamtmenge, die der Kunde auswählen muss",
 		"aggregateMaxQuantity": "Maximale Gesamtmenge, die der Kunde auswählen kann",
-		"defaultSelected": "Diese Option wird automatisch vorausgewählt, wenn Kunden die Optionsgruppe sehen"
+		"defaultSelected": "Diese Option wird automatisch vorausgewählt, wenn Kunden die Optionsgruppe sehen",
+		"kitchenName": "Kurzname für Küchenmonitor und Bestellbons"
 	},
 	"optionTypes": {
 		"singleSelect": "Einzelauswahl",
@@ -205,6 +210,11 @@
 	"filters": {
 		"allCategories": "Alle Kategorien"
 	},
+	"tooltips": {
+		"activateItem": "Artikel aktivieren",
+		"deactivateItem": "Artikel deaktivieren",
+		"cannotActivateWithIssues": "Probleme beheben vor Aktivierung"
+	},
 	"common": {
 		"yes": "Ja",
 		"no": "Nein"
@@ -297,5 +307,65 @@
 		"lupin": "Lupinen",
 		"molluscs": "Weichtiere",
 		"sulphites": "Sulfite"
+	},
+	"vat": {
+		"titles": {
+			"vatGroups": "MwSt.-Gruppen",
+			"addVatGroup": "MwSt.-Gruppe hinzufügen",
+			"editVatGroup": "MwSt.-Gruppe bearbeiten"
+		},
+		"table": {
+			"code": "Code",
+			"rate": "Steuersatz"
+		},
+		"labels": {
+			"code": "Code",
+			"rate": "Steuersatz",
+			"vatGroup": "MwSt.-Gruppe",
+			"inheritFromCategory": "Von Kategorie erben",
+			"noneSelected": "Keine (Artikel müssen MwSt. festlegen)"
+		},
+		"placeholders": {
+			"code": "z. B. food, drinks, alcohol",
+			"name": "z. B. Ermäßigter Satz (Speisen)",
+			"rate": "z. B. 7",
+			"description": "Optionale Beschreibung für diese MwSt.-Gruppe"
+		},
+		"hints": {
+			"code": "Eindeutiger Bezeichner (nur Kleinbuchstaben, Zahlen, Bindestriche)",
+			"rate": "Geben Sie den Steuersatz als Prozent ein (z. B. 7 für 7%, 19 für 19%)",
+			"defaultVatGroup": "Standardsteuersatz für alle Artikel in dieser Kategorie"
+		},
+		"dialogs": {
+			"createVatGroupDescription": "Erstellen Sie eine neue MwSt.-Gruppe für Ihre Artikel.",
+			"updateVatGroupDescription": "Aktualisieren Sie die MwSt.-Gruppendetails."
+		},
+		"buttons": {
+			"createVatGroup": "MwSt.-Gruppe erstellen"
+		},
+		"emptyStates": {
+			"noVatGroups": "Noch keine MwSt.-Gruppen",
+			"noVatGroupsDescription": "Erstellen Sie MwSt.-Gruppen, um Steuersätze für Ihre Artikel zu verwalten."
+		},
+		"pageHeaders": {
+			"vatGroupsDescription": "Verwalten Sie MwSt.-Gruppen für Ihre Artikel"
+		}
+	},
+	"validation": {
+		"title": "Veröffentlichungsbereitschaft",
+		"allGood": "Bereit zur Veröffentlichung",
+		"itemReadyToPublish": "Dieser Artikel hat keine Probleme und kann veröffentlicht werden.",
+		"issuesTitle": "Probleme",
+		"cannotPublishWithIssues": "Probleme beheben vor Veröffentlichung",
+		"issue": "Problem",
+		"issues": "Probleme",
+		"codes": {
+			"MISSING_NAME": "Artikelname ist erforderlich",
+			"MISSING_VAT_GROUP": "Keine MwSt.-Gruppe konfiguriert (auf Artikel oder Kategorie festlegen)",
+			"MISSING_CATEGORY": "Artikel muss einer Kategorie zugeordnet sein",
+			"ZERO_PRICE": "Artikel hat keinen Preis",
+			"MISSING_IMAGE": "Kein Bild hochgeladen",
+			"CATEGORY_INACTIVE": "Übergeordnete Kategorie ist inaktiv"
+		}
 	}
 }

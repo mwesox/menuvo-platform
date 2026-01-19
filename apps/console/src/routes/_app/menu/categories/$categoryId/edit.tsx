@@ -14,9 +14,13 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/_app/menu/categories/$categoryId/edit")({
 	validateSearch: searchSchema,
 	loader: async ({ params }) => {
-		const category = await trpcUtils.menu.categories.getById.ensureData({
-			id: params.categoryId,
-		});
+		const [category] = await Promise.all([
+			trpcUtils.menu.categories.getById.ensureData({
+				id: params.categoryId,
+			}),
+			// Prefetch VAT groups for the selector
+			trpcUtils.menu.vat.list.ensureData(),
+		]);
 		return category;
 	},
 	component: RouteComponent,

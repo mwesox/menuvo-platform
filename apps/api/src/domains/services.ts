@@ -18,7 +18,10 @@ import {
 } from "./menu/import/index.js";
 import { type IItemsService, ItemsService } from "./menu/items/index.js";
 import { type IOptionsService, OptionsService } from "./menu/options/index.js";
-import { type IShopMenuService, ShopMenuService } from "./menu/shop/index.js";
+import {
+	type IMenuQueryService,
+	MenuQueryService,
+} from "./menu/queries/index.js";
 import { type IVatService, VatService } from "./menu/vat/index.js";
 import { type IMerchantsService, MerchantsService } from "./merchants/index.js";
 import {
@@ -67,13 +70,13 @@ export class DomainServices {
 	readonly images: IImagesService;
 	readonly items: IItemsService;
 	readonly menuImport: IMenuImportService;
+	readonly menuQueries: IMenuQueryService;
 	readonly merchants: IMerchantsService;
 	readonly onboarding: IOnboardingService;
 	readonly options: IOptionsService;
 	readonly orders: IOrderService;
 	readonly payments: IPaymentService;
 	readonly servicePoints: IServicePointsService;
-	readonly shopMenu: IShopMenuService;
 	readonly status: IStoreStatusService;
 	readonly storeSettings: IStoreSettingsService;
 	readonly stores: IStoreService;
@@ -87,21 +90,22 @@ export class DomainServices {
 		this.images = new ImagesService(deps.db);
 		this.items = new ItemsService(deps.db);
 		this.menuImport = new MenuImportService(deps.db);
+		this.menuQueries = new MenuQueryService(deps.db, this.items);
 		this.merchants = new MerchantsService(deps.db);
 		this.options = new OptionsService(deps.db);
 		this.payments = new PaymentService(deps.db);
 		this.servicePoints = new ServicePointsService(deps.db);
-		this.shopMenu = new ShopMenuService(deps.db);
 		this.status = new StoreStatusService(deps.db);
 		this.storeSettings = new StoreSettingsService(deps.db);
 		this.vat = new VatService(deps.db);
 		this.orders = new OrderService(deps.db, this.status, this.vat);
 		this.stores = new StoreService(deps.db, this.status);
-		// Onboarding depends on merchants and stores services
+		// Onboarding depends on merchants, stores, and vat services
 		this.onboarding = new OnboardingService(
 			deps.db,
 			this.merchants,
 			this.stores,
+			this.vat,
 		);
 	}
 }
@@ -113,7 +117,7 @@ export type { ICategoriesService } from "./menu/categories/index.js";
 export type { IMenuImportService } from "./menu/import/index.js";
 export type { IItemsService } from "./menu/items/index.js";
 export type { IOptionsService } from "./menu/options/index.js";
-export type { IShopMenuService } from "./menu/shop/index.js";
+export type { IMenuQueryService } from "./menu/queries/index.js";
 export type { IVatService } from "./menu/vat/index.js";
 export type { IMerchantsService } from "./merchants/index.js";
 export type { IOnboardingService } from "./onboarding/index.js";

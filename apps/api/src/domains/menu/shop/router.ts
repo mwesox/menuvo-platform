@@ -20,7 +20,7 @@ export const shopMenuRouter = router({
 		.input(getMenuSchema)
 		.query(async ({ ctx, input }) => {
 			try {
-				const menuData = await ctx.services.shopMenu.getMenu(
+				const menuData = await ctx.services.menuQueries.getShopMenu(
 					input.storeSlug,
 					input.languageCode,
 				);
@@ -57,7 +57,7 @@ export const shopMenuRouter = router({
 		.input(getItemDetailsSchema)
 		.query(async ({ ctx, input }) => {
 			try {
-				return await ctx.services.shopMenu.getItemDetails(
+				return await ctx.services.menuQueries.getShopItemDetails(
 					input.itemId,
 					input.languageCode,
 				);

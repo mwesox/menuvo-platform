@@ -332,7 +332,7 @@ export const categories = pgTable("categories", {
 	storeId: uuid("store_id")
 		.notNull()
 		.references(() => stores.id, { onDelete: "cascade" }),
-	displayOrder: integer("display_order").notNull().default(0),
+	displayOrder: text("display_order").notNull().default("a0000"),
 	isActive: boolean("is_active").notNull().default(true),
 	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
 	translations: jsonb("translations")
@@ -374,8 +374,8 @@ export const items = pgTable("items", {
 	price: integer().notNull(), // Price in cents
 	imageUrl: varchar("image_url", { length: 500 }),
 	allergens: text().array(), // PostgreSQL text array for allergens
-	displayOrder: integer("display_order").notNull().default(0),
-	isAvailable: boolean("is_available").notNull().default(true),
+	displayOrder: text("display_order").notNull().default("a0000"),
+	isActive: boolean("is_active").notNull().default(true),
 	// Optional short name for kitchen display (e.g., "SALMN" instead of "Grilled Atlantic Salmon")
 	kitchenName: varchar("kitchen_name", { length: 50 }),
 	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
@@ -424,7 +424,7 @@ export const optionGroups = pgTable("option_groups", {
 	// Aggregate quantity constraints (for quantity_select type)
 	aggregateMinQuantity: integer("aggregate_min_quantity"), // null = no min
 	aggregateMaxQuantity: integer("aggregate_max_quantity"), // null = no max
-	displayOrder: integer("display_order").notNull().default(0),
+	displayOrder: text("display_order").notNull().default("a0000"),
 	isActive: boolean("is_active").notNull().default(true),
 	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
 	translations: jsonb("translations")
@@ -461,7 +461,7 @@ export const optionChoices = pgTable("option_choices", {
 		.notNull()
 		.references(() => optionGroups.id, { onDelete: "cascade" }),
 	priceModifier: integer("price_modifier").notNull().default(0), // In cents, can be positive/negative
-	displayOrder: integer("display_order").notNull().default(0),
+	displayOrder: text("display_order").notNull().default("a0000"),
 	isAvailable: boolean("is_available").notNull().default(true),
 	// Pre-selected by default (reduces customer clicks for common options)
 	isDefault: boolean("is_default").notNull().default(false),
@@ -502,7 +502,7 @@ export const itemOptionGroups = pgTable("item_option_groups", {
 	optionGroupId: uuid("option_group_id")
 		.notNull()
 		.references(() => optionGroups.id, { onDelete: "cascade" }),
-	displayOrder: integer("display_order").notNull().default(0),
+	displayOrder: text("display_order").notNull().default("a0000"),
 	// Timestamp
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 });

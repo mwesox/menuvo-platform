@@ -11,6 +11,7 @@ import createMollieClient, { Locale, type Payment } from "@mollie/api-client";
 import { eq } from "drizzle-orm";
 import { config } from "../../config.js";
 import { env } from "../../env.js";
+import { decryptToken, encryptToken } from "../../lib/crypto.js";
 import { mollieLogger } from "../../lib/logger.js";
 
 // =============================================================================
@@ -383,6 +384,10 @@ export async function getMerchantMollieClient(merchantId: string) {
 		throw new Error("Merchant does not have Mollie OAuth tokens configured");
 	}
 
+	// Decrypt tokens from DB
+	const accessToken = await decryptToken(merchant.mollieAccessToken);
+	const refreshToken = await decryptToken(merchant.mollieRefreshToken);
+
 	const now = new Date();
 	const expiresAt = merchant.mollieTokenExpiresAt;
 	const needsRefresh =
@@ -391,14 +396,18 @@ export async function getMerchantMollieClient(merchantId: string) {
 	if (needsRefresh) {
 		mollieLogger.info({ merchantId }, "Refreshing Mollie access token");
 
-		const newTokens = await refreshAccessToken(merchant.mollieRefreshToken);
+		const newTokens = await refreshAccessToken(refreshToken);
 		const newExpiresAt = new Date(Date.now() + newTokens.expiresIn * 1000);
+
+		// Encrypt new tokens before storing
+		const encryptedAccessToken = await encryptToken(newTokens.accessToken);
+		const encryptedRefreshToken = await encryptToken(newTokens.refreshToken);
 
 		await db
 			.update(merchants)
 			.set({
-				mollieAccessToken: newTokens.accessToken,
-				mollieRefreshToken: newTokens.refreshToken,
+				mollieAccessToken: encryptedAccessToken,
+				mollieRefreshToken: encryptedRefreshToken,
 				mollieTokenExpiresAt: newExpiresAt,
 			})
 			.where(eq(merchants.id, merchantId));
@@ -408,7 +417,7 @@ export async function getMerchantMollieClient(merchantId: string) {
 		return createMollieClientWithToken(newTokens.accessToken);
 	}
 
-	return createMollieClientWithToken(merchant.mollieAccessToken);
+	return createMollieClientWithToken(accessToken);
 }
 
 export async function storeMerchantTokens(
@@ -419,11 +428,15 @@ export async function storeMerchantTokens(
 
 	const expiresAt = new Date(Date.now() + tokens.expiresIn * 1000);
 
+	// Encrypt tokens before storing
+	const encryptedAccessToken = await encryptToken(tokens.accessToken);
+	const encryptedRefreshToken = await encryptToken(tokens.refreshToken);
+
 	await db
 		.update(merchants)
 		.set({
-			mollieAccessToken: tokens.accessToken,
-			mollieRefreshToken: tokens.refreshToken,
+			mollieAccessToken: encryptedAccessToken,
+			mollieRefreshToken: encryptedRefreshToken,
 			mollieTokenExpiresAt: expiresAt,
 		})
 		.where(eq(merchants.id, merchantId));

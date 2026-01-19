@@ -18,7 +18,7 @@ type CategoryWithItems = {
 	isActive: boolean;
 	items: Array<{
 		id: string;
-		isAvailable: boolean;
+		isActive: boolean;
 		imageUrl: string | null;
 	}>;
 };
@@ -67,8 +67,8 @@ export function CategoriesTable({
 						const name = getDisplayName(category.translations, language);
 						const hasImage = category.items.some((item) => item.imageUrl);
 						const itemCount = category.items.length;
-						const availableCount = category.items.filter(
-							(item) => item.isAvailable,
+						const activeCount = category.items.filter(
+							(item) => item.isActive,
 						).length;
 
 						return (
@@ -97,9 +97,9 @@ export function CategoriesTable({
 								</TableCell>
 								<TableCell className="text-center">
 									{itemCount > 0 ? (
-										availableCount < itemCount ? (
+										activeCount < itemCount ? (
 											<span>
-												{availableCount}{" "}
+												{activeCount}{" "}
 												<span className="text-muted-foreground">
 													({itemCount})
 												</span>

@@ -9,7 +9,7 @@ import { ConsoleError } from "@/features/components/console-error";
 import { CategoriesTable } from "@/features/menu/components/categories-table";
 import { MenuTabs } from "@/features/menu/components/menu-tabs";
 import { StoreSelectionPrompt } from "@/features/menu/components/store-selection-prompt";
-import { getCategoriesWithItemsQueryOptions } from "@/features/menu/queries";
+import { getCategoriesQueryOptions } from "@/features/menu/queries";
 import {
 	queryClient,
 	trpc,
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/_app/menu/")({
 
 		if (effectiveStoreId) {
 			await queryClient.ensureQueryData(
-				getCategoriesWithItemsQueryOptions(trpc, trpcClient, effectiveStoreId),
+				getCategoriesQueryOptions(trpc, trpcClient, effectiveStoreId),
 			);
 		}
 
@@ -118,7 +118,7 @@ function CategoriesPage({ storeId }: CategoriesPageProps) {
 	const trpc = useTRPC();
 	const trpcClient = useTRPCClient();
 	const { data: categories = [] } = useQuery(
-		getCategoriesWithItemsQueryOptions(trpc, trpcClient, storeId),
+		getCategoriesQueryOptions(trpc, trpcClient, storeId),
 	);
 
 	// Default language for display (German primary)

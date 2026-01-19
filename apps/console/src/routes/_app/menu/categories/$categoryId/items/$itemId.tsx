@@ -6,7 +6,7 @@ import { PageActionBar } from "@/components/layout/page-action-bar";
 import { ConsoleError } from "@/features/components/console-error";
 import { ItemForm } from "@/features/menu/components/item-form";
 import { getDisplayName } from "@/features/menu/logic/display";
-import { getCategoriesWithItemsQueryOptions } from "@/features/menu/queries";
+import { getCategoriesQueryOptions } from "@/features/menu/queries";
 import {
 	queryClient,
 	trpc,
@@ -35,7 +35,7 @@ export const Route = createFileRoute(
 		await Promise.all([
 			trpcUtils.store.getById.ensureData({ storeId: item.storeId }),
 			queryClient.ensureQueryData(
-				getCategoriesWithItemsQueryOptions(trpc, trpcClient, item.storeId),
+				getCategoriesQueryOptions(trpc, trpcClient, item.storeId),
 			),
 			trpcUtils.menu.categories.getById.ensureData({ id: params.categoryId }),
 		]);
@@ -54,21 +54,27 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
 	const { storeId } = Route.useSearch();
-	const { categoryId } = Route.useParams();
+	const { categoryId, itemId } = Route.useParams();
 	const { item, initialOptionGroupIds } = Route.useLoaderData();
 	const { t } = useTranslation("menu");
 	const trpc = useTRPC();
 	const trpcClient = useTRPCClient();
 
-	if (!item) {
+	// Fetch the latest item data
+	const { data: currentItem } = useQuery({
+		...trpc.menu.items.getById.queryOptions({ id: itemId }),
+		initialData: item,
+	});
+
+	if (!currentItem) {
 		return null;
 	}
 
 	const { data: store } = useQuery({
-		...trpc.store.getById.queryOptions({ storeId: item.storeId }),
+		...trpc.store.getById.queryOptions({ storeId: currentItem.storeId }),
 	});
 	const { data: categories = [] } = useQuery(
-		getCategoriesWithItemsQueryOptions(trpc, trpcClient, item.storeId),
+		getCategoriesQueryOptions(trpc, trpcClient, currentItem.storeId),
 	);
 	const { data: category } = useQuery({
 		...trpc.menu.categories.getById.queryOptions({ id: categoryId }),
@@ -80,7 +86,7 @@ function RouteComponent() {
 
 	const language = "de";
 	const categoryName = getDisplayName(category.translations, language);
-	const itemName = getDisplayName(item.translations, language);
+	const itemName = getDisplayName(currentItem.translations, language);
 
 	return (
 		<div className="space-y-6">
@@ -97,10 +103,10 @@ function RouteComponent() {
 			/>
 
 			<ItemForm
-				item={item}
+				item={currentItem}
 				categories={categories}
 				categoryId={categoryId}
-				storeId={item.storeId}
+				storeId={currentItem.storeId}
 				merchantId={store.merchantId}
 				initialOptionGroupIds={initialOptionGroupIds}
 			/>

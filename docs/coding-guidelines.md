@@ -329,6 +329,15 @@ function StorePage() {
 }
 ```
 
+### `useLoaderData` vs `useSuspenseQuery`
+
+| Method | Behavior |
+|--------|----------|
+| `Route.useLoaderData()` | Snapshot - doesn't update on cache invalidation |
+| `useSuspenseQuery()` | Subscribes to cache - re-renders on invalidation |
+
+**Rule**: If you `invalidateQueries` for that data, use `useSuspenseQuery` in the component.
+
 ### Matching Query Keys
 
 ```typescript

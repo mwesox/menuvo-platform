@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 import { PageActionBar } from "@/components/layout/page-action-bar";
 import { ConsoleError } from "@/features/components/console-error";
 import { CategoryForm } from "@/features/menu/components/category-form";
+import { trpcUtils } from "@/lib/trpc";
 
 const searchSchema = z.object({
 	storeId: z.string(),
@@ -11,6 +12,10 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/_app/menu/categories/new")({
 	validateSearch: searchSchema,
+	loader: async () => {
+		// Prefetch VAT groups for the selector
+		await trpcUtils.menu.vat.list.ensureData();
+	},
 	component: RouteComponent,
 	errorComponent: ConsoleError,
 });

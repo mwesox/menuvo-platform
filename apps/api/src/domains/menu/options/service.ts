@@ -12,7 +12,8 @@ import {
 	optionGroups,
 	stores,
 } from "@menuvo/db/schema";
-import { asc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
+import { generateOrderKey, generateOrderKeys } from "../../../lib/ordering.js";
 import { NotFoundError, ValidationError } from "../../errors.js";
 import type { IOptionsService } from "./interface.js";
 import {
@@ -130,18 +131,17 @@ export class OptionsService implements IOptionsService {
 			numFreeOptions: number;
 			aggregateMinQuantity: number | null;
 			aggregateMaxQuantity: number | null;
-			displayOrder?: number;
 		},
 	): Promise<typeof optionGroups.$inferSelect> {
 		await this.requireStoreOwnership(storeId, merchantId);
 
-		// Get max display order
-		const existing = await this.db.query.optionGroups.findMany({
+		// Get last option group's order key for fractional indexing
+		const lastGroup = await this.db.query.optionGroups.findFirst({
 			where: eq(optionGroups.storeId, storeId),
-			orderBy: (optionGroups, { desc }) => [desc(optionGroups.displayOrder)],
-			limit: 1,
+			orderBy: [desc(optionGroups.displayOrder)],
+			columns: { displayOrder: true },
 		});
-		const maxOrder = existing[0]?.displayOrder ?? -1;
+		const displayOrder = generateOrderKey(lastGroup?.displayOrder ?? null);
 
 		const [newOptionGroup] = await this.db
 			.insert(optionGroups)
@@ -155,7 +155,7 @@ export class OptionsService implements IOptionsService {
 				numFreeOptions: input.numFreeOptions,
 				aggregateMinQuantity: input.aggregateMinQuantity,
 				aggregateMaxQuantity: input.aggregateMaxQuantity,
-				displayOrder: input.displayOrder ?? maxOrder + 1,
+				displayOrder,
 			})
 			.returning();
 
@@ -265,6 +265,9 @@ export class OptionsService implements IOptionsService {
 		);
 		const isRequired = minSelections > 0;
 
+		// Generate fractional keys for choices
+		const choiceOrderKeys = generateOrderKeys(null, input.choices.length);
+
 		return this.db.transaction(async (tx) => {
 			let savedGroup: typeof optionGroups.$inferSelect;
 
@@ -309,13 +312,14 @@ export class OptionsService implements IOptionsService {
 
 				// Update/create choices
 				for (const [i, choice] of input.choices.entries()) {
+					const orderKey = choiceOrderKeys[i]!;
 					if (choice.id) {
 						await tx
 							.update(optionChoices)
 							.set({
 								translations: choice.translations,
 								priceModifier: choice.priceModifier,
-								displayOrder: i,
+								displayOrder: orderKey,
 								isDefault: choice.isDefault ?? false,
 								minQuantity: choice.minQuantity ?? 0,
 								maxQuantity: choice.maxQuantity ?? null,
@@ -326,7 +330,7 @@ export class OptionsService implements IOptionsService {
 							optionGroupId: input.optionGroupId,
 							translations: choice.translations,
 							priceModifier: choice.priceModifier,
-							displayOrder: i,
+							displayOrder: orderKey,
 							isDefault: choice.isDefault ?? false,
 							minQuantity: choice.minQuantity ?? 0,
 							maxQuantity: choice.maxQuantity ?? null,
@@ -334,13 +338,15 @@ export class OptionsService implements IOptionsService {
 					}
 				}
 			} else {
-				// Create new
-				const existing = await tx.query.optionGroups.findMany({
+				// Create new - get last option group's order key
+				const lastGroup = await tx.query.optionGroups.findFirst({
 					where: eq(optionGroups.storeId, input.storeId),
-					orderBy: (og, { desc }) => [desc(og.displayOrder)],
-					limit: 1,
+					orderBy: [desc(optionGroups.displayOrder)],
+					columns: { displayOrder: true },
 				});
-				const maxOrder = existing[0]?.displayOrder ?? -1;
+				const groupDisplayOrder = generateOrderKey(
+					lastGroup?.displayOrder ?? null,
+				);
 
 				const [created] = await tx
 					.insert(optionGroups)
@@ -354,7 +360,7 @@ export class OptionsService implements IOptionsService {
 						numFreeOptions: input.numFreeOptions ?? 0,
 						aggregateMinQuantity: input.aggregateMinQuantity,
 						aggregateMaxQuantity: input.aggregateMaxQuantity,
-						displayOrder: maxOrder + 1,
+						displayOrder: groupDisplayOrder,
 					})
 					.returning();
 
@@ -365,11 +371,12 @@ export class OptionsService implements IOptionsService {
 
 				// Create choices
 				for (const [i, choice] of input.choices.entries()) {
+					const orderKey = choiceOrderKeys[i]!;
 					await tx.insert(optionChoices).values({
 						optionGroupId: savedGroup.id,
 						translations: choice.translations,
 						priceModifier: choice.priceModifier,
-						displayOrder: i,
+						displayOrder: orderKey,
 						isDefault: choice.isDefault ?? false,
 						minQuantity: choice.minQuantity ?? 0,
 						maxQuantity: choice.maxQuantity ?? null,
@@ -412,18 +419,17 @@ export class OptionsService implements IOptionsService {
 			isDefault: boolean;
 			minQuantity: number;
 			maxQuantity: number | null;
-			displayOrder?: number;
 		},
 	): Promise<typeof optionChoices.$inferSelect> {
 		await this.requireOptionGroupOwnership(optionGroupId, merchantId);
 
-		// Get max display order
-		const existing = await this.db.query.optionChoices.findMany({
+		// Get last choice's order key for fractional indexing
+		const lastChoice = await this.db.query.optionChoices.findFirst({
 			where: eq(optionChoices.optionGroupId, optionGroupId),
-			orderBy: (choices, { desc }) => [desc(choices.displayOrder)],
-			limit: 1,
+			orderBy: [desc(optionChoices.displayOrder)],
+			columns: { displayOrder: true },
 		});
-		const maxOrder = existing[0]?.displayOrder ?? -1;
+		const displayOrder = generateOrderKey(lastChoice?.displayOrder ?? null);
 
 		const [newChoice] = await this.db
 			.insert(optionChoices)
@@ -434,7 +440,7 @@ export class OptionsService implements IOptionsService {
 				isDefault: input.isDefault,
 				minQuantity: input.minQuantity,
 				maxQuantity: input.maxQuantity,
-				displayOrder: input.displayOrder ?? maxOrder + 1,
+				displayOrder,
 			})
 			.returning();
 
@@ -539,13 +545,14 @@ export class OptionsService implements IOptionsService {
 			.delete(itemOptionGroups)
 			.where(eq(itemOptionGroups.itemId, itemId));
 
-		// Insert new links
+		// Insert new links with fractional ordering
 		if (optionGroupIds.length > 0) {
+			const orderKeys = generateOrderKeys(null, optionGroupIds.length);
 			await this.db.insert(itemOptionGroups).values(
 				optionGroupIds.map((optionGroupId, index) => ({
 					itemId,
 					optionGroupId,
-					displayOrder: index,
+					displayOrder: orderKeys[index]!,
 				})),
 			);
 		}

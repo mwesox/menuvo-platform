@@ -5,9 +5,17 @@
  */
 
 import type { Database } from "@menuvo/db";
-import { menuImportJobs, stores } from "@menuvo/db/schema";
-import { and, eq } from "drizzle-orm";
+import {
+	categories,
+	items,
+	menuImportJobs,
+	stores,
+	vatGroups,
+} from "@menuvo/db/schema";
+import { and, desc, eq } from "drizzle-orm";
 import { uploadFile } from "../../../infrastructure/storage/files-client.js";
+import { logger } from "../../../lib/logger.js";
+import { generateOrderKey } from "../../../lib/ordering.js";
 import { DomainError } from "../../errors.js";
 import type { IMenuImportService } from "./interface.js";
 import { processMenuImportJob } from "./processor.js";
@@ -15,13 +23,18 @@ import type {
 	AllowedFileType,
 	ApplyImportChangesInput,
 	ApplyImportChangesResult,
+	CategoryComparison,
 	GetImportJobStatusInput,
 	ImportJobStatus,
 	ImportJobStatusValue,
+	ItemComparison,
+	MenuComparisonData,
 	UploadImportFileInput,
 	UploadImportFileResult,
 } from "./types.js";
 import { allowedFileTypes, isImportJobStatus } from "./types.js";
+
+const importLogger = logger.child({ service: "menu-import-apply" });
 
 // MIME type mapping for file type detection
 const MIME_TYPE_MAP: Record<string, AllowedFileType> = {
@@ -164,16 +177,22 @@ export class MenuImportService implements IMenuImportService {
 		merchantId: string,
 		input: ApplyImportChangesInput,
 	): Promise<ApplyImportChangesResult> {
+		importLogger.info(
+			{ jobId: input.jobId, storeId: input.storeId },
+			"Starting import apply",
+		);
+
 		// Verify the store belongs to the merchant
 		const store = await this.db.query.stores.findFirst({
 			where: and(
 				eq(stores.id, input.storeId),
 				eq(stores.merchantId, merchantId),
 			),
-			columns: { id: true },
+			columns: { id: true, merchantId: true },
 		});
 
 		if (!store) {
+			importLogger.warn({ storeId: input.storeId }, "Store not found");
 			throw new DomainError("NOT_FOUND", "Store not found");
 		}
 
@@ -186,71 +205,283 @@ export class MenuImportService implements IMenuImportService {
 		});
 
 		if (!job) {
+			importLogger.warn({ jobId: input.jobId }, "Import job not found");
 			throw new DomainError("NOT_FOUND", "Import job not found");
 		}
 
 		// Ensure job is in READY status
 		if (job.status !== "READY") {
+			importLogger.warn(
+				{ jobId: input.jobId, status: job.status },
+				"Job not in READY status",
+			);
 			throw new DomainError(
 				"VALIDATION",
 				`Import job is not ready for application. Current status: ${job.status}`,
 			);
 		}
 
-		// Filter to only selections with "apply" action
-		const selectionsToApply = input.selections.filter(
-			(s) => s.action === "apply",
+		const comparisonData = job.comparisonData as MenuComparisonData | null;
+		if (!comparisonData) {
+			importLogger.error({ jobId: input.jobId }, "No comparison data found");
+			throw new DomainError("VALIDATION", "Import job has no comparison data");
+		}
+
+		// Build selection lookup maps
+		const categorySelections = new Map(
+			input.selections
+				.filter((s) => s.type === "category")
+				.map((s) => [s.extractedName, s]),
+		);
+		const itemSelections = new Map(
+			input.selections
+				.filter((s) => s.type === "item")
+				.map((s) => [s.extractedName, s]),
 		);
 
-		if (selectionsToApply.length === 0) {
-			// No selections to apply, just mark as completed
+		importLogger.debug(
+			{
+				categorySelections: categorySelections.size,
+				itemSelections: itemSelections.size,
+			},
+			"Selection maps built",
+		);
+
+		// Build VAT code to ID mapping
+		const merchantVatGroups = await this.db.query.vatGroups.findMany({
+			where: eq(vatGroups.merchantId, merchantId),
+		});
+		const vatCodeToId = new Map(merchantVatGroups.map((v) => [v.code, v.id]));
+
+		// Track results
+		let categoriesApplied = 0;
+		let itemsApplied = 0;
+
+		// Map to track category name -> ID (for new categories and existing matches)
+		const categoryNameToId = new Map<string, string>();
+
+		try {
+			// Step 1: Process categories
+			for (const catComp of comparisonData.categories) {
+				const selection = categorySelections.get(catComp.extracted.name);
+
+				if (!selection || selection.action !== "apply") {
+					// If category is skipped but has existingId, track it for items
+					if (catComp.existingId) {
+						categoryNameToId.set(catComp.extracted.name, catComp.existingId);
+					}
+					continue;
+				}
+
+				const translations = {
+					de: {
+						name: catComp.extracted.name,
+						description: catComp.extracted.description,
+					},
+				};
+
+				// Resolve VAT group ID from code
+				const defaultVatGroupId = catComp.extracted.defaultVatGroupCode
+					? (vatCodeToId.get(catComp.extracted.defaultVatGroupCode) ?? null)
+					: null;
+
+				if (selection.matchedEntityId || catComp.existingId) {
+					// Update existing category
+					const categoryId = selection.matchedEntityId || catComp.existingId;
+					importLogger.debug(
+						{ categoryId, name: catComp.extracted.name },
+						"Updating category",
+					);
+
+					await this.db
+						.update(categories)
+						.set({
+							translations,
+							defaultVatGroupId,
+						})
+						.where(eq(categories.id, categoryId!));
+
+					categoryNameToId.set(catComp.extracted.name, categoryId!);
+					categoriesApplied++;
+				} else {
+					// Create new category
+					importLogger.debug(
+						{ name: catComp.extracted.name },
+						"Creating category",
+					);
+
+					// Get last category's order key for fractional indexing
+					const lastCategory = await this.db.query.categories.findFirst({
+						where: eq(categories.storeId, input.storeId),
+						orderBy: [desc(categories.displayOrder)],
+						columns: { displayOrder: true },
+					});
+					const displayOrder = generateOrderKey(
+						lastCategory?.displayOrder ?? null,
+					);
+
+					const [newCategory] = await this.db
+						.insert(categories)
+						.values({
+							storeId: input.storeId,
+							translations,
+							displayOrder,
+							isActive: true,
+							defaultVatGroupId,
+						})
+						.returning();
+
+					if (newCategory) {
+						categoryNameToId.set(catComp.extracted.name, newCategory.id);
+						categoriesApplied++;
+					} else {
+						importLogger.error(
+							{ name: catComp.extracted.name },
+							"Failed to create category",
+						);
+					}
+				}
+			}
+
+			importLogger.info({ categoriesApplied }, "Categories processed");
+
+			// Step 2: Process items
+			for (const catComp of comparisonData.categories) {
+				const categoryId = categoryNameToId.get(catComp.extracted.name);
+
+				if (!categoryId) {
+					importLogger.debug(
+						{ categoryName: catComp.extracted.name },
+						"Skipping items - category not found or not applied",
+					);
+					continue;
+				}
+
+				for (const itemComp of catComp.items) {
+					const selection = itemSelections.get(itemComp.extracted.name);
+
+					if (!selection || selection.action !== "apply") {
+						continue;
+					}
+
+					const translations = {
+						de: {
+							name: itemComp.extracted.name,
+							description: itemComp.extracted.description,
+						},
+					};
+
+					// Resolve VAT group ID from code
+					const vatGroupId = itemComp.extracted.vatGroupCode
+						? (vatCodeToId.get(itemComp.extracted.vatGroupCode) ?? null)
+						: null;
+
+					if (selection.matchedEntityId || itemComp.existingId) {
+						// Update existing item
+						const itemId = selection.matchedEntityId || itemComp.existingId;
+						importLogger.debug(
+							{ itemId, name: itemComp.extracted.name },
+							"Updating item",
+						);
+
+						await this.db
+							.update(items)
+							.set({
+								categoryId,
+								translations,
+								price: itemComp.extracted.price,
+								allergens: itemComp.extracted.allergens ?? [],
+								vatGroupId,
+							})
+							.where(eq(items.id, itemId!));
+
+						itemsApplied++;
+					} else {
+						// Create new item
+						importLogger.debug(
+							{ name: itemComp.extracted.name, categoryId },
+							"Creating item",
+						);
+
+						// Get last item's order key for fractional indexing
+						const lastItem = await this.db.query.items.findFirst({
+							where: eq(items.categoryId, categoryId),
+							orderBy: [desc(items.displayOrder)],
+							columns: { displayOrder: true },
+						});
+						const displayOrder = generateOrderKey(
+							lastItem?.displayOrder ?? null,
+						);
+
+						const [newItem] = await this.db
+							.insert(items)
+							.values({
+								storeId: input.storeId,
+								categoryId,
+								translations,
+								price: itemComp.extracted.price,
+								displayOrder,
+								isActive: true,
+								allergens: itemComp.extracted.allergens ?? [],
+								vatGroupId,
+							})
+							.returning();
+
+						if (newItem) {
+							itemsApplied++;
+						} else {
+							importLogger.error(
+								{ name: itemComp.extracted.name },
+								"Failed to create item",
+							);
+						}
+					}
+				}
+			}
+
+			importLogger.info({ itemsApplied }, "Items processed");
+
+			// Mark job as completed
 			await this.db
 				.update(menuImportJobs)
 				.set({ status: "COMPLETED" })
 				.where(eq(menuImportJobs.id, input.jobId));
 
+			importLogger.info(
+				{ jobId: input.jobId, categoriesApplied, itemsApplied },
+				"Import apply completed successfully",
+			);
+
 			return {
 				success: true,
 				applied: {
-					categories: 0,
-					items: 0,
-					optionGroups: 0,
+					categories: categoriesApplied,
+					items: itemsApplied,
+					optionGroups: 0, // TODO: Implement option groups
 				},
 			};
+		} catch (error) {
+			importLogger.error(
+				{
+					jobId: input.jobId,
+					error: error instanceof Error ? error.message : String(error),
+				},
+				"Import apply failed",
+			);
+
+			// Mark job as failed
+			await this.db
+				.update(menuImportJobs)
+				.set({
+					status: "FAILED",
+					errorMessage:
+						error instanceof Error
+							? error.message
+							: "Unknown error during apply",
+				})
+				.where(eq(menuImportJobs.id, input.jobId));
+
+			throw error;
 		}
-
-		// Count selections by type
-		const categoriesCount = selectionsToApply.filter(
-			(s) => s.type === "category",
-		).length;
-		const itemsCount = selectionsToApply.filter(
-			(s) => s.type === "item",
-		).length;
-		const optionGroupsCount = selectionsToApply.filter(
-			(s) => s.type === "optionGroup",
-		).length;
-
-		// TODO: Implement actual entity creation/updates based on comparisonData
-		// This would involve:
-		// 1. Parsing the comparisonData to get full entity details
-		// 2. For each "apply" selection:
-		//    - If matchedEntityId exists: update the existing entity
-		//    - If no matchedEntityId: create a new entity
-		// 3. Handle translations, prices, option groups, etc.
-
-		// For now, mark the job as completed
-		await this.db
-			.update(menuImportJobs)
-			.set({ status: "COMPLETED" })
-			.where(eq(menuImportJobs.id, input.jobId));
-
-		return {
-			success: true,
-			applied: {
-				categories: categoriesCount,
-				items: itemsCount,
-				optionGroups: optionGroupsCount,
-			},
-		};
 	}
 }

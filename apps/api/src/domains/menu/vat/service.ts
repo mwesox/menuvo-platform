@@ -23,6 +23,7 @@ import type {
 	IVatService,
 	UpdateVatGroupInput,
 } from "./interface.js";
+import { getVatTemplates } from "./templates.js";
 import type {
 	ItemWithVatInfo,
 	VatCalculationResult,
@@ -227,5 +228,22 @@ export class VatService implements IVatService {
 		defaultVatGroupCode = "food",
 	): VatCalculationResult {
 		return calcOrderVat(items, vatGroups, defaultVatGroupCode);
+	}
+
+	async createDefaultVatGroups(
+		merchantId: string,
+		countryCode: string,
+	): Promise<VatGroupWithRate[]> {
+		const templates = getVatTemplates(countryCode);
+		if (!templates) {
+			return [];
+		}
+
+		const created: VatGroupWithRate[] = [];
+		for (const template of templates) {
+			const group = await this.create(merchantId, template);
+			created.push(group);
+		}
+		return created;
 	}
 }

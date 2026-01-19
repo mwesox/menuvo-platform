@@ -5,8 +5,15 @@
  */
 
 import { db } from "@menuvo/db";
-import { categories, menuImportJobs, optionGroups } from "@menuvo/db/schema";
+import {
+	categories,
+	menuImportJobs,
+	optionGroups,
+	stores,
+	vatGroups,
+} from "@menuvo/db/schema";
 import { asc, eq } from "drizzle-orm";
+import { env } from "../../../env.js";
 import { getFile } from "../../../infrastructure/storage/files-client.js";
 import { logger } from "../../../lib/logger.js";
 import { extractMenuFromText } from "./ai-extractor.js";
@@ -17,12 +24,14 @@ import type { AllowedFileType, ExistingMenuData, ModelConfig } from "./types";
 const menuImportLogger = logger.child({ service: "menu-import" });
 
 /**
- * Default model for menu extraction.
+ * Get the extraction model configuration from environment variables.
  */
-const DEFAULT_EXTRACTION_MODEL: ModelConfig = {
-	id: "nvidia/nemotron-3-nano-30b-a3b:free",
-	supportsStructuredOutput: false,
-};
+function getExtractionModel(): ModelConfig {
+	return {
+		id: env.MENU_IMPORT_MODEL_ID,
+		supportsStructuredOutput: env.MENU_IMPORT_MODEL_STRUCTURED,
+	};
+}
 
 /**
  * Get existing menu data for a store.
@@ -51,6 +60,7 @@ async function getExistingMenuData(storeId: string): Promise<ExistingMenuData> {
 			description: (
 				cat.translations as Record<string, { description?: string }>
 			)?.de?.description,
+			defaultVatGroupId: cat.defaultVatGroupId,
 			items: cat.items.map((item) => ({
 				id: item.id,
 				name:
@@ -61,6 +71,7 @@ async function getExistingMenuData(storeId: string): Promise<ExistingMenuData> {
 				)?.de?.description,
 				price: item.price,
 				allergens: item.allergens,
+				vatGroupId: item.vatGroupId,
 			})),
 		})),
 		optionGroups: existingOptionGroups.map((og) => ({
@@ -140,7 +151,15 @@ export async function processMenuImportJob(jobId: string): Promise<void> {
 		);
 		menuImportLogger.debug({ jobId, charCount: text.length }, "Text extracted");
 
-		// Step 3: Get existing menu for context
+		// Step 3: Get store to retrieve merchantId for VAT groups
+		const store = await db.query.stores.findFirst({
+			where: eq(stores.id, job.storeId),
+		});
+		if (!store) {
+			throw new Error(`Store ${job.storeId} not found`);
+		}
+
+		// Step 4: Get existing menu for context
 		menuImportLogger.debug(
 			{ jobId, storeId: job.storeId },
 			"Loading existing menu",
@@ -155,14 +174,36 @@ export async function processMenuImportJob(jobId: string): Promise<void> {
 			"Existing menu loaded",
 		);
 
-		// Step 4: AI extraction
+		// Step 5: Fetch VAT groups for merchant
+		const merchantVatGroups = await db.query.vatGroups.findMany({
+			where: eq(vatGroups.merchantId, store.merchantId),
+			orderBy: [asc(vatGroups.displayOrder)],
+		});
+		menuImportLogger.debug(
+			{ jobId, vatGroupCount: merchantVatGroups.length },
+			"VAT groups loaded",
+		);
+
+		// Step 6: AI extraction with full context for matching
 		menuImportLogger.debug({ jobId }, "Running AI extraction");
 		const extractedMenu = await extractMenuFromText(text, {
-			model: DEFAULT_EXTRACTION_MODEL,
-			existingCategories: existingMenu.categories.map((c) => c.name),
+			model: getExtractionModel(),
+			existingCategories: existingMenu.categories.map((c) => ({
+				id: c.id,
+				name: c.name,
+			})),
 			existingItems: existingMenu.categories.flatMap((c) =>
-				c.items.map((i) => i.name),
+				c.items.map((i) => ({
+					id: i.id,
+					name: i.name,
+					categoryId: c.id,
+				})),
 			),
+			vatGroups: merchantVatGroups.map((v) => ({
+				code: v.code,
+				name: v.name,
+				rate: v.rate,
+			})),
 		});
 		menuImportLogger.info(
 			{
@@ -178,9 +219,13 @@ export async function processMenuImportJob(jobId: string): Promise<void> {
 			"AI extraction complete",
 		);
 
-		// Step 5: Generate comparison
+		// Step 7: Generate comparison
 		menuImportLogger.debug({ jobId }, "Generating comparison");
-		const comparisonData = compareMenus(extractedMenu, existingMenu);
+		const comparisonData = compareMenus(
+			extractedMenu,
+			existingMenu,
+			merchantVatGroups.map((v) => ({ code: v.code, id: v.id })),
+		);
 		menuImportLogger.info(
 			{
 				jobId,
@@ -194,7 +239,7 @@ export async function processMenuImportJob(jobId: string): Promise<void> {
 			"Comparison generated",
 		);
 
-		// Step 6: Save comparison and mark as ready
+		// Step 8: Save comparison and mark as ready
 		await db
 			.update(menuImportJobs)
 			.set({

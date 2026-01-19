@@ -10,6 +10,7 @@ import { categoryRouter } from "./categories/index.js";
 import { importRouter } from "./import/router.js";
 import { itemRouter } from "./items/index.js";
 import { optionRouter } from "./options/index.js";
+import { queriesRouter } from "./queries/router.js";
 import { shopMenuRouter } from "./shop/index.js";
 import { translationRouter } from "./translations/index.js";
 import { vatRouter } from "./vat/index.js";
@@ -38,6 +39,9 @@ export const menuRouter = router({
 
 	/** VAT group management (protected - merchant-owned) */
 	vat: vatRouter,
+
+	/** Optimized cross-domain query operations (console/admin) */
+	queries: queriesRouter,
 });
 
 export type MenuRouter = typeof menuRouter;

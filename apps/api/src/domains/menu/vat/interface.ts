@@ -112,4 +112,16 @@ export interface IVatService {
 		vatGroups: VatGroupWithRate[],
 		defaultVatGroupCode?: string,
 	): VatCalculationResult;
+
+	/**
+	 * Create default VAT groups for a merchant based on country.
+	 *
+	 * @param merchantId - Merchant ID
+	 * @param countryCode - ISO alpha-2 country code (e.g., "DE", "AT", "CH")
+	 * @returns Created VAT groups, or empty array if country not supported
+	 */
+	createDefaultVatGroups(
+		merchantId: string,
+		countryCode: string,
+	): Promise<VatGroupWithRate[]>;
 }

@@ -119,6 +119,7 @@ export const categoryRouter = router({
 				translations: input.translations,
 				displayOrder: input.displayOrder,
 				isActive: input.isActive,
+				defaultVatGroupId: input.defaultVatGroupId,
 			};
 
 			try {

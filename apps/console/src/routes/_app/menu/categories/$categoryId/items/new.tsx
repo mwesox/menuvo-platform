@@ -6,7 +6,7 @@ import { PageActionBar } from "@/components/layout/page-action-bar";
 import { ConsoleError } from "@/features/components/console-error";
 import { ItemForm } from "@/features/menu/components/item-form";
 import { getDisplayName } from "@/features/menu/logic/display";
-import { getCategoriesWithItemsQueryOptions } from "@/features/menu/queries";
+import { getCategoriesQueryOptions } from "@/features/menu/queries";
 import {
 	queryClient,
 	trpc,
@@ -28,7 +28,7 @@ export const Route = createFileRoute(
 	loader: async ({ deps, params }) => {
 		await Promise.all([
 			queryClient.ensureQueryData(
-				getCategoriesWithItemsQueryOptions(trpc, trpcClient, deps.storeId),
+				getCategoriesQueryOptions(trpc, trpcClient, deps.storeId),
 			),
 			trpcUtils.store.getById.ensureData({ storeId: deps.storeId }),
 			trpcUtils.menu.categories.getById.ensureData({ id: params.categoryId }),
@@ -46,7 +46,7 @@ function RouteComponent() {
 	const trpcClient = useTRPCClient();
 
 	const { data: categories = [] } = useQuery(
-		getCategoriesWithItemsQueryOptions(trpc, trpcClient, storeId),
+		getCategoriesQueryOptions(trpc, trpcClient, storeId),
 	);
 	const { data: store } = useQuery({
 		...trpc.store.getById.queryOptions({ storeId }),

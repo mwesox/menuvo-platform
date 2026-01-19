@@ -13,6 +13,7 @@ import type {
 	stores,
 } from "@menuvo/db/schema";
 import type { CreateItemInput, UpdateItemInput } from "./types.js";
+import type { ItemValidationResult } from "./validation/index.js";
 
 /**
  * Item option group relation (from junction table)
@@ -24,26 +25,45 @@ export type ItemOptionGroupRelation = typeof itemOptionGroups.$inferSelect & {
 };
 
 /**
+ * Item with validation result
+ */
+export type ItemWithValidation<T> = T & {
+	validation: ItemValidationResult;
+};
+
+/**
  * Items service interface
  */
 export interface IItemsService {
 	listByCategory(
 		categoryId: string,
 	): Promise<
-		(typeof items.$inferSelect & { optGroups: ItemOptionGroupRelation[] })[]
+		ItemWithValidation<
+			typeof items.$inferSelect & { optGroups: ItemOptionGroupRelation[] }
+		>[]
 	>;
-	listByStore(storeId: string): Promise<
-		(typeof items.$inferSelect & {
-			category: typeof categories.$inferSelect;
-			optGroups: ItemOptionGroupRelation[];
-		})[]
+	listByStore(
+		storeId: string,
+		defaultLanguage: string,
+	): Promise<
+		ItemWithValidation<
+			typeof items.$inferSelect & {
+				category: typeof categories.$inferSelect;
+				optGroups: ItemOptionGroupRelation[];
+			}
+		>[]
 	>;
-	getById(itemId: string): Promise<
-		typeof items.$inferSelect & {
-			category: typeof categories.$inferSelect;
-			store: typeof stores.$inferSelect;
-			optGroups: ItemOptionGroupRelation[];
-		}
+	getById(
+		itemId: string,
+		defaultLanguage: string,
+	): Promise<
+		ItemWithValidation<
+			typeof items.$inferSelect & {
+				category: typeof categories.$inferSelect;
+				store: typeof stores.$inferSelect;
+				optGroups: ItemOptionGroupRelation[];
+			}
+		>
 	>;
 	create(
 		storeId: string,
@@ -56,9 +76,9 @@ export interface IItemsService {
 	): Promise<typeof items.$inferSelect>;
 	delete(itemId: string, merchantId: string): Promise<void>;
 	reorder(categoryId: string, itemIds: string[]): Promise<{ success: boolean }>;
-	toggleAvailability(
+	toggleActive(
 		itemId: string,
 		merchantId: string,
-		isAvailable: boolean,
+		isActive: boolean,
 	): Promise<typeof items.$inferSelect>;
 }

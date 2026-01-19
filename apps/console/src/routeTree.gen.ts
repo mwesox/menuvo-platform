@@ -27,8 +27,11 @@ import { Route as AppSettingsPaymentsRouteImport } from './routes/_app/settings/
 import { Route as AppSettingsMerchantRouteImport } from './routes/_app/settings/merchant'
 import { Route as AppOrdersOrderIdRouteImport } from './routes/_app/orders/$orderId'
 import { Route as AppMenuImportRouteImport } from './routes/_app/menu/import'
+import { Route as AppMenuVatIndexRouteImport } from './routes/_app/menu/vat/index'
 import { Route as AppMenuOptionsIndexRouteImport } from './routes/_app/menu/options/index'
 import { Route as PublicAuthMerchantLoginRouteImport } from './routes/_public/auth/merchant/login'
+import { Route as AppMenuVatNewRouteImport } from './routes/_app/menu/vat/new'
+import { Route as AppMenuVatVatGroupIdRouteImport } from './routes/_app/menu/vat/$vatGroupId'
 import { Route as AppMenuOptionsNewRouteImport } from './routes/_app/menu/options/new'
 import { Route as AppMenuOptionsOptionGroupIdRouteImport } from './routes/_app/menu/options/$optionGroupId'
 import { Route as AppMenuCategoriesNewRouteImport } from './routes/_app/menu/categories/new'
@@ -125,6 +128,11 @@ const AppMenuImportRoute = AppMenuImportRouteImport.update({
   path: '/menu/import',
   getParentRoute: () => AppRoute,
 } as any)
+const AppMenuVatIndexRoute = AppMenuVatIndexRouteImport.update({
+  id: '/menu/vat/',
+  path: '/menu/vat/',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppMenuOptionsIndexRoute = AppMenuOptionsIndexRouteImport.update({
   id: '/menu/options/',
   path: '/menu/options/',
@@ -134,6 +142,16 @@ const PublicAuthMerchantLoginRoute = PublicAuthMerchantLoginRouteImport.update({
   id: '/auth/merchant/login',
   path: '/auth/merchant/login',
   getParentRoute: () => PublicRoute,
+} as any)
+const AppMenuVatNewRoute = AppMenuVatNewRouteImport.update({
+  id: '/menu/vat/new',
+  path: '/menu/vat/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMenuVatVatGroupIdRoute = AppMenuVatVatGroupIdRouteImport.update({
+  id: '/menu/vat/$vatGroupId',
+  path: '/menu/vat/$vatGroupId',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppMenuOptionsNewRoute = AppMenuOptionsNewRouteImport.update({
   id: '/menu/options/new',
@@ -196,8 +214,11 @@ export interface FileRoutesByFullPath {
   '/menu/categories/new': typeof AppMenuCategoriesNewRoute
   '/menu/options/$optionGroupId': typeof AppMenuOptionsOptionGroupIdRoute
   '/menu/options/new': typeof AppMenuOptionsNewRoute
+  '/menu/vat/$vatGroupId': typeof AppMenuVatVatGroupIdRoute
+  '/menu/vat/new': typeof AppMenuVatNewRoute
   '/auth/merchant/login': typeof PublicAuthMerchantLoginRoute
   '/menu/options': typeof AppMenuOptionsIndexRoute
+  '/menu/vat': typeof AppMenuVatIndexRoute
   '/menu/categories/$categoryId/edit': typeof AppMenuCategoriesCategoryIdEditRoute
   '/menu/categories/$categoryId': typeof AppMenuCategoriesCategoryIdIndexRoute
   '/menu/categories/$categoryId/items/$itemId': typeof AppMenuCategoriesCategoryIdItemsItemIdRoute
@@ -223,8 +244,11 @@ export interface FileRoutesByTo {
   '/menu/categories/new': typeof AppMenuCategoriesNewRoute
   '/menu/options/$optionGroupId': typeof AppMenuOptionsOptionGroupIdRoute
   '/menu/options/new': typeof AppMenuOptionsNewRoute
+  '/menu/vat/$vatGroupId': typeof AppMenuVatVatGroupIdRoute
+  '/menu/vat/new': typeof AppMenuVatNewRoute
   '/auth/merchant/login': typeof PublicAuthMerchantLoginRoute
   '/menu/options': typeof AppMenuOptionsIndexRoute
+  '/menu/vat': typeof AppMenuVatIndexRoute
   '/menu/categories/$categoryId/edit': typeof AppMenuCategoriesCategoryIdEditRoute
   '/menu/categories/$categoryId': typeof AppMenuCategoriesCategoryIdIndexRoute
   '/menu/categories/$categoryId/items/$itemId': typeof AppMenuCategoriesCategoryIdItemsItemIdRoute
@@ -253,8 +277,11 @@ export interface FileRoutesById {
   '/_app/menu/categories/new': typeof AppMenuCategoriesNewRoute
   '/_app/menu/options/$optionGroupId': typeof AppMenuOptionsOptionGroupIdRoute
   '/_app/menu/options/new': typeof AppMenuOptionsNewRoute
+  '/_app/menu/vat/$vatGroupId': typeof AppMenuVatVatGroupIdRoute
+  '/_app/menu/vat/new': typeof AppMenuVatNewRoute
   '/_public/auth/merchant/login': typeof PublicAuthMerchantLoginRoute
   '/_app/menu/options/': typeof AppMenuOptionsIndexRoute
+  '/_app/menu/vat/': typeof AppMenuVatIndexRoute
   '/_app/menu/categories/$categoryId/edit': typeof AppMenuCategoriesCategoryIdEditRoute
   '/_app/menu/categories/$categoryId/': typeof AppMenuCategoriesCategoryIdIndexRoute
   '/_app/menu/categories/$categoryId/items/$itemId': typeof AppMenuCategoriesCategoryIdItemsItemIdRoute
@@ -282,8 +309,11 @@ export interface FileRouteTypes {
     | '/menu/categories/new'
     | '/menu/options/$optionGroupId'
     | '/menu/options/new'
+    | '/menu/vat/$vatGroupId'
+    | '/menu/vat/new'
     | '/auth/merchant/login'
     | '/menu/options'
+    | '/menu/vat'
     | '/menu/categories/$categoryId/edit'
     | '/menu/categories/$categoryId'
     | '/menu/categories/$categoryId/items/$itemId'
@@ -309,8 +339,11 @@ export interface FileRouteTypes {
     | '/menu/categories/new'
     | '/menu/options/$optionGroupId'
     | '/menu/options/new'
+    | '/menu/vat/$vatGroupId'
+    | '/menu/vat/new'
     | '/auth/merchant/login'
     | '/menu/options'
+    | '/menu/vat'
     | '/menu/categories/$categoryId/edit'
     | '/menu/categories/$categoryId'
     | '/menu/categories/$categoryId/items/$itemId'
@@ -338,8 +371,11 @@ export interface FileRouteTypes {
     | '/_app/menu/categories/new'
     | '/_app/menu/options/$optionGroupId'
     | '/_app/menu/options/new'
+    | '/_app/menu/vat/$vatGroupId'
+    | '/_app/menu/vat/new'
     | '/_public/auth/merchant/login'
     | '/_app/menu/options/'
+    | '/_app/menu/vat/'
     | '/_app/menu/categories/$categoryId/edit'
     | '/_app/menu/categories/$categoryId/'
     | '/_app/menu/categories/$categoryId/items/$itemId'
@@ -479,6 +515,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMenuImportRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/menu/vat/': {
+      id: '/_app/menu/vat/'
+      path: '/menu/vat'
+      fullPath: '/menu/vat'
+      preLoaderRoute: typeof AppMenuVatIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/menu/options/': {
       id: '/_app/menu/options/'
       path: '/menu/options'
@@ -492,6 +535,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/merchant/login'
       preLoaderRoute: typeof PublicAuthMerchantLoginRouteImport
       parentRoute: typeof PublicRoute
+    }
+    '/_app/menu/vat/new': {
+      id: '/_app/menu/vat/new'
+      path: '/menu/vat/new'
+      fullPath: '/menu/vat/new'
+      preLoaderRoute: typeof AppMenuVatNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/menu/vat/$vatGroupId': {
+      id: '/_app/menu/vat/$vatGroupId'
+      path: '/menu/vat/$vatGroupId'
+      fullPath: '/menu/vat/$vatGroupId'
+      preLoaderRoute: typeof AppMenuVatVatGroupIdRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/menu/options/new': {
       id: '/_app/menu/options/new'
@@ -562,7 +619,10 @@ interface AppRouteChildren {
   AppMenuCategoriesNewRoute: typeof AppMenuCategoriesNewRoute
   AppMenuOptionsOptionGroupIdRoute: typeof AppMenuOptionsOptionGroupIdRoute
   AppMenuOptionsNewRoute: typeof AppMenuOptionsNewRoute
+  AppMenuVatVatGroupIdRoute: typeof AppMenuVatVatGroupIdRoute
+  AppMenuVatNewRoute: typeof AppMenuVatNewRoute
   AppMenuOptionsIndexRoute: typeof AppMenuOptionsIndexRoute
+  AppMenuVatIndexRoute: typeof AppMenuVatIndexRoute
   AppMenuCategoriesCategoryIdEditRoute: typeof AppMenuCategoriesCategoryIdEditRoute
   AppMenuCategoriesCategoryIdIndexRoute: typeof AppMenuCategoriesCategoryIdIndexRoute
   AppMenuCategoriesCategoryIdItemsItemIdRoute: typeof AppMenuCategoriesCategoryIdItemsItemIdRoute
@@ -586,7 +646,10 @@ const AppRouteChildren: AppRouteChildren = {
   AppMenuCategoriesNewRoute: AppMenuCategoriesNewRoute,
   AppMenuOptionsOptionGroupIdRoute: AppMenuOptionsOptionGroupIdRoute,
   AppMenuOptionsNewRoute: AppMenuOptionsNewRoute,
+  AppMenuVatVatGroupIdRoute: AppMenuVatVatGroupIdRoute,
+  AppMenuVatNewRoute: AppMenuVatNewRoute,
   AppMenuOptionsIndexRoute: AppMenuOptionsIndexRoute,
+  AppMenuVatIndexRoute: AppMenuVatIndexRoute,
   AppMenuCategoriesCategoryIdEditRoute: AppMenuCategoriesCategoryIdEditRoute,
   AppMenuCategoriesCategoryIdIndexRoute: AppMenuCategoriesCategoryIdIndexRoute,
   AppMenuCategoriesCategoryIdItemsItemIdRoute:

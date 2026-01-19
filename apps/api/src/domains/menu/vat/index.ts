@@ -33,6 +33,14 @@ export {
 } from "./schemas.js";
 // Service
 export { VatService } from "./service.js";
+// Templates
+export {
+	type CountryCode,
+	deriveCountryCode,
+	getVatTemplates,
+	VAT_TEMPLATES,
+	type VatTemplate,
+} from "./templates.js";
 // Types
 export type {
 	CalculatedItemVat,

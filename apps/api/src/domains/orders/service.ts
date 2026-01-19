@@ -664,7 +664,7 @@ export class OrderService implements IOrderService {
 			where: and(
 				inArray(itemsTable.id, itemIds),
 				eq(itemsTable.storeId, storeId),
-				eq(itemsTable.isAvailable, true),
+				eq(itemsTable.isActive, true),
 			),
 			columns: {
 				id: true,

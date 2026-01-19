@@ -23,6 +23,8 @@ export interface OnboardInput {
 		city: string;
 		postalCode: string;
 		country: string;
+		/** ISO alpha-2 country code (e.g., "DE", "AT", "CH"). Derived from country if not provided. */
+		countryCode?: string;
 		timezone?: string;
 		currency?: string;
 	};

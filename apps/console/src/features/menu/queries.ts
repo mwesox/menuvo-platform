@@ -11,32 +11,21 @@ import type { TRPCClient } from "@trpc/client";
 import type { TrpcProxy } from "@/lib/trpc";
 
 /**
- * Category query options factory that combines categories and items.
+ * Category query options factory that fetches categories with items.
+ *
+ * Uses the optimized backend endpoint that performs a single JOIN query
+ * instead of parallel category + items fetches.
  */
-export function getCategoriesWithItemsQueryOptions(
+export function getCategoriesQueryOptions(
 	trpc: TrpcProxy,
 	trpcClient: TRPCClient<AppRouter>,
 	storeId: string,
 ) {
 	return queryOptions({
-		queryKey: [...trpc.menu.categories.list.queryKey({ storeId }), "withItems"],
+		queryKey: trpc.menu.queries.getCategories.queryKey({ storeId }),
 		queryFn: async () => {
-			const [categories, items] = await Promise.all([
-				trpcClient.menu.categories.list.query({ storeId }),
-				trpcClient.menu.items.listByStore.query({ storeId }),
-			]);
-
-			// Combine categories with their items
-			return categories.map((category) => ({
-				...category,
-				items: items
-					.filter((item) => item.categoryId === category.id)
-					.map((item) => ({
-						id: item.id,
-						isAvailable: item.isAvailable,
-						imageUrl: item.imageUrl,
-					})),
-			}));
+			// Single API call - categories already include items via Drizzle JOIN
+			return trpcClient.menu.queries.getCategories.query({ storeId });
 		},
 		enabled: !!storeId,
 	});

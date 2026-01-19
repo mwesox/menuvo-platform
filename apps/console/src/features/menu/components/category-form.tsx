@@ -7,6 +7,7 @@ import {
 	CardHeader,
 	CardTitle,
 	Field,
+	FieldDescription,
 	FieldError,
 	FieldGroup,
 	FieldLabel,
@@ -18,16 +19,13 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { useEffect } from "react";
+import { Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { getLocalizedContent } from "../logic/localization";
-import {
-	type CategoryFormInput,
-	categoryFormSchema,
-	formToTranslations,
-} from "../schemas";
+import { categoryFormSchema, formToTranslations } from "../schemas";
+import { VatGroupSelector } from "./vat-group-selector";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type Category = NonNullable<RouterOutput["menu"]["categories"]["getById"]>;
@@ -50,6 +48,11 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 	const trpcClient = useTRPCClient();
 	const queryClient = useQueryClient();
 	const { t: tToasts } = useTranslation("toasts");
+
+	// Get initial values from category data (for edit mode)
+	const initialContent = category
+		? getLocalizedContent(category.translations, language, language)
+		: { name: "", description: "" };
 
 	type RouterInput = inferRouterInputs<AppRouter>;
 	type CreateCategoryInput = RouterInput["menu"]["categories"]["create"];
@@ -96,9 +99,10 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 
 	const form = useForm({
 		defaultValues: {
-			name: "",
-			description: "",
-		} satisfies CategoryFormInput,
+			name: initialContent.name,
+			description: initialContent.description ?? "",
+			defaultVatGroupId: category?.defaultVatGroupId ?? null,
+		},
 		validators: {
 			onSubmit: categoryFormSchema,
 		},
@@ -113,10 +117,12 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 				await updateMutation.mutateAsync({
 					id: category.id,
 					translations,
+					defaultVatGroupId: value.defaultVatGroupId,
 				});
 			} else {
 				await createMutation.mutateAsync({
 					translations,
+					defaultVatGroupId: value.defaultVatGroupId ?? undefined,
 				});
 			}
 
@@ -127,19 +133,6 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 			});
 		},
 	});
-
-	// Populate form when editing
-	useEffect(() => {
-		if (category) {
-			const { name, description } = getLocalizedContent(
-				category.translations,
-				language,
-				language,
-			);
-			form.setFieldValue("name", name);
-			form.setFieldValue("description", description ?? "");
-		}
-	}, [category]);
 
 	return (
 		<Card>
@@ -212,6 +205,30 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 									</Field>
 								);
 							}}
+						</form.Field>
+
+						<form.Field name="defaultVatGroupId">
+							{(field) => (
+								<Field>
+									<FieldLabel htmlFor="category-vat-group">
+										{t("vat.labels.vatGroup")}
+									</FieldLabel>
+									<Suspense
+										fallback={
+											<div className="h-10 animate-pulse rounded-md bg-muted" />
+										}
+									>
+										<VatGroupSelector
+											value={field.state.value}
+											onChange={(value) => field.handleChange(value)}
+											showClearOption
+										/>
+									</Suspense>
+									<FieldDescription>
+										{t("vat.hints.defaultVatGroup")}
+									</FieldDescription>
+								</Field>
+							)}
 						</form.Field>
 					</FieldGroup>
 

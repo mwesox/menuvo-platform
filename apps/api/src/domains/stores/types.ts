@@ -23,6 +23,8 @@ export interface CreateStoreInput {
 	// Settings - optional, defaults applied by service/database
 	timezone?: string;
 	currency?: string;
+	/** ISO alpha-2 country code (e.g., "DE", "AT", "CH"). Used for VAT calculation. */
+	countryCode?: string;
 }
 
 /**

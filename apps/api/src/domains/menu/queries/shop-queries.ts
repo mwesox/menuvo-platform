@@ -35,7 +35,7 @@ export async function getMenuDataForShop(db: Database, storeSlug: string) {
 				orderBy: [asc(categories.displayOrder)],
 				with: {
 					items: {
-						where: eq(items.isAvailable, true),
+						where: eq(items.isActive, true),
 						orderBy: [asc(items.displayOrder)],
 						with: {
 							optGroups: true,
@@ -53,7 +53,7 @@ export async function getMenuDataForShop(db: Database, storeSlug: string) {
  */
 export async function getItemDetailsDataForShop(db: Database, itemId: string) {
 	const item = await db.query.items.findFirst({
-		where: and(eq(items.id, itemId), eq(items.isAvailable, true)),
+		where: and(eq(items.id, itemId), eq(items.isActive, true)),
 		with: {
 			store: {
 				columns: {

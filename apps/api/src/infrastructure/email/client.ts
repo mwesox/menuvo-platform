@@ -1,21 +1,26 @@
-import {
-	TransactionalEmailsApi,
-	TransactionalEmailsApiApiKeys,
-} from "@getbrevo/brevo";
-import { getApiKey } from "./config";
+import { createTransport, type Transporter } from "nodemailer";
+import { getSmtpConfig } from "./config";
 
-let brevoClient: TransactionalEmailsApi | null = null;
+let transporter: Transporter | null = null;
 
 /**
- * Get the Brevo transactional email client instance (singleton).
- * Uses API key authentication.
+ * Get the nodemailer transporter instance (singleton).
+ * Uses SMTP authentication.
  *
- * @throws Error if BREVO_API_KEY is not configured
+ * @throws Error if SMTP credentials are not configured
  */
-export function getBrevoClient(): TransactionalEmailsApi {
-	if (!brevoClient) {
-		brevoClient = new TransactionalEmailsApi();
-		brevoClient.setApiKey(TransactionalEmailsApiApiKeys.apiKey, getApiKey());
+export function getEmailTransporter(): Transporter {
+	if (!transporter) {
+		const config = getSmtpConfig();
+		transporter = createTransport({
+			host: config.host,
+			port: config.port,
+			secure: config.port === 465,
+			auth: {
+				user: config.user,
+				pass: config.password,
+			},
+		});
 	}
-	return brevoClient;
+	return transporter;
 }

@@ -8,11 +8,20 @@ export const EMAIL_CONFIG = {
 	SENDER_NAME: "Menuvo",
 } as const;
 
-/** Get the Brevo API Key */
-export function getApiKey(): string {
-	const apiKey = env.BREVO_API_KEY;
-	if (!apiKey) {
-		throw new Error("BREVO_API_KEY is not configured");
+/** Get the SMTP configuration */
+export function getSmtpConfig() {
+	const host = env.SMTP_HOST;
+	const user = env.SMTP_USER;
+	const password = env.SMTP_PASSWORD;
+
+	if (!host || !user || !password) {
+		throw new Error("SMTP credentials are not configured");
 	}
-	return apiKey;
+
+	return {
+		host,
+		port: env.SMTP_PORT,
+		user,
+		password,
+	};
 }

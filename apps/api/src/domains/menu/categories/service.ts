@@ -5,6 +5,7 @@
  */
 
 import type { Database } from "@menuvo/db";
+import { generateOrderKey, generateOrderKeys } from "../../../lib/ordering.js";
 import {
 	ForbiddenError,
 	NotFoundError,
@@ -14,10 +15,10 @@ import type { ICategoriesService } from "./interface.js";
 import {
 	deleteCategory,
 	findCategoriesByStoreId,
-	findCategoriesForOrdering,
 	findCategoryById,
 	findCategoryIdsByStoreId,
 	findCategoryWithStore,
+	findLastCategoryOrder,
 	findStoreById,
 	insertCategory,
 	reorderCategoriesInTransaction,
@@ -59,19 +60,9 @@ export class CategoriesService implements ICategoriesService {
 			);
 		}
 
-		// Get max displayOrder if not provided
-		let displayOrder = input.displayOrder;
-		if (displayOrder === undefined) {
-			const existingCategories = await findCategoriesForOrdering(
-				this.db,
-				input.storeId,
-			);
-			const maxOrder = existingCategories.reduce(
-				(max, cat) => Math.max(max, cat.displayOrder),
-				-1,
-			);
-			displayOrder = maxOrder + 1;
-		}
+		// Get last category's order key for fractional indexing
+		const lastCategory = await findLastCategoryOrder(this.db, input.storeId);
+		const displayOrder = generateOrderKey(lastCategory?.displayOrder ?? null);
 
 		const newCategory = await insertCategory(this.db, {
 			storeId: input.storeId,
@@ -109,16 +100,14 @@ export class CategoriesService implements ICategoriesService {
 		// Build update object with only defined fields
 		const updateData: {
 			translations?: Record<string, { name: string; description?: string }>;
-			displayOrder?: number;
+			displayOrder?: string;
 			isActive?: boolean;
 			defaultVatGroupId?: string | null;
 		} = {};
 		if (input.translations !== undefined) {
 			updateData.translations = input.translations;
 		}
-		if (input.displayOrder !== undefined) {
-			updateData.displayOrder = input.displayOrder;
-		}
+		// Note: displayOrder from input is ignored - use reorder() for ordering changes
 		if (input.isActive !== undefined) {
 			updateData.isActive = input.isActive;
 		}
@@ -173,10 +162,11 @@ export class CategoriesService implements ICategoriesService {
 			);
 		}
 
-		// Update displayOrder in a transaction
+		// Generate new fractional keys for all categories in new order
+		const orderKeys = generateOrderKeys(null, categoryIds.length);
 		const updates = categoryIds.map((categoryId, index) => ({
 			categoryId,
-			displayOrder: index,
+			displayOrder: orderKeys[index]!,
 		}));
 
 		await reorderCategoriesInTransaction(this.db, updates);

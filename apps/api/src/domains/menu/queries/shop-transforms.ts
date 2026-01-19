@@ -10,7 +10,7 @@ import { getTranslatedDescription, getTranslatedName } from "../utils.js";
 
 // Type inferred from query result
 type StoreWithMenuRelations = NonNullable<
-	Awaited<ReturnType<typeof import("./queries.js").getMenuDataForShop>>
+	Awaited<ReturnType<typeof import("./shop-queries.js").getMenuDataForShop>>
 >;
 
 /**
@@ -72,7 +72,9 @@ export function transformMenuToShop(
 
 // Type inferred from query result
 type ItemDetailsQueryResult = NonNullable<
-	Awaited<ReturnType<typeof import("./queries.js").getItemDetailsDataForShop>>
+	Awaited<
+		ReturnType<typeof import("./shop-queries.js").getItemDetailsDataForShop>
+	>
 >;
 type ItemWithRelations = ItemDetailsQueryResult["item"];
 type ItemOptionGroupsWithRelations =

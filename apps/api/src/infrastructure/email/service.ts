@@ -1,11 +1,10 @@
-import { SendSmtpEmail } from "@getbrevo/brevo";
 import { emailLogger } from "../../lib/logger";
-import { getBrevoClient } from "./client";
+import { getEmailTransporter } from "./client";
 import { EMAIL_CONFIG } from "./config";
 import type { SendEmailOptions } from "./types";
 
 /**
- * Send an email using Brevo transactional email API.
+ * Send an email using nodemailer SMTP.
  * Uses noreply@menuvo.app as the sender address.
  *
  * @param options - Email options (to, subject, htmlBody)
@@ -19,18 +18,14 @@ export async function sendEmail({
 	const startTime = Date.now();
 
 	try {
-		const client = getBrevoClient();
+		const transporter = getEmailTransporter();
 
-		const message = new SendSmtpEmail();
-		message.sender = {
-			email: EMAIL_CONFIG.SENDER_EMAIL,
-			name: EMAIL_CONFIG.SENDER_NAME,
-		};
-		message.to = [{ email: to }];
-		message.subject = subject;
-		message.htmlContent = htmlBody;
-
-		await client.sendTransacEmail(message);
+		await transporter.sendMail({
+			from: `"${EMAIL_CONFIG.SENDER_NAME}" <${EMAIL_CONFIG.SENDER_EMAIL}>`,
+			to,
+			subject,
+			html: htmlBody,
+		});
 
 		const duration = Date.now() - startTime;
 		emailLogger.info({ to, subject, duration }, "Email sent successfully");

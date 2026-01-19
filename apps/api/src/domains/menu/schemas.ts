@@ -69,7 +69,7 @@ export const publicCategorySchema = z.object({
 	id: z.string().uuid(),
 	name: z.string(),
 	description: z.string().nullable(),
-	displayOrder: z.number(),
+	displayOrder: z.string(),
 });
 
 export type PublicCategory = z.infer<typeof publicCategorySchema>;
@@ -85,7 +85,7 @@ export const publicItemSchema = z.object({
 	price: z.number().int(),
 	imageUrl: z.string().nullable(),
 	allergens: z.array(z.string()).nullable(),
-	displayOrder: z.number(),
+	displayOrder: z.string(),
 	hasOptionGroups: z.boolean(),
 });
 

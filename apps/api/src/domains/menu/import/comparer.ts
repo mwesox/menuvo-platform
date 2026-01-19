@@ -6,7 +6,6 @@
 
 import type {
 	CategoryComparison,
-	DiffAction,
 	ExistingMenuData,
 	ExtractedCategory,
 	ExtractedItem,
@@ -18,31 +17,35 @@ import type {
 	OptionGroupComparison,
 } from "./types";
 
-// Match thresholds
-const THRESHOLD_EXACT = 0.95;
+// Match threshold for option groups (still uses Levenshtein)
 const THRESHOLD_UPDATE = 0.7;
 
 /**
+ * Normalize null/undefined to undefined for consistent comparison.
+ * Fixes false positives when comparing null vs undefined.
+ */
+function normalizeNullable<T>(value: T | null | undefined): T | undefined {
+	return value === null ? undefined : value;
+}
+
+/**
  * Calculate Levenshtein distance between two strings.
+ * Used for option group matching (categories/items use AI matching).
  */
 function levenshteinDistance(a: string, b: string): number {
-	// Initialize matrix with proper dimensions
 	const rows = a.length + 1;
 	const cols = b.length + 1;
 	const matrix: number[][] = Array.from({ length: rows }, () =>
 		Array.from({ length: cols }, () => 0),
 	);
 
-	// Fill first column
 	for (let i = 0; i < rows; i++) {
 		(matrix[i] as number[])[0] = i;
 	}
-	// Fill first row
 	for (let j = 0; j < cols; j++) {
 		(matrix[0] as number[])[j] = j;
 	}
 
-	// Calculate distances
 	for (let i = 1; i < rows; i++) {
 		for (let j = 1; j < cols; j++) {
 			const cost = a[i - 1] === b[j - 1] ? 0 : 1;
@@ -61,6 +64,7 @@ function levenshteinDistance(a: string, b: string): number {
 
 /**
  * Calculate similarity score between two strings (0-1).
+ * Used for option group matching (categories/items use AI matching).
  */
 function calculateSimilarity(str1: string, str2: string): number {
 	const s1 = str1.toLowerCase().trim();
@@ -76,30 +80,11 @@ function calculateSimilarity(str1: string, str2: string): number {
 }
 
 /**
- * Calculate match score for items (name + price weighted).
+ * VAT group reference for comparison mapping.
  */
-function calculateItemMatchScore(
-	extracted: { name: string; price: number },
-	existing: { name: string; price: number },
-): number {
-	const nameScore = calculateSimilarity(extracted.name, existing.name);
-
-	if (nameScore > 0.9) return nameScore;
-
-	const priceDiff = Math.abs(extracted.price - existing.price);
-	const priceScore =
-		existing.price > 0 ? Math.max(0, 1 - priceDiff / existing.price) : 0;
-
-	return nameScore * 0.8 + priceScore * 0.2;
-}
-
-/**
- * Determine action based on match score.
- */
-function determineAction(score: number, hasChanges: boolean): DiffAction {
-	if (score >= THRESHOLD_EXACT && !hasChanges) return "skip";
-	if (score >= THRESHOLD_UPDATE) return "update";
-	return "create";
+interface VatGroupRef {
+	code: string;
+	id: string;
 }
 
 /**
@@ -108,10 +93,15 @@ function determineAction(score: number, hasChanges: boolean): DiffAction {
 export function compareMenus(
 	extracted: ExtractedMenuData,
 	existing: ExistingMenuData,
+	vatGroups?: VatGroupRef[],
 ): MenuComparisonData {
+	// Build VAT code to ID mapping for comparison
+	const vatCodeToIdMap = new Map(vatGroups?.map((v) => [v.code, v.id]) ?? []);
+
 	const categoryComparisons = compareCategories(
 		extracted.categories,
 		existing.categories,
+		vatCodeToIdMap,
 	);
 	const optionGroupComparisons = compareOptionGroups(
 		extracted.optionGroups,
@@ -151,89 +141,180 @@ export function compareMenus(
 }
 
 /**
+ * Flatten all existing items with their category info for cross-category matching.
+ */
+function getAllExistingItems(existing: ExistingMenuData["categories"]) {
+	return existing.flatMap((cat) =>
+		cat.items.map((item) => ({
+			...item,
+			categoryId: cat.id,
+			categoryName: cat.name,
+		})),
+	);
+}
+
+/**
  * Compare extracted categories with existing.
+ * Uses AI's existingCategoryId for matching instead of Levenshtein distance.
  */
 function compareCategories(
 	extracted: ExtractedCategory[],
 	existing: ExistingMenuData["categories"],
+	vatCodeToIdMap: Map<string, string>,
 ): CategoryComparison[] {
-	return extracted.map((extCat) => {
-		let bestMatch: (typeof existing)[0] | undefined;
-		let bestScore = 0;
+	// Get all existing items for cross-category item matching
+	const allExistingItems = getAllExistingItems(existing);
 
-		for (const exCat of existing) {
-			const score = calculateSimilarity(extCat.name, exCat.name);
-			if (score > bestScore) {
-				bestScore = score;
-				bestMatch = exCat;
+	return extracted.map((extCat) => {
+		// Use AI's matched category ID if provided
+		const matchedCategory = extCat.existingCategoryId
+			? existing.find((e) => e.id === extCat.existingCategoryId)
+			: null;
+
+		// Compare items against all existing items (AI does cross-category matching)
+		const itemComparisons = compareItems(
+			extCat.items,
+			allExistingItems,
+			vatCodeToIdMap,
+		);
+
+		// Track category-level changes
+		const categoryChanges: FieldChange[] = [];
+		if (matchedCategory) {
+			// Check VAT group change (convert code to ID for comparison)
+			const newDefaultVatId = extCat.defaultVatGroupCode
+				? vatCodeToIdMap.get(extCat.defaultVatGroupCode)
+				: null;
+			if (
+				normalizeNullable(matchedCategory.defaultVatGroupId) !==
+				normalizeNullable(newDefaultVatId)
+			) {
+				categoryChanges.push({
+					field: "defaultVatGroupId",
+					oldValue: matchedCategory.defaultVatGroupId,
+					newValue: newDefaultVatId,
+				});
 			}
 		}
 
-		const existingItems = bestMatch?.items || [];
-		const itemComparisons = compareItems(extCat.items, existingItems);
-
-		const hasChanges = itemComparisons.some((i) => i.action !== "skip");
-		const action = determineAction(bestScore, !hasChanges);
+		const hasChanges =
+			itemComparisons.some((i) => i.action !== "skip") ||
+			categoryChanges.length > 0;
+		const matchScore = matchedCategory ? 1.0 : 0;
+		const action = matchedCategory
+			? hasChanges
+				? "update"
+				: "skip"
+			: "create";
 
 		return {
 			extracted: extCat,
-			existingId: bestMatch?.id,
-			existingName: bestMatch?.name,
+			existingId: matchedCategory?.id,
+			existingName: matchedCategory?.name,
 			action,
-			matchScore: bestScore,
+			matchScore,
 			items: itemComparisons,
 		};
 	});
 }
 
+/** Item with category context from flattening */
+type ExistingItemWithCategory =
+	ExistingMenuData["categories"][0]["items"][0] & {
+		categoryId: string;
+		categoryName: string;
+	};
+
 /**
  * Compare extracted items with existing.
+ * Uses AI's existingItemId for matching instead of Levenshtein distance.
  */
 function compareItems(
 	extracted: ExtractedItem[],
-	existing: ExistingMenuData["categories"][0]["items"],
+	allExistingItems: ExistingItemWithCategory[],
+	vatCodeToIdMap: Map<string, string>,
 ): ItemComparison[] {
 	return extracted.map((extItem) => {
-		let bestMatch: (typeof existing)[0] | undefined;
-		let bestScore = 0;
-
-		for (const exItem of existing) {
-			const score = calculateItemMatchScore(
-				{ name: extItem.name, price: extItem.price },
-				{ name: exItem.name, price: exItem.price },
-			);
-			if (score > bestScore) {
-				bestScore = score;
-				bestMatch = exItem;
-			}
-		}
+		// Use AI's matched item ID if provided
+		const matchedItem = extItem.existingItemId
+			? allExistingItems.find((e) => e.id === extItem.existingItemId)
+			: null;
 
 		const changes: FieldChange[] = [];
-		if (bestMatch) {
-			if (extItem.price !== bestMatch.price) {
+		if (matchedItem) {
+			// Price change
+			if (extItem.price !== matchedItem.price) {
 				changes.push({
 					field: "price",
-					oldValue: bestMatch.price,
+					oldValue: matchedItem.price,
 					newValue: extItem.price,
 				});
 			}
-			if (extItem.description !== (bestMatch.description || undefined)) {
+
+			// Name change
+			if (extItem.name !== matchedItem.name) {
+				changes.push({
+					field: "name",
+					oldValue: matchedItem.name,
+					newValue: extItem.name,
+				});
+			}
+
+			// Description change (normalize null/undefined)
+			const oldDesc = normalizeNullable(matchedItem.description);
+			const newDesc = normalizeNullable(extItem.description);
+			if (oldDesc !== newDesc) {
 				changes.push({
 					field: "description",
-					oldValue: bestMatch.description,
+					oldValue: matchedItem.description,
 					newValue: extItem.description,
+				});
+			}
+
+			// Allergens change (compare as sorted JSON)
+			const oldAllergens = JSON.stringify(
+				[...(matchedItem.allergens ?? [])].sort(),
+			);
+			const newAllergens = JSON.stringify(
+				[...(extItem.allergens ?? [])].sort(),
+			);
+			if (oldAllergens !== newAllergens) {
+				changes.push({
+					field: "allergens",
+					oldValue: matchedItem.allergens,
+					newValue: extItem.allergens,
+				});
+			}
+
+			// VAT change (convert code to ID for comparison)
+			const newVatId = extItem.vatGroupCode
+				? vatCodeToIdMap.get(extItem.vatGroupCode)
+				: null;
+			if (
+				normalizeNullable(matchedItem.vatGroupId) !==
+				normalizeNullable(newVatId)
+			) {
+				changes.push({
+					field: "vatGroupId",
+					oldValue: matchedItem.vatGroupId,
+					newValue: newVatId,
 				});
 			}
 		}
 
-		const action = determineAction(bestScore, changes.length > 0);
+		const matchScore = matchedItem ? 1.0 : 0;
+		const action = matchedItem
+			? changes.length > 0
+				? "update"
+				: "skip"
+			: "create";
 
 		return {
 			extracted: extItem,
-			existingId: bestMatch?.id,
-			existingName: bestMatch?.name,
+			existingId: matchedItem?.id,
+			existingName: matchedItem?.name,
 			action,
-			matchScore: bestScore,
+			matchScore,
 			changes: changes.length > 0 ? changes : undefined,
 		};
 	});
@@ -241,6 +322,7 @@ function compareItems(
 
 /**
  * Compare extracted option groups with existing.
+ * Still uses Levenshtein matching (not AI matching).
  */
 function compareOptionGroups(
 	extracted: ExtractedOptionGroup[],
@@ -258,7 +340,9 @@ function compareOptionGroups(
 			}
 		}
 
-		const action = determineAction(bestScore, false);
+		// Determine action based on match score
+		const action =
+			bestScore >= THRESHOLD_UPDATE && bestMatch ? "update" : "create";
 
 		return {
 			extracted: extGroup,

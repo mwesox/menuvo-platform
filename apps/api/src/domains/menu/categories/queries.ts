@@ -21,7 +21,7 @@ export async function findCategoriesByStoreId(db: Database, storeId: string) {
 			items: {
 				columns: {
 					id: true,
-					isAvailable: true,
+					isActive: true,
 					imageUrl: true,
 				},
 			},
@@ -43,7 +43,7 @@ export async function findCategoryById(db: Database, categoryId: string) {
 					translations: true,
 					price: true,
 					imageUrl: true,
-					isAvailable: true,
+					isActive: true,
 				},
 			},
 		},
@@ -62,12 +62,13 @@ export async function findStoreById(db: Database, storeId: string) {
 }
 
 /**
- * Find categories by store ID for ordering calculation
- * Returns only displayOrder column to calculate max order
+ * Find the last category's order key for fractional indexing
+ * Returns only displayOrder column of the last category (by order)
  */
-export async function findCategoriesForOrdering(db: Database, storeId: string) {
-	return db.query.categories.findMany({
+export async function findLastCategoryOrder(db: Database, storeId: string) {
+	return db.query.categories.findFirst({
 		where: eq(categories.storeId, storeId),
+		orderBy: (categories, { desc }) => [desc(categories.displayOrder)],
 		columns: { displayOrder: true },
 	});
 }
@@ -81,7 +82,7 @@ export async function insertCategory(
 	data: {
 		storeId: string;
 		translations: Record<string, { name: string; description?: string }>;
-		displayOrder: number;
+		displayOrder: string;
 		isActive: boolean;
 		defaultVatGroupId?: string | null;
 	},
@@ -124,7 +125,7 @@ export async function updateCategory(
 	categoryId: string,
 	data: {
 		translations?: Record<string, { name: string; description?: string }>;
-		displayOrder?: number;
+		displayOrder?: string;
 		isActive?: boolean;
 		defaultVatGroupId?: string | null;
 	},
@@ -162,7 +163,7 @@ export async function findCategoryIdsByStoreId(db: Database, storeId: string) {
  */
 export async function reorderCategoriesInTransaction(
 	db: Database,
-	updates: Array<{ categoryId: string; displayOrder: number }>,
+	updates: Array<{ categoryId: string; displayOrder: string }>,
 ) {
 	await db.transaction(async (tx) => {
 		const updatePromises = updates.map(({ categoryId, displayOrder }) =>

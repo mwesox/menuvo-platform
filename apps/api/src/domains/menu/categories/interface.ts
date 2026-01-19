@@ -12,7 +12,7 @@ import type { CreateCategoryInput, UpdateCategoryInput } from "./types.js";
  */
 export type CategoryItemSummary = Pick<
 	typeof items.$inferSelect,
-	"id" | "isAvailable" | "imageUrl"
+	"id" | "isActive" | "imageUrl"
 >;
 
 /**
@@ -20,7 +20,7 @@ export type CategoryItemSummary = Pick<
  */
 export type CategoryItemDetail = Pick<
 	typeof items.$inferSelect,
-	"id" | "translations" | "price" | "imageUrl" | "isAvailable"
+	"id" | "translations" | "price" | "imageUrl" | "isActive"
 >;
 
 /**

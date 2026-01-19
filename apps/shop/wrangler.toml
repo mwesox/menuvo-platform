@@ -10,9 +10,6 @@ pages_build_output_dir = "dist"
 [vars]
 VITE_API_URL = "https://api.menuvo.app"
 
-# Additional vars set in Cloudflare Dashboard:
-#   VITE_STRIPE_PUBLISHABLE_KEY = pk_live_xxx
-
 [env.production]
 name = "menuvo-shop"
 

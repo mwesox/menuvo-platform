@@ -86,7 +86,6 @@ export const optionRouter = router({
 						numFreeOptions: input.numFreeOptions,
 						aggregateMinQuantity: input.aggregateMinQuantity,
 						aggregateMaxQuantity: input.aggregateMaxQuantity,
-						displayOrder: input.displayOrder,
 					},
 				);
 			} catch (error) {
@@ -267,7 +266,6 @@ export const optionRouter = router({
 						isDefault: input.isDefault,
 						minQuantity: input.minQuantity,
 						maxQuantity: input.maxQuantity,
-						displayOrder: input.displayOrder,
 					},
 				);
 			} catch (error) {

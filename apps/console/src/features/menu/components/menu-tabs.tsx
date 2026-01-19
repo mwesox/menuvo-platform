@@ -16,6 +16,8 @@ export function MenuTabs({ storeId }: MenuTabsProps) {
 		currentPath === "/menu/" ||
 		currentPath.startsWith("/menu/categories");
 	const isOptions = currentPath.startsWith("/menu/options");
+	const isVat = currentPath.startsWith("/menu/vat");
+	const isImport = currentPath.startsWith("/menu/import");
 
 	return (
 		<div className="border-b">
@@ -43,6 +45,30 @@ export function MenuTabs({ storeId }: MenuTabsProps) {
 					)}
 				>
 					{t("titles.optionGroups")}
+				</Link>
+				<Link
+					to="/menu/vat"
+					search={{ storeId }}
+					className={cn(
+						"border-b-2 px-1 py-3 font-medium text-sm transition-colors",
+						isVat
+							? "border-primary text-foreground"
+							: "border-transparent text-muted-foreground hover:border-muted-foreground/30 hover:text-foreground",
+					)}
+				>
+					{t("vat.titles.vatGroups")}
+				</Link>
+				<Link
+					to="/menu/import"
+					search={{ storeId }}
+					className={cn(
+						"border-b-2 px-1 py-3 font-medium text-sm transition-colors",
+						isImport
+							? "border-primary text-foreground"
+							: "border-transparent text-muted-foreground hover:border-muted-foreground/30 hover:text-foreground",
+					)}
+				>
+					{t("titles.aiDataImport")}
 				</Link>
 			</nav>
 		</div>

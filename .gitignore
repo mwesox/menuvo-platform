@@ -34,6 +34,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# AI Import Debug Logs (dev only)
+.ai-import-logs/
+
 # Misc
 .DS_Store
 *.pem

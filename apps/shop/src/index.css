@@ -108,6 +108,12 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
+	/* Prevent window-level scrolling - app uses nested scroll container */
+	html,
+	body {
+		@apply overflow-hidden;
+		height: 100%;
+	}
 	body {
 		@apply m-0 bg-background text-foreground;
 		font-family: var(--font-body);

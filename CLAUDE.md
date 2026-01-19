@@ -4,6 +4,8 @@
 
 Before writing code, read: `docs/architecture.md` and `docs/coding-guidelines.md`
 
+For API integration tests, read: `apps/api/src/test/README.md`
+
 ## Rules
 
 - **Domain**: `menuvo.app` (not menuvo.de)

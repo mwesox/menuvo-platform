@@ -4,7 +4,10 @@
  * Uses OpenRouter AI to extract structured menu data from text.
  */
 
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { z } from "zod/v4";
+import { env } from "../../../env.js";
 import {
 	chat,
 	generateStructured,
@@ -13,6 +16,73 @@ import { logger } from "../../../lib/logger.js";
 import type { ExtractedMenuData, ModelConfig } from "./types";
 
 const menuImportLogger = logger.child({ service: "menu-import" });
+
+// ============================================================================
+// Debug Logging (Development Only)
+// ============================================================================
+
+const DEBUG_LOG_DIR = ".ai-import-logs";
+
+/**
+ * Generate a unique session ID for this import run.
+ */
+function generateSessionId(): string {
+	const now = new Date();
+	const timestamp = now.toISOString().replace(/[:.]/g, "-");
+	const random = Math.random().toString(36).slice(2, 8);
+	return `${timestamp}_${random}`;
+}
+
+/**
+ * Write debug log to filesystem (development only).
+ */
+function writeDebugLog(
+	sessionId: string,
+	stage: string,
+	content: string,
+): void {
+	if (env.NODE_ENV !== "development") return;
+
+	try {
+		// Ensure directory exists
+		if (!existsSync(DEBUG_LOG_DIR)) {
+			mkdirSync(DEBUG_LOG_DIR, { recursive: true });
+		}
+
+		const filename = `${sessionId}.log`;
+		const filepath = join(DEBUG_LOG_DIR, filename);
+
+		const timestamp = new Date().toISOString();
+		const logEntry = `\n${"=".repeat(80)}\n[${timestamp}] ${stage}\n${"=".repeat(80)}\n${content}\n`;
+
+		// Append to file
+		writeFileSync(filepath, logEntry, { flag: "a" });
+
+		menuImportLogger.debug({ filepath, stage }, "Debug log written");
+	} catch (error) {
+		menuImportLogger.warn(
+			{ error, stage },
+			"Failed to write debug log (non-critical)",
+		);
+	}
+}
+
+/** Current session ID for this extraction run */
+let currentSessionId: string | null = null;
+
+/**
+ * Start a new debug session for an import run.
+ */
+function startDebugSession(): string {
+	currentSessionId = generateSessionId();
+	if (env.NODE_ENV === "development") {
+		menuImportLogger.info(
+			{ sessionId: currentSessionId, logDir: DEBUG_LOG_DIR },
+			"AI Import debug session started",
+		);
+	}
+	return currentSessionId;
+}
 
 const CHUNK_SIZE_CHARS = 50000;
 
@@ -24,6 +94,8 @@ const aiMenuExtractionSchema = z.object({
 		z.object({
 			name: z.string().min(1),
 			description: z.string().optional(),
+			existingCategoryId: z.string().nullable().optional(), // AI's category match
+			defaultVatGroupCode: z.string().nullable().optional(), // VAT for category
 			items: z.array(
 				z.object({
 					name: z.string().min(1),
@@ -31,6 +103,8 @@ const aiMenuExtractionSchema = z.object({
 					price: z.number().min(0), // In cents
 					allergens: z.array(z.string()).optional(),
 					categoryName: z.string().min(1),
+					existingItemId: z.string().nullable().optional(), // AI's item match
+					vatGroupCode: z.string().nullable().optional(), // VAT for item (only if different from category)
 				}),
 			),
 		}),
@@ -55,7 +129,49 @@ const aiMenuExtractionSchema = z.object({
 
 type AIMenuExtraction = z.infer<typeof aiMenuExtractionSchema>;
 
-const SYSTEM_PROMPT = `You are a menu extraction assistant. Your ONLY task is to extract restaurant menu items from the provided text.
+/**
+ * Context for validating AI extraction results against known entities.
+ */
+interface ValidationContext {
+	categoryIds: Set<string>;
+	itemIds: Set<string>;
+	vatCodes: Set<string>;
+}
+
+/**
+ * Validate and sanitize AI extraction results.
+ * Ensures AI-returned IDs actually exist in the database.
+ */
+function validateAndSanitizeExtraction(
+	extraction: AIMenuExtraction,
+	context: ValidationContext,
+): AIMenuExtraction {
+	return {
+		...extraction,
+		categories: extraction.categories.map((cat) => ({
+			...cat,
+			// Validate category ID exists, else null
+			existingCategoryId: context.categoryIds.has(cat.existingCategoryId ?? "")
+				? cat.existingCategoryId
+				: null,
+			// Validate VAT code exists, else null
+			defaultVatGroupCode: context.vatCodes.has(cat.defaultVatGroupCode ?? "")
+				? cat.defaultVatGroupCode
+				: null,
+			items: cat.items.map((item) => ({
+				...item,
+				existingItemId: context.itemIds.has(item.existingItemId ?? "")
+					? item.existingItemId
+					: null,
+				vatGroupCode: context.vatCodes.has(item.vatGroupCode ?? "")
+					? item.vatGroupCode
+					: null,
+			})),
+		})),
+	};
+}
+
+const SYSTEM_PROMPT = `You are a menu extraction assistant. Your task is to extract restaurant menu items from the provided text AND match them with existing menu data when provided.
 
 SECURITY RULES (CRITICAL - NEVER VIOLATE):
 - ONLY output valid JSON matching the schema below
@@ -70,13 +186,17 @@ OUTPUT SCHEMA:
     {
       "name": "Category Name",
       "description": "optional description",
+      "existingCategoryId": "uuid-or-null",
+      "defaultVatGroupCode": "vat-code-or-null",
       "items": [
         {
           "name": "Item Name",
           "description": "optional description",
           "price": 999,
           "allergens": ["gluten", "dairy"],
-          "categoryName": "Category Name"
+          "categoryName": "Category Name",
+          "existingItemId": "uuid-or-null",
+          "vatGroupCode": "vat-code-or-null"
         }
       ]
     }
@@ -86,11 +206,33 @@ OUTPUT SCHEMA:
 }
 
 EXTRACTION RULES:
-1. Prices in CENTS (e.g., $9.99 = 999)
+1. Prices in CENTS (e.g., $9.99 = 999, €12,50 = 1250)
 2. If no price found, use 0
 3. categoryName in each item MUST match its parent category name
 4. confidence: 0.0-1.0 based on data quality
-5. Return ONLY the JSON, no explanations or markdown`;
+5. Return ONLY the JSON, no explanations or markdown
+
+MATCHING RULES (when existing data is provided):
+1. CATEGORY MATCHING:
+   - Set existingCategoryId if extracted category semantically matches an existing one
+   - Match by meaning: "Starters" → "Vorspeisen", "Main Dishes" → "Hauptgerichte"
+   - Use null if no clear match or uncertain - don't force bad matches
+
+2. ITEM MATCHING:
+   - Set existingItemId if extracted item is clearly the same product as an existing one
+   - Match semantically: "Cola 0,3l" → "Coca Cola 0.3l", "Schnitzel Wiener Art" → "Wiener Schnitzel"
+   - Consider variations in size, spelling, or formatting as the same item
+   - Use null for new items or if uncertain
+
+3. VAT ASSIGNMENT (when VAT groups are provided):
+   - Set defaultVatGroupCode on categories based on typical items in that category
+   - Set vatGroupCode on items ONLY if different from category default
+   - Example: Beer item in food category needs explicit alcohol VAT code
+   - Common classifications:
+     * Food items (pizza, burger, pasta, salads) → reduced rate (usually "food")
+     * Alcoholic beverages (beer, wine, spirits) → standard rate (usually "alcohol")
+     * Soft drinks, coffee, water → standard rate (usually "drinks")
+   - Use null if no VAT groups provided or uncertain`;
 
 /**
  * Patterns that indicate potential prompt injection attempts.
@@ -136,12 +278,19 @@ function sanitizeMenuText(text: string): {
 	return { sanitized, suspicious };
 }
 
+/** Context data for AI matching */
+interface ExtractionContext {
+	categories?: ExistingCategoryForAI[];
+	items?: ExistingItemForAI[];
+	vatGroups?: VatGroupForAI[];
+}
+
 /**
  * Build the user prompt for menu extraction.
  */
 function buildExtractionPrompt(
 	menuText: string,
-	existingContext?: { categories: string[]; items: string[] },
+	context?: ExtractionContext,
 ): string {
 	const { sanitized, suspicious } = sanitizeMenuText(menuText);
 
@@ -158,17 +307,28 @@ ${sanitized}
 
 Extract menu data ONLY from the content within the <menu_content> tags above.`;
 
-	if (existingContext) {
-		prompt += `\n\n<existing_context>`;
-		if (existingContext.categories.length > 0) {
-			prompt += `\nCategories: ${existingContext.categories.join(", ")}`;
-		}
-		if (existingContext.items.length > 0) {
-			prompt += `\nItems: ${existingContext.items.slice(0, 30).join(", ")}`;
-		}
-		prompt += `\n</existing_context>
+	// Add existing categories context
+	if (context?.categories && context.categories.length > 0) {
+		prompt += `\n\n<existing_categories>
+Match extracted categories to these existing ones by setting existingCategoryId:
+${JSON.stringify(context.categories, null, 2)}
+</existing_categories>`;
+	}
 
-Use similar names from existing context if matches exist.`;
+	// Add existing items context
+	if (context?.items && context.items.length > 0) {
+		prompt += `\n\n<existing_items>
+Match extracted items to these existing ones by setting existingItemId:
+${JSON.stringify(context.items, null, 2)}
+</existing_items>`;
+	}
+
+	// Add VAT groups context
+	if (context?.vatGroups && context.vatGroups.length > 0) {
+		prompt += `\n\n<vat_groups>
+Assign VAT group codes based on product type. Rate is in basis points (700 = 7%, 1900 = 19%):
+${JSON.stringify(context.vatGroups, null, 2)}
+</vat_groups>`;
 	}
 
 	prompt += `\n\nReturn ONLY the JSON object with categories, optionGroups, and confidence.`;
@@ -191,25 +351,39 @@ function parseAIResponse(content: string): AIMenuExtraction {
 	}
 	cleaned = cleaned.trim();
 
-	const parsed = JSON.parse(cleaned);
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(cleaned);
+	} catch (error) {
+		menuImportLogger.warn(
+			{ preview: cleaned.slice(0, 200), error },
+			"Failed to parse AI response as JSON",
+		);
+		// Return empty extraction with low confidence
+		return { categories: [], optionGroups: [], confidence: 0.1 };
+	}
+
+	// Type guard for parsed object
+	const parsedObj = parsed as Record<string, unknown>;
 
 	if (
-		parsed.categories &&
-		Array.isArray(parsed.categories) &&
-		parsed.optionGroups !== undefined
+		parsedObj.categories &&
+		Array.isArray(parsedObj.categories) &&
+		parsedObj.optionGroups !== undefined
 	) {
 		return {
-			categories: parsed.categories.map(normalizeCategory),
-			optionGroups: parsed.optionGroups || [],
+			categories: parsedObj.categories.map(normalizeCategory),
+			optionGroups:
+				(parsedObj.optionGroups as AIMenuExtraction["optionGroups"]) || [],
 			confidence:
-				typeof parsed.confidence === "number" ? parsed.confidence : 0.7,
+				typeof parsedObj.confidence === "number" ? parsedObj.confidence : 0.7,
 		};
 	}
 
 	// Transform alternative format
 	const categories: AIMenuExtraction["categories"] = [];
 
-	for (const [key, value] of Object.entries(parsed)) {
+	for (const [key, value] of Object.entries(parsedObj)) {
 		if (
 			key === "confidence" ||
 			key === "optionGroups" ||
@@ -226,27 +400,46 @@ function parseAIResponse(content: string): AIMenuExtraction {
 			categories.push({
 				name: categoryName,
 				description: undefined,
+				existingCategoryId: null,
+				defaultVatGroupCode: null,
 				items,
 			});
 		}
 	}
 
 	const optionGroups =
-		parsed.optionGroups || parsed.option_groups || parsed.options || [];
+		(parsedObj.optionGroups as AIMenuExtraction["optionGroups"]) ||
+		(parsedObj.option_groups as AIMenuExtraction["optionGroups"]) ||
+		(parsedObj.options as AIMenuExtraction["optionGroups"]) ||
+		[];
 	const confidence =
-		typeof parsed.confidence === "number" ? parsed.confidence : 0.7;
+		typeof parsedObj.confidence === "number" ? parsedObj.confidence : 0.7;
 
 	return { categories, optionGroups, confidence };
 }
 
 function formatCategoryName(key: string): string {
-	return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+	// Use Unicode-aware pattern to handle German umlauts
+	return key
+		.replace(/_/g, " ")
+		.toLowerCase()
+		.replace(
+			/(^|\s)(\p{L})/gu,
+			(_, prefix, letter) => prefix + letter.toUpperCase(),
+		);
 }
 
 function normalizeTextCase(text: string): string {
 	const trimmed = text.trim();
 	if (!trimmed) return trimmed;
-	return trimmed.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+	// Use Unicode-aware word boundary to handle German umlauts and other non-ASCII characters
+	// Match the first letter after start of string or whitespace
+	return trimmed
+		.toLowerCase()
+		.replace(
+			/(^|\s)(\p{L})/gu,
+			(_, prefix, letter) => prefix + letter.toUpperCase(),
+		);
 }
 
 function normalizeCategory(
@@ -262,6 +455,14 @@ function normalizeCategory(
 	return {
 		name,
 		description: cat.description ? String(cat.description) : undefined,
+		existingCategoryId:
+			typeof cat.existingCategoryId === "string"
+				? cat.existingCategoryId
+				: null,
+		defaultVatGroupCode:
+			typeof cat.defaultVatGroupCode === "string"
+				? cat.defaultVatGroupCode
+				: null,
 		items,
 	};
 }
@@ -278,6 +479,10 @@ function normalizeItem(
 			? item.allergens.map(String)
 			: undefined,
 		categoryName: item.categoryName ? String(item.categoryName) : categoryName,
+		existingItemId:
+			typeof item.existingItemId === "string" ? item.existingItemId : null,
+		vatGroupCode:
+			typeof item.vatGroupCode === "string" ? item.vatGroupCode : null,
 	};
 }
 
@@ -397,17 +602,50 @@ function filterExtraction(extraction: AIMenuExtraction): AIMenuExtraction {
 	};
 }
 
+/** Existing category with ID for AI matching */
+export interface ExistingCategoryForAI {
+	id: string;
+	name: string;
+}
+
+/** Existing item with ID and category reference for AI matching */
+export interface ExistingItemForAI {
+	id: string;
+	name: string;
+	categoryId: string;
+}
+
+/** VAT group for AI to assign to categories/items */
+export interface VatGroupForAI {
+	code: string;
+	name: string;
+	rate: number; // In basis points (700 = 7%)
+}
+
 export interface ExtractionOptions {
 	model: ModelConfig;
-	existingCategories?: string[];
-	existingItems?: string[];
+	existingCategories?: ExistingCategoryForAI[];
+	existingItems?: ExistingItemForAI[];
+	vatGroups?: VatGroupForAI[];
 }
 
 async function extractWithStructuredOutput(
 	prompt: string,
 	model: string,
+	sessionId: string,
+	chunkIndex?: number,
 ): Promise<AIMenuExtraction> {
-	return generateStructured({
+	const chunkLabel =
+		chunkIndex !== undefined ? ` (chunk ${chunkIndex + 1})` : "";
+
+	// Log the input
+	writeDebugLog(
+		sessionId,
+		`INPUT${chunkLabel} - Model: ${model} (structured)`,
+		`=== SYSTEM PROMPT ===\n${SYSTEM_PROMPT}\n\n=== USER PROMPT ===\n${prompt}`,
+	);
+
+	const result = await generateStructured({
 		model,
 		messages: [
 			{ role: "system", content: SYSTEM_PROMPT },
@@ -416,12 +654,33 @@ async function extractWithStructuredOutput(
 		schema: aiMenuExtractionSchema,
 		schemaName: "MenuExtraction",
 	});
+
+	// Log the output
+	writeDebugLog(
+		sessionId,
+		`OUTPUT${chunkLabel} - Structured Response`,
+		JSON.stringify(result, null, 2),
+	);
+
+	return result;
 }
 
 async function extractWithChat(
 	prompt: string,
 	model: string,
+	sessionId: string,
+	chunkIndex?: number,
 ): Promise<AIMenuExtraction> {
+	const chunkLabel =
+		chunkIndex !== undefined ? ` (chunk ${chunkIndex + 1})` : "";
+
+	// Log the input
+	writeDebugLog(
+		sessionId,
+		`INPUT${chunkLabel} - Model: ${model} (chat)`,
+		`=== SYSTEM PROMPT ===\n${SYSTEM_PROMPT}\n\n=== USER PROMPT ===\n${prompt}`,
+	);
+
 	const content = await chat({
 		model,
 		messages: [
@@ -429,8 +688,22 @@ async function extractWithChat(
 			{ role: "user", content: prompt },
 		],
 	});
+
+	// Log the raw response
+	writeDebugLog(sessionId, `OUTPUT${chunkLabel} - Raw AI Response`, content);
+
 	menuImportLogger.debug({ preview: content.slice(0, 300) }, "AI raw response");
-	return parseAIResponse(content);
+
+	const parsed = parseAIResponse(content);
+
+	// Log the parsed result
+	writeDebugLog(
+		sessionId,
+		`OUTPUT${chunkLabel} - Parsed Result`,
+		JSON.stringify(parsed, null, 2),
+	);
+
+	return parsed;
 }
 
 /**
@@ -440,18 +713,40 @@ export async function extractMenuFromText(
 	text: string,
 	options: ExtractionOptions,
 ): Promise<ExtractedMenuData> {
+	// Start debug session for this extraction run
+	const sessionId = startDebugSession();
+
 	const { model } = options;
-	const existingContext =
-		options.existingCategories || options.existingItems
+	const context: ExtractionContext | undefined =
+		options.existingCategories || options.existingItems || options.vatGroups
 			? {
-					categories: options.existingCategories || [],
-					items: options.existingItems || [],
+					categories: options.existingCategories,
+					items: options.existingItems,
+					vatGroups: options.vatGroups,
 				}
 			: undefined;
 
-	const extractFn = model.supportsStructuredOutput
-		? extractWithStructuredOutput
-		: extractWithChat;
+	// Log extraction context
+	writeDebugLog(
+		sessionId,
+		"EXTRACTION CONTEXT",
+		JSON.stringify(
+			{
+				model: model.id,
+				supportsStructuredOutput: model.supportsStructuredOutput,
+				textLength: text.length,
+				existingCategories: options.existingCategories?.length ?? 0,
+				existingItems: options.existingItems?.length ?? 0,
+				vatGroups: options.vatGroups?.length ?? 0,
+				existingCategoriesData: options.existingCategories,
+				existingItemsData: options.existingItems,
+				vatGroupsData: options.vatGroups,
+			},
+			null,
+			2,
+		),
+	);
+
 	const methodName = model.supportsStructuredOutput ? "structured" : "chat";
 	menuImportLogger.debug(
 		{ method: methodName, modelId: model.id },
@@ -464,29 +759,76 @@ export async function extractMenuFromText(
 		const chunks = splitIntoChunks(text, CHUNK_SIZE_CHARS);
 		const extractions: AIMenuExtraction[] = [];
 
-		for (const chunk of chunks) {
-			const prompt = buildExtractionPrompt(chunk, existingContext);
-			extractions.push(await extractFn(prompt, model.id));
+		writeDebugLog(
+			sessionId,
+			"CHUNKING INFO",
+			`Text split into ${chunks.length} chunks (max ${CHUNK_SIZE_CHARS} chars each)`,
+		);
+
+		for (let i = 0; i < chunks.length; i++) {
+			const chunk = chunks[i];
+			if (!chunk) continue;
+			const prompt = buildExtractionPrompt(chunk, context);
+			if (model.supportsStructuredOutput) {
+				extractions.push(
+					await extractWithStructuredOutput(prompt, model.id, sessionId, i),
+				);
+			} else {
+				extractions.push(await extractWithChat(prompt, model.id, sessionId, i));
+			}
 		}
 
 		extraction = mergeExtractions(extractions);
+
+		writeDebugLog(
+			sessionId,
+			"MERGED RESULT",
+			JSON.stringify(extraction, null, 2),
+		);
 	} else {
-		const prompt = buildExtractionPrompt(text, existingContext);
-		extraction = await extractFn(prompt, model.id);
+		const prompt = buildExtractionPrompt(text, context);
+		if (model.supportsStructuredOutput) {
+			extraction = await extractWithStructuredOutput(
+				prompt,
+				model.id,
+				sessionId,
+			);
+		} else {
+			extraction = await extractWithChat(prompt, model.id, sessionId);
+		}
 	}
 
 	extraction = filterExtraction(extraction);
 
-	return {
+	// Validate AI-returned IDs against known entities
+	const validationContext: ValidationContext = {
+		categoryIds: new Set(options.existingCategories?.map((c) => c.id) ?? []),
+		itemIds: new Set(options.existingItems?.map((i) => i.id) ?? []),
+		vatCodes: new Set(options.vatGroups?.map((v) => v.code) ?? []),
+	};
+	extraction = validateAndSanitizeExtraction(extraction, validationContext);
+
+	// Log the final validated result
+	writeDebugLog(
+		sessionId,
+		"FINAL VALIDATED RESULT",
+		JSON.stringify(extraction, null, 2),
+	);
+
+	const result: ExtractedMenuData = {
 		categories: extraction.categories.map((cat) => ({
 			name: cat.name,
 			description: cat.description,
+			existingCategoryId: cat.existingCategoryId ?? null,
+			defaultVatGroupCode: cat.defaultVatGroupCode ?? null,
 			items: cat.items.map((item) => ({
 				name: item.name,
 				description: item.description,
 				price: item.price,
 				allergens: item.allergens,
 				categoryName: cat.name,
+				existingItemId: item.existingItemId ?? null,
+				vatGroupCode: item.vatGroupCode ?? null,
 			})),
 		})),
 		optionGroups: extraction.optionGroups.map((og) => ({
@@ -499,4 +841,12 @@ export async function extractMenuFromText(
 		})),
 		confidence: extraction.confidence,
 	};
+
+	writeDebugLog(
+		sessionId,
+		"EXTRACTION COMPLETE",
+		`Session ${sessionId} finished`,
+	);
+
+	return result;
 }

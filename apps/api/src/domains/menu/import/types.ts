@@ -19,6 +19,10 @@ export interface ExtractedItem {
 	price: number; // In cents
 	allergens?: string[];
 	categoryName: string;
+	/** AI's matched existing item ID (null if new item or uncertain) */
+	existingItemId?: string | null;
+	/** VAT group code for this item - only set if different from category default (null = inherit) */
+	vatGroupCode?: string | null;
 }
 
 /**
@@ -28,6 +32,10 @@ export interface ExtractedCategory {
 	name: string;
 	description?: string;
 	items: ExtractedItem[];
+	/** AI's matched existing category ID (null if new category or uncertain) */
+	existingCategoryId?: string | null;
+	/** Default VAT group code for items in this category */
+	defaultVatGroupCode?: string | null;
 }
 
 /**
@@ -151,12 +159,14 @@ export interface ExistingMenuData {
 		id: string;
 		name: string;
 		description?: string | null;
+		defaultVatGroupId?: string | null;
 		items: {
 			id: string;
 			name: string;
 			description?: string | null;
 			price: number;
 			allergens?: string[] | null;
+			vatGroupId?: string | null;
 		}[];
 	}[];
 	optionGroups: {

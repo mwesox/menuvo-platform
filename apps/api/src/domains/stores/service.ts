@@ -117,7 +117,7 @@ export class StoreService implements IStoreService {
 
 		// Build insert values
 		// Address, contact fields are now required (aligned with onboarding)
-		// Timezone/currency are optional - use defaults if not provided
+		// Timezone/currency/countryCode are optional - use defaults if not provided
 		const insertValues: typeof stores.$inferInsert = {
 			merchantId: merchantId,
 			name: input.name,
@@ -133,6 +133,7 @@ export class StoreService implements IStoreService {
 			// Settings - optional with defaults
 			...(input.timezone && { timezone: input.timezone }),
 			...(input.currency && { currency: input.currency }),
+			...(input.countryCode && { countryCode: input.countryCode }),
 		};
 
 		const [newStore] = await db.insert(stores).values(insertValues).returning();

@@ -1,4 +1,5 @@
 import { Button } from "@menuvo/ui";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Pencil, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -8,7 +9,7 @@ import { ConsoleError } from "@/features/components/console-error";
 import { ItemsTable } from "@/features/menu/components/items-table";
 import { MenuTabs } from "@/features/menu/components/menu-tabs";
 import { getDisplayName } from "@/features/menu/logic/display";
-import { trpcUtils } from "@/lib/trpc";
+import { trpcUtils, useTRPC } from "@/lib/trpc";
 
 const searchSchema = z.object({
 	storeId: z.string(),
@@ -17,10 +18,9 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/_app/menu/categories/$categoryId/")({
 	validateSearch: searchSchema,
 	loader: async ({ params }) => {
-		const category = await trpcUtils.menu.categories.getById.ensureData({
-			id: params.categoryId,
+		return trpcUtils.menu.queries.getCategory.ensureData({
+			categoryId: params.categoryId,
 		});
-		return category;
 	},
 	component: RouteComponent,
 	pendingComponent: ItemsPageSkeleton,
@@ -44,7 +44,11 @@ function RouteComponent() {
 	const { storeId } = Route.useSearch();
 	const { categoryId } = Route.useParams();
 	const { t } = useTranslation("menu");
-	const category = Route.useLoaderData();
+	const trpc = useTRPC();
+
+	const { data: category } = useSuspenseQuery(
+		trpc.menu.queries.getCategory.queryOptions({ categoryId }),
+	);
 
 	if (!category) {
 		return null;

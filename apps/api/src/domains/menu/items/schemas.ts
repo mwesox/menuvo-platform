@@ -63,7 +63,7 @@ export const createItemApiSchema = z.object({
 	translations: itemTranslationsSchema,
 	price: z.number().int().nonnegative("Price must be non-negative"), // Price in cents
 	imageUrl: z.string().url("Invalid image URL").optional(),
-	isAvailable: z.boolean().default(true),
+	isActive: z.boolean().default(true),
 	displayOrder: z.number().int().optional(),
 	allergens: z.array(z.string()).optional(),
 	kitchenName: z.string().max(50).optional(),
@@ -80,7 +80,7 @@ export const updateItemApiSchema = z.object({
 	translations: itemTranslationsSchema.optional(),
 	price: z.number().int().nonnegative("Price must be non-negative").optional(),
 	imageUrl: z.string().url("Invalid image URL").nullable().optional(),
-	isAvailable: z.boolean().optional(),
+	isActive: z.boolean().optional(),
 	displayOrder: z.number().int().optional(),
 	allergens: z.array(z.string()).optional(),
 	kitchenName: z.string().max(50).nullable().optional(),
@@ -104,11 +104,11 @@ export const reorderItemsSchema = z.object({
 });
 
 /**
- * Toggle item availability - API schema
+ * Toggle item active state - API schema
  */
-export const toggleItemAvailabilitySchema = z.object({
+export const toggleItemActiveSchema = z.object({
 	id: z.string().uuid("Invalid item ID"),
-	isAvailable: z.boolean(),
+	isActive: z.boolean(),
 });
 
 /**
@@ -180,9 +180,7 @@ export type CreateItemApiInput = z.infer<typeof createItemApiSchema>;
 export type UpdateItemApiInput = z.infer<typeof updateItemApiSchema>;
 export type DeleteItemInput = z.infer<typeof deleteItemSchema>;
 export type ReorderItemsInput = z.infer<typeof reorderItemsSchema>;
-export type ToggleItemAvailabilityInput = z.infer<
-	typeof toggleItemAvailabilitySchema
->;
+export type ToggleItemActiveInput = z.infer<typeof toggleItemActiveSchema>;
 export type GetItemDetailsInput = z.infer<typeof getItemDetailsSchema>;
 
 // Form types

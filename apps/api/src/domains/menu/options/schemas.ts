@@ -281,7 +281,7 @@ export type PublicOptionChoice = {
 	id: string;
 	optionGroupId: string;
 	priceModifier: number;
-	displayOrder: number;
+	displayOrder: string;
 	isAvailable: boolean;
 	isDefault: boolean;
 	minQuantity: number;
@@ -305,7 +305,7 @@ export type PublicOptionGroup = {
 	numFreeOptions: number;
 	aggregateMinQuantity: number | null;
 	aggregateMaxQuantity: number | null;
-	displayOrder: number;
+	displayOrder: string;
 	isActive: boolean;
 	translations: EntityTranslations;
 	createdAt: Date;

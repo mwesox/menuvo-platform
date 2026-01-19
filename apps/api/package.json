@@ -19,10 +19,11 @@
     "start": "bun dist/index.js",
     "check": "biome check .",
     "check-types": "tsc -b --emitDeclarationOnly",
-    "seed": "bun --bun run scripts/seed.ts"
+    "seed": "bun --bun run scripts/seed.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "@getbrevo/brevo": "^2.2.0",
     "@hono/trpc-server": "catalog:",
     "@menuvo/db": "workspace:*",
     "@mollie/api-client": "^4.3.3",
@@ -32,8 +33,10 @@
     "@trpc/server": "catalog:",
     "date-fns": "catalog:",
     "drizzle-orm": "catalog:",
+    "fractional-indexing": "^3.2.0",
     "hono": "catalog:",
     "nanoid": "^5.1.6",
+    "nodemailer": "^6.9.16",
     "papaparse": "^5.5.3",
     "pino": "catalog:",
     "sharp": "^0.34.5",
@@ -43,9 +46,14 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@testcontainers/postgresql": "^10.21.0",
     "@types/node": "catalog:",
+    "@types/nodemailer": "^6.4.17",
     "@types/papaparse": "^5.3.15",
     "@types/sharp": "^0.32.0",
-    "typescript": "catalog:"
+    "postgres": "catalog:",
+    "testcontainers": "^10.21.0",
+    "typescript": "catalog:",
+    "vitest": "^3.0.0"
   }
 }

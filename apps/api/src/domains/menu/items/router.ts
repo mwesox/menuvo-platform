@@ -16,13 +16,18 @@ import {
 	storeOwnerProcedure,
 } from "../../../trpc/trpc.js";
 import {
+	ForbiddenError,
+	NotFoundError,
+	ValidationError,
+} from "../../errors.js";
+import {
 	createItemApiSchema,
 	deleteItemSchema,
 	getItemByIdSchema,
 	listItemsByCategorySchema,
 	listItemsByStoreSchema,
 	reorderItemsSchema,
-	toggleItemAvailabilitySchema,
+	toggleItemActiveSchema,
 	updateItemApiSchema,
 } from "./schemas.js";
 import type { CreateItemInput, UpdateItemInput } from "./types.js";
@@ -43,7 +48,17 @@ export const itemRouter = router({
 	listByStore: publicProcedure
 		.input(listItemsByStoreSchema)
 		.query(async ({ ctx, input }) => {
-			return ctx.services.items.listByStore(input.storeId);
+			// Get store's default language for validation context
+			const store = await ctx.db.query.stores.findFirst({
+				where: (stores, { eq }) => eq(stores.id, input.storeId),
+				with: {
+					merchant: {
+						columns: { supportedLanguages: true },
+					},
+				},
+			});
+			const defaultLanguage = store?.merchant.supportedLanguages[0] ?? "de";
+			return ctx.services.items.listByStore(input.storeId, defaultLanguage);
 		}),
 
 	/**
@@ -53,9 +68,24 @@ export const itemRouter = router({
 		.input(getItemByIdSchema)
 		.query(async ({ ctx, input }) => {
 			try {
-				return await ctx.services.items.getById(input.id);
+				// Get the item first to find its store and default language
+				const itemBasic = await ctx.db.query.items.findFirst({
+					where: (items, { eq }) => eq(items.id, input.id),
+					with: {
+						store: {
+							with: {
+								merchant: {
+									columns: { supportedLanguages: true },
+								},
+							},
+						},
+					},
+				});
+				const defaultLanguage =
+					itemBasic?.store.merchant.supportedLanguages[0] ?? "de";
+				return await ctx.services.items.getById(input.id, defaultLanguage);
 			} catch (error) {
-				if (error instanceof Error && error.message === "Item not found") {
+				if (error instanceof NotFoundError) {
 					throw new TRPCError({
 						code: "NOT_FOUND",
 						message: error.message,
@@ -94,22 +124,21 @@ export const itemRouter = router({
 				translations: input.translations,
 				price: input.price,
 				imageUrl: input.imageUrl,
-				isAvailable: input.isAvailable,
+				isActive: input.isActive,
 				displayOrder: input.displayOrder,
 				allergens: input.allergens,
 				kitchenName: input.kitchenName,
+				vatGroupId: input.vatGroupId,
 			};
 
 			try {
 				return await ctx.services.items.create(category.storeId, itemInput);
 			} catch (error) {
-				if (error instanceof Error) {
-					if (error.message.includes("Failed to create")) {
-						throw new TRPCError({
-							code: "INTERNAL_SERVER_ERROR",
-							message: error.message,
-						});
-					}
+				if (error instanceof ValidationError) {
+					throw new TRPCError({
+						code: "INTERNAL_SERVER_ERROR",
+						message: error.message,
+					});
 				}
 				throw error;
 			}
@@ -154,10 +183,11 @@ export const itemRouter = router({
 				translations: updates.translations,
 				price: updates.price,
 				imageUrl: updates.imageUrl,
-				isAvailable: updates.isAvailable,
+				isActive: updates.isActive,
 				displayOrder: updates.displayOrder,
 				allergens: updates.allergens,
 				kitchenName: updates.kitchenName,
+				vatGroupId: updates.vatGroupId,
 			};
 
 			try {
@@ -167,25 +197,23 @@ export const itemRouter = router({
 					updateInput,
 				);
 			} catch (error) {
-				if (error instanceof Error) {
-					if (error.message === "Item not found") {
-						throw new TRPCError({
-							code: "NOT_FOUND",
-							message: error.message,
-						});
-					}
-					if (error.message.includes("permission")) {
-						throw new TRPCError({
-							code: "FORBIDDEN",
-							message: error.message,
-						});
-					}
-					if (error.message.includes("Failed to update")) {
-						throw new TRPCError({
-							code: "INTERNAL_SERVER_ERROR",
-							message: error.message,
-						});
-					}
+				if (error instanceof NotFoundError) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: error.message,
+					});
+				}
+				if (error instanceof ForbiddenError) {
+					throw new TRPCError({
+						code: "FORBIDDEN",
+						message: error.message,
+					});
+				}
+				if (error instanceof ValidationError) {
+					throw new TRPCError({
+						code: "INTERNAL_SERVER_ERROR",
+						message: error.message,
+					});
 				}
 				throw error;
 			}
@@ -201,19 +229,17 @@ export const itemRouter = router({
 				await ctx.services.items.delete(input.id, ctx.session.merchantId);
 				return { success: true };
 			} catch (error) {
-				if (error instanceof Error) {
-					if (error.message === "Item not found") {
-						throw new TRPCError({
-							code: "NOT_FOUND",
-							message: error.message,
-						});
-					}
-					if (error.message.includes("permission")) {
-						throw new TRPCError({
-							code: "FORBIDDEN",
-							message: error.message,
-						});
-					}
+				if (error instanceof NotFoundError) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: error.message,
+					});
+				}
+				if (error instanceof ForbiddenError) {
+					throw new TRPCError({
+						code: "FORBIDDEN",
+						message: error.message,
+					});
 				}
 				throw error;
 			}
@@ -265,37 +291,35 @@ export const itemRouter = router({
 		}),
 
 	/**
-	 * Toggle item availability
+	 * Toggle item active state
 	 */
-	toggleAvailability: storeOwnerProcedure
-		.input(toggleItemAvailabilitySchema)
+	toggleActive: storeOwnerProcedure
+		.input(toggleItemActiveSchema)
 		.mutation(async ({ ctx, input }) => {
 			try {
-				return await ctx.services.items.toggleAvailability(
+				return await ctx.services.items.toggleActive(
 					input.id,
 					ctx.session.merchantId,
-					input.isAvailable,
+					input.isActive,
 				);
 			} catch (error) {
-				if (error instanceof Error) {
-					if (error.message === "Item not found") {
-						throw new TRPCError({
-							code: "NOT_FOUND",
-							message: error.message,
-						});
-					}
-					if (error.message.includes("permission")) {
-						throw new TRPCError({
-							code: "FORBIDDEN",
-							message: error.message,
-						});
-					}
-					if (error.message.includes("Failed to update")) {
-						throw new TRPCError({
-							code: "INTERNAL_SERVER_ERROR",
-							message: error.message,
-						});
-					}
+				if (error instanceof NotFoundError) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: error.message,
+					});
+				}
+				if (error instanceof ForbiddenError) {
+					throw new TRPCError({
+						code: "FORBIDDEN",
+						message: error.message,
+					});
+				}
+				if (error instanceof ValidationError) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: error.message,
+					});
 				}
 				throw error;
 			}
