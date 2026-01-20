@@ -8,9 +8,6 @@
 FROM oven/bun:1-alpine AS builder
 WORKDIR /app
 
-# Install build dependencies for native modules (sharp)
-RUN apk add --no-cache vips-dev build-base python3
-
 # Copy workspace root files
 COPY package.json bun.lock turbo.json ./
 
