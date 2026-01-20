@@ -1,5 +1,5 @@
 {
-  "id": "4a654803-1a8d-4a0a-a525-e668aa9e09bf",
+  "id": "4e5998e6-677d-408e-a490-a87aba02a4e0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -23,10 +23,10 @@
         },
         "display_order": {
           "name": "display_order",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": 0
+          "default": "'a0000'"
         },
         "is_active": {
           "name": "is_active",
@@ -41,6 +41,19 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'{}'::jsonb"
+        },
+        "default_vat_group_id": {
+          "name": "default_vat_group_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "availability_schedule": {
+          "name": "availability_schedule",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'null'::jsonb"
         },
         "created_at": {
           "name": "created_at",
@@ -70,6 +83,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "categories_default_vat_group_id_vat_groups_id_fk": {
+          "name": "categories_default_vat_group_id_vat_groups_id_fk",
+          "tableFrom": "categories",
+          "tableTo": "vat_groups",
+          "columnsFrom": [
+            "default_vat_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -249,10 +275,10 @@
         },
         "display_order": {
           "name": "display_order",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": 0
+          "default": "'a0000'"
         },
         "created_at": {
           "name": "created_at",
@@ -340,13 +366,13 @@
         },
         "display_order": {
           "name": "display_order",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": 0
+          "default": "'a0000'"
         },
-        "is_available": {
-          "name": "is_available",
+        "is_active": {
+          "name": "is_active",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -364,6 +390,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'{}'::jsonb"
+        },
+        "vat_group_id": {
+          "name": "vat_group_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -406,6 +438,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "items_vat_group_id_vat_groups_id_fk": {
+          "name": "items_vat_group_id_vat_groups_id_fk",
+          "tableFrom": "items",
+          "tableTo": "vat_groups",
+          "columnsFrom": [
+            "vat_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -570,7 +615,7 @@
           "type": "text[]",
           "primaryKey": false,
           "notNull": true,
-          "default": "ARRAY['de']::text[]"
+          "default": "ARRAY\n        ['de']::text[]"
         },
         "payment_account_id": {
           "name": "payment_account_id",
@@ -938,10 +983,10 @@
         },
         "display_order": {
           "name": "display_order",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": 0
+          "default": "'a0000'"
         },
         "is_available": {
           "name": "is_available",
@@ -977,6 +1022,12 @@
           "notNull": true,
           "default": "'{}'::jsonb"
         },
+        "vat_group_id": {
+          "name": "vat_group_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -1005,6 +1056,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "option_choices_vat_group_id_vat_groups_id_fk": {
+          "name": "option_choices_vat_group_id_vat_groups_id_fk",
+          "tableFrom": "option_choices",
+          "tableTo": "vat_groups",
+          "columnsFrom": [
+            "vat_group_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -1079,10 +1143,10 @@
         },
         "display_order": {
           "name": "display_order",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": 0
+          "default": "'a0000'"
         },
         "is_active": {
           "name": "is_active",
@@ -1319,11 +1383,42 @@
           "primaryKey": false,
           "notNull": true
         },
+        "vat_group_code": {
+          "name": "vat_group_code",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vat_rate": {
+          "name": "vat_rate",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "net_price": {
+          "name": "net_price",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vat_amount": {
+          "name": "vat_amount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "display_order": {
           "name": "display_order",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "from_recommendation": {
+          "name": "from_recommendation",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         }
       },
       "indexes": {
@@ -1377,6 +1472,105 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.order_vat_lines": {
+      "name": "order_vat_lines",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "order_id": {
+          "name": "order_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vat_group_code": {
+          "name": "vat_group_code",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vat_group_name": {
+          "name": "vat_group_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rate": {
+          "name": "rate",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "net_amount": {
+          "name": "net_amount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vat_amount": {
+          "name": "vat_amount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gross_amount": {
+          "name": "gross_amount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_order_vat_lines_order": {
+          "name": "idx_order_vat_lines_order",
+          "columns": [
+            {
+              "expression": "order_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "order_vat_lines_order_id_orders_id_fk": {
+          "name": "order_vat_lines_order_id_orders_id_fk",
+          "tableFrom": "order_vat_lines",
+          "tableTo": "orders",
+          "columnsFrom": [
+            "order_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.orders": {
       "name": "orders",
       "schema": "",
@@ -1391,6 +1585,18 @@
         "store_id": {
           "name": "store_id",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "merchant_id": {
+          "name": "merchant_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pickup_number": {
+          "name": "pickup_number",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -1437,6 +1643,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "net_amount": {
+          "name": "net_amount",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "tax_amount": {
           "name": "tax_amount",
           "type": "integer",
@@ -1456,6 +1668,12 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "vat_country_code": {
+          "name": "vat_country_code",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": false
         },
         "payment_status": {
           "name": "payment_status",
@@ -1512,6 +1730,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "scheduled_pickup_time": {
+          "name": "scheduled_pickup_time",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "idempotency_key": {
+          "name": "idempotency_key",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -1545,6 +1775,21 @@
           "columns": [
             {
               "expression": "store_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_orders_merchant_id": {
+          "name": "idx_orders_merchant_id",
+          "columns": [
+            {
+              "expression": "merchant_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1650,6 +1895,96 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "idx_orders_store_pickup": {
+          "name": "idx_orders_store_pickup",
+          "columns": [
+            {
+              "expression": "store_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "pickup_number",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_orders_store_completed_at": {
+          "name": "idx_orders_store_completed_at",
+          "columns": [
+            {
+              "expression": "store_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "completed_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_orders_store_status_created": {
+          "name": "idx_orders_store_status_created",
+          "columns": [
+            {
+              "expression": "store_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_orders_store_created_at": {
+          "name": "idx_orders_store_created_at",
+          "columns": [
+            {
+              "expression": "store_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -1659,6 +1994,19 @@
           "tableTo": "stores",
           "columnsFrom": [
             "store_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "orders_merchant_id_merchants_id_fk": {
+          "name": "orders_merchant_id_merchants_id_fk",
+          "tableFrom": "orders",
+          "tableTo": "merchants",
+          "columnsFrom": [
+            "merchant_id"
           ],
           "columnsTo": [
             "id"
@@ -1681,7 +2029,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "idx_orders_idempotency_key": {
+          "name": "idx_orders_idempotency_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "idempotency_key"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -1931,6 +2287,53 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.store_counters": {
+      "name": "store_counters",
+      "schema": "",
+      "columns": {
+        "store_id": {
+          "name": "store_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pickup_number": {
+          "name": "pickup_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "store_counters_store_id_stores_id_fk": {
+          "name": "store_counters_store_id_stores_id_fk",
+          "tableFrom": "store_counters",
+          "tableTo": "stores",
+          "columnsFrom": [
+            "store_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.store_hours": {
       "name": "store_hours",
       "schema": "",
@@ -2009,6 +2412,65 @@
         "store_hours_store_id_stores_id_fk": {
           "name": "store_hours_store_id_stores_id_fk",
           "tableFrom": "store_hours",
+          "tableTo": "stores",
+          "columnsFrom": [
+            "store_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.store_settings": {
+      "name": "store_settings",
+      "schema": "",
+      "columns": {
+        "store_id": {
+          "name": "store_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "order_types": {
+          "name": "order_types",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ai_recommendations": {
+          "name": "ai_recommendations",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "store_settings_store_id_stores_id_fk": {
+          "name": "store_settings_store_id_stores_id_fk",
+          "tableFrom": "store_settings",
           "tableTo": "stores",
           "columnsFrom": [
             "store_id"
@@ -2110,6 +2572,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'EUR'"
+        },
+        "country_code": {
+          "name": "country_code",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'DE'"
         },
         "is_active": {
           "name": "is_active",
@@ -2308,6 +2777,117 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.vat_groups": {
+      "name": "vat_groups",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "merchant_id": {
+          "name": "merchant_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rate": {
+          "name": "rate",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1900
+        },
+        "display_order": {
+          "name": "display_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_vat_groups_merchant": {
+          "name": "idx_vat_groups_merchant",
+          "columns": [
+            {
+              "expression": "merchant_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "vat_groups_merchant_id_merchants_id_fk": {
+          "name": "vat_groups_merchant_id_merchants_id_fk",
+          "tableFrom": "vat_groups",
+          "tableTo": "merchants",
+          "columnsFrom": [
+            "merchant_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unq_vat_groups_merchant_code": {
+          "name": "unq_vat_groups_merchant_code",
+          "nullsNotDistinct": false,
+          "columns": [
+            "merchant_id",
+            "code"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
