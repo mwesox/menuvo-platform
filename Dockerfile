@@ -8,8 +8,11 @@
 FROM oven/bun:1-alpine AS builder
 WORKDIR /app
 
+# Install vips for sharp
+RUN apk add --no-cache vips-dev
+
 # Copy workspace root files
-COPY package.json bun.lock turbo.json ./
+COPY package.json turbo.json ./
 
 # Copy all package.json files for workspace resolution
 COPY packages/db/package.json ./packages/db/
@@ -20,8 +23,8 @@ COPY apps/console/package.json ./apps/console/
 COPY apps/shop/package.json ./apps/shop/
 COPY apps/business/package.json ./apps/business/
 
-# Install all dependencies (without frozen-lockfile for cross-platform native modules)
-RUN bun install
+# Install dependencies (skip lifecycle scripts, then install sharp separately)
+RUN bun install --ignore-scripts && bun add sharp --force
 
 # Copy source code (includes drizzle.config.ts in packages/db)
 COPY packages/db ./packages/db
@@ -41,15 +44,8 @@ RUN apk add --no-cache vips
 # Create non-root user for security
 RUN addgroup -S menuvo && adduser -S menuvo -G menuvo
 
-# Copy node_modules first (for runtime deps and drizzle-kit)
+# Copy node_modules (includes correctly built sharp)
 COPY --from=builder --chown=menuvo:menuvo /app/node_modules ./node_modules
-
-# Copy package.json for sharp installation
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/bun.lock ./
-
-# Reinstall sharp for this platform (overrides builder version)
-RUN bun add sharp --no-save
 
 # Copy built API
 COPY --from=builder --chown=menuvo:menuvo /app/apps/api/dist ./dist
