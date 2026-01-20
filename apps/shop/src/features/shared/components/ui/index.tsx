@@ -46,7 +46,7 @@ export const ShopHeading = forwardRef<HTMLElement, HeadingProps>(
 		const Tag = Component || "h2";
 		return (
 			<Tag
-				ref={ref as any}
+				ref={ref as React.Ref<HTMLHeadingElement>}
 				className={cn(headingVariants({ size }), "font-semibold", className)}
 				style={style}
 				{...props}

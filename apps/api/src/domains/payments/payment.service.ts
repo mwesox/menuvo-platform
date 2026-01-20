@@ -8,7 +8,6 @@
 import type { Database } from "@menuvo/db";
 import { merchants } from "@menuvo/db/schema";
 import { eq } from "drizzle-orm";
-import { decryptToken } from "../../lib/crypto.js";
 import type { IPaymentService } from "./interface.js";
 import {
 	createClientLink,
@@ -112,9 +111,8 @@ export class PaymentService implements IPaymentService {
 			columns: {
 				mollieOrganizationId: true,
 				mollieAccessToken: true,
-				mollieOnboardingStatus: true,
-				mollieCanReceivePayments: true,
-				mollieCanReceiveSettlements: true,
+				mollieRefreshToken: true,
+				mollieTokenExpiresAt: true,
 			},
 		});
 
@@ -127,64 +125,79 @@ export class PaymentService implements IPaymentService {
 			};
 		}
 
-		// If we have an access token, fetch fresh status from Mollie
-		if (merchant.mollieAccessToken) {
-			try {
-				const accessToken = await decryptToken(merchant.mollieAccessToken);
-				const status = await getMollieOnboardingStatus(accessToken);
-
-				// Update DB with fresh status
-				await this.db
-					.update(merchants)
-					.set({
-						mollieOnboardingStatus: status.canReceivePayments
-							? "completed"
-							: status.status === "in-review"
-								? "in-review"
-								: "needs-data",
-						mollieCanReceivePayments: status.canReceivePayments,
-						mollieCanReceiveSettlements: status.canReceiveSettlements,
-					})
-					.where(eq(merchants.id, merchantId));
-
-				return {
-					connected: true,
-					canReceivePayments: status.canReceivePayments,
-					canReceiveSettlements: status.canReceiveSettlements,
-					status: status.canReceivePayments
-						? "completed"
-						: status.status === "in-review"
-							? "in-review"
-							: "needs-data",
-					dashboardUrl: status.dashboardUrl,
-				};
-			} catch {
-				// Fall back to DB values if API call fails
-			}
+		if (!merchant.mollieAccessToken || !merchant.mollieRefreshToken) {
+			throw new Error("Mollie tokens not configured");
 		}
 
-		// Return DB values
+		// Get valid access token (refreshes if expired)
+		const { getValidAccessToken } = await import("./mollie.js");
+		const accessToken = await getValidAccessToken(
+			merchantId,
+			merchant.mollieAccessToken,
+			merchant.mollieRefreshToken,
+			merchant.mollieTokenExpiresAt,
+			this.db,
+		);
+
+		const status = await getMollieOnboardingStatus(accessToken);
+
+		// Update DB with fresh status
+		await this.db
+			.update(merchants)
+			.set({
+				mollieOnboardingStatus: status.canReceivePayments
+					? "completed"
+					: status.status === "in-review"
+						? "in-review"
+						: "needs-data",
+				mollieCanReceivePayments: status.canReceivePayments,
+				mollieCanReceiveSettlements: status.canReceiveSettlements,
+			})
+			.where(eq(merchants.id, merchantId));
+
 		return {
 			connected: true,
-			canReceivePayments: merchant.mollieCanReceivePayments ?? false,
-			canReceiveSettlements: merchant.mollieCanReceiveSettlements ?? false,
-			status: merchant.mollieOnboardingStatus ?? "needs-data",
+			canReceivePayments: status.canReceivePayments,
+			canReceiveSettlements: status.canReceiveSettlements,
+			status: status.canReceivePayments
+				? "completed"
+				: status.status === "in-review"
+					? "in-review"
+					: "needs-data",
+			dashboardUrl: status.dashboardUrl,
 		};
 	}
 
 	async getDashboardUrl(merchantId: string): Promise<string | undefined> {
 		const merchant = await this.db.query.merchants.findFirst({
 			where: eq(merchants.id, merchantId),
-			columns: { mollieAccessToken: true },
+			columns: {
+				mollieAccessToken: true,
+				mollieRefreshToken: true,
+				mollieTokenExpiresAt: true,
+			},
 		});
 
-		if (!merchant?.mollieAccessToken) {
+		if (!merchant?.mollieAccessToken || !merchant?.mollieRefreshToken) {
 			return undefined;
 		}
 
-		const accessToken = await decryptToken(merchant.mollieAccessToken);
-		const status = await getMollieOnboardingStatus(accessToken);
-		return status.dashboardUrl;
+		try {
+			// Use the same token refresh logic as getMerchantMollieClient
+			const { getValidAccessToken } = await import("./mollie.js");
+			const accessToken = await getValidAccessToken(
+				merchantId,
+				merchant.mollieAccessToken,
+				merchant.mollieRefreshToken,
+				merchant.mollieTokenExpiresAt,
+				this.db,
+			);
+			const status = await getMollieOnboardingStatus(accessToken);
+			return status.dashboardUrl;
+		} catch {
+			// Token may be invalid - return undefined gracefully
+			return undefined;
+		}
 	}
 
 	async getMollieStatus(merchantId: string): Promise<MollieStatus> {

@@ -8,7 +8,9 @@ import type { Database } from "@menuvo/db";
 import type { EntityTranslations } from "@menuvo/db/schema";
 import { items, storeSettings, stores } from "@menuvo/db/schema";
 import { and, eq, inArray, not } from "drizzle-orm";
+import { env } from "../../../env";
 import { generateStructured } from "../../../infrastructure/ai/service";
+import { aiRecommendationsLogger } from "../../../lib/logger";
 import { ForbiddenError } from "../../errors";
 import type { IRecommendationsService } from "./interface";
 import { buildRecommendationPrompt, buildSystemPrompt } from "./prompts";
@@ -20,9 +22,6 @@ import type {
 	RecommendationsResponse,
 } from "./types";
 import { DEFAULT_AI_RECOMMENDATIONS } from "./types";
-
-// AI model to use for recommendations
-const AI_MODEL = "openai/gpt-4o-mini";
 
 /**
  * AI recommendations service implementation
@@ -283,7 +282,7 @@ export class RecommendationsService implements IRecommendationsService {
 			// Call AI with timeout
 			const aiResponse = await Promise.race([
 				generateStructured({
-					model: AI_MODEL,
+					model: env.AI_RECOMMENDATIONS_MODEL_ID,
 					messages: [
 						{ role: "system", content: systemPrompt },
 						{ role: "user", content: userPrompt },
@@ -325,7 +324,10 @@ export class RecommendationsService implements IRecommendationsService {
 			};
 		} catch (error) {
 			// Graceful degradation - return null on any error
-			console.error("AI recommendations error:", error);
+			aiRecommendationsLogger.error(
+				{ error, storeSlug: input.storeSlug },
+				"Failed to generate recommendations",
+			);
 			return null;
 		}
 	}

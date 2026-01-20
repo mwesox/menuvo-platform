@@ -5,59 +5,6 @@ import {
 } from "@/components/layout/skeletons";
 
 /**
- * Skeleton for a settings navigation card.
- */
-function SettingsNavCardSkeleton() {
-	return (
-		<Card>
-			<CardContent className="p-6">
-				<div className="flex items-start gap-4">
-					<Skeleton className="size-10 rounded-lg" />
-					<div className="flex-1 space-y-2">
-						<Skeleton className="h-5 w-32" />
-						<Skeleton className="size-48" />
-					</div>
-				</div>
-			</CardContent>
-		</Card>
-	);
-}
-
-/**
- * Skeleton for the settings hub page (grid of nav cards).
- */
-export function SettingsHubPageSkeleton() {
-	return (
-		<div className="space-y-6">
-			<PageActionBarSkeleton />
-
-			<div className="grid gap-4 md:grid-cols-2">
-				<SettingsNavCardSkeleton />
-				<SettingsNavCardSkeleton />
-				<SettingsNavCardSkeleton />
-				<SettingsNavCardSkeleton />
-			</div>
-		</div>
-	);
-}
-
-/**
- * Skeleton for the merchant settings page (tabs + form cards).
- */
-export function MerchantSettingsPageSkeleton() {
-	return (
-		<div className="space-y-6">
-			<PageActionBarSkeleton withTabs />
-
-			<div className="mt-6 space-y-6">
-				<CardFormSkeleton rows={4} />
-				<CardFormSkeleton rows={3} />
-			</div>
-		</div>
-	);
-}
-
-/**
  * Skeleton for a status card (used in payments).
  */
 function StatusCardSkeleton() {
@@ -90,6 +37,7 @@ function StatusCardSkeleton() {
 
 /**
  * Skeleton for the payments settings page.
+ * @deprecated Use inline skeleton in settings index route
  */
 export function PaymentsPageSkeleton() {
 	return (
@@ -106,5 +54,61 @@ export function PaymentsPageSkeleton() {
 				</div>
 			</div>
 		</div>
+	);
+}
+
+/**
+ * Skeleton for the merchant settings page (tabs + form cards).
+ * @deprecated Use inline skeleton in settings index route
+ */
+export function MerchantSettingsPageSkeleton() {
+	return (
+		<div className="space-y-6">
+			<PageActionBarSkeleton withTabs />
+
+			<div className="mt-6 space-y-6">
+				<CardFormSkeleton rows={4} />
+				<CardFormSkeleton rows={3} />
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Skeleton for the settings hub page (grid of nav cards).
+ * @deprecated Settings now uses sidebar layout
+ */
+export function SettingsHubPageSkeleton() {
+	return (
+		<div className="space-y-6">
+			<PageActionBarSkeleton />
+
+			<div className="grid gap-4 md:grid-cols-2">
+				<SettingsNavCardSkeleton />
+				<SettingsNavCardSkeleton />
+				<SettingsNavCardSkeleton />
+				<SettingsNavCardSkeleton />
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Skeleton for a settings navigation card.
+ * @deprecated Settings now uses sidebar layout
+ */
+function SettingsNavCardSkeleton() {
+	return (
+		<Card>
+			<CardContent className="p-6">
+				<div className="flex items-start gap-4">
+					<Skeleton className="size-10 rounded-lg" />
+					<div className="flex-1 space-y-2">
+						<Skeleton className="h-5 w-32" />
+						<Skeleton className="size-48" />
+					</div>
+				</div>
+			</CardContent>
+		</Card>
 	);
 }

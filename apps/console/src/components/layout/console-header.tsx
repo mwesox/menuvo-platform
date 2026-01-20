@@ -10,25 +10,71 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
+	Skeleton,
 } from "@menuvo/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, HelpCircle, LogOut, Store, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { useStoreSelection } from "@/contexts/store-selection-context";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
-interface ConsoleHeaderProps {
-	stores: Array<{ id: string; name: string; isActive: boolean }>;
-	storeId?: string;
-	onStoreChange?: (storeId: string) => void;
+function StoreSelector() {
+	const { t } = useTranslation("navigation");
+	const { stores, isLoading, selectedStoreId, selectStore } =
+		useStoreSelection();
+
+	if (isLoading) {
+		return <Skeleton className="h-8 w-40" />;
+	}
+
+	const hasMultipleStores = stores.length > 1;
+	const selectedStore = stores.find((s) => s.id === selectedStoreId);
+
+	// No stores - show placeholder
+	if (stores.length === 0) {
+		return (
+			<div className="flex h-8 items-center gap-2 rounded-md border border-muted-foreground/30 border-dashed bg-muted/30 px-3 text-muted-foreground text-sm">
+				<Store className="h-4 w-4" />
+				<span>{t("noStores", "No stores")}</span>
+			</div>
+		);
+	}
+
+	// Single store - read-only display
+	if (!hasMultipleStores && selectedStore) {
+		return (
+			<div className="flex h-8 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm">
+				<Store className="h-4 w-4 text-muted-foreground" />
+				<span className="max-w-80 truncate font-medium">
+					{selectedStore.name}
+				</span>
+			</div>
+		);
+	}
+
+	// Multiple stores - selector
+	return (
+		<Select value={selectedStoreId} onValueChange={selectStore}>
+			<SelectTrigger className="h-8 w-auto min-w-48 max-w-96 gap-2">
+				<div className="flex flex-1 items-center gap-2 overflow-hidden">
+					<Store className="h-4 w-4 shrink-0 text-muted-foreground" />
+					<SelectValue placeholder={t("selectStore", "Select store")} />
+				</div>
+			</SelectTrigger>
+			<SelectContent>
+				{stores.map((store) => (
+					<SelectItem key={store.id} value={store.id}>
+						{store.name}
+					</SelectItem>
+				))}
+			</SelectContent>
+		</Select>
+	);
 }
 
-export function ConsoleHeader({
-	stores,
-	storeId,
-	onStoreChange,
-}: ConsoleHeaderProps) {
+export function ConsoleHeader() {
 	const { t } = useTranslation("navigation");
 	const { t: tToasts } = useTranslation("toasts");
 	const trpc = useTRPC();
@@ -50,43 +96,17 @@ export function ConsoleHeader({
 		},
 	});
 
-	const hasMultipleStores = stores.length > 1;
-	const selectedStore = stores.find((s) => s.id === storeId) ?? stores[0];
-
 	return (
 		<header className="flex h-12 items-center justify-between border-b-0 bg-card/50 px-4">
 			{/* Left: Store selector */}
-			<div className="flex items-center gap-2">
-				{hasMultipleStores && onStoreChange ? (
-					<Select value={storeId} onValueChange={(v) => onStoreChange(v)}>
-						<SelectTrigger className="h-10 min-w-[220px] gap-2 border-input bg-background hover:bg-muted">
-							<div className="flex items-center gap-2">
-								<Store className="h-5 w-5 text-muted-foreground" />
-								<SelectValue placeholder={t("selectStore", "Filiale wählen")} />
-							</div>
-						</SelectTrigger>
-						<SelectContent>
-							{stores.map((store) => (
-								<SelectItem key={store.id} value={String(store.id)}>
-									{store.name}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
-				) : selectedStore ? (
-					<div className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm">
-						<Store className="h-5 w-5 text-muted-foreground" />
-						<span className="font-medium">{selectedStore.name}</span>
-					</div>
-				) : null}
-			</div>
+			<StoreSelector />
 
 			{/* Right: Help + User menu */}
 			<div className="flex items-center gap-1">
 				<Button variant="ghost" size="icon" className="h-8 w-8" asChild>
 					<Link to="/help">
 						<HelpCircle className="h-4 w-4" />
-						<span className="sr-only">{t("help", "Hilfe")}</span>
+						<span className="sr-only">{t("help", "Help")}</span>
 					</Link>
 				</Button>
 
@@ -101,9 +121,9 @@ export function ConsoleHeader({
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-48">
 						<DropdownMenuItem asChild>
-							<Link to="/settings/merchant">
+							<Link to="/settings" search={{ tab: "business" }}>
 								<User className="me-2 h-4 w-4" />
-								{t("profile", "Profil")}
+								{t("profile", "Profile")}
 							</Link>
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
@@ -112,7 +132,7 @@ export function ConsoleHeader({
 							onClick={() => logout.mutate()}
 						>
 							<LogOut className="me-2 h-4 w-4" />
-							{t("logout", "Abmelden")}
+							{t("logout", "Logout")}
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

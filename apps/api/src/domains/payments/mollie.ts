@@ -367,6 +367,53 @@ export async function getOnboardingStatus(
 	};
 }
 
+/**
+ * Get a valid access token, refreshing if needed.
+ * Extracted for reuse in service methods that don't need a full client.
+ */
+export async function getValidAccessToken(
+	merchantId: string,
+	encryptedAccessToken: string,
+	encryptedRefreshToken: string,
+	tokenExpiresAt: Date | null,
+	database: typeof db,
+): Promise<string> {
+	// Decrypt tokens from DB
+	const accessToken = await decryptToken(encryptedAccessToken);
+	const refreshToken = await decryptToken(encryptedRefreshToken);
+
+	const now = new Date();
+	const needsRefresh =
+		!tokenExpiresAt ||
+		tokenExpiresAt.getTime() - now.getTime() < TOKEN_REFRESH_BUFFER_MS;
+
+	if (needsRefresh) {
+		mollieLogger.info({ merchantId }, "Refreshing Mollie access token");
+
+		const newTokens = await refreshAccessToken(refreshToken);
+		const newExpiresAt = new Date(Date.now() + newTokens.expiresIn * 1000);
+
+		// Encrypt new tokens before storing
+		const newEncryptedAccessToken = await encryptToken(newTokens.accessToken);
+		const newEncryptedRefreshToken = await encryptToken(newTokens.refreshToken);
+
+		await database
+			.update(merchants)
+			.set({
+				mollieAccessToken: newEncryptedAccessToken,
+				mollieRefreshToken: newEncryptedRefreshToken,
+				mollieTokenExpiresAt: newExpiresAt,
+			})
+			.where(eq(merchants.id, merchantId));
+
+		mollieLogger.info({ merchantId }, "Mollie tokens refreshed");
+
+		return newTokens.accessToken;
+	}
+
+	return accessToken;
+}
+
 export async function getMerchantMollieClient(merchantId: string) {
 	mollieLogger.debug({ merchantId }, "Getting Mollie client for merchant");
 
@@ -384,38 +431,13 @@ export async function getMerchantMollieClient(merchantId: string) {
 		throw new Error("Merchant does not have Mollie OAuth tokens configured");
 	}
 
-	// Decrypt tokens from DB
-	const accessToken = await decryptToken(merchant.mollieAccessToken);
-	const refreshToken = await decryptToken(merchant.mollieRefreshToken);
-
-	const now = new Date();
-	const expiresAt = merchant.mollieTokenExpiresAt;
-	const needsRefresh =
-		!expiresAt || expiresAt.getTime() - now.getTime() < TOKEN_REFRESH_BUFFER_MS;
-
-	if (needsRefresh) {
-		mollieLogger.info({ merchantId }, "Refreshing Mollie access token");
-
-		const newTokens = await refreshAccessToken(refreshToken);
-		const newExpiresAt = new Date(Date.now() + newTokens.expiresIn * 1000);
-
-		// Encrypt new tokens before storing
-		const encryptedAccessToken = await encryptToken(newTokens.accessToken);
-		const encryptedRefreshToken = await encryptToken(newTokens.refreshToken);
-
-		await db
-			.update(merchants)
-			.set({
-				mollieAccessToken: encryptedAccessToken,
-				mollieRefreshToken: encryptedRefreshToken,
-				mollieTokenExpiresAt: newExpiresAt,
-			})
-			.where(eq(merchants.id, merchantId));
-
-		mollieLogger.info({ merchantId }, "Mollie tokens refreshed");
-
-		return createMollieClientWithToken(newTokens.accessToken);
-	}
+	const accessToken = await getValidAccessToken(
+		merchantId,
+		merchant.mollieAccessToken,
+		merchant.mollieRefreshToken,
+		merchant.mollieTokenExpiresAt,
+		db,
+	);
 
 	return createMollieClientWithToken(accessToken);
 }

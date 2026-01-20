@@ -44,3 +44,5 @@ export const paymentsLogger = createLogger("payments");
 export const webhookLogger = createLogger("webhook");
 export const mcpLogger = createLogger("mcp");
 export const emailLogger = createLogger("email");
+export const aiRecommendationsLogger = createLogger("ai-recommendations");
+export const aiLogger = createLogger("ai");

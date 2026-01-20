@@ -1,4 +1,9 @@
-import { createFileRoute, notFound, Outlet } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	notFound,
+	Outlet,
+	useMatchRoute,
+} from "@tanstack/react-router";
 import { useCallback, useContext, useRef } from "react";
 import { z } from "zod/v4";
 import { CartDrawer } from "../../features/cart";
@@ -87,6 +92,11 @@ function StoreLayoutContent() {
 	const categoryRefs = useShopUIStore((s) => s.categoryRefs);
 
 	const menuData = useContext(MenuContext);
+
+	// Hide cart sidebar on ordering pages (cart is shown inline there)
+	const matchRoute = useMatchRoute();
+	const isOrderingRoute =
+		matchRoute({ to: "/$slug/ordering", fuzzy: true }) !== false;
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 
 	const categories = menuData?.categories ?? [];
@@ -126,17 +136,24 @@ function StoreLayoutContent() {
 				/>
 				{/* Scrollable content area */}
 				<main ref={scrollContainerRef} className="flex-1 overflow-y-auto">
-					{/* Reserve right margin for fixed sidebar on desktop lg+ (when not collapsed) */}
-					<div className={!isCartSidebarCollapsed ? "lg:mr-80" : ""}>
+					{/* Reserve right margin for fixed sidebar on desktop lg+ (when not collapsed and not on ordering) */}
+					<div
+						className={
+							!isCartSidebarCollapsed && !isOrderingRoute ? "lg:mr-80" : ""
+						}
+					>
 						<Outlet />
 						<ShopFooter />
 					</div>
 				</main>
 				{/* Cart drawer - handles both mobile (bottom sheet) and desktop (fixed sidebar) */}
-				<CartDrawer
-					open={isCartDrawerOpen}
-					onOpenChange={(open) => !open && closeCartDrawer()}
-				/>
+				{/* Hidden on ordering pages where cart is shown inline */}
+				{!isOrderingRoute && (
+					<CartDrawer
+						open={isCartDrawerOpen}
+						onOpenChange={(open) => !open && closeCartDrawer()}
+					/>
+				)}
 			</div>
 			<CookieBanner />
 		</CookieConsentProvider>

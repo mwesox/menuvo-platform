@@ -6,10 +6,9 @@ import type { AppRouter } from "@menuvo/api/trpc";
 import { TooltipProvider } from "@menuvo/ui";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
-import { ChefHat, Store } from "lucide-react";
+import { Store } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
-import { StoreSelectionRequired } from "@/components/store-selection-required";
 import type { OrderWithItems } from "@/features/orders/types";
 import { useTRPC } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
@@ -28,7 +27,7 @@ type DoneOrders = RouterOutput["order"]["kitchenDone"];
 
 interface KitchenPageProps {
 	search: {
-		storeId?: string;
+		storeId: string;
 	};
 	loaderData: {
 		stores: StoreType[];
@@ -38,14 +37,12 @@ interface KitchenPageProps {
 
 export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 	const { t } = useTranslation("console-kitchen");
-	const { stores, autoSelectedStoreId } = loaderData;
+	const { stores } = loaderData;
 	const trpc = useTRPC();
 
-	// Determine effective store ID
-	const storeId = search.storeId ?? autoSelectedStoreId;
+	const storeId = search.storeId;
 
-	// Fetch orders (only if store selected - early return below handles no storeId case)
-	// API returns { orders: [...], nextCursor } so we need to extract the orders array
+	// Fetch orders
 	const { data: activeOrdersData } = useQuery(
 		trpc.order.listForKitchen.queryOptions(
 			storeId ? { storeId, limit: 50 } : skipToken,
@@ -65,10 +62,9 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 
 	// Initialize board state
 	const { columns, moveCard, moveToNext, canDrop, lastMovedOrderId } =
-		useKitchenBoard(storeId ?? "", activeOrders, doneOrders);
+		useKitchenBoard(storeId, activeOrders, doneOrders);
 
 	// Initialize notifications and get audio control functions
-	// Pass ALL orders (active + done) so we track all IDs and don't alert when moving from done
 	const allOrders = [...activeOrders, ...doneOrders];
 	const { requestPermission, playNotification, alertActive, dismissAlert } =
 		useOrderNotifications(allOrders);
@@ -99,30 +95,13 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 	// Build actions for action bar
 	const actions = (
 		<div className="flex flex-wrap items-center gap-2">
-			{/* Audio control */}
 			<AudioControl
 				onRequestPermission={requestPermission}
 				onPlayTestSound={playNotification}
 			/>
-
-			{/* Connection status */}
 			<ConnectionStatus />
 		</div>
 	);
-
-	// No store selected state
-	if (!storeId) {
-		return (
-			<TooltipProvider>
-				<div className="flex h-full flex-col">
-					<PageActionBar title={t("title")} actions={actions} />
-					<div className="flex flex-1 items-center justify-center">
-						<StoreSelectionRequired icon={ChefHat} />
-					</div>
-				</div>
-			</TooltipProvider>
-		);
-	}
 
 	return (
 		<TooltipProvider>
@@ -132,10 +111,8 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 					alertActive && "kitchen-alert-active",
 				)}
 			>
-				{/* Action bar */}
 				<PageActionBar title={t("title")} actions={actions} />
 
-				{/* Kanban board */}
 				<div className="flex-1 overflow-hidden p-4">
 					<KanbanBoard
 						columns={columns}

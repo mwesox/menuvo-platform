@@ -19,7 +19,6 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
@@ -90,7 +89,14 @@ export function VatGroupForm({ storeId, vatGroup }: VatGroupFormProps) {
 	});
 
 	const form = useForm({
-		defaultValues: vatGroupFormDefaults,
+		defaultValues: vatGroup
+			? {
+					code: vatGroup.code,
+					name: vatGroup.name,
+					rate: basisPointsToPercentage(vatGroup.rate),
+					description: vatGroup.description ?? "",
+				}
+			: vatGroupFormDefaults,
 		validators: {
 			onSubmit: vatGroupFormSchema,
 		},
@@ -114,21 +120,11 @@ export function VatGroupForm({ storeId, vatGroup }: VatGroupFormProps) {
 			}
 
 			navigate({
-				to: "/menu/vat",
-				search: { storeId },
+				to: "/stores/$storeId/menu/vat",
+				params: { storeId },
 			});
 		},
 	});
-
-	// Populate form when editing
-	useEffect(() => {
-		if (vatGroup) {
-			form.setFieldValue("code", vatGroup.code);
-			form.setFieldValue("name", vatGroup.name);
-			form.setFieldValue("rate", basisPointsToPercentage(vatGroup.rate));
-			form.setFieldValue("description", vatGroup.description ?? "");
-		}
-	}, [vatGroup]);
 
 	return (
 		<Card>
@@ -275,7 +271,7 @@ export function VatGroupForm({ storeId, vatGroup }: VatGroupFormProps) {
 
 					<div className="mt-6 flex justify-end gap-3">
 						<Button type="button" variant="outline" asChild>
-							<Link to="/menu/vat" search={{ storeId }}>
+							<Link to="/stores/$storeId/menu/vat" params={{ storeId }}>
 								{tCommon("buttons.cancel")}
 							</Link>
 						</Button>

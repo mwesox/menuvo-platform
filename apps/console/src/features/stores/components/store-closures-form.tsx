@@ -11,12 +11,8 @@ import {
 	AlertDialogTrigger,
 	Button,
 	Calendar,
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
 	Field,
+	FieldError,
 	FieldLabel,
 	Input,
 	Popover,
@@ -31,8 +27,10 @@ import { CalendarIcon, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { ContentSection } from "@/components/ui/content-section";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { cn } from "@/lib/utils.ts";
+import { closureFormSchema } from "../schemas";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 type StoreClosure = RouterOutput["store"]["closures"]["list"][number];
@@ -51,13 +49,12 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 	const [editingId, setEditingId] = useState<string | null>(null);
 
 	return (
-		<div className="space-y-6">
-			<Card>
-				<CardHeader>
-					<CardTitle>{t("sections.closures")}</CardTitle>
-					<CardDescription>{t("descriptions.closures")}</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-4">
+		<div className="space-y-8">
+			<ContentSection
+				title={t("sections.closures")}
+				description={t("descriptions.closures")}
+			>
+				<div className="space-y-4">
 					{closures.length === 0 && !isAdding && (
 						<p className="py-4 text-center text-muted-foreground text-sm">
 							{t("emptyStates.noClosures")}
@@ -90,14 +87,16 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 							onCancel={() => setIsAdding(false)}
 						/>
 					)}
-				</CardContent>
-			</Card>
+				</div>
+			</ContentSection>
 
 			{!isAdding && editingId === null && (
-				<Button onClick={() => setIsAdding(true)}>
-					<Plus className="me-2 size-4" />
-					{t("actions.addClosure")}
-				</Button>
+				<div className="flex justify-end border-t pt-6">
+					<Button onClick={() => setIsAdding(true)}>
+						<Plus className="me-2 size-4" />
+						{t("actions.addClosure")}
+					</Button>
+				</div>
 			)}
 		</div>
 	);
@@ -251,6 +250,9 @@ function ClosureForm({
 			endDate: closure?.endDate ?? todayStr,
 			reason: closure?.reason ?? "",
 		},
+		validators: {
+			onSubmit: closureFormSchema,
+		},
 		onSubmit: async ({ value }) => {
 			if (closure) {
 				updateMutation.mutate({
@@ -280,43 +282,65 @@ function ClosureForm({
 		>
 			<div className="grid gap-4 sm:grid-cols-2">
 				<form.Field name="startDate">
-					{(field) => (
-						<Field>
-							<FieldLabel>{t("labels.startDate")}</FieldLabel>
-							<DatePicker
-								value={field.state.value}
-								onChange={field.handleChange}
-							/>
-						</Field>
-					)}
+					{(field) => {
+						const isInvalid =
+							field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel>{t("labels.startDate")}</FieldLabel>
+								<DatePicker
+									value={field.state.value}
+									onChange={field.handleChange}
+									onBlur={field.handleBlur}
+									isInvalid={isInvalid}
+								/>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				</form.Field>
 
 				<form.Field name="endDate">
-					{(field) => (
-						<Field>
-							<FieldLabel>{t("labels.endDate")}</FieldLabel>
-							<DatePicker
-								value={field.state.value}
-								onChange={field.handleChange}
-							/>
-						</Field>
-					)}
+					{(field) => {
+						const isInvalid =
+							field.state.meta.isTouched && !field.state.meta.isValid;
+						return (
+							<Field data-invalid={isInvalid}>
+								<FieldLabel>{t("labels.endDate")}</FieldLabel>
+								<DatePicker
+									value={field.state.value}
+									onChange={field.handleChange}
+									onBlur={field.handleBlur}
+									isInvalid={isInvalid}
+								/>
+								{isInvalid && <FieldError errors={field.state.meta.errors} />}
+							</Field>
+						);
+					}}
 				</form.Field>
 			</div>
 
 			<form.Field name="reason">
-				{(field) => (
-					<Field>
-						<FieldLabel>
-							{t("labels.reason")} ({tCommon("labels.optional")})
-						</FieldLabel>
-						<Input
-							placeholder={t("placeholders.closureReason")}
-							value={field.state.value}
-							onChange={(e) => field.handleChange(e.target.value)}
-						/>
-					</Field>
-				)}
+				{(field) => {
+					const isInvalid =
+						field.state.meta.isTouched && !field.state.meta.isValid;
+					return (
+						<Field data-invalid={isInvalid}>
+							<FieldLabel>
+								{t("labels.reason")} ({tCommon("labels.optional")})
+							</FieldLabel>
+							<Input
+								name={field.name}
+								placeholder={t("placeholders.closureReason")}
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								aria-invalid={isInvalid}
+							/>
+							{isInvalid && <FieldError errors={field.state.meta.errors} />}
+						</Field>
+					);
+				}}
 			</form.Field>
 
 			<div className="flex justify-end gap-2">
@@ -342,9 +366,11 @@ function ClosureForm({
 interface DatePickerProps {
 	value: string;
 	onChange: (value: string) => void;
+	onBlur?: () => void;
+	isInvalid?: boolean;
 }
 
-function DatePicker({ value, onChange }: DatePickerProps) {
+function DatePicker({ value, onChange, onBlur, isInvalid }: DatePickerProps) {
 	const { t } = useTranslation("settings");
 	const [open, setOpen] = useState(false);
 	const date = value ? parseISO(value) : undefined;
@@ -356,11 +382,19 @@ function DatePicker({ value, onChange }: DatePickerProps) {
 		}
 	};
 
+	const handleOpenChange = (isOpen: boolean) => {
+		setOpen(isOpen);
+		if (!isOpen && onBlur) {
+			onBlur();
+		}
+	};
+
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
+		<Popover open={open} onOpenChange={handleOpenChange}>
 			<PopoverTrigger asChild>
 				<Button
 					variant="outline"
+					aria-invalid={isInvalid}
 					className={cn(
 						"w-full justify-start text-start font-normal",
 						!date && "text-muted-foreground",

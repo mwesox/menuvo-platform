@@ -48,15 +48,12 @@ export const updateServicePointSchema = createServicePointSchema
 export const servicePointFormSchema = z.object({
 	code: z
 		.string()
-		.min(1, "Code is required")
+		.min(1, "validation:servicePoint.codeRequired")
 		.max(100, "Code must be less than 100 characters")
-		.regex(
-			codePattern,
-			"Code can only contain lowercase letters, numbers, and hyphens",
-		),
+		.regex(codePattern, "validation:servicePoint.codeFormat"),
 	name: z
 		.string()
-		.min(1, "Name is required")
+		.min(1, "validation:servicePoint.nameRequired")
 		.max(255, "Name must be less than 255 characters"),
 	zone: z.string().max(100),
 	description: z.string(),

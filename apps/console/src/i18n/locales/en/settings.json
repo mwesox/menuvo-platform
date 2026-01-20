@@ -1,4 +1,12 @@
 {
+	"nav": {
+		"business": "Business",
+		"language": "Language",
+		"payments": "Payments",
+		"ai": "Upselling",
+		"staff": "Staff & Permissions",
+		"brand": "Branding"
+	},
 	"pageTitle": "Merchant Settings",
 	"storePageTitle": "Store Settings",
 	"pageDescription": "Settings for {{merchantName}}",
@@ -27,8 +35,8 @@
 			"description": "Customize your shop appearance"
 		},
 		"aiRecommendations": {
-			"title": "AI Recommendations",
-			"description": "AI-powered product suggestions at checkout"
+			"title": "Upselling",
+			"description": "Product suggestions at checkout"
 		},
 		"comingSoon": "Coming Soon"
 	},
@@ -297,18 +305,19 @@
 				}
 			},
 			"actions": {
-				"completeVerification": "Complete Verification"
+				"completeVerification": "Complete Verification",
+				"manageDashboard": "Open Mollie Dashboard"
 			}
 		}
 	},
 	"aiRecommendations": {
-		"title": "AI Recommendations",
-		"description": "Configure AI-powered product suggestions that appear at checkout to help customers discover complementary items.",
-		"storeContext": "Configuring recommendations for {{storeName}}",
-		"enableToggle": "Enable AI Recommendations",
-		"enableDescription": "Show personalized product suggestions at checkout based on cart contents",
-		"toneLabel": "Recommendation Style",
-		"toneHint": "Choose how recommendations are presented to your guests.",
+		"title": "Upselling",
+		"description": "Configure product suggestions that appear at checkout to help customers discover complementary items.",
+		"storeContext": "Configuring upselling for {{storeName}}",
+		"enableToggle": "Enable Upselling",
+		"enableDescription": "Show product suggestions at checkout based on cart contents",
+		"toneLabel": "Suggestion Style",
+		"toneHint": "Choose how suggestions are presented to your guests.",
 		"previewLabel": "Preview",
 		"tones": {
 			"professional": {
@@ -332,7 +341,7 @@
 		},
 		"pairingRulesLabel": "Pairing Rules",
 		"rulePlaceholder": "e.g. Pair pizza with cola or beer",
-		"pairingRulesHint": "Add rules to help the AI understand which items pair well together. Be specific about combinations.",
+		"pairingRulesHint": "Add rules to define which items pair well together. Be specific about combinations.",
 		"addRule": "Add Rule"
 	}
 }

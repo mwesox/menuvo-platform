@@ -29,7 +29,10 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { getLocalizedContent } from "../logic/localization";
-import type { OptionGroupType } from "../options.schemas";
+import {
+	type OptionGroupType,
+	optionGroupFormSchema,
+} from "../options.schemas";
 import { formToTranslations } from "../schemas";
 
 interface ChoiceFormValue {
@@ -133,6 +136,9 @@ export function OptionGroupForm({
 
 	const form = useForm({
 		defaultValues: initialValues,
+		validators: {
+			onSubmit: optionGroupFormSchema,
+		},
 		onSubmit: async ({ value }) => {
 			const translations = formToTranslations(
 				{ name: value.name, description: value.description },
@@ -178,8 +184,8 @@ export function OptionGroupForm({
 			});
 
 			navigate({
-				to: "/menu/options",
-				search: { storeId },
+				to: "/stores/$storeId/menu/options",
+				params: { storeId },
 			});
 		},
 	});
@@ -310,16 +316,30 @@ export function OptionGroupForm({
 											>
 												<div className="flex-1 space-y-3">
 													<form.Field name={`choices[${index}].name`}>
-														{(nameField) => (
-															<Input
-																placeholder={t("placeholders.choiceName")}
-																value={nameField.state.value}
-																onChange={(e) =>
-																	nameField.handleChange(e.target.value)
-																}
-																onBlur={nameField.handleBlur}
-															/>
-														)}
+														{(nameField) => {
+															const isInvalid =
+																nameField.state.meta.isTouched &&
+																!nameField.state.meta.isValid;
+															return (
+																<Field data-invalid={isInvalid}>
+																	<Input
+																		name={nameField.name}
+																		placeholder={t("placeholders.choiceName")}
+																		value={nameField.state.value}
+																		onChange={(e) =>
+																			nameField.handleChange(e.target.value)
+																		}
+																		onBlur={nameField.handleBlur}
+																		aria-invalid={isInvalid}
+																	/>
+																	{isInvalid && (
+																		<FieldError
+																			errors={nameField.state.meta.errors}
+																		/>
+																	)}
+																</Field>
+															);
+														}}
 													</form.Field>
 													<div className="flex items-center gap-2">
 														<form.Field
@@ -390,7 +410,7 @@ export function OptionGroupForm({
 
 					<div className="mt-6 flex justify-end gap-3">
 						<Button type="button" variant="outline" asChild>
-							<Link to="/menu/options" search={{ storeId }}>
+							<Link to="/stores/$storeId/menu/options" params={{ storeId }}>
 								{tCommon("buttons.cancel")}
 							</Link>
 						</Button>

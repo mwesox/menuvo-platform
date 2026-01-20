@@ -27,9 +27,8 @@ export function VatGroupsTable({ vatGroups, storeId }: VatGroupsTableProps) {
 
 	const handleRowClick = (vatGroupId: string) => {
 		navigate({
-			to: "/menu/vat/$vatGroupId",
-			params: { vatGroupId },
-			search: { storeId },
+			to: "/stores/$storeId/menu/vat/$vatGroupId",
+			params: { storeId, vatGroupId },
 		});
 	};
 
@@ -61,9 +60,8 @@ export function VatGroupsTable({ vatGroups, storeId }: VatGroupsTableProps) {
 						>
 							<TableCell>
 								<Link
-									to="/menu/vat/$vatGroupId"
-									params={{ vatGroupId: group.id }}
-									search={{ storeId }}
+									to="/stores/$storeId/menu/vat/$vatGroupId"
+									params={{ storeId, vatGroupId: group.id }}
 									className="font-medium text-primary hover:underline"
 									onClick={(e) => e.stopPropagation()}
 								>

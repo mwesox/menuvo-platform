@@ -74,9 +74,8 @@ export function ItemsTable({
 
 	const handleRowClick = (itemId: string) => {
 		navigate({
-			to: "/menu/categories/$categoryId/items/$itemId",
-			params: { categoryId, itemId },
-			search: { storeId },
+			to: "/stores/$storeId/menu/categories/$categoryId/items/$itemId",
+			params: { storeId, categoryId, itemId },
 		});
 	};
 
@@ -128,9 +127,8 @@ export function ItemsTable({
 								>
 									<TableCell>
 										<Link
-											to="/menu/categories/$categoryId/items/$itemId"
-											params={{ categoryId, itemId: item.id }}
-											search={{ storeId }}
+											to="/stores/$storeId/menu/categories/$categoryId/items/$itemId"
+											params={{ storeId, categoryId, itemId: item.id }}
 											className="font-medium text-primary hover:underline"
 											onClick={(e) => e.stopPropagation()}
 										>

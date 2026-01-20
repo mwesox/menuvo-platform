@@ -4,9 +4,8 @@ import type { inferRouterOutputs } from "@trpc/server";
 import { Store } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
-import { StoreSelectionRequired } from "@/components/store-selection-required";
 import type { OrderStatus } from "@/features/orders";
-import type { DateRangePreset } from "@/routes/_app/orders";
+import type { DateRangePreset } from "@/features/orders/types";
 import { OrdersTable } from "./orders-table";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
@@ -14,7 +13,7 @@ type StoreType = RouterOutput["store"]["list"][number];
 
 interface OrdersPageProps {
 	search: {
-		storeId?: string;
+		storeId: string;
 		status?: OrderStatus;
 		search?: string;
 		days: DateRangePreset;
@@ -29,26 +28,29 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 	const { t } = useTranslation("console-orders");
 	const navigate = useNavigate();
 
-	const effectiveStoreId = search.storeId ?? loaderData.autoSelectedStoreId;
+	const storeId = search.storeId;
 
 	const handleStatusChange = (status: OrderStatus | undefined) => {
 		navigate({
-			to: "/orders",
-			search: { ...search, status },
+			to: "/stores/$storeId/orders",
+			params: { storeId },
+			search: { status, search: search.search, days: search.days },
 		});
 	};
 
 	const handleSearchChange = (searchTerm: string | undefined) => {
 		navigate({
-			to: "/orders",
-			search: { ...search, search: searchTerm },
+			to: "/stores/$storeId/orders",
+			params: { storeId },
+			search: { status: search.status, search: searchTerm, days: search.days },
 		});
 	};
 
 	const handleDaysChange = (days: DateRangePreset) => {
 		navigate({
-			to: "/orders",
-			search: { ...search, days },
+			to: "/stores/$storeId/orders",
+			params: { storeId },
+			search: { status: search.status, search: search.search, days },
 		});
 	};
 
@@ -71,23 +73,17 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 		<div className="flex h-full flex-col">
 			<PageActionBar title={t("title")} />
 
-			{effectiveStoreId ? (
-				<div className="mt-4 min-h-0 flex-1">
-					<OrdersTable
-						storeId={effectiveStoreId}
-						statusFilter={search.status}
-						searchFilter={search.search}
-						daysFilter={search.days}
-						onStatusChange={handleStatusChange}
-						onSearchChange={handleSearchChange}
-						onDaysChange={handleDaysChange}
-					/>
-				</div>
-			) : (
-				<div className="flex flex-1 items-center justify-center">
-					<StoreSelectionRequired />
-				</div>
-			)}
+			<div className="mt-4 min-h-0 flex-1">
+				<OrdersTable
+					storeId={storeId}
+					statusFilter={search.status}
+					searchFilter={search.search}
+					daysFilter={search.days}
+					onStatusChange={handleStatusChange}
+					onSearchChange={handleSearchChange}
+					onDaysChange={handleDaysChange}
+				/>
+			</div>
 		</div>
 	);
 }

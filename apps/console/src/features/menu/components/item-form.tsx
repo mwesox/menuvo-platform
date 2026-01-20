@@ -35,7 +35,7 @@ import {
 } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { InfoIcon } from "lucide-react";
 import { Suspense, useState } from "react";
@@ -254,9 +254,8 @@ export function ItemForm({
 				// Navigate back to the category's items list
 				const targetCategoryId = selectedCategoryId;
 				navigate({
-					to: "/menu/categories/$categoryId",
-					params: { categoryId: targetCategoryId },
-					search: { storeId },
+					to: "/stores/$storeId/menu/categories/$categoryId",
+					params: { storeId, categoryId: targetCategoryId },
 				});
 			} catch {
 				// Error toast is handled by mutation hooks
@@ -649,12 +648,16 @@ export function ItemForm({
 			<form.Subscribe selector={(state) => state.isSubmitting}>
 				{(isSubmitting) => (
 					<div className="flex justify-end gap-3">
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => window.history.back()}
-						>
-							{tCommon("buttons.cancel")}
+						<Button type="button" variant="outline" asChild>
+							<Link
+								to="/stores/$storeId/menu/categories/$categoryId"
+								params={{
+									storeId,
+									categoryId: initialCategoryId ?? categoryId ?? "",
+								}}
+							>
+								{tCommon("buttons.cancel")}
+							</Link>
 						</Button>
 						<LoadingButton
 							type="submit"

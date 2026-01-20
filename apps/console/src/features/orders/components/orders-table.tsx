@@ -31,8 +31,11 @@ import {
 } from "@/features/orders";
 import { formatPrice } from "@/features/orders/logic/order-pricing";
 import type { OrderListItem } from "@/features/orders/types";
+import {
+	type DateRangePreset,
+	dateRangePresets,
+} from "@/features/orders/types";
 import { useTRPC } from "@/lib/trpc";
-import { type DateRangePreset, dateRangePresets } from "@/routes/_app/orders";
 import { ExportOrdersButton } from "./export-orders-button";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
@@ -155,9 +158,8 @@ export function OrdersTable({
 
 	const handleRowClick = (orderId: string) => {
 		navigate({
-			to: "/orders/$orderId",
-			params: { orderId },
-			search: { storeId },
+			to: "/stores/$storeId/orders/$orderId",
+			params: { storeId, orderId },
 		});
 	};
 
@@ -285,9 +287,8 @@ export function OrdersTable({
 									>
 										<TableCell>
 											<Link
-												to="/orders/$orderId"
-												params={{ orderId: order.id }}
-												search={{ storeId }}
+												to="/stores/$storeId/orders/$orderId"
+												params={{ storeId, orderId: order.id }}
 												className="font-medium text-primary hover:underline"
 												onClick={(e) => e.stopPropagation()}
 											>

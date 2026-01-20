@@ -71,6 +71,25 @@
 		"activateZone": "Zone aktivieren",
 		"deactivateZone": "Zone deaktivieren"
 	},
+	"toolbar": {
+		"searchPlaceholder": "Nach Name, Code oder Zone suchen...",
+		"filterByZone": "Nach Zone filtern",
+		"filterByStatus": "Nach Status filtern",
+		"allZones": "Alle Zonen",
+		"allStatuses": "Alle",
+		"activeOnly": "Nur aktive",
+		"inactiveOnly": "Nur inaktive"
+	},
+	"zones": {
+		"unassigned": "Nicht zugewiesen",
+		"activeCount": "{{active}} / {{total}} aktiv",
+		"activateAll": "Alle aktivieren",
+		"deactivateAll": "Alle deaktivieren"
+	},
+	"filters": {
+		"noResults": "Keine Servicepunkte entsprechen Ihren Filtern",
+		"clearFilters": "Filter zurücksetzen"
+	},
 	"batch": {
 		"title": "Servicepunkte erstellen",
 		"description": "Erstellen Sie mehrere Servicepunkte gleichzeitig mit fortlaufender Nummerierung.",

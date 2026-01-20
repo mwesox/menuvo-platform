@@ -1,13 +1,32 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@menuvo/ui";
-import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ShoppingCart, Store, UtensilsCrossed } from "lucide-react";
+import { useEffect } from "react";
+import { useTRPC } from "@/lib/trpc";
 
 export const Route = createFileRoute("/_app/")({
 	component: DashboardPage,
 });
 
 function DashboardPage() {
-	// Auth is handled centrally by _app beforeLoad - no check needed here
+	const navigate = useNavigate();
+	const trpc = useTRPC();
+
+	const { data: stores } = useQuery(trpc.store.list.queryOptions());
+
+	// Auto-redirect to store menu if single store
+	useEffect(() => {
+		const firstStore = stores?.[0];
+		if (stores?.length === 1 && firstStore) {
+			navigate({
+				to: "/stores/$storeId/menu",
+				params: { storeId: firstStore.id },
+				replace: true,
+			});
+		}
+	}, [stores, navigate]);
+
 	return (
 		<div>
 			<h1 className="mb-6 font-bold text-2xl tracking-tight">Dashboard</h1>
@@ -19,7 +38,7 @@ function DashboardPage() {
 						<Store className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="font-bold text-2xl">0</div>
+						<div className="font-bold text-2xl">{stores?.length ?? 0}</div>
 						<p className="text-muted-foreground text-xs">
 							Manage your locations
 						</p>

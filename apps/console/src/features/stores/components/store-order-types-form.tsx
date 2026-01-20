@@ -1,13 +1,5 @@
 import type { AppRouter } from "@menuvo/api/trpc";
-import {
-	Button,
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-	Switch,
-} from "@menuvo/ui";
+import { Button, Switch } from "@menuvo/ui";
 import { cn } from "@menuvo/ui/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +8,7 @@ import { ShoppingBag, Truck, UtensilsCrossed } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { ContentSection } from "@/components/ui/content-section";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 interface StoreOrderTypesFormProps {
@@ -137,14 +130,13 @@ export function StoreOrderTypesForm({ storeId }: StoreOrderTypesFormProps) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="space-y-6"
+			className="space-y-8"
 		>
-			<Card>
-				<CardHeader>
-					<CardTitle>{t("orderTypes.title")}</CardTitle>
-					<CardDescription>{t("orderTypes.description")}</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-3">
+			<ContentSection
+				title={t("orderTypes.title")}
+				description={t("orderTypes.description")}
+			>
+				<div className="space-y-3">
 					{ORDER_TYPE_CONFIG.map(({ key, icon: Icon }) => (
 						<form.Field key={key} name={key}>
 							{(field) => (
@@ -168,16 +160,7 @@ export function StoreOrderTypesForm({ storeId }: StoreOrderTypesFormProps) {
 										<Icon className="size-5" />
 									</div>
 									<div className="flex-1">
-										<div
-											className={cn(
-												"font-medium",
-												field.state.value
-													? "text-foreground"
-													: "text-foreground",
-											)}
-										>
-											{getOrderTypeLabel(key)}
-										</div>
+										<div className="font-medium">{getOrderTypeLabel(key)}</div>
 										<div className="text-muted-foreground text-sm">
 											{getOrderTypeDescription(key)}
 										</div>
@@ -191,18 +174,20 @@ export function StoreOrderTypesForm({ storeId }: StoreOrderTypesFormProps) {
 							)}
 						</form.Field>
 					))}
-				</CardContent>
-			</Card>
+				</div>
+			</ContentSection>
 
-			<form.Subscribe selector={(state) => state.isSubmitting}>
-				{(isSubmitting) => (
-					<Button type="submit" disabled={isSubmitting}>
-						{isSubmitting
-							? tCommon("states.saving")
-							: tCommon("buttons.saveChanges")}
-					</Button>
-				)}
-			</form.Subscribe>
+			<div className="flex justify-end border-t pt-6">
+				<form.Subscribe selector={(state) => state.isSubmitting}>
+					{(isSubmitting) => (
+						<Button type="submit" disabled={isSubmitting}>
+							{isSubmitting
+								? tCommon("states.saving")
+								: tCommon("buttons.saveChanges")}
+						</Button>
+					)}
+				</form.Subscribe>
+			</div>
 		</form>
 	);
 }

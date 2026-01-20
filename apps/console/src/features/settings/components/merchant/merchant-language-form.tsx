@@ -1,11 +1,6 @@
 import {
 	Badge,
 	Button,
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
 	Field,
 	FieldLabel,
 	Popover,
@@ -17,6 +12,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GripVertical, Plus, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { ContentSection } from "@/components/ui/content-section";
 import { LANGUAGE_OPTIONS } from "@/features/translations/constants.ts";
 import {
 	type LanguageCode,
@@ -96,126 +92,121 @@ export function MerchantLanguageForm() {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="space-y-6"
+			className="space-y-8"
 		>
-			<Card>
-				<CardHeader>
-					<CardTitle>{t("sections.languageSettings")}</CardTitle>
-					<CardDescription>
-						{t("descriptions.languageSettings")}
-					</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-6">
-					{/* Supported Languages */}
-					<form.Field name="supportedLanguages">
-						{(field) => {
-							const availableLanguages = getAvailableLanguages(
-								field.state.value,
-							);
+			<ContentSection
+				title={t("sections.languageSettings")}
+				description={t("descriptions.languageSettings")}
+			>
+				{/* Supported Languages */}
+				<form.Field name="supportedLanguages">
+					{(field) => {
+						const availableLanguages = getAvailableLanguages(field.state.value);
 
-							return (
-								<Field>
-									<FieldLabel>
-										{t("fields.supportedLanguages", "Supported Languages")}
-									</FieldLabel>
+						return (
+							<Field>
+								<FieldLabel>
+									{t("fields.supportedLanguages", "Supported Languages")}
+								</FieldLabel>
 
-									{/* List of languages */}
-									<div className="mt-2 space-y-2">
-										<div className="flex flex-wrap gap-2">
-											{field.state.value.map((langCode, index) => {
-												const lang = LANGUAGE_OPTIONS.find(
-													(l) => l.value === langCode,
-												);
-												const isFirst = index === 0;
-												const canRemove = field.state.value.length > 1;
+								{/* List of languages */}
+								<div className="mt-2 space-y-2">
+									<div className="flex flex-wrap gap-2">
+										{field.state.value.map((langCode, index) => {
+											const lang = LANGUAGE_OPTIONS.find(
+												(l) => l.value === langCode,
+											);
+											const isFirst = index === 0;
+											const canRemove = field.state.value.length > 1;
 
-												return (
-													<Badge
-														key={langCode}
-														variant={isFirst ? "default" : "secondary"}
-														className="gap-1 pe-2"
-													>
-														<GripVertical className="size-3 text-muted-foreground" />
-														{lang?.label ?? langCode}
-														{canRemove && (
-															<Button
-																type="button"
-																variant="ghost"
-																size="icon"
-																className="size-4 p-0 hover:bg-destructive/20"
-																onClick={() => {
-																	field.handleChange(
-																		field.state.value.filter(
-																			(l) => l !== langCode,
-																		),
-																	);
-																}}
-															>
-																<X className="size-3" />
-																<span className="sr-only">
-																	{tCommon("buttons.remove")}
-																</span>
-															</Button>
-														)}
-													</Badge>
-												);
-											})}
-										</div>
-
-										{/* Add language popover */}
-										{availableLanguages.length > 0 && (
-											<Popover>
-												<PopoverTrigger asChild>
-													<Button
-														type="button"
-														variant="outline"
-														size="sm"
-														className="gap-1"
-													>
-														<Plus className="h-3.5 w-3.5" />
-														{t("actions.addLanguage", "Add Language")}
-													</Button>
-												</PopoverTrigger>
-												<PopoverContent className="w-48 p-2" align="start">
-													<div className="space-y-1">
-														{availableLanguages.map((lang) => (
-															<Button
-																key={lang.value}
-																type="button"
-																variant="ghost"
-																size="sm"
-																className="w-full justify-start"
-																onClick={() => {
-																	field.handleChange([
-																		...field.state.value,
-																		lang.value,
-																	]);
-																}}
-															>
-																{lang.label}
-															</Button>
-														))}
-													</div>
-												</PopoverContent>
-											</Popover>
-										)}
+											return (
+												<Badge
+													key={langCode}
+													variant={isFirst ? "default" : "secondary"}
+													className="gap-1 pe-2"
+												>
+													<GripVertical className="size-3 text-muted-foreground" />
+													{lang?.label ?? langCode}
+													{canRemove && (
+														<Button
+															type="button"
+															variant="ghost"
+															size="icon"
+															className="size-4 p-0 hover:bg-destructive/20"
+															onClick={() => {
+																field.handleChange(
+																	field.state.value.filter(
+																		(l) => l !== langCode,
+																	),
+																);
+															}}
+														>
+															<X className="size-3" />
+															<span className="sr-only">
+																{tCommon("buttons.remove")}
+															</span>
+														</Button>
+													)}
+												</Badge>
+											);
+										})}
 									</div>
-								</Field>
-							);
-						}}
-					</form.Field>
-				</CardContent>
-			</Card>
 
-			<form.Subscribe selector={(state) => state.isSubmitting}>
-				{(isSubmitting) => (
-					<Button type="submit" disabled={isSubmitting}>
-						{isSubmitting
-							? tCommon("states.saving")
-							: tCommon("buttons.saveChanges")}
-					</Button>
-				)}
-			</form.Subscribe>
+									{/* Add language popover */}
+									{availableLanguages.length > 0 && (
+										<Popover>
+											<PopoverTrigger asChild>
+												<Button
+													type="button"
+													variant="outline"
+													size="sm"
+													className="gap-1"
+												>
+													<Plus className="h-3.5 w-3.5" />
+													{t("actions.addLanguage", "Add Language")}
+												</Button>
+											</PopoverTrigger>
+											<PopoverContent className="w-48 p-2" align="start">
+												<div className="space-y-1">
+													{availableLanguages.map((lang) => (
+														<Button
+															key={lang.value}
+															type="button"
+															variant="ghost"
+															size="sm"
+															className="w-full justify-start"
+															onClick={() => {
+																field.handleChange([
+																	...field.state.value,
+																	lang.value,
+																]);
+															}}
+														>
+															{lang.label}
+														</Button>
+													))}
+												</div>
+											</PopoverContent>
+										</Popover>
+									)}
+								</div>
+							</Field>
+						);
+					}}
+				</form.Field>
+			</ContentSection>
+
+			<div className="flex justify-end">
+				<form.Subscribe selector={(state) => state.isSubmitting}>
+					{(isSubmitting) => (
+						<Button type="submit" disabled={isSubmitting}>
+							{isSubmitting
+								? tCommon("states.saving")
+								: tCommon("buttons.saveChanges")}
+						</Button>
+					)}
+				</form.Subscribe>
+			</div>
 		</form>
 	);
 }

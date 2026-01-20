@@ -78,9 +78,8 @@ export function CategoriesTable({
 
 	const handleRowClick = (categoryId: string) => {
 		navigate({
-			to: "/menu/categories/$categoryId",
-			params: { categoryId },
-			search: { storeId },
+			to: "/stores/$storeId/menu/categories/$categoryId",
+			params: { storeId, categoryId },
 		});
 	};
 
@@ -99,9 +98,8 @@ export function CategoriesTable({
 	const handleEditClick = (e: React.MouseEvent, categoryId: string) => {
 		e.stopPropagation();
 		navigate({
-			to: "/menu/categories/$categoryId/edit",
-			params: { categoryId },
-			search: { storeId },
+			to: "/stores/$storeId/menu/categories/$categoryId/edit",
+			params: { storeId, categoryId },
 		});
 	};
 
@@ -143,9 +141,8 @@ export function CategoriesTable({
 									<TableCell>
 										<div className="flex items-center gap-2">
 											<Link
-												to="/menu/categories/$categoryId"
-												params={{ categoryId: category.id }}
-												search={{ storeId }}
+												to="/stores/$storeId/menu/categories/$categoryId"
+												params={{ storeId, categoryId: category.id }}
 												className="font-medium text-primary hover:underline"
 												onClick={(e) => e.stopPropagation()}
 											>

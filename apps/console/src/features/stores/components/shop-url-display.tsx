@@ -69,11 +69,20 @@ export function ShopUrlDisplay({
 					{isInteractive && (
 						<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
 							{isChecking ? (
-								<Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+								<>
+									<Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+									<span className="sr-only">Checking availability...</span>
+								</>
 							) : isAvailable ? (
-								<Check className="h-4 w-4 text-green-500" />
+								<>
+									<Check className="h-4 w-4 text-success" />
+									<span className="sr-only">Available</span>
+								</>
 							) : (
-								<AlertTriangle className="h-4 w-4 text-amber-500" />
+								<>
+									<AlertTriangle className="h-4 w-4 text-warning" />
+									<span className="sr-only">Not available</span>
+								</>
 							)}
 						</div>
 					)}
@@ -85,7 +94,7 @@ export function ShopUrlDisplay({
 					title={t("actions.copyUrl")}
 				>
 					{copied ? (
-						<Check className="h-4 w-4 text-green-500" />
+						<Check className="h-4 w-4 text-success" />
 					) : (
 						<Copy className="h-4 w-4" />
 					)}
@@ -104,7 +113,7 @@ export function ShopUrlDisplay({
 
 			{/* Show message when using alternative slug */}
 			{willUseAlternative && (
-				<p className="text-amber-600 text-sm">
+				<p className="text-sm text-warning">
 					{t("slugTaken", {
 						original: slug,
 						alternative: nextAvailable,

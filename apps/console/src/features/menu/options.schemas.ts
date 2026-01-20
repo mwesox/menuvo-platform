@@ -31,3 +31,24 @@ const choiceTranslationsSchema = z.record(
 	}),
 );
 export type ChoiceTranslations = z.infer<typeof choiceTranslationsSchema>;
+
+// ============================================================================
+// OPTION GROUP FORM SCHEMA (Client-side validation)
+// ============================================================================
+
+export const optionGroupFormSchema = z.object({
+	name: z
+		.string()
+		.min(2, "validation:optionGroupName.min")
+		.max(100, "validation:optionGroupName.max"),
+	description: z.string(),
+	type: optionGroupTypeSchema,
+	choices: z.array(
+		z.object({
+			id: z.string().optional(),
+			name: z.string().min(1, "validation:choiceName.required"),
+			priceModifier: z.string(),
+		}),
+	),
+});
+export type OptionGroupFormInput = z.infer<typeof optionGroupFormSchema>;

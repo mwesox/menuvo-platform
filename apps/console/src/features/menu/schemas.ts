@@ -1,6 +1,7 @@
 import { z } from "zod/v4";
 
 // Availability schedule form schema
+// Uses unions with undefined to match form types (properties always exist but may be undefined)
 const availabilityScheduleFormSchema = z.object({
 	enabled: z.boolean(),
 	timeRange: z
@@ -8,26 +9,24 @@ const availabilityScheduleFormSchema = z.object({
 			startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
 			endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
 		})
-		.optional(),
-	daysOfWeek: z
-		.array(
-			z.enum([
-				"monday",
-				"tuesday",
-				"wednesday",
-				"thursday",
-				"friday",
-				"saturday",
-				"sunday",
-			]),
-		)
-		.optional(),
+		.or(z.undefined()),
+	daysOfWeek: z.array(
+		z.enum([
+			"monday",
+			"tuesday",
+			"wednesday",
+			"thursday",
+			"friday",
+			"saturday",
+			"sunday",
+		]),
+	),
 	dateRange: z
 		.object({
 			startDate: z.string().date(),
 			endDate: z.string().date(),
 		})
-		.optional(),
+		.or(z.undefined()),
 });
 
 // Client-side category form schema (for a specific language)

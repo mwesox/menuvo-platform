@@ -410,6 +410,50 @@ const storeKeys = {
 | Mutation Hook  | —                             | Transforms only, no validation |
 | tRPC Procedure | Full input validation         | `.input(schema)`               |
 
+### Client-Side Validation Pattern
+
+```tsx
+// 1. Define schema in features/{f}/schemas.ts
+export const itemFormSchema = z.object({
+  name: z.string().min(2, "validation:itemName.min"),
+  price: z.string().min(1, "validation:itemPrice.required"),
+});
+
+// 2. Connect to useForm
+const form = useForm({
+  defaultValues: { name: "", price: "" },
+  validators: { onSubmit: itemFormSchema },
+  onSubmit: async ({ value }) => { /* ... */ },
+});
+
+// 3. Field component pattern (accessibility)
+<form.Field name="name">
+  {(field) => {
+    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+    return (
+      <Field data-invalid={isInvalid}>
+        <FieldLabel>{t("fields.name")}</FieldLabel>
+        <Input
+          name={field.name}
+          value={field.state.value}
+          onChange={(e) => field.handleChange(e.target.value)}
+          onBlur={field.handleBlur}
+          aria-invalid={isInvalid}
+        />
+        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+      </Field>
+    );
+  }}
+</form.Field>
+```
+
+| Rule                      | Guideline                                           |
+|---------------------------|-----------------------------------------------------|
+| Schema location           | `features/{f}/schemas.ts`                           |
+| Error messages            | Use `validation:` prefix for i18n keys              |
+| Always include            | `name`, `onBlur`, `aria-invalid`, `data-invalid`    |
+| FieldError component      | Translates `validation:` prefixed messages          |
+
 ---
 
 ## Naming Conventions

@@ -77,3 +77,11 @@ const dayHoursSchema = z
 	);
 
 export type DayHoursInput = z.infer<typeof dayHoursSchema>;
+
+// ============================================================================
+// STORE HOURS FORM SCHEMA (Client-side validation)
+// ============================================================================
+
+export const storeHoursFormSchema = z.object({
+	weekHours: z.array(dayHoursSchema),
+});

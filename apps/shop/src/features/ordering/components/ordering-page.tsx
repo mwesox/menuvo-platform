@@ -279,7 +279,7 @@ export function OrderingPage({
 	if (isPaymentRedirecting) {
 		return (
 			<div className="min-h-screen bg-background">
-				<div className="mx-auto max-w-xl px-4 py-12">
+				<div className="mx-auto max-w-2xl px-4 py-12">
 					<ShopCard padding="lg" className="space-y-4 text-center">
 						<Loader2 className="mx-auto size-12 animate-spin text-primary" />
 						<ShopHeading as="h1" size="lg">
@@ -303,7 +303,7 @@ export function OrderingPage({
 
 	return (
 		<div className="min-h-screen bg-background">
-			<div className="mx-auto max-w-xl px-4 py-6">
+			<div className="mx-auto max-w-2xl px-4 py-6">
 				{/* Header */}
 				<ShopHeading as="h1" size="xl" className="mb-6">
 					{t("ordering.title")}

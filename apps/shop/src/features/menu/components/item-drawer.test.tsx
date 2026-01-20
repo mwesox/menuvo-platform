@@ -40,9 +40,14 @@ vi.mock("../../shared", () => ({
 	ShopButton: ({ children, ...props }: React.ComponentProps<"button">) => (
 		<button {...props}>{children}</button>
 	),
-	ShopHeading: ({ children, as: Component = "h2", ...props }: any) => (
-		<Component {...props}>{children}</Component>
-	),
+	ShopHeading: ({
+		children,
+		as: Component = "h2",
+		...props
+	}: {
+		children: React.ReactNode;
+		as?: keyof JSX.IntrinsicElements;
+	}) => <Component {...props}>{children}</Component>,
 }));
 
 // Create a wrapper with QueryClient for tests

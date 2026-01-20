@@ -22,7 +22,7 @@ For API integration tests, read: `apps/api/src/test/README.md`
 - Use fullstack-react-dev for subagent work in developement.
 - Enforce type safety. fields which are mandatory must be mandatory and dont fill it with fallback values or model it
   optional or nullable.
-
+- On frontend design, consider consistent designs and reusable components. 
 ## Commands
 
 ```bash

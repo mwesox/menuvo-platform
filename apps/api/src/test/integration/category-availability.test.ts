@@ -10,6 +10,7 @@ import type { Database } from "@menuvo/db";
 import type { CategoryAvailabilitySchedule } from "@menuvo/db/schema";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { CategoriesService } from "../../domains/menu/categories/service.js";
+import type { IItemsService } from "../../domains/menu/items/interface.js";
 import { MenuQueryService } from "../../domains/menu/queries/service.js";
 import { MerchantsService } from "../../domains/merchants/service.js";
 import { StoreService } from "../../domains/stores/service.js";
@@ -36,7 +37,7 @@ describe("Category Availability Integration", () => {
 		merchantsService = new MerchantsService(db);
 		storesService = new StoreService(db);
 		categoriesService = new CategoriesService(db);
-		menuQueryService = new MenuQueryService(db, {} as any); // ItemsService not needed for these tests
+		menuQueryService = new MenuQueryService(db, {} as IItemsService); // ItemsService not needed for these tests
 
 		// Create merchant and store for all tests
 		const merchant = await merchantsService.create({

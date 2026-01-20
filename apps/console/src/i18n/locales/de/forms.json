@@ -15,13 +15,7 @@
 		"category": "Kategorie",
 		"businessName": "Firmenname",
 		"storeName": "Filialname",
-		"storeNameRequired": "Filialname *",
-		"streetRequired": "Straßenadresse *",
-		"cityRequired": "Stadt *",
-		"postalCodeRequired": "Postleitzahl *",
-		"countryRequired": "Land *",
-		"phoneRequired": "Telefon *",
-		"emailRequired": "E-Mail *"
+		"streetAddress": "Straßenadresse"
 	},
 	"placeholders": {
 		"enterName": "Dein vollständiger Name",
@@ -54,6 +48,30 @@
 		"maxLength": "Darf maximal {{max}} Zeichen lang sein",
 		"invalidFormat": "Ungültiges Format",
 		"mustBePositive": "Muss eine positive Zahl sein",
-		"mustBeNumber": "Muss eine Zahl sein"
+		"mustBeNumber": "Muss eine Zahl sein",
+		"storeName": {
+			"minLength": "Filialname muss mindestens 2 Zeichen lang sein",
+			"maxLength": "Filialname darf maximal 100 Zeichen lang sein"
+		},
+		"street": {
+			"required": "Straßenadresse ist erforderlich"
+		},
+		"city": {
+			"required": "Stadt ist erforderlich"
+		},
+		"postalCode": {
+			"required": "Postleitzahl ist erforderlich"
+		},
+		"country": {
+			"required": "Land ist erforderlich"
+		},
+		"phone": {
+			"required": "Telefonnummer ist erforderlich",
+			"invalid": "Ungültiges Telefonnummernformat"
+		},
+		"email": {
+			"required": "E-Mail-Adresse ist erforderlich",
+			"invalid": "Ungültige E-Mail-Adresse"
+		}
 	}
 }

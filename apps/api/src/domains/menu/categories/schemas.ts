@@ -107,8 +107,8 @@ export const availabilityScheduleSchema = z
 			if (!data.enabled || !data.timeRange) return true;
 			// Allow midnight crossover (e.g., 22:00-02:00)
 			// But validate that times are valid
-			const start = data.timeRange.startTime;
-			const end = data.timeRange.endTime;
+			const _start = data.timeRange.startTime;
+			const _end = data.timeRange.endTime;
 			// If start > end, it's a midnight crossover (valid)
 			// If start <= end, it's a normal range (valid)
 			return true; // Time format already validated by regex

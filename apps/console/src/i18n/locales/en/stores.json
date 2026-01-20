@@ -40,6 +40,7 @@
 		"contactInfo": "Contact Information",
 		"operatingHours": "Operating Hours",
 		"storeStatus": "Store Status",
+		"storeActive": "Active",
 		"shopUrl": "Shop URL",
 		"noAddressConfigured": "No address configured",
 		"manageStore": "Manage Store",
@@ -55,7 +56,15 @@
 		"hours": "Hours",
 		"closures": "Closures",
 		"orderTypes": "Order Types",
-		"qrCodes": "QR Codes"
+		"qrCodes": "Service Points"
+	},
+	"nav": {
+		"general": "General",
+		"hours": "Opening Hours",
+		"closures": "Closures",
+		"orderTypes": "Order Types",
+		"qrCodes": "Service Points",
+		"backToStores": "Back to Stores"
 	},
 	"orderTypes": {
 		"title": "Order Types",

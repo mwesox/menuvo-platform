@@ -35,9 +35,8 @@ export function OptionGroupsTable({
 
 	const handleRowClick = (optionGroupId: string) => {
 		navigate({
-			to: "/menu/options/$optionGroupId",
-			params: { optionGroupId },
-			search: { storeId },
+			to: "/stores/$storeId/menu/options/$optionGroupId",
+			params: { storeId, optionGroupId },
 		});
 	};
 
@@ -100,9 +99,8 @@ export function OptionGroupsTable({
 							>
 								<TableCell>
 									<Link
-										to="/menu/options/$optionGroupId"
-										params={{ optionGroupId: group.id }}
-										search={{ storeId }}
+										to="/stores/$storeId/menu/options/$optionGroupId"
+										params={{ storeId, optionGroupId: group.id }}
 										className="font-medium text-primary hover:underline"
 										onClick={(e) => e.stopPropagation()}
 									>

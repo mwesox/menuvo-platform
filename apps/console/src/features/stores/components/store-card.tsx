@@ -40,7 +40,7 @@ export function StoreCard({ store }: StoreCardProps) {
 
 	return (
 		<Link
-			to="/stores/$storeId"
+			to="/stores/$storeId/settings"
 			params={{ storeId: store.id }}
 			className="block"
 		>

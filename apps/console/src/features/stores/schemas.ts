@@ -39,15 +39,31 @@ const storeEmailSchema = z.string().superRefine((val, ctx) => {
 });
 
 // Client-side form validation schema (without merchantId)
+// Uses "validation:" prefix keys for i18n translation via FieldError component
 export const storeFormSchema = z.object({
 	name: z
 		.string()
-		.min(2, "Store name must be at least 2 characters")
-		.max(100, "Store name must be less than 100 characters"),
-	street: z.string().min(1, "Street address is required"),
-	city: z.string().min(1, "City is required"),
-	postalCode: z.string().min(1, "Postal code is required"),
-	country: z.string().min(1, "Country is required"),
+		.min(2, "validation:storeName.minLength")
+		.max(100, "validation:storeName.maxLength"),
+	street: z.string().min(1, "validation:street.required"),
+	city: z.string().min(1, "validation:city.required"),
+	postalCode: z.string().min(1, "validation:postalCode.required"),
+	country: z.string().min(1, "validation:country.required"),
 	phone: storePhoneSchema,
 	email: storeEmailSchema,
 });
+
+// ============================================================================
+// CLOSURE FORM SCHEMA (Client-side validation)
+// ============================================================================
+
+export const closureFormSchema = z
+	.object({
+		startDate: z.string().min(1, "validation:date.invalid"),
+		endDate: z.string().min(1, "validation:date.invalid"),
+		reason: z.string(),
+	})
+	.refine((data) => data.endDate >= data.startDate, {
+		message: "validation:closure.endBeforeStart",
+		path: ["endDate"],
+	});

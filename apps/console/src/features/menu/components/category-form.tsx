@@ -39,7 +39,7 @@ import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { cn } from "@/lib/utils.ts";
 import { getLocalizedContent } from "../logic/localization";
-import { formToTranslations } from "../schemas";
+import { categoryFormSchema, formToTranslations } from "../schemas";
 import { VatGroupSelector } from "./vat-group-selector";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
@@ -139,7 +139,9 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 			defaultVatGroupId: category?.defaultVatGroupId ?? null,
 			availabilitySchedule: initialSchedule,
 		},
-		// Note: Validation handled by API schema
+		validators: {
+			onSubmit: categoryFormSchema,
+		},
 		onSubmit: async ({ value }) => {
 			const translations = formToTranslations(
 				value,
@@ -182,8 +184,8 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 
 			// Navigate back to categories list
 			navigate({
-				to: "/menu",
-				search: { storeId },
+				to: "/stores/$storeId/menu",
+				params: { storeId },
 			});
 		},
 	});
@@ -299,7 +301,7 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 
 					<div className="mt-6 flex justify-end gap-3">
 						<Button type="button" variant="outline" asChild>
-							<Link to="/menu" search={{ storeId }}>
+							<Link to="/stores/$storeId/menu" params={{ storeId }}>
 								{tCommon("buttons.cancel")}
 							</Link>
 						</Button>
@@ -382,13 +384,13 @@ function AvailabilityScheduleSection({
 		};
 		return dayMap[dayValue] || dayValue;
 	};
-	const [accordionValue, setAccordionValue] = useState<string | undefined>(
+	const [accordionValue, setAccordionValue] = useState<string>(
 		value.enabled ||
 			!!value.timeRange ||
 			!!value.daysOfWeek?.length ||
 			!!value.dateRange
 			? "schedule"
-			: undefined,
+			: "",
 	);
 
 	// Auto-expand when enabled
@@ -467,7 +469,7 @@ function AvailabilityScheduleSection({
 			daysOfWeek: [],
 			dateRange: undefined,
 		});
-		setAccordionValue(undefined);
+		setAccordionValue("");
 	};
 
 	// Generate summary text for collapsed state
@@ -515,15 +517,15 @@ function AvailabilityScheduleSection({
 			type="single"
 			collapsible
 			value={accordionValue}
-			onValueChange={setAccordionValue}
+			onValueChange={(val) => setAccordionValue(val ?? "")}
 			className="w-full"
 		>
 			<AccordionItem value="schedule" className="border-none">
 				<div className="rounded-lg border">
-					<AccordionTrigger className="px-4 py-3 hover:no-underline">
-						<div className="flex flex-1 items-center justify-between">
+					<div className="flex items-center justify-between px-4 py-3">
+						<AccordionTrigger className="flex-1 p-0 hover:no-underline [&>svg]:hidden">
 							<div className="flex items-center gap-3">
-								<FieldLabel className="text-base font-semibold">
+								<FieldLabel>
 									{t("availability.title", "Availability Schedule")}
 								</FieldLabel>
 								{accordionValue !== "schedule" && value.enabled && (
@@ -532,23 +534,18 @@ function AvailabilityScheduleSection({
 									</span>
 								)}
 							</div>
-							<div className="flex items-center gap-2">
-								<Switch
-									checked={value.enabled}
-									onCheckedChange={handleToggleEnabled}
-									id="availability-enabled"
-									onClick={(e) => e.stopPropagation()}
-								/>
-								<FieldLabel
-									htmlFor="availability-enabled"
-									className="text-sm"
-									onClick={(e) => e.stopPropagation()}
-								>
-									{tCommon("labels.enabled")}
-								</FieldLabel>
-							</div>
+						</AccordionTrigger>
+						<div className="flex items-center gap-2">
+							<Switch
+								checked={value.enabled}
+								onCheckedChange={handleToggleEnabled}
+								id="availability-enabled"
+							/>
+							<FieldLabel htmlFor="availability-enabled">
+								{tCommon("labels.enabled")}
+							</FieldLabel>
 						</div>
-					</AccordionTrigger>
+					</div>
 					<AccordionContent className="px-4 pb-4">
 						<div className="space-y-4 pt-2">
 							<FieldDescription>
@@ -607,9 +604,11 @@ function AvailabilityScheduleSection({
 											{DAYS_OF_WEEK.map((day) => (
 												<label
 													key={day.value}
+													htmlFor={`day-${day.value}`}
 													className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 hover:bg-muted"
 												>
 													<Checkbox
+														id={`day-${day.value}`}
 														checked={
 															value.daysOfWeek?.includes(
 																day.value as DayOfWeek,

@@ -1,16 +1,5 @@
 import type { AppRouter } from "@menuvo/api/trpc";
-import {
-	Button,
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-	Field,
-	FieldLabel,
-	Switch,
-	TimeInput,
-} from "@menuvo/ui";
+import { Button, Field, FieldLabel, Switch, TimeInput } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
@@ -18,9 +7,11 @@ import { Plus, Trash2 } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { ContentSection } from "@/components/ui/content-section";
 import {
 	type DayHoursInput,
 	daysOfWeek,
+	storeHoursFormSchema,
 } from "@/features/stores/hours-validation.ts";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
@@ -125,6 +116,9 @@ export function StoreHoursForm({ storeId }: StoreHoursFormProps) {
 		defaultValues: {
 			weekHours: defaultValues,
 		},
+		validators: {
+			onSubmit: storeHoursFormSchema,
+		},
 		onSubmit: async ({ value }) => {
 			const hoursArray = transformToHoursArray(value.weekHours);
 			await saveMutation.mutateAsync({
@@ -140,14 +134,13 @@ export function StoreHoursForm({ storeId }: StoreHoursFormProps) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="space-y-6"
+			className="space-y-8"
 		>
-			<Card>
-				<CardHeader>
-					<CardTitle>{t("sections.openingHours")}</CardTitle>
-					<CardDescription>{t("descriptions.openingHours")}</CardDescription>
-				</CardHeader>
-				<CardContent className="space-y-4">
+			<ContentSection
+				title={t("sections.openingHours")}
+				description={t("descriptions.openingHours")}
+			>
+				<div>
 					{daysOfWeek.map((day, dayIndex) => (
 						<form.Field key={day} name={`weekHours[${dayIndex}]`}>
 							{(field) => (
@@ -159,18 +152,20 @@ export function StoreHoursForm({ storeId }: StoreHoursFormProps) {
 							)}
 						</form.Field>
 					))}
-				</CardContent>
-			</Card>
+				</div>
+			</ContentSection>
 
-			<form.Subscribe selector={(state) => state.isSubmitting}>
-				{(isSubmitting) => (
-					<Button type="submit" disabled={isSubmitting}>
-						{isSubmitting
-							? tCommon("states.saving")
-							: tCommon("buttons.saveChanges")}
-					</Button>
-				)}
-			</form.Subscribe>
+			<div className="flex justify-end border-t pt-6">
+				<form.Subscribe selector={(state) => state.isSubmitting}>
+					{(isSubmitting) => (
+						<Button type="submit" disabled={isSubmitting}>
+							{isSubmitting
+								? tCommon("states.saving")
+								: tCommon("buttons.saveChanges")}
+						</Button>
+					)}
+				</form.Subscribe>
+			</div>
 		</form>
 	);
 }
@@ -233,22 +228,24 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 		[value, onChange],
 	);
 
+	const showDeleteButton = value.slots.length > 1;
+
 	return (
-		<div className="flex items-start gap-4 border-b py-3 last:border-b-0">
-			<Field orientation="horizontal" className="w-28 pt-1.5">
+		<div className="grid grid-cols-[auto_1fr_auto] items-start gap-4 border-b py-2.5 last:border-b-0">
+			<Field orientation="horizontal" className="pt-1.5">
 				<Switch
 					id={`${day}-toggle`}
 					checked={value.isOpen}
 					onCheckedChange={handleToggle}
 				/>
-				<FieldLabel htmlFor={`${day}-toggle`} className="font-medium">
+				<FieldLabel htmlFor={`${day}-toggle`} className="w-24 font-medium">
 					{tCommon(`days.${day}`)}
 				</FieldLabel>
 			</Field>
 
-			<div className="flex-1">
+			<div className="flex justify-center">
 				{value.isOpen ? (
-					<div className="space-y-2">
+					<div className="space-y-1.5">
 						{value.slots.map((slot, slotIndex) => (
 							<div
 								key={`${slot.openTime}-${slot.closeTime}-${slotIndex}`}
@@ -261,9 +258,7 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 									}
 									className="w-32"
 								/>
-								<span className="text-muted-foreground">
-									{tCommon("labels.to")}
-								</span>
+								<span className="text-muted-foreground text-sm">–</span>
 								<TimeInput
 									value={slot.closeTime}
 									onChange={(val) =>
@@ -271,33 +266,41 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 									}
 									className="w-32"
 								/>
-								{value.slots.length > 1 && (
-									<Button
-										type="button"
-										variant="ghost"
-										size="icon"
-										onClick={() => handleRemoveSlot(slotIndex)}
-									>
-										<Trash2 className="size-4" />
-									</Button>
-								)}
+								<div className="w-8">
+									{showDeleteButton && (
+										<Button
+											type="button"
+											variant="ghost"
+											size="icon"
+											className="size-8"
+											onClick={() => handleRemoveSlot(slotIndex)}
+										>
+											<Trash2 className="size-4" />
+										</Button>
+									)}
+								</div>
 							</div>
 						))}
-						<Button
-							type="button"
-							variant="outline"
-							size="sm"
-							onClick={handleAddSlot}
-							className="mt-2"
-						>
-							<Plus className="me-1 size-4" />
-							{t("actions.addTimeSlot")}
-						</Button>
 					</div>
 				) : (
 					<span className="block pt-1.5 text-muted-foreground text-sm">
 						{tCommon("labels.closed")}
 					</span>
+				)}
+			</div>
+
+			<div className="pt-1">
+				{value.isOpen && (
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						className="size-8"
+						onClick={handleAddSlot}
+						title={t("actions.addTimeSlot")}
+					>
+						<Plus className="size-4" />
+					</Button>
 				)}
 			</div>
 		</div>

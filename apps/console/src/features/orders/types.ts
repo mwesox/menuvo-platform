@@ -51,3 +51,9 @@ export type OrderItem = OrderDetail["items"][number];
  * @see ./constants.ts for the canonical definition
  */
 export type { OrderStatus, OrderType, PaymentProvider } from "./constants";
+
+/**
+ * Date range presets for order filtering
+ */
+export const dateRangePresets = ["7", "30", "90", "all"] as const;
+export type DateRangePreset = (typeof dateRangePresets)[number];

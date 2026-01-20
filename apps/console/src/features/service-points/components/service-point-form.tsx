@@ -15,6 +15,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
+import { servicePointFormSchema } from "../schemas";
 import type { ServicePoint } from "../types.ts";
 import { AttributesEditor } from "./attributes-editor.tsx";
 
@@ -108,6 +109,9 @@ export function ServicePointForm({
 				string,
 				string | number | boolean
 			>,
+		},
+		validators: {
+			onSubmit: servicePointFormSchema,
 		},
 		onSubmit: async ({ value }) => {
 			try {

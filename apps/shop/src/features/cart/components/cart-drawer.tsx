@@ -140,7 +140,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 		<aside
 			className={cn(
 				"hidden lg:flex",
-				"fixed top-14 right-0 bottom-0", // Fixed to viewport edges (acts as containing block for absolute children)
+				"fixed top-14 right-0 bottom-0 z-40", // Fixed to viewport edges (acts as containing block for absolute children)
 				"w-80 flex-col border-border border-l bg-background shadow-sm",
 				"transition-transform duration-300 ease-in-out",
 				"overflow-hidden",

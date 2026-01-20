@@ -58,6 +58,10 @@ export const env = createEnv({
 			.enum(["true", "false"])
 			.default("false")
 			.transform((v) => v === "true"),
+		// AI Recommendations Model
+		AI_RECOMMENDATIONS_MODEL_ID: z
+			.string()
+			.default("openai/gpt-oss-safeguard-20b"),
 	},
 
 	/**
@@ -97,6 +101,8 @@ export const env = createEnv({
 		// Menu Import AI Model
 		MENU_IMPORT_MODEL_ID: process.env.MENU_IMPORT_MODEL_ID,
 		MENU_IMPORT_MODEL_STRUCTURED: process.env.MENU_IMPORT_MODEL_STRUCTURED,
+		// AI Recommendations Model
+		AI_RECOMMENDATIONS_MODEL_ID: process.env.AI_RECOMMENDATIONS_MODEL_ID,
 	},
 
 	emptyStringAsUndefined: true,

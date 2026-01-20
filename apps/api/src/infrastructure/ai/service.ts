@@ -1,4 +1,5 @@
 import { z } from "zod/v4";
+import { aiLogger } from "../../lib/logger";
 import { getOpenRouterClient } from "./client";
 
 type Message = { role: "system" | "user" | "assistant"; content: string };
@@ -20,12 +21,23 @@ interface StreamChatOptions extends ChatOptions {
  */
 export async function chat(options: ChatOptions): Promise<string> {
 	const client = getOpenRouterClient();
+	const startTime = Date.now();
+
+	aiLogger.info({ model: options.model, method: "chat" }, "AI request started");
+
 	const response = await client.chat.send({
 		model: options.model,
 		messages: options.messages,
 		temperature: options.temperature,
 		maxTokens: options.maxTokens,
 	});
+
+	const durationMs = Date.now() - startTime;
+	aiLogger.info(
+		{ model: options.model, method: "chat", durationMs },
+		`AI response completed in ${durationMs}ms`,
+	);
+
 	const content = response.choices[0]?.message?.content;
 	return typeof content === "string" ? content : "";
 }
@@ -36,6 +48,13 @@ export async function chat(options: ChatOptions): Promise<string> {
  */
 export async function streamChat(options: StreamChatOptions): Promise<string> {
 	const client = getOpenRouterClient();
+	const startTime = Date.now();
+
+	aiLogger.info(
+		{ model: options.model, method: "streamChat" },
+		"AI stream request started",
+	);
+
 	const stream = await client.chat.send({
 		model: options.model,
 		messages: options.messages,
@@ -50,6 +69,13 @@ export async function streamChat(options: StreamChatOptions): Promise<string> {
 		fullContent += content;
 		options.onChunk?.(content);
 	}
+
+	const durationMs = Date.now() - startTime;
+	aiLogger.info(
+		{ model: options.model, method: "streamChat", durationMs },
+		`AI stream completed in ${durationMs}ms`,
+	);
+
 	return fullContent;
 }
 
@@ -65,6 +91,16 @@ export async function generateStructured<T extends z.ZodType>(options: {
 }): Promise<z.infer<T>> {
 	const client = getOpenRouterClient();
 	const jsonSchema = z.toJSONSchema(options.schema);
+	const startTime = Date.now();
+
+	aiLogger.info(
+		{
+			model: options.model,
+			method: "generateStructured",
+			schemaName: options.schemaName,
+		},
+		"AI structured request started",
+	);
 
 	const response = await client.chat.send({
 		model: options.model,
@@ -78,6 +114,17 @@ export async function generateStructured<T extends z.ZodType>(options: {
 			},
 		},
 	});
+
+	const durationMs = Date.now() - startTime;
+	aiLogger.info(
+		{
+			model: options.model,
+			method: "generateStructured",
+			schemaName: options.schemaName,
+			durationMs,
+		},
+		`AI structured response completed in ${durationMs}ms`,
+	);
 
 	const rawContent = response.choices[0]?.message?.content;
 	const content = typeof rawContent === "string" ? rawContent : "{}";

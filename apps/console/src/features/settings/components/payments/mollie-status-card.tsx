@@ -68,9 +68,11 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 			return result;
 		},
 		onSuccess: (data) => {
-			// The procedure returns info for API layer to get dashboard URL
-			if (data && "dashboardUrl" in data && data.dashboardUrl) {
-				window.open(data.dashboardUrl as string, "_blank");
+			if (data?.dashboardUrl) {
+				window.open(data.dashboardUrl, "_blank");
+			} else {
+				// Dashboard URL unavailable (token expired or invalid)
+				toast.error(tToasts("error.getMollieDashboardUrl"));
 			}
 		},
 		onError: () => {
@@ -163,12 +165,27 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 
 				{/* PayPal included badge */}
 				{isComplete && (
-					<div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
-						<CheckCircle className="size-4 text-green-600" />
-						<span className="font-medium text-blue-800 text-sm">
-							{t("payments.mollie.status.paypalEnabled")}
-						</span>
-					</div>
+					<>
+						<div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+							<CheckCircle className="size-4 text-green-600" />
+							<span className="font-medium text-blue-800 text-sm">
+								{t("payments.mollie.status.paypalEnabled")}
+							</span>
+						</div>
+						<Button
+							variant="outline"
+							onClick={handleCompleteVerification}
+							disabled={getDashboardUrl.isPending}
+							className="w-full"
+						>
+							{getDashboardUrl.isPending ? (
+								<RefreshCw className="me-2 size-4 animate-spin" />
+							) : (
+								<ExternalLink className="me-2 size-4" />
+							)}
+							{t("payments.mollie.actions.manageDashboard")}
+						</Button>
+					</>
 				)}
 
 				{/* In review notice */}

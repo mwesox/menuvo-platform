@@ -40,6 +40,7 @@
 		"contactInfo": "Kontaktinformationen",
 		"operatingHours": "Öffnungszeiten",
 		"storeStatus": "Filialstatus",
+		"storeActive": "Aktiv",
 		"shopUrl": "Shop-URL",
 		"noAddressConfigured": "Keine Adresse konfiguriert",
 		"manageStore": "Filiale verwalten",
@@ -55,7 +56,15 @@
 		"hours": "Öffnungszeiten",
 		"closures": "Schließungen",
 		"orderTypes": "Bestellarten",
-		"qrCodes": "QR-Codes"
+		"qrCodes": "Servicepunkte"
+	},
+	"nav": {
+		"general": "Allgemein",
+		"hours": "Öffnungszeiten",
+		"closures": "Schließungen",
+		"orderTypes": "Bestellarten",
+		"qrCodes": "Servicepunkte",
+		"backToStores": "Zurück zu Filialen"
 	},
 	"orderTypes": {
 		"title": "Bestellarten",
