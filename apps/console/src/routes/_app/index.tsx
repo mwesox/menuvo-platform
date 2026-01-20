@@ -1,8 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@menuvo/ui";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ShoppingCart, Store, UtensilsCrossed } from "lucide-react";
-import { useEffect } from "react";
 import { useTRPC } from "@/lib/trpc";
 
 export const Route = createFileRoute("/_app/")({
@@ -10,22 +9,9 @@ export const Route = createFileRoute("/_app/")({
 });
 
 function DashboardPage() {
-	const navigate = useNavigate();
 	const trpc = useTRPC();
 
 	const { data: stores } = useQuery(trpc.store.list.queryOptions());
-
-	// Auto-redirect to store menu if single store
-	useEffect(() => {
-		const firstStore = stores?.[0];
-		if (stores?.length === 1 && firstStore) {
-			navigate({
-				to: "/stores/$storeId/menu",
-				params: { storeId: firstStore.id },
-				replace: true,
-			});
-		}
-	}, [stores, navigate]);
 
 	return (
 		<div>
