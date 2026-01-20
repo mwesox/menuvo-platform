@@ -73,20 +73,21 @@ COPY --from=prerelease --chown=menuvo:menuvo /app/packages/db/drizzle.config.ts 
 COPY --from=prerelease --chown=menuvo:menuvo /app/packages/db/package.json ./packages/db/
 COPY --from=prerelease --chown=menuvo:menuvo /app/packages/db ./packages/db
 
+# Copy entrypoint script
+COPY --chown=menuvo:menuvo infra/docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
 USER menuvo:menuvo
 
 # Environment
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Set working directory to apps/api for correct module resolution
-WORKDIR /app/apps/api
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+# Health check (longer start period for migrations)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD wget -q --spider http://localhost:3000/health || exit 1
 
 EXPOSE 3000
 
-# Run API server from apps/api directory
-CMD ["bun", "dist/index.js"]
+# Run migrations then start API server
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
