@@ -58,13 +58,14 @@ RUN apk add --no-cache vips
 # Create non-root user for security
 RUN addgroup -S menuvo && adduser -S menuvo -G menuvo
 
-# Copy node_modules (both root and workspace-specific)
+# Copy node_modules preserving workspace structure for module resolution
+# Bun resolves modules by walking up from the entry point
 COPY --from=install --chown=menuvo:menuvo /temp/dev/node_modules ./node_modules
 COPY --from=install --chown=menuvo:menuvo /temp/dev/apps/api/node_modules ./apps/api/node_modules
 COPY --from=install --chown=menuvo:menuvo /temp/dev/packages/db/node_modules ./packages/db/node_modules
 
-# Copy built API
-COPY --from=prerelease --chown=menuvo:menuvo /app/apps/api/dist ./dist
+# Copy built API to apps/api/dist (preserves workspace structure for module resolution)
+COPY --from=prerelease --chown=menuvo:menuvo /app/apps/api/dist ./apps/api/dist
 
 # Copy drizzle migrations and config from packages/db
 COPY --from=prerelease --chown=menuvo:menuvo /app/packages/db/drizzle ./packages/db/drizzle
@@ -78,11 +79,14 @@ USER menuvo:menuvo
 ENV NODE_ENV=production
 ENV PORT=3000
 
+# Set working directory to apps/api for correct module resolution
+WORKDIR /app/apps/api
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD wget -q --spider http://localhost:3000/health || exit 1
 
 EXPOSE 3000
 
-# Run API server
+# Run API server from apps/api directory
 CMD ["bun", "dist/index.js"]
