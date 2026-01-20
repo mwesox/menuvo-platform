@@ -11,8 +11,8 @@ WORKDIR /app
 # Install vips for sharp
 RUN apk add --no-cache vips-dev
 
-# Copy workspace root files
-COPY package.json turbo.json ./
+# Copy workspace root files (including lockfile for reproducible installs)
+COPY package.json turbo.json bun.lock ./
 
 # Copy all package.json files for workspace resolution
 COPY packages/db/package.json ./packages/db/
@@ -23,8 +23,8 @@ COPY apps/console/package.json ./apps/console/
 COPY apps/shop/package.json ./apps/shop/
 COPY apps/business/package.json ./apps/business/
 
-# Install dependencies (skip lifecycle scripts to avoid native module issues)
-RUN bun install --ignore-scripts
+# Install dependencies (frozen lockfile for reproducible builds, skip lifecycle scripts)
+RUN bun install --frozen-lockfile --ignore-scripts
 
 # Copy source code (includes drizzle.config.ts in packages/db)
 COPY packages/db ./packages/db
