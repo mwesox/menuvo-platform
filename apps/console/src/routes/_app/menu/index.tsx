@@ -5,10 +5,10 @@ import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
+import { StoreSelectionRequired } from "@/components/store-selection-required";
 import { ConsoleError } from "@/features/components/console-error";
 import { CategoriesTable } from "@/features/menu/components/categories-table";
 import { MenuTabs } from "@/features/menu/components/menu-tabs";
-import { StoreSelectionPrompt } from "@/features/menu/components/store-selection-prompt";
 import { getCategoriesQueryOptions } from "@/features/menu/queries";
 import {
 	queryClient,
@@ -41,7 +41,7 @@ export const Route = createFileRoute("/_app/menu/")({
 
 		return {
 			stores,
-			autoSelectedStoreId: stores.length === 1 ? stores[0]?.id : undefined,
+			autoSelectedStoreId: stores[0]?.id,
 		};
 	},
 	component: RouteComponent,
@@ -87,7 +87,11 @@ function RouteComponent() {
 
 	// No store selected and multiple stores - show selection
 	if (!effectiveStoreId) {
-		return <StoreSelectionPrompt stores={loaderData.stores} />;
+		return (
+			<div className="flex h-full items-center justify-center">
+				<StoreSelectionRequired />
+			</div>
+		);
 	}
 
 	// Store selected - show categories

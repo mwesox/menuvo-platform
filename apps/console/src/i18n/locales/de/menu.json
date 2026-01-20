@@ -24,9 +24,12 @@
 	},
 	"table": {
 		"category": "Kategorie",
+		"vatGroup": "MwSt.-Gruppe",
 		"image": "Bild",
 		"items": "Produkte",
 		"status": "Status",
+		"active": "Aktiv",
+		"action": "Aktion",
 		"price": "Preis",
 		"name": "Name",
 		"type": "Typ",
@@ -106,7 +109,8 @@
 		"choiceName": "z. B. Extra Käse, Pepperoni",
 		"itemDescription": "Beschreiben Sie diesen Artikel...",
 		"aggregateMinQuantity": "Kein Minimum",
-		"aggregateMaxQuantity": "Kein Maximum"
+		"aggregateMaxQuantity": "Kein Maximum",
+		"pickDate": "Datum wählen"
 	},
 	"hints": {
 		"numFreeOptions": "Anzahl der Optionen, die Kunden kostenlos hinzufügen können, bevor Kosten anfallen",
@@ -213,7 +217,9 @@
 	"tooltips": {
 		"activateItem": "Artikel aktivieren",
 		"deactivateItem": "Artikel deaktivieren",
-		"cannotActivateWithIssues": "Probleme beheben vor Aktivierung"
+		"cannotActivateWithIssues": "Probleme beheben vor Aktivierung",
+		"activateCategory": "Kategorie aktivieren",
+		"deactivateCategory": "Kategorie deaktivieren"
 	},
 	"common": {
 		"yes": "Ja",
@@ -367,5 +373,20 @@
 			"MISSING_IMAGE": "Kein Bild hochgeladen",
 			"CATEGORY_INACTIVE": "Übergeordnete Kategorie ist inaktiv"
 		}
+	},
+	"availability": {
+		"title": "Verfügbarkeitsplan",
+		"description": "Steuern Sie, wann diese Kategorie für Kunden sichtbar ist. Alle Regeln müssen erfüllt sein, damit die Kategorie angezeigt wird.",
+		"timeRange": "Zeitraum",
+		"timeRangeHint": "Leer lassen, um für alle Zeiten zu gelten. Unterstützt Mitternachtsübergang (z. B. 22:00-02:00).",
+		"daysOfWeek": "Wochentage",
+		"daysHint": "Leer lassen, um für alle Tage zu gelten.",
+		"startDate": "Startdatum",
+		"endDate": "Enddatum",
+		"dateRange": "Datumsbereich",
+		"badge": "Geplant",
+		"notConfigured": "Nicht konfiguriert",
+		"enabledNoRules": "Aktiviert (keine Regeln gesetzt)",
+		"daysCount": "{{count}} Tage"
 	}
 }

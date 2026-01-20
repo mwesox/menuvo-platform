@@ -88,6 +88,8 @@ export const categoryRouter = router({
 				translations: input.translations,
 				displayOrder: input.displayOrder,
 				isActive: input.isActive,
+				defaultVatGroupId: input.defaultVatGroupId,
+				availabilitySchedule: input.availabilitySchedule,
 			};
 
 			try {
@@ -120,6 +122,7 @@ export const categoryRouter = router({
 				displayOrder: input.displayOrder,
 				isActive: input.isActive,
 				defaultVatGroupId: input.defaultVatGroupId,
+				availabilitySchedule: input.availabilitySchedule,
 			};
 
 			try {

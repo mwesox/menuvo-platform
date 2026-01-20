@@ -10,6 +10,7 @@ import type { Database } from "@menuvo/db";
 import { categories, items } from "@menuvo/db/schema";
 import { asc, eq } from "drizzle-orm";
 import { NotFoundError } from "../../errors.js";
+import { isCategoryAvailable } from "../categories/service.js";
 import type { IItemsService } from "../items/interface.js";
 import {
 	type ItemValidationContext,
@@ -55,6 +56,14 @@ export class MenuQueryService implements IMenuQueryService {
 				items: {
 					orderBy: [asc(items.displayOrder)],
 				},
+				defaultVatGroup: {
+					columns: {
+						id: true,
+						name: true,
+						code: true,
+						rate: true,
+					},
+				},
 			},
 		});
 
@@ -73,6 +82,15 @@ export class MenuQueryService implements IMenuQueryService {
 				displayOrder: cat.displayOrder,
 				isActive: cat.isActive,
 				defaultVatGroupId: cat.defaultVatGroupId,
+				defaultVatGroup: cat.defaultVatGroup
+					? {
+							id: cat.defaultVatGroup.id,
+							name: cat.defaultVatGroup.name,
+							code: cat.defaultVatGroup.code,
+							rate: cat.defaultVatGroup.rate,
+						}
+					: null,
+				availabilitySchedule: cat.availabilitySchedule,
 				createdAt: cat.createdAt,
 				updatedAt: cat.updatedAt,
 				items: cat.items.map((item) => ({
@@ -105,6 +123,14 @@ export class MenuQueryService implements IMenuQueryService {
 				items: {
 					orderBy: [asc(items.displayOrder)],
 				},
+				defaultVatGroup: {
+					columns: {
+						id: true,
+						name: true,
+						code: true,
+						rate: true,
+					},
+				},
 				store: {
 					with: {
 						merchant: {
@@ -133,6 +159,15 @@ export class MenuQueryService implements IMenuQueryService {
 			displayOrder: category.displayOrder,
 			isActive: category.isActive,
 			defaultVatGroupId: category.defaultVatGroupId,
+			defaultVatGroup: category.defaultVatGroup
+				? {
+						id: category.defaultVatGroup.id,
+						name: category.defaultVatGroup.name,
+						code: category.defaultVatGroup.code,
+						rate: category.defaultVatGroup.rate,
+					}
+				: null,
+			availabilitySchedule: category.availabilitySchedule,
 			createdAt: category.createdAt,
 			updatedAt: category.updatedAt,
 			items: category.items.map((item) => ({
@@ -175,7 +210,20 @@ export class MenuQueryService implements IMenuQueryService {
 			store.merchant?.supportedLanguages ?? ["de"],
 		);
 
-		return transformMenuToShop(store, validatedCode);
+		// Filter categories by availability schedule
+		const now = new Date();
+		const storeTimezone = store.timezone || "UTC";
+		const availableCategories = store.categories.filter((category) =>
+			isCategoryAvailable(category.availabilitySchedule, now, storeTimezone),
+		);
+
+		// Create a modified store object with filtered categories
+		const storeWithFilteredCategories = {
+			...store,
+			categories: availableCategories,
+		};
+
+		return transformMenuToShop(storeWithFilteredCategories, validatedCode);
 	}
 
 	async getShopItemDetails(

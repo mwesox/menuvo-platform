@@ -11,6 +11,7 @@ import { mapDomainErrorToTRPC, router } from "../../trpc/index.js";
 import { protectedProcedure, publicProcedure } from "../../trpc/trpc.js";
 import { closuresRouter } from "./closures/index.js";
 import { hoursRouter } from "./hours/index.js";
+import { recommendationsRouter } from "./recommendations/index.js";
 import {
 	checkSlugAvailabilityApiSchema,
 	createStoreApiSchema,
@@ -241,6 +242,9 @@ export const storeRouter = router({
 
 	/** Store status operations */
 	status: statusRouter,
+
+	/** AI recommendations operations */
+	recommendations: recommendationsRouter,
 });
 
 export type StoreRouter = typeof storeRouter;

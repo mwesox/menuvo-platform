@@ -352,6 +352,7 @@ export class OrderService implements IOrderService {
 						optionsPrice: itemData.optionsPrice,
 						totalPrice: itemData.totalPrice,
 						displayOrder: itemData.displayOrder,
+						fromRecommendation: itemData.fromRecommendation ?? false,
 					})
 					.returning();
 
@@ -747,6 +748,7 @@ export class OrderService implements IOrderService {
 				displayOrder: i,
 				itemId: inputItem.itemId,
 				specialInstructions: inputItem.specialInstructions,
+				fromRecommendation: inputItem.fromRecommendation ?? false,
 				options: itemOptions.length > 0 ? itemOptions : undefined,
 			});
 		}

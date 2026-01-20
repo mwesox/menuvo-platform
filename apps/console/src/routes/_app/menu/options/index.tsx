@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
+import { StoreSelectionRequired } from "@/components/store-selection-required";
 import { ConsoleError } from "@/features/components/console-error";
 import { MenuTabs } from "@/features/menu/components/menu-tabs";
 import { OptionGroupsTable } from "@/features/menu/components/option-groups-table";
@@ -20,9 +21,8 @@ export const Route = createFileRoute("/_app/menu/options/")({
 	loader: async ({ deps }) => {
 		const stores = await trpcUtils.store.list.ensureData();
 
-		// Auto-select store if only one exists and none selected
-		const effectiveStoreId =
-			deps.storeId ?? (stores.length === 1 ? stores[0]?.id : undefined);
+		const singleStoreId = stores.length === 1 ? stores[0]?.id : undefined;
+		const effectiveStoreId = deps.storeId ?? singleStoreId;
 
 		if (effectiveStoreId) {
 			await trpcUtils.menu.options.listGroups.ensureData({
@@ -107,8 +107,8 @@ function RouteComponent() {
 					language={language}
 				/>
 			) : (
-				<div className="py-12 text-center text-muted-foreground">
-					{t("emptyStates.selectStore")}
+				<div className="flex justify-center py-12">
+					<StoreSelectionRequired />
 				</div>
 			)}
 		</div>

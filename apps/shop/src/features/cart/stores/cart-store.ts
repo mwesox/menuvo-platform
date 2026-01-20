@@ -33,6 +33,8 @@ export interface CartItem {
 	storeId: string;
 	/** Store slug this item belongs to */
 	storeSlug: string;
+	/** Whether this item was added from AI recommendations */
+	fromRecommendation?: boolean;
 }
 
 interface CartState {

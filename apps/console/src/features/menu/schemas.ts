@@ -1,5 +1,35 @@
 import { z } from "zod/v4";
 
+// Availability schedule form schema
+const availabilityScheduleFormSchema = z.object({
+	enabled: z.boolean(),
+	timeRange: z
+		.object({
+			startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
+			endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
+		})
+		.optional(),
+	daysOfWeek: z
+		.array(
+			z.enum([
+				"monday",
+				"tuesday",
+				"wednesday",
+				"thursday",
+				"friday",
+				"saturday",
+				"sunday",
+			]),
+		)
+		.optional(),
+	dateRange: z
+		.object({
+			startDate: z.string().date(),
+			endDate: z.string().date(),
+		})
+		.optional(),
+});
+
 // Client-side category form schema (for a specific language)
 export const categoryFormSchema = z.object({
 	name: z
@@ -9,6 +39,8 @@ export const categoryFormSchema = z.object({
 	description: z.string(),
 	/** Default VAT group ID for items in this category (optional) */
 	defaultVatGroupId: z.string().nullable(),
+	/** Availability schedule configuration */
+	availabilitySchedule: availabilityScheduleFormSchema,
 });
 export type CategoryFormInput = z.infer<typeof categoryFormSchema>;
 

@@ -93,7 +93,7 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 		onSuccess: () => {
 			// Invalidate all menu queries to refresh data
 			queryClient.invalidateQueries({
-				queryKey: trpc.menu.categories.list.queryKey({ storeId }),
+				queryKey: trpc.menu.queries.getCategories.queryKey({ storeId }),
 			});
 			queryClient.invalidateQueries({
 				queryKey: trpc.menu.items.listByStore.queryKey({ storeId }),

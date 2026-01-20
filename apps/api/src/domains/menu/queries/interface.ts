@@ -8,7 +8,10 @@
  * CQRS-light: MenuQueryService = Single entry point for ALL reads (admin + shop)
  */
 
-import type { EntityTranslations } from "@menuvo/db/schema";
+import type {
+	CategoryAvailabilitySchedule,
+	EntityTranslations,
+} from "@menuvo/db/schema";
 import type { ItemValidationResult } from "../items/validation/index.js";
 import type { MenuResponse } from "../schemas.js";
 
@@ -34,6 +37,13 @@ export interface CategoryWithItems {
 	displayOrder: string;
 	isActive: boolean;
 	defaultVatGroupId: string | null;
+	defaultVatGroup: {
+		id: string;
+		name: string;
+		code: string;
+		rate: number;
+	} | null;
+	availabilitySchedule: CategoryAvailabilitySchedule | null;
 	createdAt: Date;
 	updatedAt: Date;
 	items: CategoryItem[];

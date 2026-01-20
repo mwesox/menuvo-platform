@@ -6,6 +6,7 @@
  */
 
 import type { Database } from "@menuvo/db";
+import type { CategoryAvailabilitySchedule } from "@menuvo/db/schema";
 import { categories, stores } from "@menuvo/db/schema";
 import { asc, eq } from "drizzle-orm";
 
@@ -85,6 +86,7 @@ export async function insertCategory(
 		displayOrder: string;
 		isActive: boolean;
 		defaultVatGroupId?: string | null;
+		availabilitySchedule?: CategoryAvailabilitySchedule | null;
 	},
 ) {
 	const [newCategory] = await db
@@ -95,6 +97,7 @@ export async function insertCategory(
 			displayOrder: data.displayOrder,
 			isActive: data.isActive,
 			defaultVatGroupId: data.defaultVatGroupId ?? null,
+			availabilitySchedule: data.availabilitySchedule ?? null,
 		})
 		.returning();
 
@@ -128,6 +131,7 @@ export async function updateCategory(
 		displayOrder?: string;
 		isActive?: boolean;
 		defaultVatGroupId?: string | null;
+		availabilitySchedule?: CategoryAvailabilitySchedule | null;
 	},
 ) {
 	const [updatedCategory] = await db

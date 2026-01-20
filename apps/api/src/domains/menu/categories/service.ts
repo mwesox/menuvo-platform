@@ -5,6 +5,7 @@
  */
 
 import type { Database } from "@menuvo/db";
+import type { CategoryAvailabilitySchedule } from "@menuvo/db/schema";
 import { generateOrderKey, generateOrderKeys } from "../../../lib/ordering.js";
 import {
 	ForbiddenError,
@@ -25,6 +26,88 @@ import {
 	updateCategory,
 } from "./queries.js";
 import type { CreateCategoryInput, UpdateCategoryInput } from "./types.js";
+
+/**
+ * Check if a category is currently available based on its schedule
+ */
+export function isCategoryAvailable(
+	schedule: CategoryAvailabilitySchedule | null,
+	now: Date,
+	storeTimezone: string,
+): boolean {
+	// No schedule or schedule disabled = always available
+	if (!schedule || !schedule.enabled) {
+		return true;
+	}
+
+	// Check date range (if specified)
+	if (schedule.dateRange) {
+		const today = new Date(
+			new Intl.DateTimeFormat("en-CA", {
+				timeZone: storeTimezone || "UTC",
+			}).format(now),
+		);
+		const startDate = new Date(schedule.dateRange.startDate);
+		const endDate = new Date(schedule.dateRange.endDate);
+
+		// Set time to start of day for comparison
+		today.setHours(0, 0, 0, 0);
+		startDate.setHours(0, 0, 0, 0);
+		endDate.setHours(0, 0, 0, 0);
+
+		if (today < startDate || today > endDate) {
+			return false;
+		}
+	}
+
+	// Check day of week (if specified)
+	if (schedule.daysOfWeek && schedule.daysOfWeek.length > 0) {
+		const dayOfWeekInTz = new Intl.DateTimeFormat("en-US", {
+			timeZone: storeTimezone || "UTC",
+			weekday: "long",
+		}).format(now);
+		const dayName = dayOfWeekInTz.toLowerCase();
+
+		if (
+			!schedule.daysOfWeek.includes(
+				dayName as (typeof schedule.daysOfWeek)[number],
+			)
+		) {
+			return false;
+		}
+	}
+
+	// Check time range (if specified)
+	if (schedule.timeRange) {
+		const currentTime = new Intl.DateTimeFormat("en-US", {
+			timeZone: storeTimezone || "UTC",
+			hour: "2-digit",
+			minute: "2-digit",
+			hour12: false,
+		}).format(now);
+
+		const startTime = schedule.timeRange.startTime;
+		const endTime = schedule.timeRange.endTime;
+
+		// Handle midnight crossover (e.g., 22:00-02:00)
+		if (startTime > endTime) {
+			// Crossover: visible from startTime today until endTime tomorrow
+			if (currentTime >= startTime || currentTime < endTime) {
+				return true;
+			}
+			return false;
+		} else {
+			// Normal range: visible from startTime to endTime on same day
+			if (currentTime >= startTime && currentTime < endTime) {
+				return true;
+			}
+			return false;
+		}
+	}
+
+	// All checks passed
+	return true;
+}
 
 /**
  * Categories service implementation
@@ -70,6 +153,7 @@ export class CategoriesService implements ICategoriesService {
 			displayOrder,
 			isActive: input.isActive ?? true,
 			defaultVatGroupId: input.defaultVatGroupId ?? null,
+			availabilitySchedule: input.availabilitySchedule ?? null,
 		});
 
 		if (!newCategory) {
@@ -103,6 +187,7 @@ export class CategoriesService implements ICategoriesService {
 			displayOrder?: string;
 			isActive?: boolean;
 			defaultVatGroupId?: string | null;
+			availabilitySchedule?: CategoryAvailabilitySchedule | null;
 		} = {};
 		if (input.translations !== undefined) {
 			updateData.translations = input.translations;
@@ -113,6 +198,9 @@ export class CategoriesService implements ICategoriesService {
 		}
 		if (input.defaultVatGroupId !== undefined) {
 			updateData.defaultVatGroupId = input.defaultVatGroupId;
+		}
+		if (input.availabilitySchedule !== undefined) {
+			updateData.availabilitySchedule = input.availabilitySchedule;
 		}
 
 		if (Object.keys(updateData).length === 0) {

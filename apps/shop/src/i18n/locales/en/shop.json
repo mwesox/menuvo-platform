@@ -129,6 +129,11 @@
 			"pleaseWait": "You'll be redirected to the secure payment page shortly.",
 			"payNow": "Pay Now",
 			"securePayment": "Secure payment processing"
+		},
+		"recommendations": {
+			"title": "You might also like",
+			"addToCart": "Add {{name}} to cart",
+			"itemAdded": "{{name}} added to cart"
 		}
 	},
 	"confirmation": {

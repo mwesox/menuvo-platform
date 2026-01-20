@@ -32,6 +32,29 @@ export type EntityTranslations = Record<
  */
 export type ChoiceTranslations = Record<string, { name?: string }>;
 
+/**
+ * Category availability schedule configuration.
+ * Controls when a category is visible to customers.
+ */
+export type CategoryAvailabilitySchedule = {
+	/** Whether the schedule is enabled */
+	enabled: boolean;
+	/** Time range in HH:MM format (handles midnight crossover) */
+	timeRange?: { startTime: string; endTime: string };
+	/** Days of week when category is available */
+	daysOfWeek?: Array<
+		| "monday"
+		| "tuesday"
+		| "wednesday"
+		| "thursday"
+		| "friday"
+		| "saturday"
+		| "sunday"
+	>;
+	/** Date range when category is available (ISO date strings) */
+	dateRange?: { startDate: string; endDate: string };
+};
+
 // ============================================================================
 // VAT GROUPS
 // ============================================================================
@@ -234,6 +257,19 @@ export type OrderTypesConfig = {
 };
 
 /**
+ * AI Recommendations configuration for a store.
+ * Controls AI-powered cross-sell/upsell suggestions at checkout.
+ */
+export type AiRecommendationsConfig = {
+	/** Whether AI recommendations are enabled */
+	enabled: boolean;
+	/** Individual pairing rules for AI context (e.g., "Pair pizza with cola") */
+	pairingRules: string[];
+	/** Tone for recommendation presentation */
+	tone: "professional" | "friendly" | "playful";
+};
+
+/**
  * Store settings table for extensible store configuration.
  * 1:1 relationship with stores - storeId is the primary key.
  * Uses JSONB columns for flexible, extensible settings.
@@ -244,6 +280,9 @@ export const storeSettings = pgTable("store_settings", {
 		.references(() => stores.id, { onDelete: "cascade" }),
 	// Order types configuration (JSONB for flexibility)
 	orderTypes: jsonb("order_types").$type<OrderTypesConfig>(),
+	// AI Recommendations configuration
+	aiRecommendations:
+		jsonb("ai_recommendations").$type<AiRecommendationsConfig>(),
 	// Future: add more JSONB columns for other settings
 	// e.g., paymentConfig, notificationConfig, etc.
 	// Timestamps
@@ -344,6 +383,10 @@ export const categories = pgTable("categories", {
 	defaultVatGroupId: uuid("default_vat_group_id").references(
 		() => vatGroups.id,
 	),
+	/** Availability schedule configuration (null = always visible) */
+	availabilitySchedule: jsonb("availability_schedule")
+		.$type<CategoryAvailabilitySchedule | null>()
+		.default(null),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -356,6 +399,10 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
 	store: one(stores, {
 		fields: [categories.storeId],
 		references: [stores.id],
+	}),
+	defaultVatGroup: one(vatGroups, {
+		fields: [categories.defaultVatGroupId],
+		references: [vatGroups.id],
 	}),
 	items: many(items),
 }));
@@ -918,6 +965,8 @@ export const orderItems = pgTable(
 
 		// Metadata
 		displayOrder: integer("display_order").notNull(),
+		// AI Recommendations attribution
+		fromRecommendation: boolean("from_recommendation").notNull().default(false),
 	},
 	(table) => [index("idx_order_items_order_id").on(table.orderId)],
 );

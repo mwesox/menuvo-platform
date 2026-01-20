@@ -53,6 +53,8 @@ export interface CalculatedOrderItem {
 	displayOrder: number;
 	itemId: string;
 	specialInstructions?: string;
+	/** Whether this item was added from AI recommendations */
+	fromRecommendation?: boolean;
 	options?: Array<{
 		optionGroupId: string;
 		optionChoiceId: string;

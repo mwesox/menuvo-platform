@@ -8,6 +8,7 @@
 import type { Database } from "@menuvo/db";
 import { merchants } from "@menuvo/db/schema";
 import { eq } from "drizzle-orm";
+import { decryptToken } from "../../lib/crypto.js";
 import type { IPaymentService } from "./interface.js";
 import {
 	createClientLink,
@@ -129,9 +130,8 @@ export class PaymentService implements IPaymentService {
 		// If we have an access token, fetch fresh status from Mollie
 		if (merchant.mollieAccessToken) {
 			try {
-				const status = await getMollieOnboardingStatus(
-					merchant.mollieAccessToken,
-				);
+				const accessToken = await decryptToken(merchant.mollieAccessToken);
+				const status = await getMollieOnboardingStatus(accessToken);
 
 				// Update DB with fresh status
 				await this.db
@@ -182,7 +182,8 @@ export class PaymentService implements IPaymentService {
 			return undefined;
 		}
 
-		const status = await getMollieOnboardingStatus(merchant.mollieAccessToken);
+		const accessToken = await decryptToken(merchant.mollieAccessToken);
+		const status = await getMollieOnboardingStatus(accessToken);
 		return status.dashboardUrl;
 	}
 

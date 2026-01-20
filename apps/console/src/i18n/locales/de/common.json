@@ -17,7 +17,8 @@
 		"getStarted": "Loslegen",
 		"goToConsole": "Zur Konsole",
 		"show": "Anzeigen",
-		"hide": "Ausblenden"
+		"hide": "Ausblenden",
+		"clear": "Zurücksetzen"
 	},
 	"states": {
 		"loading": "Wird geladen...",
@@ -38,7 +39,10 @@
 		"unlimited": "Unbegrenzt",
 		"to": "bis",
 		"item": "Artikel",
-		"items": "Artikel"
+		"items": "Artikel",
+		"enabled": "Aktiviert",
+		"allDays": "Alle Tage",
+		"rules": "Regeln"
 	},
 	"translationStatus": {
 		"complete": "Vollständig",
@@ -62,7 +66,14 @@
 		"thursday": "Donnerstag",
 		"friday": "Freitag",
 		"saturday": "Samstag",
-		"sunday": "Sonntag"
+		"sunday": "Sonntag",
+		"mondayShort": "Mo",
+		"tuesdayShort": "Di",
+		"wednesdayShort": "Mi",
+		"thursdayShort": "Do",
+		"fridayShort": "Fr",
+		"saturdayShort": "Sa",
+		"sundayShort": "So"
 	},
 	"currencies": {
 		"EUR": "Euro",
@@ -75,6 +86,10 @@
 		"search": "Suchen",
 		"select": "Auswählen",
 		"selectOption": "Option auswählen"
+	},
+	"storeSelection": {
+		"required": "Filiale auswählen",
+		"useHeaderSelector": "Verwenden Sie die Filialauswahl in der Kopfzeile."
 	},
 	"home": {
 		"tagline": "Entdecken Sie Restaurants in Ihrer Nähe",

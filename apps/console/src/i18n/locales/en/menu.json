@@ -24,9 +24,12 @@
 	},
 	"table": {
 		"category": "Category",
+		"vatGroup": "VAT Group",
 		"image": "Image",
 		"items": "Items",
 		"status": "Status",
+		"active": "Active",
+		"action": "Action",
 		"price": "Price",
 		"name": "Name",
 		"type": "Type",
@@ -106,7 +109,8 @@
 		"choiceName": "e.g., Extra Cheese, Pepperoni",
 		"itemDescription": "Describe this item...",
 		"aggregateMinQuantity": "No minimum",
-		"aggregateMaxQuantity": "No maximum"
+		"aggregateMaxQuantity": "No maximum",
+		"pickDate": "Pick a date"
 	},
 	"hints": {
 		"numFreeOptions": "Number of choices customers can add for free before being charged",
@@ -213,7 +217,9 @@
 	"tooltips": {
 		"activateItem": "Activate item",
 		"deactivateItem": "Deactivate item",
-		"cannotActivateWithIssues": "Resolve issues before activating"
+		"cannotActivateWithIssues": "Resolve issues before activating",
+		"activateCategory": "Activate category",
+		"deactivateCategory": "Deactivate category"
 	},
 	"common": {
 		"yes": "Yes",
@@ -367,5 +373,20 @@
 		"pageHeaders": {
 			"vatGroupsDescription": "Manage VAT groups for your items"
 		}
+	},
+	"availability": {
+		"title": "Availability Schedule",
+		"description": "Control when this category is visible to customers. All rules must be satisfied for the category to show.",
+		"timeRange": "Time Range",
+		"timeRangeHint": "Leave empty to apply to all times. Supports midnight crossover (e.g., 22:00-02:00).",
+		"daysOfWeek": "Days of Week",
+		"daysHint": "Leave empty to apply to all days.",
+		"startDate": "Start Date",
+		"endDate": "End Date",
+		"dateRange": "Date Range",
+		"badge": "Scheduled",
+		"notConfigured": "Not configured",
+		"enabledNoRules": "Enabled (no rules set)",
+		"daysCount": "{{count}} days"
 	}
 }

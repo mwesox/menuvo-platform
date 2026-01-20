@@ -26,6 +26,10 @@
 			"title": "Branding",
 			"description": "Customize your shop appearance"
 		},
+		"aiRecommendations": {
+			"title": "AI Recommendations",
+			"description": "AI-powered product suggestions at checkout"
+		},
 		"comingSoon": "Coming Soon"
 	},
 	"tabs": {
@@ -296,5 +300,39 @@
 				"completeVerification": "Complete Verification"
 			}
 		}
+	},
+	"aiRecommendations": {
+		"title": "AI Recommendations",
+		"description": "Configure AI-powered product suggestions that appear at checkout to help customers discover complementary items.",
+		"storeContext": "Configuring recommendations for {{storeName}}",
+		"enableToggle": "Enable AI Recommendations",
+		"enableDescription": "Show personalized product suggestions at checkout based on cart contents",
+		"toneLabel": "Recommendation Style",
+		"toneHint": "Choose how recommendations are presented to your guests.",
+		"previewLabel": "Preview",
+		"tones": {
+			"professional": {
+				"label": "Elegant",
+				"subtitle": "Fine Dining",
+				"exampleTitle": "Recommended with your order",
+				"exampleReason": "Recommended by the sommelier"
+			},
+			"friendly": {
+				"label": "Friendly",
+				"subtitle": "Café & Bistro",
+				"exampleTitle": "This goes perfectly with it!",
+				"exampleReason": "Our guests love this combo!"
+			},
+			"playful": {
+				"label": "Casual",
+				"subtitle": "Fast Food & Casual",
+				"exampleTitle": "Your pizza wants company!",
+				"exampleReason": "Pizza's best friend!"
+			}
+		},
+		"pairingRulesLabel": "Pairing Rules",
+		"rulePlaceholder": "e.g. Pair pizza with cola or beer",
+		"pairingRulesHint": "Add rules to help the AI understand which items pair well together. Be specific about combinations.",
+		"addRule": "Add Rule"
 	}
 }

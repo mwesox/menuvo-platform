@@ -25,6 +25,7 @@ import { Route as AppStoresNewRouteImport } from './routes/_app/stores/new'
 import { Route as AppStoresStoreIdRouteImport } from './routes/_app/stores/$storeId'
 import { Route as AppSettingsPaymentsRouteImport } from './routes/_app/settings/payments'
 import { Route as AppSettingsMerchantRouteImport } from './routes/_app/settings/merchant'
+import { Route as AppSettingsAiRecommendationsRouteImport } from './routes/_app/settings/ai-recommendations'
 import { Route as AppOrdersOrderIdRouteImport } from './routes/_app/orders/$orderId'
 import { Route as AppMenuImportRouteImport } from './routes/_app/menu/import'
 import { Route as AppMenuVatIndexRouteImport } from './routes/_app/menu/vat/index'
@@ -118,6 +119,12 @@ const AppSettingsMerchantRoute = AppSettingsMerchantRouteImport.update({
   path: '/settings/merchant',
   getParentRoute: () => AppRoute,
 } as any)
+const AppSettingsAiRecommendationsRoute =
+  AppSettingsAiRecommendationsRouteImport.update({
+    id: '/settings/ai-recommendations',
+    path: '/settings/ai-recommendations',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppOrdersOrderIdRoute = AppOrdersOrderIdRouteImport.update({
   id: '/orders/$orderId',
   path: '/orders/$orderId',
@@ -199,6 +206,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/menu/import': typeof AppMenuImportRoute
   '/orders/$orderId': typeof AppOrdersOrderIdRoute
+  '/settings/ai-recommendations': typeof AppSettingsAiRecommendationsRoute
   '/settings/merchant': typeof AppSettingsMerchantRoute
   '/settings/payments': typeof AppSettingsPaymentsRoute
   '/stores/$storeId': typeof AppStoresStoreIdRoute
@@ -229,6 +237,7 @@ export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/menu/import': typeof AppMenuImportRoute
   '/orders/$orderId': typeof AppOrdersOrderIdRoute
+  '/settings/ai-recommendations': typeof AppSettingsAiRecommendationsRoute
   '/settings/merchant': typeof AppSettingsMerchantRoute
   '/settings/payments': typeof AppSettingsPaymentsRoute
   '/stores/$storeId': typeof AppStoresStoreIdRoute
@@ -262,6 +271,7 @@ export interface FileRoutesById {
   '/_app/': typeof AppIndexRoute
   '/_app/menu/import': typeof AppMenuImportRoute
   '/_app/orders/$orderId': typeof AppOrdersOrderIdRoute
+  '/_app/settings/ai-recommendations': typeof AppSettingsAiRecommendationsRoute
   '/_app/settings/merchant': typeof AppSettingsMerchantRoute
   '/_app/settings/payments': typeof AppSettingsPaymentsRoute
   '/_app/stores/$storeId': typeof AppStoresStoreIdRoute
@@ -294,6 +304,7 @@ export interface FileRouteTypes {
     | '/'
     | '/menu/import'
     | '/orders/$orderId'
+    | '/settings/ai-recommendations'
     | '/settings/merchant'
     | '/settings/payments'
     | '/stores/$storeId'
@@ -324,6 +335,7 @@ export interface FileRouteTypes {
     | '/'
     | '/menu/import'
     | '/orders/$orderId'
+    | '/settings/ai-recommendations'
     | '/settings/merchant'
     | '/settings/payments'
     | '/stores/$storeId'
@@ -356,6 +368,7 @@ export interface FileRouteTypes {
     | '/_app/'
     | '/_app/menu/import'
     | '/_app/orders/$orderId'
+    | '/_app/settings/ai-recommendations'
     | '/_app/settings/merchant'
     | '/_app/settings/payments'
     | '/_app/stores/$storeId'
@@ -501,6 +514,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsMerchantRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/settings/ai-recommendations': {
+      id: '/_app/settings/ai-recommendations'
+      path: '/settings/ai-recommendations'
+      fullPath: '/settings/ai-recommendations'
+      preLoaderRoute: typeof AppSettingsAiRecommendationsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/orders/$orderId': {
       id: '/_app/orders/$orderId'
       path: '/orders/$orderId'
@@ -606,6 +626,7 @@ interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
   AppMenuImportRoute: typeof AppMenuImportRoute
   AppOrdersOrderIdRoute: typeof AppOrdersOrderIdRoute
+  AppSettingsAiRecommendationsRoute: typeof AppSettingsAiRecommendationsRoute
   AppSettingsMerchantRoute: typeof AppSettingsMerchantRoute
   AppSettingsPaymentsRoute: typeof AppSettingsPaymentsRoute
   AppStoresStoreIdRoute: typeof AppStoresStoreIdRoute
@@ -633,6 +654,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
   AppMenuImportRoute: AppMenuImportRoute,
   AppOrdersOrderIdRoute: AppOrdersOrderIdRoute,
+  AppSettingsAiRecommendationsRoute: AppSettingsAiRecommendationsRoute,
   AppSettingsMerchantRoute: AppSettingsMerchantRoute,
   AppSettingsPaymentsRoute: AppSettingsPaymentsRoute,
   AppStoresStoreIdRoute: AppStoresStoreIdRoute,

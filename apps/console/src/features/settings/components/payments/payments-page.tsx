@@ -24,10 +24,6 @@ export function PaymentsPage({ search }: PaymentsPageProps) {
 		...trpc.payments.getMollieStatus.queryOptions(),
 	});
 
-	if (!mollieStatus) {
-		return null;
-	}
-
 	const refreshMollieStatus = useCallback(async () => {
 		try {
 			await queryClient.fetchQuery(
@@ -64,6 +60,11 @@ export function PaymentsPage({ search }: PaymentsPageProps) {
 			hasTriggeredRefresh.current = false;
 		}
 	}, [search.from, search.refresh]);
+
+	// Early return after all hooks are called
+	if (!mollieStatus) {
+		return null;
+	}
 
 	const hasMollieAccount = !!mollieStatus.organizationId;
 

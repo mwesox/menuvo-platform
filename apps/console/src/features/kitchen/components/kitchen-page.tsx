@@ -3,20 +3,13 @@
  */
 
 import type { AppRouter } from "@menuvo/api/trpc";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-	TooltipProvider,
-} from "@menuvo/ui";
+import { TooltipProvider } from "@menuvo/ui";
 import { skipToken, useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
 import { ChefHat, Store } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
+import { StoreSelectionRequired } from "@/components/store-selection-required";
 import type { OrderWithItems } from "@/features/orders/types";
 import { useTRPC } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
@@ -45,21 +38,11 @@ interface KitchenPageProps {
 
 export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 	const { t } = useTranslation("console-kitchen");
-	const navigate = useNavigate();
 	const { stores, autoSelectedStoreId } = loaderData;
 	const trpc = useTRPC();
 
 	// Determine effective store ID
 	const storeId = search.storeId ?? autoSelectedStoreId;
-	const hasMultipleStores = stores.length > 1;
-
-	// Handle store change
-	const handleStoreChange = (newStoreId: string) => {
-		navigate({
-			to: "/kitchen",
-			search: { ...search, storeId: newStoreId },
-		});
-	};
 
 	// Fetch orders (only if store selected - early return below handles no storeId case)
 	// API returns { orders: [...], nextCursor } so we need to extract the orders array
@@ -116,22 +99,6 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 	// Build actions for action bar
 	const actions = (
 		<div className="flex flex-wrap items-center gap-2">
-			{/* Store selector (if multiple stores) */}
-			{hasMultipleStores && (
-				<Select value={storeId?.toString()} onValueChange={handleStoreChange}>
-					<SelectTrigger className="w-[200px]">
-						<SelectValue placeholder={t("selectStorePlaceholder")} />
-					</SelectTrigger>
-					<SelectContent>
-						{stores.map((store) => (
-							<SelectItem key={store.id} value={store.id.toString()}>
-								{store.name}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			)}
-
 			{/* Audio control */}
 			<AudioControl
 				onRequestPermission={requestPermission}
@@ -150,10 +117,7 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 				<div className="flex h-full flex-col">
 					<PageActionBar title={t("title")} actions={actions} />
 					<div className="flex flex-1 items-center justify-center">
-						<div className="flex flex-col items-center gap-2 text-muted-foreground">
-							<ChefHat className="size-12" />
-							<p>{t("selectStore")}</p>
-						</div>
+						<StoreSelectionRequired icon={ChefHat} />
 					</div>
 				</div>
 			</TooltipProvider>

@@ -80,7 +80,7 @@ const MERCHANTS: MerchantSeedData[] = [
     {
         name: "Gasthof Müller GmbH",
         ownerName: "Hans Müller",
-        email: "hans@gasthof-mueller.test",
+        email: "weso1983+1@gmail.com",
         phone: "+49 89 1234567",
         supportedLanguages: ["de", "en"],
         vatGroups: [
@@ -96,7 +96,7 @@ const MERCHANTS: MerchantSeedData[] = [
                 postalCode: "80331",
                 country: "DE",
                 phone: "+49 89 1234567",
-                email: "hauptfiliale@gasthof-mueller.test",
+                email: "weso1983+2@gmail.com",
                 timezone: "Europe/Berlin",
                 currency: "EUR",
                 optionGroups: [
@@ -415,7 +415,7 @@ const MERCHANTS: MerchantSeedData[] = [
                 postalCode: "80802",
                 country: "DE",
                 phone: "+49 89 9876543",
-                email: "schwabing@gasthof-mueller.test",
+                email: "weso1983+3@gmail.com",
                 timezone: "Europe/Berlin",
                 currency: "EUR",
                 optionGroups: [], // No option groups for this store
@@ -561,7 +561,7 @@ const MERCHANTS: MerchantSeedData[] = [
     {
         name: "Cafe Sonnenschein UG",
         ownerName: "Lisa Schmidt",
-        email: "lisa@cafe-sonnenschein.test",
+        email: "weso1983+4@gmail.com",
         phone: "+49 30 5551234",
         supportedLanguages: ["de", "en"],
         vatGroups: [
@@ -577,7 +577,7 @@ const MERCHANTS: MerchantSeedData[] = [
                 postalCode: "10405",
                 country: "DE",
                 phone: "+49 30 5551234",
-                email: "kontakt@cafe-sonnenschein.test",
+                email: "weso1983+5@gmail.com",
                 timezone: "Europe/Berlin",
                 currency: "EUR",
                 optionGroups: [

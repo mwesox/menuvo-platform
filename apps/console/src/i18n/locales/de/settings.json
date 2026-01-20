@@ -26,6 +26,10 @@
 			"title": "Branding",
 			"description": "Shop-Erscheinungsbild anpassen"
 		},
+		"aiRecommendations": {
+			"title": "KI-Empfehlungen",
+			"description": "KI-gestützte Produktvorschläge beim Checkout"
+		},
 		"comingSoon": "Demnächst"
 	},
 	"tabs": {
@@ -296,5 +300,39 @@
 				"completeVerification": "Verifizierung abschließen"
 			}
 		}
+	},
+	"aiRecommendations": {
+		"title": "KI-Empfehlungen",
+		"description": "Konfigurieren Sie KI-gestützte Produktvorschläge, die beim Checkout erscheinen, um Kunden passende Artikel zu empfehlen.",
+		"storeContext": "Empfehlungen konfigurieren für {{storeName}}",
+		"enableToggle": "KI-Empfehlungen aktivieren",
+		"enableDescription": "Zeige personalisierte Produktvorschläge beim Checkout basierend auf dem Warenkorbinhalt",
+		"toneLabel": "Empfehlungsstil",
+		"toneHint": "Wählen Sie, wie Empfehlungen Ihren Gästen präsentiert werden.",
+		"previewLabel": "Vorschau",
+		"tones": {
+			"professional": {
+				"label": "Elegant",
+				"subtitle": "Fine Dining",
+				"exampleTitle": "Empfohlen zu Ihrer Bestellung",
+				"exampleReason": "Vom Sommelier empfohlen"
+			},
+			"friendly": {
+				"label": "Freundlich",
+				"subtitle": "Café & Bistro",
+				"exampleTitle": "Das passt perfekt dazu!",
+				"exampleReason": "Das lieben unsere Gäste!"
+			},
+			"playful": {
+				"label": "Locker",
+				"subtitle": "Fast Food & Casual",
+				"exampleTitle": "Deine Pizza braucht Gesellschaft!",
+				"exampleReason": "Pizza's bester Freund!"
+			}
+		},
+		"pairingRulesLabel": "Kombinationsregeln",
+		"rulePlaceholder": "z.B. Pizza mit Cola oder Bier kombinieren",
+		"pairingRulesHint": "Fügen Sie Regeln hinzu, um der KI zu helfen zu verstehen, welche Artikel gut zusammenpassen. Seien Sie spezifisch.",
+		"addRule": "Regel hinzufügen"
 	}
 }

@@ -4,8 +4,9 @@ import { Label } from "@menuvo/ui/components/label";
 import { Textarea } from "@menuvo/ui/components/textarea";
 import { cn } from "@menuvo/ui/lib/utils";
 import type { inferRouterOutputs } from "@trpc/server";
+import i18n from "i18next";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { MerchantCapabilities } from "../../../lib/capabilities";
@@ -24,6 +25,7 @@ import {
 import { formatDateTime } from "../../shared/utils/date-formatting";
 import { useCreateOrder, useCreatePayment } from "../queries";
 import { PickupTimeSelector } from "./pickup-time-selector";
+import { RecommendationsSection } from "./recommendations-section";
 
 type CreateOrderInput = Parameters<TrpcClient["order"]["create"]["mutate"]>[0];
 type OrderType = CreateOrderInput["orderType"];
@@ -57,6 +59,7 @@ export function OrderingPage({
 	// Cart state - compute subtotal from items (getters don't work with persist)
 	const items = useCartStore((s) => s.items);
 	const clearCart = useCartStore((s) => s.clearCart);
+	const addItem = useCartStore((s) => s.addItem);
 
 	// Determine if shop is closed
 	const isClosed = storeStatus ? !storeStatus.isOpen : false;
@@ -133,6 +136,32 @@ export function OrderingPage({
 	// Payment redirect state
 	const [isPaymentRedirecting, setIsPaymentRedirecting] = useState(false);
 
+	// Handler for adding recommendation items
+	const handleAddRecommendation = useCallback(
+		(item: {
+			itemId: string;
+			name: string;
+			price: number;
+			imageUrl: string | null;
+		}) => {
+			addItem({
+				itemId: item.itemId,
+				name: item.name,
+				basePrice: item.price,
+				quantity: 1,
+				selectedOptions: [],
+				storeId,
+				storeSlug,
+				imageUrl: item.imageUrl ?? undefined,
+				fromRecommendation: true,
+			});
+			toast.success(
+				t("ordering.recommendations.itemAdded", { name: item.name }),
+			);
+		},
+		[addItem, storeId, storeSlug, t],
+	);
+
 	// Mutations
 	const createOrderMutation = useCreateOrder();
 	const createPaymentMutation = useCreatePayment();
@@ -200,6 +229,7 @@ export function OrderingPage({
 				itemId: item.itemId,
 				quantity: item.quantity,
 				options: options.length > 0 ? options : undefined,
+				fromRecommendation: item.fromRecommendation ?? false,
 			};
 		});
 
@@ -446,6 +476,14 @@ export function OrderingPage({
 							/>
 						</div>
 					</ShopCard>
+
+					{/* AI Recommendations */}
+					<RecommendationsSection
+						storeSlug={storeSlug}
+						cartItems={items}
+						languageCode={i18n.language ?? "de"}
+						onAddItem={handleAddRecommendation}
+					/>
 
 					{/* Order Summary */}
 					<ShopCard padding="md" className="space-y-4">

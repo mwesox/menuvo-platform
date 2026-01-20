@@ -64,6 +64,13 @@
       "when": 1737244800000,
       "tag": "0008_fractional_ordering",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1737300000000,
+      "tag": "0009_add_category_availability_schedule",
+      "breakpoints": true
     }
   ]
 }

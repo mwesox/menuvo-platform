@@ -1,4 +1,4 @@
-import { Building2, CreditCard, Palette, Users } from "lucide-react";
+import { Building2, CreditCard, Palette, Sparkles, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
 import { SettingsNavCard } from "./settings-nav-card";
@@ -35,6 +35,13 @@ const settingsSections = [
 		href: "/settings/brand",
 		badge: "coming-soon" as const,
 		disabled: true,
+	},
+	{
+		id: "ai-recommendations",
+		icon: Sparkles,
+		titleKey: "hub.aiRecommendations.title",
+		descriptionKey: "hub.aiRecommendations.description",
+		href: "/settings/ai-recommendations",
 	},
 ] as const;
 

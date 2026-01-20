@@ -6,7 +6,12 @@ import {
 	Skeleton,
 } from "@menuvo/ui";
 import { useQuery } from "@tanstack/react-query";
-import { Outlet, useNavigate, useSearch } from "@tanstack/react-router";
+import {
+	Outlet,
+	useNavigate,
+	useRouterState,
+	useSearch,
+} from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
 import { Suspense, useCallback } from "react";
 import { useTRPC } from "@/lib/trpc";
@@ -19,6 +24,7 @@ type StoreList = RouterOutput["store"]["list"];
 
 function ConsoleHeaderWrapper() {
 	const navigate = useNavigate();
+	const routerState = useRouterState();
 	const search = useSearch({ strict: false }) as { storeId?: string };
 	const trpc = useTRPC();
 
@@ -35,14 +41,13 @@ function ConsoleHeaderWrapper() {
 
 	const selectStore = useCallback(
 		(storeId: string) => {
-			// Navigate to menu page with the selected store
-			// This is the primary use case for store selection
+			// Update storeId in URL while staying on current page
 			navigate({
-				to: "/menu",
-				search: { storeId },
+				to: routerState.location.pathname,
+				search: { ...search, storeId },
 			});
 		},
-		[navigate],
+		[navigate, routerState.location.pathname, search],
 	);
 
 	// Show loading skeleton while stores are loading

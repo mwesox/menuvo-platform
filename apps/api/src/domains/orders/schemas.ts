@@ -72,6 +72,8 @@ export const orderItemInputSchema = z.object({
 	quantity: z.number().int().positive(),
 	options: z.array(orderItemOptionInputSchema).optional(),
 	specialInstructions: z.string().max(500).optional(),
+	/** Whether this item was added from AI recommendations */
+	fromRecommendation: z.boolean().optional().default(false),
 });
 
 export type OrderItemInput = z.infer<typeof orderItemInputSchema>;

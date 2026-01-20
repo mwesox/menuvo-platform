@@ -1,16 +1,10 @@
 import type { AppRouter } from "@menuvo/api/trpc";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@menuvo/ui";
 import { useNavigate } from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
 import { Store } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
+import { StoreSelectionRequired } from "@/components/store-selection-required";
 import type { OrderStatus } from "@/features/orders";
 import type { DateRangePreset } from "@/routes/_app/orders";
 import { OrdersTable } from "./orders-table";
@@ -36,19 +30,6 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 	const navigate = useNavigate();
 
 	const effectiveStoreId = search.storeId ?? loaderData.autoSelectedStoreId;
-	const hasMultipleStores = loaderData.stores.length > 1;
-
-	const handleStoreChange = (storeId: string) => {
-		navigate({
-			to: "/orders",
-			search: {
-				storeId,
-				status: search.status,
-				search: search.search,
-				days: search.days,
-			},
-		});
-	};
 
 	const handleStatusChange = (status: OrderStatus | undefined) => {
 		navigate({
@@ -88,28 +69,7 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 
 	return (
 		<div className="flex h-full flex-col">
-			<PageActionBar
-				title={t("title")}
-				actions={
-					hasMultipleStores ? (
-						<Select
-							value={effectiveStoreId?.toString()}
-							onValueChange={handleStoreChange}
-						>
-							<SelectTrigger className="w-[200px]">
-								<SelectValue placeholder="Select store" />
-							</SelectTrigger>
-							<SelectContent>
-								{loaderData.stores.map((store) => (
-									<SelectItem key={store.id} value={store.id.toString()}>
-										{store.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					) : null
-				}
-			/>
+			<PageActionBar title={t("title")} />
 
 			{effectiveStoreId ? (
 				<div className="mt-4 min-h-0 flex-1">
@@ -124,8 +84,8 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 					/>
 				</div>
 			) : (
-				<div className="flex flex-1 items-center justify-center text-muted-foreground">
-					{t("selectOrder")}
+				<div className="flex flex-1 items-center justify-center">
+					<StoreSelectionRequired />
 				</div>
 			)}
 		</div>

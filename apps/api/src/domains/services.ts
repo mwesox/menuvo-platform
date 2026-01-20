@@ -37,6 +37,10 @@ import {
 import { HoursService, type IHoursService } from "./stores/hours/index.js";
 import { type IStoreService, StoreService } from "./stores/index.js";
 import {
+	type IRecommendationsService,
+	RecommendationsService,
+} from "./stores/recommendations/index.js";
+import {
 	type IServicePointsService,
 	ServicePointsService,
 } from "./stores/service-points/index.js";
@@ -76,6 +80,7 @@ export class DomainServices {
 	readonly options: IOptionsService;
 	readonly orders: IOrderService;
 	readonly payments: IPaymentService;
+	readonly recommendations: IRecommendationsService;
 	readonly servicePoints: IServicePointsService;
 	readonly status: IStoreStatusService;
 	readonly storeSettings: IStoreSettingsService;
@@ -94,6 +99,7 @@ export class DomainServices {
 		this.merchants = new MerchantsService(deps.db);
 		this.options = new OptionsService(deps.db);
 		this.payments = new PaymentService(deps.db);
+		this.recommendations = new RecommendationsService(deps.db);
 		this.servicePoints = new ServicePointsService(deps.db);
 		this.status = new StoreStatusService(deps.db);
 		this.storeSettings = new StoreSettingsService(deps.db);
@@ -126,6 +132,7 @@ export type { IPaymentService } from "./payments/index.js";
 export type { IClosuresService } from "./stores/closures/index.js";
 export type { IHoursService } from "./stores/hours/index.js";
 export type { IStoreService } from "./stores/index.js";
+export type { IRecommendationsService } from "./stores/recommendations/index.js";
 export type { IServicePointsService } from "./stores/service-points/index.js";
 export type { IStoreSettingsService } from "./stores/settings/index.js";
 export type { IStoreStatusService } from "./stores/status/index.js";

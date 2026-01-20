@@ -131,6 +131,11 @@
 			"pleaseWait": "Sie werden in Kürze zur sicheren Zahlungsseite weitergeleitet.",
 			"payNow": "Jetzt bezahlen",
 			"securePayment": "Sichere Zahlungsabwicklung"
+		},
+		"recommendations": {
+			"title": "Das könnte Ihnen auch gefallen",
+			"addToCart": "{{name}} zum Warenkorb hinzufügen",
+			"itemAdded": "{{name}} zum Warenkorb hinzugefügt"
 		}
 	},
 	"confirmation": {
