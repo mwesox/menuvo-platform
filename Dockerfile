@@ -13,7 +13,6 @@ COPY package.json bun.lock turbo.json ./
 
 # Copy all package.json files for workspace resolution
 COPY packages/db/package.json ./packages/db/
-COPY packages/trpc/package.json ./packages/trpc/
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY apps/api/package.json ./apps/api/
@@ -21,12 +20,11 @@ COPY apps/console/package.json ./apps/console/
 COPY apps/shop/package.json ./apps/shop/
 COPY apps/business/package.json ./apps/business/
 
-# Install all dependencies
-RUN bun install --frozen-lockfile
+# Install all dependencies (without frozen-lockfile for cross-platform native modules)
+RUN bun install
 
 # Copy source code (includes drizzle.config.ts in packages/db)
 COPY packages/db ./packages/db
-COPY packages/trpc ./packages/trpc
 COPY apps/api ./apps/api
 
 # Build API
