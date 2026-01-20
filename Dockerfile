@@ -37,6 +37,7 @@ WORKDIR /app
 # Copy node_modules from temp directory (includes all workspace deps)
 COPY --from=install /temp/dev/node_modules ./node_modules
 COPY --from=install /temp/dev/apps/api/node_modules ./apps/api/node_modules
+COPY --from=install /temp/dev/packages/db/node_modules ./packages/db/node_modules
 
 # Copy source code
 COPY packages/db ./packages/db
@@ -60,6 +61,7 @@ RUN addgroup -S menuvo && adduser -S menuvo -G menuvo
 # Copy node_modules (both root and workspace-specific)
 COPY --from=install --chown=menuvo:menuvo /temp/dev/node_modules ./node_modules
 COPY --from=install --chown=menuvo:menuvo /temp/dev/apps/api/node_modules ./apps/api/node_modules
+COPY --from=install --chown=menuvo:menuvo /temp/dev/packages/db/node_modules ./packages/db/node_modules
 
 # Copy built API
 COPY --from=prerelease --chown=menuvo:menuvo /app/apps/api/dist ./dist
