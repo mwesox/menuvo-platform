@@ -37,6 +37,7 @@
 export {
 	AppError,
 	BusinessRuleError,
+	ConflictError,
 	DatabaseError,
 	ExternalServiceError,
 	ForbiddenError,

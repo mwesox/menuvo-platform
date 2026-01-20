@@ -1,3 +1,4 @@
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Button,
 	Card,
@@ -6,15 +7,14 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@menuvo/ui";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { inferRouterInputs } from "@trpc/server";
 import { AlertCircle, Check, CheckCircle, Loader2, Upload } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	useApplyImportChanges,
-	useImportJobStatus,
-	useUploadMenuFile,
-} from "../queries";
-import type { MenuComparisonData } from "../types";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
+import type { ImportJobStatusResponse, MenuComparisonData } from "../schemas";
 import { ComparisonPanel } from "./comparison-panel";
 import { FileDropzone } from "./file-dropzone";
 import { ProcessingProgress } from "./processing-progress";
@@ -34,14 +34,79 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 	const [uploadError, setUploadError] = useState<string | null>(null);
 	const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
 
+	const { t: tCommon } = useTranslation("common");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+
 	// Upload mutation
-	const uploadMutation = useUploadMenuFile(storeId);
+	const uploadMutation = useMutation({
+		mutationKey: trpc.menu.import.upload.mutationKey(),
+		mutationFn: async (file: File) => {
+			const formData = new FormData();
+			formData.append("file", file);
+			formData.append("storeId", storeId);
+			return trpcClient.menu.import.upload.mutate(formData);
+		},
+		onError: () => {
+			toast.error(tCommon("toasts.uploadFailed"));
+		},
+	});
 
 	// Poll for job status
-	const { data: jobStatus, error: jobError } = useImportJobStatus(jobId);
+	const { data: jobStatus, error: jobError } = useQuery({
+		queryKey: trpc.menu.import.getJobStatus.queryKey({ jobId: jobId ?? "" }),
+		queryFn: async () => {
+			if (jobId === null) throw new Error("Job ID required");
+			const result = await trpcClient.menu.import.getJobStatus.query({ jobId });
+			return result as ImportJobStatusResponse;
+		},
+		enabled: jobId !== null,
+		refetchInterval: (query) => {
+			const data = query.state.data;
+			// Stop polling when job is complete or failed
+			if (
+				data?.status === "READY" ||
+				data?.status === "FAILED" ||
+				data?.status === "COMPLETED"
+			) {
+				return false;
+			}
+			// Poll every 2 seconds while processing
+			return 2000;
+		},
+		staleTime: 1000,
+		select: (data): ImportJobStatusResponse => data as ImportJobStatusResponse,
+	});
+
+	type RouterInput = inferRouterInputs<AppRouter>;
+	type ApplyImportChangesInput = RouterInput["menu"]["import"]["applyChanges"];
 
 	// Apply mutation
-	const applyMutation = useApplyImportChanges(storeId);
+	const applyMutation = useMutation({
+		mutationKey: trpc.menu.import.applyChanges.mutationKey(),
+		mutationFn: (input: Omit<ApplyImportChangesInput, "storeId">) =>
+			trpcClient.menu.import.applyChanges.mutate({
+				storeId,
+				...input,
+			}),
+		onSuccess: () => {
+			// Invalidate all menu queries to refresh data
+			queryClient.invalidateQueries({
+				queryKey: trpc.menu.queries.getCategories.queryKey({ storeId }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.menu.items.listByStore.queryKey({ storeId }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.menu.options.listGroups.queryKey({ storeId }),
+			});
+			toast.success(tCommon("toasts.importApplied"));
+		},
+		onError: () => {
+			toast.error(tCommon("toasts.importFailed"));
+		},
+	});
 
 	// Auto-advance to review when job is ready
 	if (step === "processing" && jobStatus?.status === "READY") {
@@ -121,7 +186,7 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 	};
 
 	return (
-		<div className="w-full px-4 py-4">
+		<div className="w-full">
 			{/* Progress Steps */}
 			<div className="mb-8 flex items-center justify-center gap-4">
 				<StepIndicator

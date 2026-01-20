@@ -12,10 +12,7 @@ export function StoreNotFound() {
 			>
 				<UtensilsCrossed className="size-8 text-muted-foreground" />
 			</div>
-			<h1
-				className="text-2xl text-foreground"
-				style={{ fontFamily: "var(--font-heading)" }}
-			>
+			<h1 className="font-semibold text-2xl text-foreground">
 				{t("errors.restaurantNotFound")}
 			</h1>
 			<p className="mt-2 max-w-sm text-muted-foreground">

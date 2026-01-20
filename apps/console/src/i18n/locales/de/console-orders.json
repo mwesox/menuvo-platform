@@ -65,6 +65,14 @@
 		"90": "Letzte 90 Tage",
 		"all": "Alle"
 	},
+	"table": {
+		"orderNumber": "Bestellung #",
+		"customer": "Kunde",
+		"type": "Typ",
+		"status": "Status",
+		"total": "Gesamt",
+		"date": "Datum"
+	},
 	"export": {
 		"tooltip": "Als CSV exportieren",
 		"noData": "Keine Bestellungen mit aktuellen Filtern zum Exportieren",

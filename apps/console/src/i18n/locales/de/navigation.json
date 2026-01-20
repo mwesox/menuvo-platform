@@ -6,8 +6,14 @@
 	"orders": "Bestellungen",
 	"kitchen": "Küche",
 	"settings": "Einstellungen",
+	"storeSettings": "Filial-Einstellungen",
 	"toggleMenu": "Menü umschalten",
-	"operations": "Betrieb",
-	"management": "Verwaltung",
-	"help": "Hilfe"
+	"help": "Hilfe",
+	"store": "Filiale",
+	"account": "Konto",
+	"allStores": "Alle Filialen",
+	"selectStore": "Filiale wählen",
+	"noStores": "Keine Filialen",
+	"profile": "Profil",
+	"logout": "Abmelden"
 }

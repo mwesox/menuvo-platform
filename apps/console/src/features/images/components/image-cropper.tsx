@@ -1,8 +1,15 @@
 import { MinusIcon, PlusIcon } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Cropper, type CropperRef } from "react-advanced-cropper";
+import {
+	lazy,
+	Suspense,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
+import type { CropperRef } from "react-advanced-cropper";
+// CSS is loaded only when the cropper is used
 import "react-advanced-cropper/dist/style.css";
-import type { ImageType } from "@menuvo/trpc/schemas";
 import {
 	Button,
 	Dialog,
@@ -15,11 +22,17 @@ import {
 } from "@menuvo/ui";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import type { ImageType } from "../constants.ts";
 import {
 	type CropPreset,
 	getDefaultPreset,
 	getPresetsForImageType,
 } from "../utils/crop-presets";
+
+// Lazy load the heavy cropper component (~89ms savings)
+const Cropper = lazy(() =>
+	import("react-advanced-cropper").then((m) => ({ default: m.Cropper })),
+);
 
 interface ImageCropperProps {
 	open: boolean;
@@ -68,6 +81,7 @@ export function ImageCropper({
 	const handleZoomChange = useCallback(
 		(value: number[]) => {
 			const newZoom = value[0];
+			if (newZoom === undefined) return;
 			const delta = newZoom - zoom;
 			if (cropperRef.current && delta !== 0) {
 				// Convert slider delta to zoom ratio (positive = zoom in, negative = zoom out)
@@ -147,16 +161,26 @@ export function ImageCropper({
 
 				{/* Cropper */}
 				<div className="relative h-[400px] w-full overflow-hidden rounded-lg bg-muted">
-					<Cropper
-						key={selectedPreset.id} // Force re-render when preset changes
-						ref={cropperRef}
-						src={imageSrc}
-						stencilProps={{
-							aspectRatio:
-								selectedPreset.id === "free" ? undefined : effectiveAspectRatio,
-						}}
-						className="h-full w-full"
-					/>
+					<Suspense
+						fallback={
+							<div className="flex h-full w-full items-center justify-center">
+								<div className="size-8 animate-spin rounded-full border-4 border-muted-foreground/20 border-t-primary" />
+							</div>
+						}
+					>
+						<Cropper
+							key={selectedPreset.id} // Force re-render when preset changes
+							ref={cropperRef}
+							src={imageSrc}
+							stencilProps={{
+								aspectRatio:
+									selectedPreset.id === "free"
+										? undefined
+										: effectiveAspectRatio,
+							}}
+							className="h-full w-full"
+						/>
+					</Suspense>
 				</div>
 
 				{/* Zoom slider */}

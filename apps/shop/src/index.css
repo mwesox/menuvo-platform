@@ -1,7 +1,4 @@
-@import "@fontsource/playfair-display/400.css";
-@import "@fontsource/playfair-display/500.css";
-@import "@fontsource/playfair-display/600.css";
-@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/plus-jakarta-sans";
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -11,69 +8,70 @@
 @custom-variant dark (&:is(.dark *));
 
 /**
- * Discovery Theme - Editorial Warmth
+ * Menuvo Shop Theme - Modern Quick Service
  *
- * Used by: / (root discovery page)
- * Mode: Light-only (no dark variant)
- *
- * Design: Warm, editorial, welcoming - serif headings with modern sans body
- * Evokes the anticipation of dining out, like a beautifully designed restaurant guide
+ * Design: Clean, minimal, high-contrast - inspired by Wolt, Uber Eats
+ * Universal ordering app: restaurants, food trucks, concerts, events
  */
 
 :root {
 	color-scheme: light;
-	--radius: 0.75rem;
+	--radius: 0.2rem;
 
-	/* Core colors - warm neutral palette */
-	--background: oklch(0.985 0.008 85);
-	--foreground: oklch(0.18 0.02 60);
+	/* Background: Pure clean white */
+	--background: oklch(0.99 0.002 240);
 	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.18 0.02 60);
 	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.18 0.02 60);
 
-	/* Primary - vibrant coral (Option A: Coral Energy) */
-	--primary: oklch(0.65 0.18 25);
-	--primary-foreground: oklch(0.99 0.005 85);
+	/* Text: High contrast black */
+	--foreground: oklch(0.13 0.01 260);
+	--card-foreground: oklch(0.13 0.01 260);
+	--popover-foreground: oklch(0.13 0.01 260);
 
-	/* Secondary - warm light gray */
-	--secondary: oklch(0.96 0.008 85);
-	--secondary-foreground: oklch(0.25 0.02 60);
+	/* Muted */
+	--muted: oklch(0.965 0.005 260);
+	--muted-foreground: oklch(0.45 0.01 260);
 
-	/* Muted - subtle warm backgrounds */
-	--muted: oklch(0.96 0.008 85);
-	--muted-foreground: oklch(0.5 0.02 60);
+	/* Primary: Deep Teal - accessible contrast with white text (4.8:1+) */
+	--primary: oklch(0.52 0.155 185);
+	--primary-foreground: oklch(0.99 0 0);
 
-	/* Accent - coral for consistency */
-	--accent: oklch(0.65 0.18 25);
-	--accent-foreground: oklch(0.99 0.005 85);
+	/* Secondary: Soft teal tint for backgrounds */
+	--secondary: oklch(0.96 0.03 190);
+	--secondary-foreground: oklch(0.35 0.08 190);
+
+	/* Accent: Same as primary for consistency */
+	--accent: oklch(0.52 0.155 185);
+	--accent-foreground: oklch(0.99 0 0);
 
 	/* Destructive */
-	--destructive: oklch(0.55 0.2 25);
+	--destructive: oklch(0.55 0.22 25);
 	--destructive-foreground: oklch(0.99 0 0);
 
-	/* Borders and inputs - warmer */
-	--border: oklch(0.91 0.012 85);
-	--input: oklch(0.91 0.012 85);
-	--ring: oklch(0.65 0.18 25);
+	/* Borders and inputs */
+	--border: oklch(0.92 0.005 260);
+	--input: oklch(0.92 0.005 260);
+	--ring: oklch(0.52 0.155 185);
 
-	/* Extended semantic colors */
-	--success: oklch(0.6 0.15 155);
+	/* Semantic colors */
+	--success: oklch(0.6 0.18 155);
 	--success-foreground: oklch(0.99 0 0);
-	--warning: oklch(0.75 0.12 85);
-	--warning-foreground: oklch(0.18 0.02 60);
+	--warning: oklch(0.75 0.15 85);
+	--warning-foreground: oklch(0.15 0.02 85);
 
-	/* Hero animation colors - Coral Energy palette */
-	--hero-coral: oklch(0.68 0.19 25);
-	--hero-peach: oklch(0.82 0.12 55);
-	--hero-gold: oklch(0.8 0.14 85);
-	--hero-sage: oklch(0.7 0.08 145);
-
-	/* Typography - editorial warmth */
-	--font-heading: "Playfair Display", Georgia, serif;
-	--font-body: "DM Sans", system-ui, -apple-system, sans-serif;
-	--font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
-	--font-serif: "Playfair Display", Georgia, serif;
+	/* Typography: Unified Plus Jakarta Sans */
+	--font-sans:
+		"Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, -apple-system,
+		sans-serif;
+	--font-body:
+		"Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, -apple-system,
+		sans-serif;
+	--font-heading:
+		"Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, -apple-system,
+		sans-serif;
+	--font-serif:
+		"Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, -apple-system,
+		sans-serif;
 }
 
 /* Map CSS Variables to Tailwind Colors */
@@ -110,16 +108,26 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
+
+	/* Prevent window-level scrolling - app uses nested scroll container */
+	html,
+	body {
+		@apply overflow-hidden;
+		height: 100%;
+	}
+
 	body {
 		@apply m-0 bg-background text-foreground;
 		font-family: var(--font-body);
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
 	}
+
 	h1,
 	h2,
 	h3 {
 		font-family: var(--font-heading);
+		font-weight: 600;
 	}
 }
 
@@ -133,11 +141,11 @@
 	display: none;
 }
 
-/* Card entrance animation */
+/* Card entrance animation - subtle and quick */
 @keyframes card-enter {
 	from {
 		opacity: 0;
-		transform: translateY(12px);
+		transform: translateY(8px);
 	}
 	to {
 		opacity: 1;
@@ -146,185 +154,5 @@
 }
 
 .animate-card-enter {
-	animation: card-enter 0.5s ease-out backwards;
-}
-
-/* ============================================
-   Hero Section Animations - Bold Floating Orbs
-   ============================================ */
-
-/* Primary floating animation - more visible movement + pulse */
-@keyframes orb-float-pulse {
-	0%,
-	100% {
-		transform: translateY(0) translateX(0) scale(1);
-	}
-	20% {
-		transform: translateY(-30px) translateX(15px) scale(1.15);
-	}
-	40% {
-		transform: translateY(-15px) translateX(-10px) scale(1.05);
-	}
-	60% {
-		transform: translateY(-40px) translateX(10px) scale(1.1);
-	}
-	80% {
-		transform: translateY(-20px) translateX(-5px) scale(0.95);
-	}
-}
-
-/* Secondary drift animation - more dramatic movement */
-@keyframes orb-drift-pulse {
-	0%,
-	100% {
-		transform: translateY(0) translateX(0) scale(1);
-	}
-	25% {
-		transform: translateY(-25px) translateX(30px) scale(1.12);
-	}
-	50% {
-		transform: translateY(-50px) translateX(-15px) scale(1);
-	}
-	75% {
-		transform: translateY(-20px) translateX(20px) scale(1.08);
-	}
-}
-
-/* Orb container */
-.hero-bubbles {
-	position: absolute;
-	inset: 0;
-	overflow: hidden;
-	pointer-events: none;
-}
-
-/* Individual orb - bold, glowing */
-.hero-bubble {
-	position: absolute;
-	border-radius: 50%;
-	will-change: transform, opacity;
-}
-
-/* Orb 1 - Large coral, upper left - frames the logo */
-.hero-bubble-1 {
-	top: 10%;
-	left: 10%;
-	width: 28px;
-	height: 28px;
-	background: var(--hero-coral);
-	opacity: 0.8;
-	animation: orb-float-pulse 8s ease-in-out infinite;
-	box-shadow:
-		0 0 30px var(--hero-coral),
-		0 0 60px var(--hero-coral);
-}
-
-/* Orb 2 - Medium peach, top center */
-.hero-bubble-2 {
-	top: 5%;
-	left: 50%;
-	width: 20px;
-	height: 20px;
-	background: var(--hero-peach);
-	opacity: 0.75;
-	animation: orb-drift-pulse 10s ease-in-out infinite;
-	animation-delay: -2s;
-	box-shadow:
-		0 0 25px var(--hero-peach),
-		0 0 50px var(--hero-peach);
-}
-
-/* Orb 3 - Large gold, upper right - frames the logo */
-.hero-bubble-3 {
-	top: 8%;
-	right: 12%;
-	width: 24px;
-	height: 24px;
-	background: var(--hero-gold);
-	opacity: 0.7;
-	animation: orb-float-pulse 9s ease-in-out infinite;
-	animation-delay: -4s;
-	box-shadow:
-		0 0 28px var(--hero-gold),
-		0 0 55px var(--hero-gold);
-}
-
-/* Orb 4 - Medium coral, left side */
-.hero-bubble-4 {
-	top: 40%;
-	left: 6%;
-	width: 18px;
-	height: 18px;
-	background: var(--hero-coral);
-	opacity: 0.65;
-	animation: orb-drift-pulse 12s ease-in-out infinite;
-	animation-delay: -6s;
-	box-shadow:
-		0 0 22px var(--hero-coral),
-		0 0 45px var(--hero-coral);
-}
-
-/* Orb 5 - Large peach, right side */
-.hero-bubble-5 {
-	top: 35%;
-	right: 8%;
-	width: 22px;
-	height: 22px;
-	background: var(--hero-peach);
-	opacity: 0.6;
-	animation: orb-float-pulse 11s ease-in-out infinite;
-	animation-delay: -3s;
-	box-shadow:
-		0 0 26px var(--hero-peach),
-		0 0 52px var(--hero-peach);
-}
-
-/* Orb 6 - Small gold accent, lower left */
-.hero-bubble-6 {
-	bottom: 30%;
-	left: 18%;
-	width: 14px;
-	height: 14px;
-	background: var(--hero-gold);
-	opacity: 0.55;
-	animation: orb-drift-pulse 14s ease-in-out infinite;
-	animation-delay: -8s;
-	box-shadow:
-		0 0 18px var(--hero-gold),
-		0 0 36px var(--hero-gold);
-}
-
-/* Hide remaining bubble classes (not used) */
-.hero-bubble-7,
-.hero-bubble-8,
-.hero-bubble-9,
-.hero-bubble-10 {
-	display: none;
-}
-
-/* Responsive: fewer orbs on mobile, smaller sizes */
-@media (max-width: 640px) {
-	.hero-bubble-4,
-	.hero-bubble-5,
-	.hero-bubble-6 {
-		display: none;
-	}
-
-	.hero-bubble-1 {
-		width: 20px;
-		height: 20px;
-		top: 8%;
-		left: 8%;
-	}
-
-	.hero-bubble-2 {
-		width: 16px;
-		height: 16px;
-	}
-
-	.hero-bubble-3 {
-		width: 18px;
-		height: 18px;
-		right: 8%;
-	}
+	animation: card-enter 0.3s ease-out backwards;
 }

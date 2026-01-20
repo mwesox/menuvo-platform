@@ -1,534 +1,319 @@
-# Architecture Guide
+# Architecture
 
-Structural patterns for the Menuvo monorepo.
-
----
-
-## Core Principles
-
-1. **Apps are independent** - Each app builds and deploys separately
-2. **API is the boundary** - All data flows through tRPC, never direct DB access from apps
-3. **Packages are shared** - UI, DB, types shared via Bun workspaces
-4. **Type safety end-to-end** - tRPC + Zod + Drizzle
-5. **SSR only where needed** - Shop for SEO, Console is pure SPA
+Pragmatic structure focused on clear boundaries, vertical slices, and testability.
 
 ---
 
-## Monorepo Structure
+## Guiding Principles
 
-```
-menuvo-platform/
-├── apps/
-│   ├── api/              # Hono + tRPC backend
-│   ├── console/          # Vite + React SPA (merchant admin)
-│   └── shop/             # Hono + React SSR (storefront + discovery)
-├── packages/
-│   ├── db/               # Drizzle schema + client
-│   ├── trpc/             # Router definitions, shared types
-│   └── ui/               # Shared shadcn components
-└── docs/                 # Documentation
-```
+1. **tRPC = API contracts only** - Routers orchestrate, don't implement
+2. **Domain-first organization** - Vertical slices by business capability
+3. **Infrastructure is pluggable** - External services behind interfaces
+4. **Classes with interfaces** - Service facades with explicit contracts
+5. **Explicit dependencies** - Constructor injection, no hidden globals
 
 ---
 
-## Apps
+## Layer Overview
 
-### API (`apps/api`)
-
-Backend server. All business logic lives here.
-
-```
-apps/api/
-├── src/
-│   ├── index.ts              # Entry point, Hono app setup
-│   ├── context.ts            # tRPC context creation
-│   ├── routers/              # tRPC router mounting
-│   │   └── index.ts          # Root router (merges all routers)
-│   ├── services/             # Business logic
-│   │   ├── auth/
-│   │   │   ├── auth.service.ts
-│   │   │   └── session.ts
-│   │   ├── payments/
-│   │   │   ├── stripe.service.ts
-│   │   │   └── mollie.service.ts
-│   │   └── storage/
-│   │       └── s3.service.ts
-│   ├── middleware/           # Hono middleware
-│   │   ├── auth.ts           # JWT/session validation
-│   │   ├── cors.ts
-│   │   └── logging.ts
-│   └── lib/                  # Shared utilities
-│       └── errors.ts         # Custom error classes
-├── package.json
-└── tsconfig.json
-```
-
-**Responsibilities:**
-- Database access (via `@menuvo/db`)
-- Authentication & authorization
-- File uploads (presigned URLs)
-- WebSocket subscriptions
-- External service integrations
-
-**Never:** UI components, client-side code
+| Layer               | Location                       | Purpose                                               |
+|---------------------|--------------------------------|-------------------------------------------------------|
+| **tRPC primitives** | `apps/api/src/trpc/`           | initTRPC, procedures, middleware                      |
+| **Domain**          | `apps/api/src/domains/`        | Vertical slices: service + router + types per feature |
+| **Infrastructure**  | `apps/api/src/infrastructure/` | Cross-functional adapters (Brevo, S3, AI)             |
+| **Routes**          | `apps/api/src/routes/`         | Non-tRPC HTTP endpoints (OAuth callbacks, health)     |
 
 ---
 
-### Console (`apps/console`)
+## tRPC Layer
 
-Merchant admin dashboard. Pure SPA.
+**Purpose:** Define API contracts and orchestrate domain services.
 
-```
-apps/console/
-├── src/
-│   ├── main.tsx              # Entry point
-│   ├── router.tsx            # TanStack Router setup
-│   ├── routes/               # File-based routes (thin wiring)
-│   │   ├── __root.tsx        # Root layout
-│   │   ├── index.tsx         # Dashboard
-│   │   ├── stores/
-│   │   │   ├── index.tsx     # Store list
-│   │   │   └── $storeId/
-│   │   │       ├── index.tsx
-│   │   │       ├── menu.tsx
-│   │   │       └── orders.tsx
-│   │   └── settings.tsx
-│   ├── features/             # Feature modules
-│   │   ├── stores/
-│   │   ├── menu/
-│   │   ├── orders/
-│   │   └── settings/
-│   ├── components/           # App-specific shared components
-│   │   ├── layout/
-│   │   │   ├── sidebar.tsx
-│   │   │   ├── header.tsx
-│   │   │   └── page-container.tsx
-│   │   └── common/
-│   │       └── data-table.tsx
-│   ├── lib/                  # Utilities
-│   │   ├── trpc.ts           # tRPC client setup
-│   │   └── utils.ts
-│   └── styles/
-│       └── console.css       # Console theme
-├── index.html
-├── package.json
-├── tsconfig.json
-└── vite.config.ts
-```
+**Structure:** Routers live within their domain folders (vertical slice). The main `appRouter` merges all domain
+routers.
 
-**Responsibilities:**
-- Merchant UI for managing stores, menus, orders
-- Client-side routing
-- Local state management
+**Simple domain routers:**
 
-**Never:** Direct database access, server-side logic
+- Single `router.ts` file in `domains/{domain}/router.ts`
+- Contains all procedures for that domain
+- Example: `domains/auth/router.ts` → `trpc.auth.*`
+
+**Complex domain routers:**
+
+- Parent router in `domains/{domain}/router.ts` merges feature routers
+- Feature routers in `domains/{domain}/{feature}/router.ts`
+- Parent router exposes features as namespaces
+- Example: `domains/menu/router.ts` merges `categories/`, `items/`, `options/` → `trpc.menu.categories.*`,
+  `trpc.menu.items.*`, etc.
+
+| File        | Location                               | Purpose                                                                |
+|-------------|----------------------------------------|------------------------------------------------------------------------|
+| `router.ts` | `domains/{domain}/router.ts`           | Domain-specific procedures (simple) or feature router merger (complex) |
+| `router.ts` | `domains/{domain}/{feature}/router.ts` | Feature-specific procedures (complex domains only)                     |
+| `appRouter` | `apps/api/src/domains/router.ts`       | Merges all domain routers                                              |
+
+**Router rules:**
+
+- Max 50-100 lines per procedure
+- No database queries - call services only
+- No business logic calculations
+- Pattern: `.input(schema)` → auth check → `ctx.services.{domain}.{method}()` → catch errors → map to TRPCError
+- Never access `ctx.db` in routers - use services only
+- Use `.output()` for public APIs only
+- Routers catch domain errors and map to TRPCError codes
+
+**Procedure types:**
+
+| Procedure             | Use When                                  |
+|-----------------------|-------------------------------------------|
+| `publicProcedure`     | Unauthenticated (storefront, public menu) |
+| `protectedProcedure`  | Requires valid session                    |
+| `storeOwnerProcedure` | Requires owner/admin role                 |
+
+**API namespaces:** `trpc.stores.list`, `trpc.menu.categories.create`, `trpc.orders.updateStatus`
 
 ---
 
-### Shop (`apps/shop`)
+## Domain Layer
 
-Customer-facing storefront with SSR for SEO.
+**Purpose:** All business logic. Each domain is a vertical slice containing service, router, and types.
 
-```
-apps/shop/
-├── src/
-│   ├── index.ts              # Hono entry point
-│   ├── routes/               # Hono routes (SSR)
-│   │   ├── index.tsx         # Discovery page
-│   │   ├── store.tsx         # /:slug route
-│   │   └── checkout.tsx      # Checkout flow
-│   ├── pages/                # React page components
-│   │   ├── discovery/
-│   │   │   └── discovery-page.tsx
-│   │   ├── store/
-│   │   │   ├── store-page.tsx
-│   │   │   ├── menu-page.tsx
-│   │   │   └── cart-page.tsx
-│   │   └── checkout/
-│   │       └── checkout-page.tsx
-│   ├── components/           # Shop-specific components
-│   │   ├── layout/
-│   │   │   ├── store-header.tsx
-│   │   │   └── store-footer.tsx
-│   │   ├── menu/
-│   │   │   ├── menu-item-card.tsx
-│   │   │   └── category-nav.tsx
-│   │   └── cart/
-│   │       ├── cart-drawer.tsx
-│   │       └── cart-item.tsx
-│   ├── features/             # Client-side features
-│   │   └── cart/
-│   │       ├── stores/
-│   │       │   └── cart.store.ts
-│   │       └── hooks/
-│   │           └── use-cart.ts
-│   ├── lib/
-│   │   ├── trpc.ts
-│   │   └── hydration.tsx     # React hydration setup
-│   └── styles/
-│       ├── discovery.css
-│       └── shop.css
-├── package.json
-└── tsconfig.json
-```
+### Domain Structure Patterns
 
-**Responsibilities:**
-- Store pages, menus, ordering flow
-- Discovery/landing pages
-- SEO optimization via SSR
-- Hydration for interactivity
+Domains follow one of two patterns depending on complexity:
 
-**Never:** Admin functionality, direct database access
+**Simple Domain Structure** (for straightforward domains):
 
----
+- Files directly in `domains/{domain}/`: `service.ts`, `router.ts`, `types.ts`, `schemas.ts`, `interface.ts`, `index.ts`
+- Examples: `auth/`, `images/`, `merchants/`, `orders/`, `payments/`
+- Use when: Domain has a single cohesive responsibility
 
-## Packages
+**Complex Domain Structure** (for domains with multiple features):
 
-### DB (`packages/db`)
+- Parent domain folder: `domains/{domain}/` contains `router.ts` (merges feature routers) and optional shared files
+- Feature subdirectories: `domains/{domain}/{feature}/` each contain: `service.ts`, `router.ts`, `types.ts`,
+  `schemas.ts`, `interface.ts`, `index.ts`
+- Examples: `menu/` with features `categories/`, `items/`, `options/`, `translations/`, `import/`
+- Examples: `stores/` with features `closures/`, `hours/`, `service-points/`
+- Use when: Domain has multiple distinct sub-features that benefit from separation
 
-Database schema and client. Single source of truth.
+**When to use each pattern:**
 
-```
-packages/db/
-├── src/
-│   ├── index.ts              # Main exports
-│   ├── client.ts             # Database connection
-│   ├── schema/               # Drizzle table definitions
-│   │   ├── index.ts          # Re-exports all schemas
-│   │   ├── auth.ts           # users, sessions
-│   │   ├── merchants.ts      # merchants, stores
-│   │   ├── menu.ts           # categories, items, modifiers
-│   │   ├── orders.ts         # orders, order_items
-│   │   └── payments.ts       # transactions, refunds
-│   ├── relations.ts          # Drizzle relations
-│   └── types.ts              # Exported types
-├── drizzle/                  # Migrations
-│   └── 0001_initial.sql
-├── drizzle.config.ts
-├── package.json
-└── tsconfig.json
-```
+- Use **simple domain** when the domain has a single cohesive responsibility
+- Use **complex domain** when the domain has multiple distinct sub-features that benefit from separation
 
-**Exports:** `db`, `schema`, type helpers
+### Service Facade Pattern
 
-**Used by:** API only (never import in console or shop)
+**Required structure:**
 
----
+- All services MUST have interface in `interface.ts` (e.g., `IStoreService`)
+- Service class in `service.ts` implements the interface (e.g., `StoreService implements IStoreService`)
+- Constructor receives dependencies (typically `db`)
+- `DomainServices` class aggregates all services and handles wiring
 
-### tRPC (`packages/trpc`)
+**Service aggregation:**
 
-Router definitions and shared types.
+- Simple domains: Service exposed directly (e.g., `ctx.services.auth`, `ctx.services.orders`)
+- Complex domains: Feature services exposed individually (e.g., `ctx.services.categories`, `ctx.services.items`,
+  `ctx.services.closures`, `ctx.services.hours`)
+- Parent domain services: Some complex domains also have a parent service (e.g., `ctx.services.stores` for store CRUD)
 
-```
-packages/trpc/
-├── src/
-│   ├── index.ts              # Main exports (AppRouter type, schemas)
-│   ├── trpc.ts               # tRPC init, procedures
-│   ├── context.ts            # Context type definition
-│   ├── routers/              # Domain routers
-│   │   ├── index.ts          # Merged app router
-│   │   ├── store.router.ts
-│   │   ├── menu.router.ts
-│   │   ├── order.router.ts
-│   │   └── auth.router.ts
-│   ├── schemas/              # Zod schemas for inputs/outputs
-│   │   ├── store.schema.ts
-│   │   ├── menu.schema.ts
-│   │   └── order.schema.ts
-│   └── client.ts             # Client factory for apps
-├── package.json
-└── tsconfig.json
-```
+**Domain services:**
 
-**Exports:** `AppRouter` type, input/output schemas, `createTRPCClient`
+| Service       | Type             | Interface               | Responsibility                              |
+|---------------|------------------|-------------------------|---------------------------------------------|
+| auth          | Simple           | `IAuthService`          | Session management, auth cookies            |
+| images        | Simple           | `IImagesService`        | Upload, delete, variants                    |
+| merchants     | Simple           | `IMerchantsService`     | Merchant settings, languages                |
+| orders        | Simple           | `IOrderService`         | Order lifecycle, totals, status transitions |
+| payments      | Simple           | `IPaymentService`       | Mollie payments, merchant onboarding        |
+| stores        | Simple           | `IStoreService`         | Store CRUD, slug management, active toggle  |
+| categories    | Feature (menu)   | `ICategoriesService`    | Menu category operations                    |
+| items         | Feature (menu)   | `IItemsService`         | Menu item operations                        |
+| menuImport    | Feature (menu)   | `IMenuImportService`    | Menu import and processing                  |
+| closures      | Feature (stores) | `IClosuresService`      | Store closure period management             |
+| hours         | Feature (stores) | `IHoursService`         | Store opening hours management              |
+| servicePoints | Feature (stores) | `IServicePointsService` | Service point operations                    |
 
-**Used by:** All apps
+### Dependency Injection Flow
+
+1. `DomainServices` class receives `db` in constructor
+2. Instantiates all service classes (both simple domain services and feature services), passing `db` and other services
+   as needed
+3. Services can receive other services as dependencies (not just `db`)
+4. Exposes services as public readonly properties
+5. API context creates single `DomainServices` instance
+6. Routers access via `ctx.services.{service}.{method}()` (e.g., `ctx.services.stores.list()`,
+   `ctx.services.categories.create()`)
+
+### Domain Function Rules
+
+- One function per file (or closely related functions)
+- Explicit dependencies as first parameter
+- Returns domain types, not raw DB types
+- Throws domain errors (NotFoundError, ValidationError), not TRPCError
+
+### Service Composition
+
+Services MAY depend on other services via constructor injection:
+
+- Reuse existing service methods instead of reimplementing database operations
+- Example: `OrderService` can use `StoreService` to validate store status
+- `DomainServices` class handles wiring - services receive other services as dependencies
+- Keep dependency direction clear: avoid circular dependencies
 
 ---
 
-### UI (`packages/ui`)
+## Error Handling
 
-Shared shadcn components.
+**Error handling boundary:**
 
-```
-packages/ui/
-├── src/
-│   ├── index.ts              # Main exports
-│   ├── components/           # shadcn primitives
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── dialog.tsx
-│   │   ├── dropdown-menu.tsx
-│   │   ├── form.tsx
-│   │   ├── input.tsx
-│   │   ├── select.tsx
-│   │   ├── table.tsx
-│   │   └── ...
-│   └── lib/
-│       ├── utils.ts          # cn() helper
-│       └── icons.tsx         # Lucide icon re-exports
-├── components.json           # shadcn config
-├── package.json
-├── tsconfig.json
-└── tailwind.config.ts
-```
+- Domain services throw domain errors (not TRPCError)
+- Routers catch domain errors and map to TRPCError codes
+- Domain layer throws, router layer maps
 
-**Rule:** No business logic. Pure presentational components.
+**Domain layer throws:**
+
+- `NotFoundError` - Resource doesn't exist
+- `ValidationError` - Invalid input data
+- `ConflictError` - Duplicate or conflicting state
+- `ForbiddenError` - Not authorized
+
+**Router layer:** Maps domain errors to TRPCError codes
 
 ---
 
-## Tech Stack
+## Infrastructure Layer
 
-| Concern | Tool |
-|---------|------|
-| Runtime | Bun |
-| Package Manager | Bun |
-| API Framework | Hono |
-| Type-safe API | tRPC |
-| Client Routing | TanStack Router |
-| Server State | TanStack Query |
-| Client State | Zustand |
-| Forms | TanStack Form + Zod |
-| Database | Drizzle ORM + PostgreSQL |
-| Styling | Tailwind CSS v4 |
-| Components | shadcn/ui |
-| Linting | Biome |
-| Testing | Vitest |
+**Purpose:** Cross-functional external adapters used by multiple domains.
 
----
-
-## Data Flow
-
-```
-┌─────────────┐     ┌─────────────┐
-│   Console   │     │    Shop     │
-│  (Vite SPA) │     │ (Hono SSR)  │
-└──────┬──────┘     └──────┬──────┘
-       │                   │
-       │    tRPC Client    │
-       └─────────┬─────────┘
-                 │
-          ┌──────▼──────┐
-          │     API     │
-          │ (Hono+tRPC) │
-          └──────┬──────┘
-                 │
-          ┌──────▼──────┐
-          │  PostgreSQL │
-          └─────────────┘
-```
-
-### Request Flow
-
-1. **App** calls tRPC procedure via TanStack Query
-2. **tRPC client** sends HTTP request to API
-3. **API** validates input with Zod schema
-4. **API** executes business logic, queries database
-5. **API** returns typed response
-6. **App** receives data, updates UI
-
----
-
-## Feature Structure
-
-Features own their domain. Organized by business capability.
-
-```
-apps/console/src/features/menu/
-├── components/                 # Feature UI components
-│   ├── category-list.tsx
-│   ├── category-form.tsx
-│   ├── item-card.tsx
-│   ├── item-form.tsx
-│   ├── item-drawer.tsx
-│   └── modifier-group-form.tsx
-├── hooks/                      # Custom React hooks
-│   ├── use-menu-page-state.ts
-│   └── use-drag-reorder.ts
-├── stores/                     # Zustand stores (client state)
-│   └── menu-editor.store.ts
-├── logic/                      # Pure functions (testable)
-│   ├── calculate-total.ts
-│   ├── validate-modifiers.ts
-│   └── sort-categories.ts
-├── schemas.ts                  # Form schemas (Zod)
-├── queries.ts                  # TanStack Query hooks
-├── constants.ts                # Static data
-└── types.ts                    # Feature-specific types
-```
-
-### File Purposes
-
-| File | Purpose |
-|------|---------|
-| `components/*.tsx` | Feature UI (forms, lists, cards, drawers) |
-| `hooks/*.ts` | UI logic (state machines, drag handling) |
-| `stores/*.ts` | Persistent client state (editor state, preferences) |
-| `logic/*.ts` | Pure business logic (calculations, validations) |
-| `schemas.ts` | Form validation schemas |
-| `queries.ts` | Data fetching hooks |
-| `constants.ts` | Static values |
-| `types.ts` | Feature-specific types |
-
-### Feature Rules
-
-| Rule | Guideline |
-|------|-----------|
-| One feature per domain | `menu`, `orders`, `stores`, `settings` |
-| Components compose `@menuvo/ui` | Don't reimplement primitives |
-| Stores for UI state only | Never store server data |
-| Logic is pure | No hooks, no side effects |
-| Queries wrap tRPC | All data fetching in `queries.ts` |
-
----
-
-## State Management
-
-| State Type | Tool | Location |
-|------------|------|----------|
-| Server data | TanStack Query | `queries.ts` |
-| Persistent client | Zustand + persist | `stores/` |
-| Transient UI | React Context | `contexts/` |
-| Component-local | `useState` | Component |
+| Service | Provider | Used By                     |
+|---------|----------|-----------------------------|
+| Storage | S3/R2    | images, menu-import         |
+| Email   | Brevo    | auth, orders, notifications |
+| AI      | OpenAI   | menu-import                 |
 
 **Rules:**
-- Never store server data in Zustand or Context
-- Server data sharing = same query key (TanStack Query cache)
-- Zustand for cart, preferences, UI state that persists
+
+- Only cross-functional services belong here
+- Domain-specific adapters live with their domain (e.g., Mollie → `domains/payments/`)
+- Configuration via environment variables
+
+**Domain-specific adapters (NOT in infrastructure):**
+
+| Adapter | Location            | Reason                       |
+|---------|---------------------|------------------------------|
+| Mollie  | `domains/payments/` | Only used by payments domain |
 
 ---
 
-## Schema Separation
+## Context Wiring
 
-Three schema types, three purposes, clear ownership chain.
+Context creation is simplified via `DomainServices` class.
 
-| Schema | Location | Types | Purpose |
-|--------|----------|-------|---------|
-| Database | `packages/db/schema/` | Column types, const arrays | Drizzle schema, enum source |
-| API | `packages/trpc/schemas/` | Zod schemas (derived) | tRPC validation, app-facing types |
-| Form | `features/{f}/schemas.ts` | Strings | HTML input validation |
+**Context (`apps/api/src/context.ts`):**
 
-### Type Flow
+- Creates single `DomainServices` instance with `db`
+- Extracts session from request
+- Passes `services` to tRPC procedures
+- No manual service wiring needed in routers
 
-```
-@menuvo/db (owns enums + tables)
-    │
-    └── const arrays, table definitions
-          │
-          ▼
-@menuvo/trpc (derives Zod, exports types)
-    │
-    └── z.enum(dbArray), API schemas
-          │
-          ▼
-apps/* (imports from tRPC only)
-    │
-    └── Form schemas (local), composite types (local)
-```
+**Context structure:**
 
-**Key rules:**
-- DB owns enum values (they constrain columns)
-- tRPC derives Zod from DB arrays - never duplicate values
-- Apps import from `@menuvo/trpc`, never `@menuvo/db`
-- Form schemas stay local to features
-- Composite types (joins) defined locally where used
-
-### Transformation Flow
-
-```
-Form (strings) → Mutation Hook (transforms) → tRPC (validates) → Database
-```
-
-| Layer | Responsibility |
-|-------|----------------|
-| Form | Collect raw input (all strings from HTML) |
-| Mutation hook | Transform types, add context IDs |
-| tRPC procedure | Validate with Zod, execute business logic |
-
----
-
-## Route Patterns
-
-### Console (SPA)
-
-Routes are thin wiring. Connect URLs to features.
+| Property     | Description                    |
+|--------------|--------------------------------|
+| `session`    | Extracted from request cookies |
+| `services`   | `DomainServices` instance      |
+| `resHeaders` | Response headers for cookies   |
+| `serverUrl`  | Base URL for OAuth callbacks   |
 
 **Rules:**
-- Loaders use `trpcClient` (can't use hooks)
-- Components use `useTRPC()` hook
-- Match query keys between loader and component
-- No business logic in routes
 
-### Shop (SSR)
-
-Hono routes render React to HTML, then hydrate on client.
-
-**Rules:**
-- Fetch data server-side before render
-- Pass data as props to page components
-- Hydrate for client-side interactivity
+- `db` is NOT exposed on context - routers access data through services only
+- Routers use `ctx.services.{service}.{method}()` only
 
 ---
 
-## Theming
+## File Naming Conventions
 
-Three visual contexts, one theme system.
+**Simple domains:**
 
-| Context | Route | Style |
-|---------|-------|-------|
-| Discovery | `/` | Fresh modern, sans-serif |
-| Shop | `/{storeSlug}/*` | Editorial, serif headings |
-| Console | `/console/*` | Zinc, professional |
+- Files directly in `domains/{domain}/`: `service.ts`, `router.ts`, `types.ts`, `schemas.ts`, `interface.ts`, `index.ts`
+- Examples: `domains/auth/service.ts`, `domains/orders/router.ts`
 
-All themes: Light mode only (dark mode deactivated).
+**Complex domains:**
+
+- Parent domain: `domains/{domain}/router.ts` (merges feature routers), optional shared files
+- Feature subdirectories: `domains/{domain}/{feature}/` with `service.ts`, `router.ts`, `types.ts`, `schemas.ts`,
+  `interface.ts`, `index.ts`
+- Examples: `domains/menu/categories/service.ts`, `domains/stores/hours/router.ts`
+
+| Type           | Pattern                    | Example (Simple)                      | Example (Complex)                    |
+|----------------|----------------------------|---------------------------------------|--------------------------------------|
+| Service class  | `service.ts`               | `domains/auth/service.ts`             | `domains/menu/categories/service.ts` |
+| Router         | `router.ts`                | `domains/orders/router.ts`            | `domains/stores/hours/router.ts`     |
+| Domain types   | `types.ts`                 | `domains/images/types.ts`             | `domains/menu/items/types.ts`        |
+| Schemas        | `schemas.ts`               | `domains/payments/schemas.ts`         | `domains/stores/closures/schemas.ts` |
+| Interface      | `interface.ts`             | `domains/merchants/interface.ts`      | `domains/menu/options/interface.ts`  |
+| Infrastructure | `{name}.ts` or `client.ts` | `infrastructure/storage/s3-client.ts` |
 
 ---
 
-## Anti-Patterns
+## Query Patterns
 
-| Don't | Do Instead |
-|-------|------------|
-| Import `@menuvo/db` in apps | Use tRPC procedures |
-| Store server data in Zustand | Use TanStack Query |
-| Business logic in routes | Extract to features |
-| Direct fetch calls | Use tRPC client |
-| Inline Zod schemas | Define in schemas.ts or packages/trpc |
-| Cross-app imports | Share via packages |
-| Duplicate enum values in tRPC | Import array from `@menuvo/db`, use `z.enum()` |
-| Create type mirrors in apps | Import from `@menuvo/trpc/schemas` |
-| Define same const array twice | Single source in `packages/db/schema/` |
+**Frontend data fetching:**
+
+- Prefer direct `trpc.{router}.{procedure}.queryOptions()` in components
+- Only create query helpers (`use{Entity}Queries()`) if query used in 3+ components
+- Mutation hooks acceptable for side effects (toast, cache invalidation)
+- Avoid wrapping `useQuery(trpc.x.queryOptions())` in hooks - use directly
+- Route loaders: use `trpcClient` (no hooks), components: use `useTRPC()`
+
+---
+
+## Anti-Patterns to Avoid
+
+| Don't                                               | Do Instead                              |
+|-----------------------------------------------------|-----------------------------------------|
+| Business logic in routers                           | Extract to domain service classes       |
+| Direct DB queries in routers                        | Call `ctx.services.{domain}.{method}()` |
+| `ctx.db` access in routers                          | Use `ctx.services.{service}.{method}()` |
+| Manual service wiring in context                    | Use `DomainServices` class              |
+| Service classes without interfaces                  | Always define `I{Service}` interface    |
+| Monolithic service classes                          | Split into sub-services if > 500 lines  |
+| Wrapping `useQuery(trpc.x.queryOptions())` in hooks | Use queryOptions directly               |
+| Throwing TRPCError from domain services             | Domain services throw domain errors     |
+| Creating hooks for queries used once                | Use queryOptions directly in component  |
 
 ---
 
 ## Quick Reference
 
-| I need to... | Location |
-|--------------|----------|
-| Add database table | `packages/db/schema/` |
-| Add enum/const array | `packages/db/schema/` (source), derive in `packages/trpc/schemas/` |
-| Add tRPC procedure | `packages/trpc/routers/` |
-| Add API schema | `packages/trpc/schemas/` |
-| Add UI primitive | `packages/ui/components/` |
-| Add feature UI | `apps/{app}/src/features/{f}/components/` |
-| Add business logic | `apps/api/src/services/` |
-| Configure queries | `apps/{app}/src/features/{f}/queries.ts` |
-| Wire up a page | `apps/{app}/src/routes/` |
-| Persist client state | `apps/{app}/src/features/{f}/stores/` |
+| I need to...                                | Location                                             |
+|---------------------------------------------|------------------------------------------------------|
+| Add business logic (simple domain)          | `apps/api/src/domains/{domain}/service.ts`           |
+| Add business logic (complex domain feature) | `apps/api/src/domains/{domain}/{feature}/service.ts` |
+| Add tRPC procedure (simple domain)          | `apps/api/src/domains/{domain}/router.ts`            |
+| Add tRPC procedure (complex domain feature) | `apps/api/src/domains/{domain}/{feature}/router.ts`  |
+| Merge feature routers (complex domain)      | `apps/api/src/domains/{domain}/router.ts`            |
+| Add domain-specific adapter                 | `apps/api/src/domains/{domain}/` (with the domain)   |
+| Add cross-functional adapter                | `apps/api/src/infrastructure/{service}/`             |
+| Add database table                          | `packages/db/schema/`                                |
+| Add HTTP endpoint                           | `apps/api/src/routes/`                               |
+
+**When to create a feature subdirectory:**
+
+- Domain has multiple distinct sub-features (e.g., menu has categories, items, options)
+- Feature has its own service, router, and types
+- Feature benefits from separation for maintainability
 
 ---
 
-## Deployment
+## Summary
 
-Each app deploys independently:
-
-| App | Target | URL |
-|-----|--------|-----|
-| API | Container/Serverless | `api.menuvo.app` |
-| Console | Static CDN | `www.menuvo.app/console` |
-| Shop | Edge/Container | `www.menuvo.app/{slug}` |
-
----
-
-## See Also
-
-- [Coding Guidelines](./coding-guidelines.md) - Implementation patterns with code examples
+- **Domain** → Vertical slices: simple domains (flat) or complex domains (feature subdirectories)
+- **Simple domains** → Files directly in `domains/{domain}/`: service + router + types
+- **Complex domains** → Feature subdirectories `domains/{domain}/{feature}/` with parent router merging feature routers
+- **tRPC** → Routers live within domains, thin orchestration, no DB access
+- **Infrastructure** → Cross-functional adapters only (Email, Storage, AI)
+- **Context** → `DomainServices` class aggregates all services (both simple domain and feature services)

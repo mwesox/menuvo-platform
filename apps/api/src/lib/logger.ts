@@ -1,14 +1,18 @@
 import pino from "pino";
+import { env } from "../env";
 
-const isDev = process.env.NODE_ENV !== "production";
+const isDev = env.NODE_ENV !== "production";
 
 /**
  * Base logger configuration
- * - Development: Pretty printing with colors
+ * - Development: Pretty printing with colors, debug level
  * - Production: JSON logs for structured logging
+ *
+ * Defaults are set in env.ts (LOG_LEVEL=info, NODE_ENV=development)
  */
 export const logger = pino({
-	level: process.env.LOG_LEVEL || (isDev ? "debug" : "info"),
+	// In dev, use debug unless explicitly set; in prod use configured level
+	level: isDev ? "debug" : env.LOG_LEVEL,
 	...(isDev && {
 		transport: {
 			target: "pino/file",
@@ -19,7 +23,7 @@ export const logger = pino({
 		},
 	}),
 	base: {
-		env: process.env.NODE_ENV || "development",
+		env: env.NODE_ENV,
 	},
 });
 
@@ -40,3 +44,5 @@ export const paymentsLogger = createLogger("payments");
 export const webhookLogger = createLogger("webhook");
 export const mcpLogger = createLogger("mcp");
 export const emailLogger = createLogger("email");
+export const aiRecommendationsLogger = createLogger("ai-recommendations");
+export const aiLogger = createLogger("ai");

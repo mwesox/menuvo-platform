@@ -13,15 +13,13 @@
 		"creating": "Wird erstellt...",
 		"welcome": {
 			"title": "Schön, dass du hier bist",
-			"description": "Bevor wir loslegen, brauchen wir ein paar Infos über dich und dein Restaurant. Dauert nur",
-			"duration": "2 Minuten",
+			"description": "Bevor wir loslegen, brauchen wir ein paar Infos über dich und dein Restaurant. Dauert nur wenige Minuten.",
 			"pills": {
 				"business": "Geschäftsinfos",
 				"contact": "Kontaktdaten",
 				"store": "Dein Store"
 			},
-			"cta": "Los geht's",
-			"timeHint": ""
+			"cta": "Los geht's"
 		},
 		"business": {
 			"title": "Wie heißt dein Unternehmen?",
@@ -102,17 +100,17 @@
 		"currency": "Währung"
 	},
 	"placeholders": {
-		"businessName": "z.B. Acme Restaurant GmbH",
-		"ownerName": "z.B. Max Mustermann",
-		"contactEmail": "kontakt@beispiel.de",
-		"phone": "123 456 789",
+		"businessName": "Dein Restaurantname",
+		"ownerName": "Vor- und Nachname",
+		"contactEmail": "Deine E-Mail-Adresse",
+		"phone": "Deine Telefonnummer",
 		"selectLanguage": "Sprache auswählen",
-		"storeName": "z.B. Innenstadt",
+		"storeName": "Name deiner Filiale",
 		"storeSlug": "dein-store-name",
-		"streetAddress": "Hauptstraße 123",
-		"city": "Berlin",
-		"postalCode": "10115",
-		"country": "Deutschland",
+		"streetAddress": "Straße und Hausnummer",
+		"city": "Deine Stadt",
+		"postalCode": "Deine Postleitzahl",
+		"country": "Dein Land",
 		"selectTimezone": "Zeitzone auswählen",
 		"selectCurrency": "Währung auswählen"
 	},

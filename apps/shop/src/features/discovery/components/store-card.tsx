@@ -28,7 +28,7 @@ export function StoreCard({ store, style }: StoreCardProps) {
 			to="/$slug"
 			params={{ slug: store.slug }}
 			className={cn(
-				"group block overflow-hidden rounded-2xl bg-card",
+				"group block overflow-hidden rounded-xl bg-card",
 				"ring-1 ring-border/50",
 				"transition-all duration-300 ease-out",
 				"hover:shadow-black/[0.04] hover:shadow-lg hover:ring-border",
@@ -47,12 +47,9 @@ export function StoreCard({ store, style }: StoreCardProps) {
 						className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
 					/>
 				) : (
-					/* Placeholder gradient for missing images */
-					<div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10">
-						<span
-							className="font-medium text-4xl text-muted-foreground/30"
-							style={{ fontFamily: "var(--font-heading)" }}
-						>
+					/* Placeholder for missing images */
+					<div className="flex h-full w-full items-center justify-center bg-muted">
+						<span className="font-semibold text-4xl text-muted-foreground/20">
 							{store.name.charAt(0)}
 						</span>
 					</div>
@@ -63,7 +60,7 @@ export function StoreCard({ store, style }: StoreCardProps) {
 					<div className="absolute bottom-3 left-3">
 						<span
 							className={cn(
-								"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1",
+								"inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1",
 								"font-medium text-xs backdrop-blur-md",
 								store.isOpen
 									? "bg-emerald-500/90 text-white"
@@ -84,10 +81,7 @@ export function StoreCard({ store, style }: StoreCardProps) {
 
 			{/* Content - more breathing room */}
 			<div className="p-4 sm:p-5">
-				<h3
-					className="font-medium text-foreground text-lg sm:text-xl"
-					style={{ fontFamily: "var(--font-heading)" }}
-				>
+				<h3 className="font-semibold text-foreground text-lg sm:text-xl">
 					{store.name}
 				</h3>
 

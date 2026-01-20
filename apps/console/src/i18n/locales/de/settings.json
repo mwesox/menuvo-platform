@@ -1,4 +1,12 @@
 {
+	"nav": {
+		"business": "Geschäft",
+		"language": "Sprache",
+		"payments": "Zahlungen",
+		"ai": "Upselling",
+		"staff": "Mitarbeiter & Berechtigungen",
+		"brand": "Branding"
+	},
 	"pageTitle": "Händlereinstellungen",
 	"storePageTitle": "Filialeinstellungen",
 	"pageDescription": "Einstellungen für {{merchantName}}",
@@ -25,6 +33,10 @@
 		"brand": {
 			"title": "Branding",
 			"description": "Shop-Erscheinungsbild anpassen"
+		},
+		"aiRecommendations": {
+			"title": "Upselling",
+			"description": "Produktvorschläge beim Checkout"
 		},
 		"comingSoon": "Demnächst"
 	},
@@ -78,7 +90,7 @@
 		"noAddressConfigured": "Keine Adresse konfiguriert"
 	},
 	"placeholders": {
-		"closureReason": "z.B. Feiertag, Urlaub, Renovierung",
+		"closureReason": "Grund für die Schließung",
 		"pickDate": "Datum wählen"
 	},
 	"actions": {
@@ -293,8 +305,43 @@
 				}
 			},
 			"actions": {
-				"completeVerification": "Verifizierung abschließen"
+				"completeVerification": "Verifizierung abschließen",
+				"manageDashboard": "Mollie-Dashboard öffnen"
 			}
 		}
+	},
+	"aiRecommendations": {
+		"title": "Upselling",
+		"description": "Konfigurieren Sie Produktvorschläge, die beim Checkout erscheinen, um Kunden passende Artikel zu empfehlen.",
+		"storeContext": "Upselling konfigurieren für {{storeName}}",
+		"enableToggle": "Upselling aktivieren",
+		"enableDescription": "Zeige Produktvorschläge beim Checkout basierend auf dem Warenkorbinhalt",
+		"toneLabel": "Vorschlagsstil",
+		"toneHint": "Wählen Sie, wie Vorschläge Ihren Gästen präsentiert werden.",
+		"previewLabel": "Vorschau",
+		"tones": {
+			"professional": {
+				"label": "Elegant",
+				"subtitle": "Fine Dining",
+				"exampleTitle": "Empfohlen zu Ihrer Bestellung",
+				"exampleReason": "Vom Sommelier empfohlen"
+			},
+			"friendly": {
+				"label": "Freundlich",
+				"subtitle": "Café & Bistro",
+				"exampleTitle": "Das passt perfekt dazu!",
+				"exampleReason": "Das lieben unsere Gäste!"
+			},
+			"playful": {
+				"label": "Locker",
+				"subtitle": "Fast Food & Casual",
+				"exampleTitle": "Deine Pizza braucht Gesellschaft!",
+				"exampleReason": "Pizza's bester Freund!"
+			}
+		},
+		"pairingRulesLabel": "Kombinationsregeln",
+		"rulePlaceholder": "z.B. Pizza mit Cola oder Bier kombinieren",
+		"pairingRulesHint": "Fügen Sie Regeln hinzu, um zu definieren, welche Artikel gut zusammenpassen. Seien Sie spezifisch.",
+		"addRule": "Regel hinzufügen"
 	}
 }

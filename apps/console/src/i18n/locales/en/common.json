@@ -17,7 +17,8 @@
 		"getStarted": "Get Started",
 		"goToConsole": "Go to Console",
 		"show": "Show",
-		"hide": "Hide"
+		"hide": "Hide",
+		"clear": "Clear"
 	},
 	"states": {
 		"loading": "Loading...",
@@ -38,7 +39,10 @@
 		"unlimited": "Unlimited",
 		"to": "to",
 		"item": "Item",
-		"items": "Items"
+		"items": "Items",
+		"enabled": "Enabled",
+		"allDays": "All days",
+		"rules": "rules"
 	},
 	"translationStatus": {
 		"complete": "Complete",
@@ -62,7 +66,14 @@
 		"thursday": "Thursday",
 		"friday": "Friday",
 		"saturday": "Saturday",
-		"sunday": "Sunday"
+		"sunday": "Sunday",
+		"mondayShort": "Mon",
+		"tuesdayShort": "Tue",
+		"wednesdayShort": "Wed",
+		"thursdayShort": "Thu",
+		"fridayShort": "Fri",
+		"saturdayShort": "Sat",
+		"sundayShort": "Sun"
 	},
 	"currencies": {
 		"EUR": "Euro",
@@ -75,6 +86,10 @@
 		"search": "Search",
 		"select": "Select",
 		"selectOption": "Select an option"
+	},
+	"storeSelection": {
+		"required": "Store selection required",
+		"useHeaderSelector": "Use the store selector in the header to choose a store."
 	},
 	"home": {
 		"tagline": "Discover restaurants near you",

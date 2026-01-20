@@ -1,12 +1,13 @@
 import { Logo } from "@menuvo/ui";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence } from "motion/react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { useTRPC } from "@/lib/trpc";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { useOnboardingWizard } from "../hooks/use-onboarding-wizard";
-import { useOnboardMerchant } from "../queries";
+import type { OnboardingFormInput } from "../schemas";
 import {
 	AddressSlide,
 	BusinessSlide,
@@ -23,8 +24,42 @@ export function OnboardingWizard() {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const { t } = useTranslation("onboarding");
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const onboardMutation = useOnboardMerchant();
+
+	const onboardMutation = useMutation({
+		...trpc.auth.onboard.mutationOptions(),
+		// Transform form input to API schema (add defaults for timezone/currency)
+		mutationFn: async (input: OnboardingFormInput) => {
+			return trpcClient.auth.onboard.mutate({
+				merchant: input.merchant,
+				store: {
+					...input.store,
+					timezone: "Europe/Berlin",
+					currency: "EUR",
+				},
+			});
+		},
+		onSuccess: async () => {
+			// Invalidate auth queries with correct tRPC query key
+			// This ensures the dashboard sees the new merchant after navigation
+			await queryClient.invalidateQueries({
+				queryKey: trpc.auth.getMerchantOrNull.queryKey(),
+			});
+
+			toast.success(t("toast.successTitle"), {
+				description: t("toast.successDescription"),
+			});
+			// Navigation handled by the caller (wizard) after this completes
+		},
+		onError: (error) => {
+			toast.error(t("toast.errorTitle"), {
+				description:
+					error instanceof Error ? error.message : "An unknown error occurred",
+			});
+		},
+	});
 
 	// Handle final form submission
 	const handleSubmit = async () => {
@@ -32,10 +67,10 @@ export function OnboardingWizard() {
 		console.log("[onboarding-wizard] Starting submission...");
 
 		try {
-			const result = await onboardMutation.mutateAsync({
+			const result = (await onboardMutation.mutateAsync({
 				merchant: wizard.data.merchant,
 				store: wizard.data.store,
-			});
+			})) as { merchant: { id: string }; store: { id: string } };
 			console.log("[onboarding-wizard] Mutation succeeded:", {
 				merchantId: result.merchant.id,
 				storeId: result.store.id,

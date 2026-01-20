@@ -1,11 +1,11 @@
-import type { ImageType } from "@menuvo/trpc/schemas";
 import { Button } from "@menuvo/ui";
 import { CropIcon, ImageIcon, Trash2Icon, UploadIcon } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { trpcClient } from "@/lib/trpc";
+import { useTRPCClient } from "@/lib/trpc";
 import { cn } from "@/lib/utils.ts";
+import type { ImageType } from "../constants.ts";
 import { getAspectRatioClassForImageType } from "../utils/crop-presets.ts";
 import { resizeCroppedImage } from "../utils/resize-image.ts";
 import { uploadImageBinary } from "../utils/upload-image.ts";
@@ -34,6 +34,7 @@ export function ImageUploadField({
 	const [cropperOpen, setCropperOpen] = useState(false);
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 	const [currentImageId, setCurrentImageId] = useState<string | null>(null);
+	const trpcClient = useTRPCClient();
 
 	const handleFileSelect = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,6 +67,7 @@ export function ImageUploadField({
 
 				// Upload binary directly (no base64 encoding - ~33% smaller payload)
 				const result = await uploadImageBinary(
+					trpcClient,
 					resized.blob,
 					merchantId,
 					imageType,
@@ -91,7 +93,7 @@ export function ImageUploadField({
 				}
 			}
 		},
-		[merchantId, imageType, onChange, previewSrc, t],
+		[merchantId, imageType, onChange, previewSrc, t, trpcClient],
 	);
 
 	const handleRemove = useCallback(async () => {
@@ -112,7 +114,7 @@ export function ImageUploadField({
 		} catch {
 			toast.error(t("toasts.imageRemoveFailed"));
 		}
-	}, [currentImageId, merchantId, onChange, t]);
+	}, [currentImageId, merchantId, onChange, t, trpcClient]);
 
 	const aspectClass = getAspectRatioClassForImageType(imageType);
 

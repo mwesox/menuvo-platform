@@ -3,9 +3,9 @@
  *
  * Uses native browser drag API for smooth, flicker-free dragging.
  * Motion's layoutId enables smooth position animations when cards move between columns.
+ *
+ * Note: drag-and-drop library is dynamically imported to reduce initial bundle size
  */
-
-import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import {
 	Button,
 	DropdownMenu,
@@ -51,21 +51,36 @@ export function OrderCard({
 	const [isDragging, setIsDragging] = useState(false);
 	const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
-	// Set up draggable
+	// Set up draggable - dynamically import to reduce initial bundle
 	useEffect(() => {
 		const el = cardRef.current;
 		invariant(el, "Card element should exist");
 
-		return draggable({
-			element: el,
-			getInitialData: () => ({
-				orderId: order.id,
-				sourceColumn: columnId,
-				type: "order",
-			}),
-			onDragStart: () => setIsDragging(true),
-			onDrop: () => setIsDragging(false),
-		});
+		let cancelled = false;
+		let cleanup: (() => void) | undefined;
+
+		import("@atlaskit/pragmatic-drag-and-drop/element/adapter").then(
+			({ draggable }) => {
+				// Skip registration if effect was already cleaned up (StrictMode double-invocation)
+				if (cancelled) return;
+
+				cleanup = draggable({
+					element: el,
+					getInitialData: () => ({
+						orderId: order.id,
+						sourceColumn: columnId,
+						type: "order",
+					}),
+					onDragStart: () => setIsDragging(true),
+					onDrop: () => setIsDragging(false),
+				});
+			},
+		);
+
+		return () => {
+			cancelled = true;
+			cleanup?.();
+		};
 	}, [order.id, columnId]);
 
 	return (

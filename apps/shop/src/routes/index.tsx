@@ -6,12 +6,12 @@ import {
 	DiscoveryPageSkeleton,
 } from "../features/discovery";
 import { ShopFooter } from "../features/layout";
-import { shopQueries } from "../features/queries";
 import { CookieBanner, CookieConsentProvider } from "../features/shared";
+import { trpcUtils } from "../lib/trpc";
 
 export const Route = createFileRoute("/")({
-	loader: async ({ context }) => {
-		await context.queryClient.ensureQueryData(shopQueries.featuredStores(20));
+	loader: async () => {
+		await trpcUtils.store.getFeaturedStores.ensureData({ limit: 20 });
 	},
 	head: () => ({
 		meta: [

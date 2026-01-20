@@ -1,8 +1,4 @@
-import type {
-	OptionChoice,
-	OptionGroup,
-	OptionGroupType,
-} from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Button,
 	Card,
@@ -25,11 +21,18 @@ import {
 	Textarea,
 } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { getLocalizedContent } from "@/features/translations/logic/localization";
-import { useSaveOptionGroupWithChoices } from "../options.queries";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
+import { getLocalizedContent } from "../logic/localization";
+import {
+	type OptionGroupType,
+	optionGroupFormSchema,
+} from "../options.schemas";
 import { formToTranslations } from "../schemas";
 
 interface ChoiceFormValue {
@@ -38,7 +41,10 @@ interface ChoiceFormValue {
 	priceModifier: string; // in cents, can be negative
 }
 
-type OptionGroupWithChoices = OptionGroup & { choices: OptionChoice[] };
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type OptionGroupWithChoices = NonNullable<
+	RouterOutput["menu"]["options"]["getGroup"]
+>;
 
 interface OptionGroupFormProps {
 	storeId: string;
@@ -57,7 +63,38 @@ export function OptionGroupForm({
 	const isEditing = !!optionGroup;
 	const language = "de";
 
-	const saveMutation = useSaveOptionGroupWithChoices(storeId);
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+	const { t: tToasts } = useTranslation("toasts");
+
+	type RouterInput = inferRouterInputs<AppRouter>;
+	type SaveOptionGroupInput =
+		RouterInput["menu"]["options"]["saveGroupWithChoices"];
+
+	const saveMutation = useMutation({
+		mutationKey: trpc.menu.options.saveGroupWithChoices.mutationKey(),
+		mutationFn: async (input: Omit<SaveOptionGroupInput, "storeId">) =>
+			trpcClient.menu.options.saveGroupWithChoices.mutate({
+				storeId,
+				...input,
+			}),
+		onSuccess: (savedGroup) => {
+			const group = savedGroup as { id: string };
+			queryClient.invalidateQueries({
+				queryKey: trpc.menu.options.getGroup.queryKey({
+					optionGroupId: group.id,
+				}),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.menu.options.listGroups.queryKey({ storeId }),
+			});
+			toast.success(tToasts("success.optionGroupSaved"));
+		},
+		onError: () => {
+			toast.error(tToasts("error.saveOptionGroup"));
+		},
+	});
 
 	// Compute initial values from optionGroup if editing
 	const initialValues = (() => {
@@ -92,13 +129,16 @@ export function OptionGroupForm({
 		return {
 			name,
 			description: description ?? "",
-			type: optionGroup.type,
+			type: optionGroup.type as OptionGroupType,
 			choices,
 		};
 	})();
 
 	const form = useForm({
 		defaultValues: initialValues,
+		validators: {
+			onSubmit: optionGroupFormSchema,
+		},
 		onSubmit: async ({ value }) => {
 			const translations = formToTranslations(
 				{ name: value.name, description: value.description },
@@ -144,8 +184,8 @@ export function OptionGroupForm({
 			});
 
 			navigate({
-				to: "/menu/options",
-				search: { storeId },
+				to: "/stores/$storeId/menu/options",
+				params: { storeId },
 			});
 		},
 	});
@@ -257,26 +297,8 @@ export function OptionGroupForm({
 
 					{/* Choices Section */}
 					<div className="mt-6 space-y-4">
-						<div className="flex items-center justify-between">
+						<div>
 							<h3 className="font-medium text-sm">{t("labels.choices")}</h3>
-							<form.Field name="choices" mode="array">
-								{(field) => (
-									<Button
-										type="button"
-										variant="outline"
-										size="sm"
-										onClick={() =>
-											field.pushValue({
-												name: "",
-												priceModifier: "0",
-											})
-										}
-									>
-										<PlusIcon className="mr-1.5 size-4" />
-										{t("actions.addChoice")}
-									</Button>
-								)}
-							</form.Field>
 						</div>
 
 						<form.Field name="choices" mode="array">
@@ -294,16 +316,30 @@ export function OptionGroupForm({
 											>
 												<div className="flex-1 space-y-3">
 													<form.Field name={`choices[${index}].name`}>
-														{(nameField) => (
-															<Input
-																placeholder={t("placeholders.choiceName")}
-																value={nameField.state.value}
-																onChange={(e) =>
-																	nameField.handleChange(e.target.value)
-																}
-																onBlur={nameField.handleBlur}
-															/>
-														)}
+														{(nameField) => {
+															const isInvalid =
+																nameField.state.meta.isTouched &&
+																!nameField.state.meta.isValid;
+															return (
+																<Field data-invalid={isInvalid}>
+																	<Input
+																		name={nameField.name}
+																		placeholder={t("placeholders.choiceName")}
+																		value={nameField.state.value}
+																		onChange={(e) =>
+																			nameField.handleChange(e.target.value)
+																		}
+																		onBlur={nameField.handleBlur}
+																		aria-invalid={isInvalid}
+																	/>
+																	{isInvalid && (
+																		<FieldError
+																			errors={nameField.state.meta.errors}
+																		/>
+																	)}
+																</Field>
+															);
+														}}
 													</form.Field>
 													<div className="flex items-center gap-2">
 														<form.Field
@@ -352,6 +388,21 @@ export function OptionGroupForm({
 											</div>
 										))
 									)}
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={() =>
+											field.pushValue({
+												name: "",
+												priceModifier: "0",
+											})
+										}
+										className="mt-2"
+									>
+										<PlusIcon className="mr-1.5 size-4" />
+										{t("actions.addChoice")}
+									</Button>
 								</div>
 							)}
 						</form.Field>
@@ -359,7 +410,7 @@ export function OptionGroupForm({
 
 					<div className="mt-6 flex justify-end gap-3">
 						<Button type="button" variant="outline" asChild>
-							<Link to="/menu/options" search={{ storeId }}>
+							<Link to="/stores/$storeId/menu/options" params={{ storeId }}>
 								{tCommon("buttons.cancel")}
 							</Link>
 						</Button>

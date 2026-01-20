@@ -38,10 +38,7 @@ export function WelcomeSlide({ onContinue }: WelcomeSlideProps) {
 				</h1>
 
 				<p className="mt-6 font-body text-lg text-muted-foreground leading-relaxed sm:text-xl">
-					{t("slides.welcome.description")}{" "}
-					<span className="font-medium text-foreground">
-						{t("slides.welcome.duration")}
-					</span>
+					{t("slides.welcome.description")}
 				</p>
 			</motion.div>
 
@@ -58,16 +55,6 @@ export function WelcomeSlide({ onContinue }: WelcomeSlideProps) {
 			>
 				{t("slides.welcome.cta")}
 			</motion.button>
-
-			{/* Time indicator */}
-			<motion.p
-				initial={{ opacity: 0 }}
-				animate={{ opacity: 1 }}
-				transition={{ delay: 0.8 }}
-				className="mt-6 font-body text-muted-foreground text-sm"
-			>
-				{t("slides.welcome.timeHint")}
-			</motion.p>
 		</motion.div>
 	);
 }

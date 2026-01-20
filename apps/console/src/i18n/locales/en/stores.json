@@ -40,6 +40,7 @@
 		"contactInfo": "Contact Information",
 		"operatingHours": "Operating Hours",
 		"storeStatus": "Store Status",
+		"storeActive": "Active",
 		"shopUrl": "Shop URL",
 		"noAddressConfigured": "No address configured",
 		"manageStore": "Manage Store",
@@ -54,7 +55,29 @@
 		"details": "Details",
 		"hours": "Hours",
 		"closures": "Closures",
-		"qrCodes": "QR Codes"
+		"orderTypes": "Order Types",
+		"qrCodes": "Service Points"
+	},
+	"nav": {
+		"general": "General",
+		"hours": "Opening Hours",
+		"closures": "Closures",
+		"orderTypes": "Order Types",
+		"qrCodes": "Service Points",
+		"backToStores": "Back to Stores"
+	},
+	"orderTypes": {
+		"title": "Order Types",
+		"description": "Which order types are available at this location?",
+		"dine_in": "Dine In",
+		"dine_inDescription": "Guests order and eat at the restaurant",
+		"takeaway": "Takeaway",
+		"takeawayDescription": "Guests pick up their orders",
+		"delivery": "Delivery",
+		"deliveryDescription": "Orders are delivered to customers"
+	},
+	"validation": {
+		"atLeastOneOrderType": "At least one order type must be enabled"
 	},
 	"dialogs": {
 		"deleteTitle": "Delete Store",
@@ -66,5 +89,6 @@
 	},
 	"toast": {
 		"urlCopied": "URL copied to clipboard"
-	}
+	},
+	"slugTaken": "\"{{original}}\" is taken. Will be saved as \"{{alternative}}\"."
 }

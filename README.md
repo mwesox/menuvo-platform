@@ -20,19 +20,19 @@ monorepo/
 
 ## Tech Stack
 
-| Concern | Tool |
-|---------|------|
-| Runtime | Bun |
-| API Framework | Hono |
-| Type-safe API | tRPC v11 |
-| Client Routing | TanStack Router |
-| Server State | TanStack Query |
-| Client State | Zustand |
-| Forms | TanStack Form + Zod |
-| Database | Drizzle ORM + PostgreSQL |
-| Styling | Tailwind CSS v4 |
-| Components | shadcn/ui |
-| Linting | Biome |
+| Concern        | Tool                     |
+|----------------|--------------------------|
+| Runtime        | Bun                      |
+| API Framework  | Hono                     |
+| Type-safe API  | tRPC v11                 |
+| Client Routing | TanStack Router          |
+| Server State   | TanStack Query           |
+| Client State   | Zustand                  |
+| Forms          | TanStack Form + Zod      |
+| Database       | Drizzle ORM + PostgreSQL |
+| Styling        | Tailwind CSS v4          |
+| Components     | shadcn/ui                |
+| Linting        | Biome                    |
 
 ## Commands
 

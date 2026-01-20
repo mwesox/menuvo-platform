@@ -15,7 +15,12 @@ export {
 	StoreMenuPageSkeleton,
 } from "./components/store-menu-page";
 
-// Hooks
-export { useCategoryScroll } from "./hooks/use-category-scroll";
-export { useMenuItemSelection } from "./hooks/use-menu-item-selection";
-export { useMenuSearch } from "./hooks/use-menu-search";
+// Types
+export type {
+	MenuCategory,
+	MenuData,
+	MenuItemChoice,
+	MenuItemLight,
+	MenuItemOptionGroup,
+	OptionGroupType,
+} from "./types";

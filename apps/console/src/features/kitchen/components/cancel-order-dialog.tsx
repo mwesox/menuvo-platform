@@ -14,9 +14,11 @@ import {
 	Label,
 	Textarea,
 } from "@menuvo/ui";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useActionState } from "react";
 import { useTranslation } from "react-i18next";
-import { useCancelOrder } from "@/features/orders/queries";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 interface CancelOrderDialogProps {
 	open: boolean;
@@ -37,7 +39,36 @@ export function CancelOrderDialog({
 	storeId,
 }: CancelOrderDialogProps) {
 	const { t } = useTranslation("console-kitchen");
-	const cancelMutation = useCancelOrder(storeId);
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+
+	const cancelMutation = useMutation({
+		mutationKey: trpc.order.cancel.mutationKey(),
+		mutationFn: async (input: { orderId: string; reason?: string }) => {
+			return trpcClient.order.cancel.mutate({
+				orderId: input.orderId,
+				reason: input.reason,
+			});
+		},
+		onSuccess: () => {
+			// Invalidate order queries to refresh status
+			queryClient.invalidateQueries({
+				queryKey: trpc.order.listByStore.queryKey({ storeId }),
+			});
+			queryClient.invalidateQueries({
+				queryKey: trpc.order.listForKitchen.queryKey({ storeId, limit: 50 }),
+			});
+
+			toast.success(tToasts("success.orderCancelled"));
+		},
+		onError: (error: unknown) => {
+			const message =
+				error instanceof Error ? error.message : tToasts("error.cancelOrder");
+			toast.error(message);
+		},
+	});
 
 	const [state, formAction, isPending] = useActionState<FormState, FormData>(
 		async (_prevState, formData) => {

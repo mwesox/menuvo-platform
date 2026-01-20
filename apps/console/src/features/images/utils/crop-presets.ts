@@ -1,4 +1,4 @@
-import type { ImageType } from "@menuvo/trpc/schemas";
+import type { ImageType } from "../constants.ts";
 
 export interface CropPreset {
 	id: string;
@@ -21,7 +21,7 @@ export interface CropPreset {
  * - Item drawer hero: full-width × 192-224px (~4:3)
  * - Store card banner: 16:9 aspect
  */
-export const CROP_PRESETS: Record<string, CropPreset> = {
+export const CROP_PRESETS = {
 	thumbnail: {
 		id: "thumbnail",
 		labelKey: "thumbnail",
@@ -54,7 +54,7 @@ export const CROP_PRESETS: Record<string, CropPreset> = {
 		minWidth: 0,
 		minHeight: 0,
 	},
-};
+} as const satisfies Record<string, CropPreset>;
 
 /**
  * Get available presets for a given image type.
@@ -84,7 +84,11 @@ export function getPresetsForImageType(imageType: ImageType): CropPreset[] {
  */
 export function getDefaultPreset(imageType: ImageType): CropPreset {
 	const presets = getPresetsForImageType(imageType);
-	return presets[0];
+	const preset = presets[0];
+	if (!preset) {
+		throw new Error(`No preset found for image type: ${imageType}`);
+	}
+	return preset;
 }
 
 /**

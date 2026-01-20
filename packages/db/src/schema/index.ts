@@ -32,176 +32,76 @@ export type EntityTranslations = Record<
  */
 export type ChoiceTranslations = Record<string, { name?: string }>;
 
-// ============================================================================
-// PAYMENT PROVIDER ENUM
-// ============================================================================
-
 /**
- * Payment provider tracking.
- * - stripe: Using Stripe for payments
- * - mollie: Using Mollie for payments
+ * Category availability schedule configuration.
+ * Controls when a category is visible to customers.
  */
-export const paymentProviders = ["stripe", "mollie"] as const;
-export type PaymentProvider = (typeof paymentProviders)[number];
+export type CategoryAvailabilitySchedule = {
+	/** Whether the schedule is enabled */
+	enabled: boolean;
+	/** Time range in HH:MM format (handles midnight crossover) */
+	timeRange?: { startTime: string; endTime: string };
+	/** Days of week when category is available */
+	daysOfWeek?: Array<
+		| "monday"
+		| "tuesday"
+		| "wednesday"
+		| "thursday"
+		| "friday"
+		| "saturday"
+		| "sunday"
+	>;
+	/** Date range when category is available (ISO date strings) */
+	dateRange?: { startDate: string; endDate: string };
+};
 
 // ============================================================================
-// MOLLIE ENUMS
-// ============================================================================
-
-/**
- * Mollie onboarding status.
- * - needs-data: Merchant needs to provide more information
- * - in-review: Application is being reviewed
- * - completed: Onboarding complete, can receive payments
- */
-export const mollieOnboardingStatuses = [
-	"needs-data",
-	"in-review",
-	"completed",
-] as const;
-export type MollieOnboardingStatus = (typeof mollieOnboardingStatuses)[number];
-
-/**
- * Mollie mandate status.
- * - pending: Mandate not yet valid
- * - valid: Mandate is valid for recurring payments
- * - invalid: Mandate is no longer valid
- */
-export const mollieMandateStatuses = ["pending", "valid", "invalid"] as const;
-export type MollieMandateStatus = (typeof mollieMandateStatuses)[number];
-
-/**
- * Mollie subscription status.
- * - pending: Subscription pending activation
- * - active: Subscription is active
- * - canceled: Subscription was canceled
- * - suspended: Subscription is suspended (payment failed)
- * - completed: Subscription has completed all payments
- */
-export const mollieSubscriptionStatuses = [
-	"pending",
-	"active",
-	"canceled",
-	"suspended",
-	"completed",
-] as const;
-export type MollieSubscriptionStatus =
-	(typeof mollieSubscriptionStatuses)[number];
-
-// ============================================================================
-// STRIPE ENUMS
+// VAT GROUPS
 // ============================================================================
 
 /**
- * Payment capabilities status from Stripe Connect.
- * - active: Can process payments
- * - pending: Awaiting verification/requirements
- * - inactive: Cannot process payments
+ * VAT Groups - Merchant-managed tax categories.
+ *
+ * Each merchant creates their own VAT groups for their items/categories.
+ * Common examples: "Food", "Beverages", "Alcohol", "Milk-based Drinks"
  */
-export const paymentCapabilitiesStatus = [
-	"active",
-	"pending",
-	"inactive",
-] as const;
-export type PaymentCapabilitiesStatus =
-	(typeof paymentCapabilitiesStatus)[number];
+export const vatGroups = pgTable(
+	"vat_groups",
+	{
+		id: uuid().primaryKey().defaultRandom(),
+		/** Merchant that owns this VAT group */
+		merchantId: uuid("merchant_id")
+			.notNull()
+			.references(() => merchants.id, { onDelete: "cascade" }),
+		/** Code for the group (e.g., "food", "drinks") - unique per merchant */
+		code: varchar("code", { length: 50 }).notNull(),
+		/** Display name for the group */
+		name: varchar("name", { length: 100 }).notNull(),
+		/** Optional description */
+		description: text("description"),
+		/** VAT rate in basis points (700 = 7%, 1900 = 19%) */
+		rate: integer("rate").notNull().default(1900),
+		/** Display order for UI */
+		displayOrder: integer("display_order").notNull().default(0),
+		// Timestamps
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+		updatedAt: timestamp("updated_at")
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [
+		index("idx_vat_groups_merchant").on(table.merchantId),
+		unique("unq_vat_groups_merchant_code").on(table.merchantId, table.code),
+	],
+);
 
-/**
- * Payment requirements status from Stripe Connect.
- * - none: No outstanding requirements
- * - currently_due: Requirements need to be submitted soon
- * - past_due: Requirements overdue, may affect payouts
- * - pending_verification: Requirements submitted, awaiting review
- */
-export const paymentRequirementsStatus = [
-	"none",
-	"currently_due",
-	"past_due",
-	"pending_verification",
-] as const;
-export type PaymentRequirementsStatus =
-	(typeof paymentRequirementsStatus)[number];
-
-/**
- * Subscription status from Stripe.
- * - none: No subscription
- * - trialing: In trial period (30 days)
- * - active: Subscription is active and paid
- * - paused: Trial ended without payment method
- * - past_due: Payment failed
- * - canceled: Subscription was canceled
- */
-export const subscriptionStatus = [
-	"none",
-	"trialing",
-	"active",
-	"paused",
-	"past_due",
-	"canceled",
-] as const;
-export type SubscriptionStatus = (typeof subscriptionStatus)[number];
-
-/**
- * Processing status for Stripe webhook events.
- * - PENDING: Event received, not yet processed
- * - PROCESSED: Successfully handled
- * - FAILED: Processing failed (will not retry automatically)
- */
-export const processingStatus = ["PENDING", "PROCESSED", "FAILED"] as const;
-export type ProcessingStatus = (typeof processingStatus)[number];
-
-// ============================================================================
-// ORDER ENUMS
-// ============================================================================
-
-/**
- * Order status enum (fulfillment workflow).
- * - awaiting_payment: Order created, waiting for Stripe payment
- * - confirmed: Payment confirmed OR pay-at-counter, ready for kitchen
- * - preparing: Kitchen working on it
- * - ready: Ready for pickup
- * - completed: Handed to customer
- * - cancelled: Cancelled (by customer, merchant, or payment failed)
- */
-export const orderStatuses = [
-	"awaiting_payment",
-	"confirmed",
-	"preparing",
-	"ready",
-	"completed",
-	"cancelled",
-] as const;
-export type OrderStatus = (typeof orderStatuses)[number];
-
-/**
- * Payment status enum.
- * - pending: Initial state before payment action
- * - awaiting_confirmation: Sent to Stripe Checkout, waiting for webhook
- * - paid: Payment confirmed via Stripe webhook
- * - pay_at_counter: Dine-in, will pay after eating
- * - failed: Payment failed
- * - refunded: Refunded (full or partial)
- * - expired: Stripe Checkout session expired
- */
-export const paymentStatuses = [
-	"pending",
-	"awaiting_confirmation",
-	"paid",
-	"pay_at_counter",
-	"failed",
-	"refunded",
-	"expired",
-] as const;
-export type PaymentStatus = (typeof paymentStatuses)[number];
-
-/**
- * Order type enum.
- * - dine_in: Eating at the restaurant
- * - takeaway: Pickup
- * - delivery: Future: delivery
- */
-export const orderTypes = ["dine_in", "takeaway", "delivery"] as const;
-export type OrderType = (typeof orderTypes)[number];
+export const vatGroupsRelations = relations(vatGroups, ({ one }) => ({
+	merchant: one(merchants, {
+		fields: [vatGroups.merchantId],
+		references: [merchants.id],
+	}),
+}));
 
 // ============================================================================
 // MERCHANTS
@@ -217,24 +117,17 @@ export const merchants = pgTable("merchants", {
 	supportedLanguages: text("supported_languages")
 		.array()
 		.notNull()
-		.default(sql`ARRAY['de']::text[]`),
+		.default(sql`ARRAY
+        ['de']::text[]`),
 	// Stripe Connect (Payment provider integration)
 	paymentAccountId: text("payment_account_id"),
 	paymentOnboardingComplete: boolean("payment_onboarding_complete")
 		.default(false)
 		.notNull(),
-	paymentCapabilitiesStatus: text("payment_capabilities_status", {
-		enum: paymentCapabilitiesStatus,
-	}),
-	paymentRequirementsStatus: text("payment_requirements_status", {
-		enum: paymentRequirementsStatus,
-	}),
+	paymentCapabilitiesStatus: text("payment_capabilities_status"),
+	paymentRequirementsStatus: text("payment_requirements_status"),
 	// Subscription fields
-	subscriptionStatus: text("subscription_status", {
-		enum: subscriptionStatus,
-	})
-		.default("none")
-		.notNull(),
+	subscriptionStatus: text("subscription_status").default("none").notNull(),
 	subscriptionId: text("subscription_id"),
 	subscriptionPriceId: text("subscription_price_id"),
 	subscriptionTrialEndsAt: timestamp("subscription_trial_ends_at"),
@@ -246,9 +139,7 @@ export const merchants = pgTable("merchants", {
 	mollieAccessToken: text("mollie_access_token"), // OAuth access token (encrypted)
 	mollieRefreshToken: text("mollie_refresh_token"), // OAuth refresh token (encrypted)
 	mollieTokenExpiresAt: timestamp("mollie_token_expires_at"),
-	mollieOnboardingStatus: text("mollie_onboarding_status", {
-		enum: mollieOnboardingStatuses,
-	}),
+	mollieOnboardingStatus: text("mollie_onboarding_status"),
 	mollieCanReceivePayments: boolean("mollie_can_receive_payments").default(
 		false,
 	),
@@ -257,17 +148,11 @@ export const merchants = pgTable("merchants", {
 	).default(false),
 	// Mollie Subscriptions (mandate-based)
 	mollieMandateId: text("mollie_mandate_id"), // mdt_xxx
-	mollieMandateStatus: text("mollie_mandate_status", {
-		enum: mollieMandateStatuses,
-	}),
+	mollieMandateStatus: text("mollie_mandate_status"),
 	mollieSubscriptionId: text("mollie_subscription_id"), // sub_xxx
-	mollieSubscriptionStatus: text("mollie_subscription_status", {
-		enum: mollieSubscriptionStatuses,
-	}),
+	mollieSubscriptionStatus: text("mollie_subscription_status"),
 	// Payment provider tracking
-	paymentProvider: text("payment_provider", { enum: paymentProviders }).default(
-		"stripe",
-	),
+	paymentProvider: text("payment_provider").default("stripe"),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -305,6 +190,8 @@ export const stores = pgTable("stores", {
 	// Settings
 	timezone: varchar({ length: 50 }).notNull().default("UTC"),
 	currency: varchar({ length: 3 }).notNull().default("EUR"),
+	/** ISO 3166-1 alpha-2 country code for VAT calculation (e.g., "DE", "AT") */
+	countryCode: varchar("country_code", { length: 2 }).notNull().default("DE"),
 	// Status
 	isActive: boolean("is_active").notNull().default(true),
 	// Timestamps
@@ -327,22 +214,95 @@ export const storesRelations = relations(stores, ({ one, many }) => ({
 	closures: many(storeClosures),
 	servicePoints: many(servicePoints),
 	orders: many(orders),
+	settings: one(storeSettings),
+}));
+
+// ============================================================================
+// STORE COUNTERS (Operational state - separate from configuration)
+// ============================================================================
+
+/**
+ * Operational counters for stores, kept separate from store configuration.
+ * Follows SRP: stores = config, store_counters = operational state.
+ */
+export const storeCounters = pgTable("store_counters", {
+	storeId: uuid("store_id")
+		.primaryKey()
+		.references(() => stores.id, { onDelete: "cascade" }),
+	// Last assigned pickup number (0-999, cycles continuously)
+	pickupNumber: integer("pickup_number").notNull().default(0),
+	// Timestamps
+	updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const storeCountersRelations = relations(storeCounters, ({ one }) => ({
+	store: one(stores, {
+		fields: [storeCounters.storeId],
+		references: [stores.id],
+	}),
+}));
+
+// ============================================================================
+// STORE SETTINGS (Consolidated settings - separate from store config)
+// ============================================================================
+
+/**
+ * Type for order types configuration.
+ * Configures which order types are available for a store.
+ */
+export type OrderTypesConfig = {
+	dine_in: { enabled: boolean; displayOrder: number };
+	takeaway: { enabled: boolean; displayOrder: number };
+	delivery: { enabled: boolean; displayOrder: number };
+};
+
+/**
+ * AI Recommendations configuration for a store.
+ * Controls AI-powered cross-sell/upsell suggestions at checkout.
+ */
+export type AiRecommendationsConfig = {
+	/** Whether AI recommendations are enabled */
+	enabled: boolean;
+	/** Individual pairing rules for AI context (e.g., "Pair pizza with cola") */
+	pairingRules: string[];
+	/** Tone for recommendation presentation */
+	tone: "professional" | "friendly" | "playful";
+};
+
+/**
+ * Store settings table for extensible store configuration.
+ * 1:1 relationship with stores - storeId is the primary key.
+ * Uses JSONB columns for flexible, extensible settings.
+ */
+export const storeSettings = pgTable("store_settings", {
+	storeId: uuid("store_id")
+		.primaryKey()
+		.references(() => stores.id, { onDelete: "cascade" }),
+	// Order types configuration (JSONB for flexibility)
+	orderTypes: jsonb("order_types").$type<OrderTypesConfig>(),
+	// AI Recommendations configuration
+	aiRecommendations:
+		jsonb("ai_recommendations").$type<AiRecommendationsConfig>(),
+	// Future: add more JSONB columns for other settings
+	// e.g., paymentConfig, notificationConfig, etc.
+	// Timestamps
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at")
+		.notNull()
+		.defaultNow()
+		.$onUpdate(() => new Date()),
+});
+
+export const storeSettingsRelations = relations(storeSettings, ({ one }) => ({
+	store: one(stores, {
+		fields: [storeSettings.storeId],
+		references: [stores.id],
+	}),
 }));
 
 // ============================================================================
 // STORE HOURS
 // ============================================================================
-
-export const daysOfWeek = [
-	"monday",
-	"tuesday",
-	"wednesday",
-	"thursday",
-	"friday",
-	"saturday",
-	"sunday",
-] as const;
-export type DayOfWeek = (typeof daysOfWeek)[number];
 
 export const storeHours = pgTable(
 	"store_hours",
@@ -351,7 +311,7 @@ export const storeHours = pgTable(
 		storeId: uuid("store_id")
 			.notNull()
 			.references(() => stores.id, { onDelete: "cascade" }),
-		dayOfWeek: text("day_of_week", { enum: daysOfWeek }).notNull(),
+		dayOfWeek: text("day_of_week").notNull(),
 		openTime: varchar("open_time", { length: 5 }).notNull(), // HH:MM
 		closeTime: varchar("close_time", { length: 5 }).notNull(), // HH:MM
 		displayOrder: integer("display_order").notNull().default(0),
@@ -412,13 +372,21 @@ export const categories = pgTable("categories", {
 	storeId: uuid("store_id")
 		.notNull()
 		.references(() => stores.id, { onDelete: "cascade" }),
-	displayOrder: integer("display_order").notNull().default(0),
+	displayOrder: text("display_order").notNull().default("a0000"),
 	isActive: boolean("is_active").notNull().default(true),
 	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
 	translations: jsonb("translations")
 		.$type<EntityTranslations>()
 		.notNull()
 		.default(sql`'{}'::jsonb`),
+	/** Default VAT group for items in this category (items inherit unless overridden) */
+	defaultVatGroupId: uuid("default_vat_group_id").references(
+		() => vatGroups.id,
+	),
+	/** Availability schedule configuration (null = always visible) */
+	availabilitySchedule: jsonb("availability_schedule")
+		.$type<CategoryAvailabilitySchedule | null>()
+		.default(null),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -431,6 +399,10 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
 	store: one(stores, {
 		fields: [categories.storeId],
 		references: [stores.id],
+	}),
+	defaultVatGroup: one(vatGroups, {
+		fields: [categories.defaultVatGroupId],
+		references: [vatGroups.id],
 	}),
 	items: many(items),
 }));
@@ -450,8 +422,8 @@ export const items = pgTable("items", {
 	price: integer().notNull(), // Price in cents
 	imageUrl: varchar("image_url", { length: 500 }),
 	allergens: text().array(), // PostgreSQL text array for allergens
-	displayOrder: integer("display_order").notNull().default(0),
-	isAvailable: boolean("is_available").notNull().default(true),
+	displayOrder: text("display_order").notNull().default("a0000"),
+	isActive: boolean("is_active").notNull().default(true),
 	// Optional short name for kitchen display (e.g., "SALMN" instead of "Grilled Atlantic Salmon")
 	kitchenName: varchar("kitchen_name", { length: 50 }),
 	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
@@ -459,6 +431,8 @@ export const items = pgTable("items", {
 		.$type<EntityTranslations>()
 		.notNull()
 		.default(sql`'{}'::jsonb`),
+	/** VAT group override (NULL = inherit from category's defaultVatGroupId) */
+	vatGroupId: uuid("vat_group_id").references(() => vatGroups.id),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -480,23 +454,6 @@ export const itemsRelations = relations(items, ({ one, many }) => ({
 }));
 
 // ============================================================================
-// OPTION GROUP ENUMS
-// ============================================================================
-
-/**
- * Option group types for menu item customization.
- * - single_select: Radio buttons, customer must choose exactly one (e.g., Size)
- * - multi_select: Checkboxes, customer can choose 0 to N (e.g., Toppings)
- * - quantity_select: Quantity pickers, customer picks quantities (e.g., "Pick 3 donuts")
- */
-export const optionGroupTypes = [
-	"single_select",
-	"multi_select",
-	"quantity_select",
-] as const;
-export type OptionGroupType = (typeof optionGroupTypes)[number];
-
-// ============================================================================
 // OPTION GROUPS
 // ============================================================================
 
@@ -506,9 +463,7 @@ export const optionGroups = pgTable("option_groups", {
 		.notNull()
 		.references(() => stores.id, { onDelete: "cascade" }),
 	// Option group type (determines UI rendering)
-	type: text("type", { enum: optionGroupTypes })
-		.notNull()
-		.default("multi_select"),
+	type: text("type").notNull().default("multi_select"),
 	isRequired: boolean("is_required").notNull().default(false),
 	minSelections: integer("min_selections").notNull().default(0),
 	maxSelections: integer("max_selections"), // null = unlimited
@@ -517,7 +472,7 @@ export const optionGroups = pgTable("option_groups", {
 	// Aggregate quantity constraints (for quantity_select type)
 	aggregateMinQuantity: integer("aggregate_min_quantity"), // null = no min
 	aggregateMaxQuantity: integer("aggregate_max_quantity"), // null = no max
-	displayOrder: integer("display_order").notNull().default(0),
+	displayOrder: text("display_order").notNull().default("a0000"),
 	isActive: boolean("is_active").notNull().default(true),
 	// All translations stored uniformly: {"de": {name, description}, "en": {...}}
 	translations: jsonb("translations")
@@ -554,7 +509,7 @@ export const optionChoices = pgTable("option_choices", {
 		.notNull()
 		.references(() => optionGroups.id, { onDelete: "cascade" }),
 	priceModifier: integer("price_modifier").notNull().default(0), // In cents, can be positive/negative
-	displayOrder: integer("display_order").notNull().default(0),
+	displayOrder: text("display_order").notNull().default("a0000"),
 	isAvailable: boolean("is_available").notNull().default(true),
 	// Pre-selected by default (reduces customer clicks for common options)
 	isDefault: boolean("is_default").notNull().default(false),
@@ -566,6 +521,8 @@ export const optionChoices = pgTable("option_choices", {
 		.$type<ChoiceTranslations>()
 		.notNull()
 		.default(sql`'{}'::jsonb`),
+	/** VAT group override for this choice (NULL = inherit from parent item) */
+	vatGroupId: uuid("vat_group_id").references(() => vatGroups.id),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -593,7 +550,7 @@ export const itemOptionGroups = pgTable("item_option_groups", {
 	optionGroupId: uuid("option_group_id")
 		.notNull()
 		.references(() => optionGroups.id, { onDelete: "cascade" }),
-	displayOrder: integer("display_order").notNull().default(0),
+	displayOrder: text("display_order").notNull().default("a0000"),
 	// Timestamp
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -641,9 +598,7 @@ export const stripeEvents = pgTable(
 		// When we finished processing (null if pending)
 		processedAt: timestamp("processed_at"),
 		// Current processing status
-		processingStatus: text("processing_status", { enum: processingStatus })
-			.notNull()
-			.default("PENDING"),
+		processingStatus: text("processing_status").notNull().default("PENDING"),
 		// Retry count for failed processing attempts
 		retryCount: integer("retry_count").notNull().default(0),
 		// Connected account ID (for Connect events, null for platform events)
@@ -698,9 +653,7 @@ export const mollieEvents = pgTable(
 		// When we finished processing (null if pending)
 		processedAt: timestamp("processed_at"),
 		// Current processing status
-		processingStatus: text("processing_status", { enum: processingStatus })
-			.notNull()
-			.default("PENDING"),
+		processingStatus: text("processing_status").notNull().default("PENDING"),
 		// Retry count for failed processing attempts
 		retryCount: integer("retry_count").notNull().default(0),
 		// Full resource data fetched from Mollie API as JSONB
@@ -724,17 +677,6 @@ export type NewMollieEvent = InferInsertModel<typeof mollieEvents>;
 // ============================================================================
 
 /**
- * Image type enum for categorizing uploaded images.
- */
-export const imageType = [
-	"item_image",
-	"store_logo",
-	"store_banner",
-	"merchant_logo",
-] as const;
-export type ImageType = (typeof imageType)[number];
-
-/**
  * Stores uploaded images with S3 keys and generated variants.
  * Variants (thumbnail, display) are generated asynchronously by a worker.
  */
@@ -745,7 +687,7 @@ export const images = pgTable(
 		merchantId: uuid("merchant_id")
 			.notNull()
 			.references(() => merchants.id, { onDelete: "cascade" }),
-		type: text("type", { enum: imageType }).notNull(),
+		type: text("type").notNull(),
 
 		// S3 storage
 		key: text("key").notNull(), // {merchantId}/{type}/{uuid}.webp
@@ -785,21 +727,6 @@ export const imagesRelations = relations(images, ({ one }) => ({
 // ============================================================================
 
 /**
- * Menu import job status.
- * - PROCESSING: File uploaded, processing in background
- * - READY: Processing complete, ready for user review
- * - COMPLETED: User applied selected changes
- * - FAILED: Processing failed
- */
-export const menuImportStatus = [
-	"PROCESSING",
-	"READY",
-	"COMPLETED",
-	"FAILED",
-] as const;
-export type MenuImportStatus = (typeof menuImportStatus)[number];
-
-/**
  * Tracks menu import jobs from file upload through AI extraction to user review.
  * Files are stored in the internal files bucket (not public).
  */
@@ -817,9 +744,7 @@ export const menuImportJobs = pgTable(
 		fileKey: text("file_key").notNull(), // S3 key in files bucket
 
 		// Status
-		status: text("status", { enum: menuImportStatus })
-			.notNull()
-			.default("PROCESSING"),
+		status: text("status").notNull().default("PROCESSING"),
 		errorMessage: text("error_message"),
 
 		// Comparison result (JSONB) - populated when READY
@@ -910,6 +835,11 @@ export const orders = pgTable(
 		storeId: uuid("store_id")
 			.notNull()
 			.references(() => stores.id),
+		merchantId: uuid("merchant_id")
+			.notNull()
+			.references(() => merchants.id),
+		// Human-readable pickup number (0-999, like McDonald's)
+		pickupNumber: integer("pickup_number").notNull(),
 
 		// Customer info (snapshot, not FK - customers may not have accounts)
 		customerName: varchar("customer_name", { length: 100 }),
@@ -917,24 +847,24 @@ export const orders = pgTable(
 		customerPhone: varchar("customer_phone", { length: 50 }),
 
 		// Order details
-		orderType: text("order_type", { enum: orderTypes }).notNull(),
-		status: text("status", { enum: orderStatuses })
-			.notNull()
-			.default("awaiting_payment"),
+		orderType: text("order_type").notNull(),
+		status: text("status").notNull().default("awaiting_payment"),
 
 		// Service point (table, counter, etc.) - optional
 		servicePointId: uuid("service_point_id").references(() => servicePoints.id),
 
 		// Pricing (all in cents)
-		subtotal: integer().notNull(), // Sum of item totals
+		subtotal: integer().notNull(), // Sum of item totals (gross amounts)
+		/** Total net amount before VAT (cents) - calculated from gross */
+		netAmount: integer("net_amount"),
 		taxAmount: integer("tax_amount").notNull().default(0),
 		tipAmount: integer("tip_amount").notNull().default(0),
 		totalAmount: integer("total_amount").notNull(),
+		/** Country code at order time for VAT calculation snapshot */
+		vatCountryCode: varchar("vat_country_code", { length: 2 }),
 
 		// Payment
-		paymentStatus: text("payment_status", { enum: paymentStatuses })
-			.notNull()
-			.default("pending"),
+		paymentStatus: text("payment_status").notNull().default("pending"),
 		paymentMethod: varchar("payment_method", { length: 50 }), // "card", "cash", "apple_pay", etc.
 		stripeCheckoutSessionId: varchar("stripe_checkout_session_id", {
 			length: 255,
@@ -944,13 +874,17 @@ export const orders = pgTable(
 		molliePaymentId: text("mollie_payment_id"), // tr_xxx
 		mollieCheckoutUrl: text("mollie_checkout_url"),
 		// Payment provider tracking (per-order, overrides merchant default)
-		orderPaymentProvider: text("order_payment_provider", {
-			enum: paymentProviders,
-		}),
+		orderPaymentProvider: text("order_payment_provider"),
 
 		// Notes
 		customerNotes: text("customer_notes"), // Special requests from customer
 		merchantNotes: text("merchant_notes"), // Internal notes from merchant
+
+		// Scheduled pickup time (for pre-orders and takeaway orders)
+		scheduledPickupTime: timestamp("scheduled_pickup_time"),
+
+		// Idempotency key for preventing duplicate orders
+		idempotencyKey: varchar("idempotency_key", { length: 36 }), // UUID string
 
 		// Timestamps
 		createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -963,12 +897,23 @@ export const orders = pgTable(
 	},
 	(table) => [
 		index("idx_orders_store_id").on(table.storeId),
+		index("idx_orders_merchant_id").on(table.merchantId),
 		index("idx_orders_status").on(table.status),
 		index("idx_orders_payment_status").on(table.paymentStatus),
 		index("idx_orders_created_at").on(table.createdAt),
 		index("idx_orders_store_status").on(table.storeId, table.status),
 		index("idx_orders_stripe_session").on(table.stripeCheckoutSessionId),
 		index("idx_orders_mollie_payment").on(table.molliePaymentId),
+		index("idx_orders_store_pickup").on(table.storeId, table.pickupNumber),
+		unique("idx_orders_idempotency_key").on(table.idempotencyKey),
+		// Polling optimization indexes
+		index("idx_orders_store_completed_at").on(table.storeId, table.completedAt), // For kitchenDone query
+		index("idx_orders_store_status_created").on(
+			table.storeId,
+			table.status,
+			table.createdAt,
+		), // For listForKitchen query
+		index("idx_orders_store_created_at").on(table.storeId, table.createdAt), // For listByStore date range queries
 	],
 );
 
@@ -979,6 +924,7 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
 		references: [servicePoints.id],
 	}),
 	items: many(orderItems),
+	vatLines: many(orderVatLines),
 }));
 
 // ============================================================================
@@ -1003,12 +949,24 @@ export const orderItems = pgTable(
 		kitchenName: varchar("kitchen_name", { length: 50 }), // Short name for kitchen display
 		description: text(),
 		quantity: integer().notNull(),
-		unitPrice: integer("unit_price").notNull(), // Base price per unit (cents)
-		optionsPrice: integer("options_price").notNull(), // Total options price per unit (cents)
-		totalPrice: integer("total_price").notNull(), // (unitPrice + optionsPrice) * quantity
+		unitPrice: integer("unit_price").notNull(), // Base price per unit (cents) - gross
+		optionsPrice: integer("options_price").notNull(), // Total options price per unit (cents) - gross
+		totalPrice: integer("total_price").notNull(), // (unitPrice + optionsPrice) * quantity - gross
+
+		// VAT snapshot at order time
+		/** VAT group code snapshot (e.g., "food", "drinks") */
+		vatGroupCode: varchar("vat_group_code", { length: 50 }),
+		/** VAT rate at order time (basis points: 700 = 7%) */
+		vatRate: integer("vat_rate"),
+		/** Net price before VAT (cents) */
+		netPrice: integer("net_price"),
+		/** VAT amount (cents) */
+		vatAmount: integer("vat_amount"),
 
 		// Metadata
 		displayOrder: integer("display_order").notNull(),
+		// AI Recommendations attribution
+		fromRecommendation: boolean("from_recommendation").notNull().default(false),
 	},
 	(table) => [index("idx_order_items_order_id").on(table.orderId)],
 );
@@ -1073,6 +1031,56 @@ export const orderItemOptionsRelations = relations(
 );
 
 // ============================================================================
+// ORDER VAT LINES
+// ============================================================================
+
+/**
+ * Order VAT Lines - VAT breakdown per order for receipt compliance.
+ *
+ * Each line represents one VAT rate applied to the order.
+ * All amounts are in cents and are snapshots at order creation time.
+ *
+ * Receipt display:
+ * | Net (7%):  €23.36 |
+ * | VAT (7%):  € 1.64 |
+ * | Net (19%): € 8.40 |
+ * | VAT (19%): € 1.60 |
+ * | Total:     €35.00 |
+ */
+export const orderVatLines = pgTable(
+	"order_vat_lines",
+	{
+		id: uuid().primaryKey().defaultRandom(),
+		/** Reference to order */
+		orderId: uuid("order_id")
+			.notNull()
+			.references(() => orders.id, { onDelete: "cascade" }),
+		/** Snapshot of VAT group code at order time */
+		vatGroupCode: varchar("vat_group_code", { length: 50 }).notNull(),
+		/** Snapshot of VAT group name at order time */
+		vatGroupName: varchar("vat_group_name", { length: 100 }).notNull(),
+		/** VAT rate at order time (basis points: 700 = 7%) */
+		rate: integer("rate").notNull(),
+		/** Net amount before VAT (cents) */
+		netAmount: integer("net_amount").notNull(),
+		/** VAT amount (cents) */
+		vatAmount: integer("vat_amount").notNull(),
+		/** Gross amount including VAT (cents) */
+		grossAmount: integer("gross_amount").notNull(),
+		// Timestamp
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+	},
+	(table) => [index("idx_order_vat_lines_order").on(table.orderId)],
+);
+
+export const orderVatLinesRelations = relations(orderVatLines, ({ one }) => ({
+	order: one(orders, {
+		fields: [orderVatLines.orderId],
+		references: [orders.id],
+	}),
+}));
+
+// ============================================================================
 // TYPE EXPORTS
 // ============================================================================
 
@@ -1083,6 +1091,14 @@ export type NewMerchant = InferInsertModel<typeof merchants>;
 // Store types
 export type Store = InferSelectModel<typeof stores>;
 export type NewStore = InferInsertModel<typeof stores>;
+
+// Store Counter types
+export type StoreCounter = InferSelectModel<typeof storeCounters>;
+export type NewStoreCounter = InferInsertModel<typeof storeCounters>;
+
+// Store Settings types
+export type StoreSettingsRow = InferSelectModel<typeof storeSettings>;
+export type NewStoreSettingsRow = InferInsertModel<typeof storeSettings>;
 
 // Category types
 export type Category = InferSelectModel<typeof categories>;
@@ -1135,3 +1151,11 @@ export type NewOrderItemOption = InferInsertModel<typeof orderItemOptions>;
 // Menu Import Job types
 export type MenuImportJob = InferSelectModel<typeof menuImportJobs>;
 export type NewMenuImportJob = InferInsertModel<typeof menuImportJobs>;
+
+// VAT Group types
+export type VatGroup = InferSelectModel<typeof vatGroups>;
+export type NewVatGroup = InferInsertModel<typeof vatGroups>;
+
+// Order VAT Line types
+export type OrderVatLine = InferSelectModel<typeof orderVatLines>;
+export type NewOrderVatLine = InferInsertModel<typeof orderVatLines>;

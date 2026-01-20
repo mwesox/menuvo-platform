@@ -1,14 +1,13 @@
 import { Button } from "@menuvo/ui/components/button";
 import { Kbd } from "@menuvo/ui/components/kbd";
+import { useIsMobile } from "@menuvo/ui/hooks/use-media-query";
 import { cn } from "@menuvo/ui/lib/utils";
-import { useQuery } from "@tanstack/react-query";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { ChevronLeft, Search, ShoppingCart, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCartStore } from "../../cart/stores/cart-store";
-import { shopQueries } from "../../queries";
-import { useShopOptional } from "../../shared/contexts/shop-context";
+import { StoreContext, useShopUIStore } from "../../shared";
 import { formatPrice } from "../../utils";
 
 /** Detect if user is on Mac for keyboard shortcut display */
@@ -33,9 +32,21 @@ function useIsMac() {
 
 function CartButton({ onClick }: { onClick: () => void }) {
 	const { t } = useTranslation("shop");
+	const isMobile = useIsMobile();
 	const items = useCartStore((s) => s.items);
 	const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 	const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
+	const toggleCartSidebar = useShopUIStore((s) => s.toggleCartSidebar);
+
+	const handleClick = () => {
+		if (isMobile) {
+			// Mobile: open drawer
+			onClick();
+		} else {
+			// Desktop: toggle sidebar collapse
+			toggleCartSidebar();
+		}
+	};
 
 	return (
 		<>
@@ -44,7 +55,7 @@ function CartButton({ onClick }: { onClick: () => void }) {
 				variant="ghost"
 				size="icon"
 				className="relative text-foreground hover:bg-accent hover:text-accent-foreground md:hidden"
-				onClick={onClick}
+				onClick={handleClick}
 				aria-label={t("header.cartWithItems", { count: itemCount })}
 			>
 				<ShoppingCart className="size-5" />
@@ -68,20 +79,27 @@ function CartButton({ onClick }: { onClick: () => void }) {
 					"hidden items-center gap-2 text-foreground hover:bg-accent hover:text-accent-foreground md:flex",
 					itemCount > 0 && "pe-3",
 				)}
-				onClick={onClick}
+				onClick={handleClick}
 				aria-label={t("header.cartWithItems", { count: itemCount })}
 			>
-				<ShoppingCart className="size-5" />
+				<div className="relative flex items-center gap-1.5">
+					<ShoppingCart className="size-5" />
+					{itemCount > 0 && (
+						<span
+							className="flex size-4 items-center justify-center rounded-full font-semibold text-[10px] leading-none"
+							style={{
+								backgroundColor: "var(--primary)",
+								color: "var(--primary-foreground)",
+							}}
+						>
+							{itemCount > 99 ? "99+" : itemCount}
+						</span>
+					)}
+				</div>
 				{itemCount > 0 && (
-					<>
-						<span className="font-medium text-sm">
-							{t("header.itemCount", { count: itemCount })}
-						</span>
-						<span className="opacity-60">·</span>
-						<span className="font-semibold text-sm tabular-nums">
-							{formatPrice(subtotal)}
-						</span>
-					</>
+					<span className="font-semibold text-sm tabular-nums">
+						{formatPrice(subtotal)}
+					</span>
 				)}
 			</Button>
 		</>
@@ -90,13 +108,11 @@ function CartButton({ onClick }: { onClick: () => void }) {
 
 function SearchInput() {
 	const { t } = useTranslation("shop");
-	const shop = useShopOptional();
+	const searchQuery = useShopUIStore((s) => s.searchQuery);
+	const setSearchQuery = useShopUIStore((s) => s.setSearchQuery);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const isMac = useIsMac();
 	const [isFocused, setIsFocused] = useState(false);
-
-	const searchQuery = shop?.searchQuery ?? "";
-	const setSearchQuery = shop?.setSearchQuery;
 
 	// Keyboard shortcut: Cmd+K (Mac) or Ctrl+K (Windows/Linux)
 	useEffect(() => {
@@ -154,35 +170,19 @@ function SearchInput() {
 	);
 }
 
-/** Extract slug from current route if on a store page */
-function useStoreSlug() {
-	const routerState = useRouterState();
-	const matches = routerState.matches;
-	// Find the $slug route match
-	const slugMatch = matches.find((m) => m.routeId === "/$slug");
-	return (slugMatch?.params as { slug?: string })?.slug ?? null;
-}
-
-/** Detect if on a deep page (checkout, order) where we should show "Back to Menu" */
+/** Detect if on a deep page (ordering, order) where we should show "Back to Menu" */
 function useIsDeepPage() {
 	const routerState = useRouterState();
 	const pathname = routerState.location.pathname;
-	// Check if we're on checkout or order pages (not the main menu)
-	return pathname.includes("/checkout") || pathname.includes("/order/");
+	// Check if we're on ordering or order pages (not the main menu)
+	return pathname.includes("/ordering") || pathname.includes("/order/");
 }
 
 function StoreInfo() {
-	const slug = useStoreSlug();
+	const storeContext = useContext(StoreContext);
+	const store = storeContext?.store ?? null;
 
-	// Use the same query as the child route - data will be cached
-	const { data } = useQuery({
-		...shopQueries.menu(slug ?? ""),
-		enabled: !!slug,
-	});
-
-	const store = data?.store;
-
-	if (!store || !slug) {
+	if (!store) {
 		return null;
 	}
 
@@ -192,11 +192,11 @@ function StoreInfo() {
 	return (
 		<Link
 			to="/$slug"
-			params={{ slug }}
+			params={{ slug: store.slug }}
 			className="group flex min-w-0 flex-col items-center md:flex-row md:gap-2"
 		>
 			{/* Store name - always visible, with editorial hover underline */}
-			<span className="truncate font-medium font-serif text-base text-foreground decoration-1 underline-offset-4 group-hover:underline">
+			<span className="truncate font-semibold text-base text-foreground decoration-1 underline-offset-4 group-hover:underline">
 				{store.name}
 			</span>
 
@@ -215,18 +215,14 @@ function StoreInfo() {
 
 export function ShopHeader() {
 	const { t } = useTranslation("shop");
-	const shop = useShopOptional();
-	const slug = useStoreSlug();
+	const openCartDrawer = useShopUIStore((s) => s.openCartDrawer);
+	const storeContext = useContext(StoreContext);
+	const store = storeContext?.store ?? null;
+	const slug = store?.slug;
 	const isDeepPage = useIsDeepPage();
 
 	return (
-		<header
-			className="sticky top-0 z-50 border-b backdrop-blur-md"
-			style={{
-				backgroundColor: "oklch(0.988 0.003 90 / 0.95)",
-				borderColor: "var(--border)",
-			}}
-		>
+		<header className="sticky top-0 z-50 border-border border-b bg-background">
 			<div className="flex h-14 items-center gap-4 px-4">
 				{/* Left: Context-aware back link */}
 				{isDeepPage && slug ? (
@@ -260,7 +256,7 @@ export function ShopHeader() {
 				{/* Right: Search + Cart */}
 				<div className="flex shrink-0 items-center gap-2">
 					<SearchInput />
-					<CartButton onClick={() => shop?.openCartDrawer()} />
+					<CartButton onClick={openCartDrawer} />
 				</div>
 			</div>
 		</header>

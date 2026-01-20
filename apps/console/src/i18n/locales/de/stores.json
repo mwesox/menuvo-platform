@@ -40,6 +40,7 @@
 		"contactInfo": "Kontaktinformationen",
 		"operatingHours": "Öffnungszeiten",
 		"storeStatus": "Filialstatus",
+		"storeActive": "Aktiv",
 		"shopUrl": "Shop-URL",
 		"noAddressConfigured": "Keine Adresse konfiguriert",
 		"manageStore": "Filiale verwalten",
@@ -54,7 +55,29 @@
 		"details": "Details",
 		"hours": "Öffnungszeiten",
 		"closures": "Schließungen",
-		"qrCodes": "QR-Codes"
+		"orderTypes": "Bestellarten",
+		"qrCodes": "Servicepunkte"
+	},
+	"nav": {
+		"general": "Allgemein",
+		"hours": "Öffnungszeiten",
+		"closures": "Schließungen",
+		"orderTypes": "Bestellarten",
+		"qrCodes": "Servicepunkte",
+		"backToStores": "Zurück zu Filialen"
+	},
+	"orderTypes": {
+		"title": "Bestellarten",
+		"description": "Welche Bestellarten sind in diesem Standort verfügbar?",
+		"dine_in": "Vor Ort",
+		"dine_inDescription": "Gäste bestellen und essen im Restaurant",
+		"takeaway": "Zum Mitnehmen",
+		"takeawayDescription": "Gäste holen ihre Bestellung ab",
+		"delivery": "Lieferung",
+		"deliveryDescription": "Bestellungen werden an Kunden geliefert"
+	},
+	"validation": {
+		"atLeastOneOrderType": "Mindestens eine Bestellart muss aktiviert sein"
 	},
 	"dialogs": {
 		"deleteTitle": "Filiale löschen",
@@ -66,5 +89,6 @@
 	},
 	"toast": {
 		"urlCopied": "URL in Zwischenablage kopiert"
-	}
+	},
+	"slugTaken": "\"{{original}}\" ist vergeben. Wird als \"{{alternative}}\" gespeichert."
 }

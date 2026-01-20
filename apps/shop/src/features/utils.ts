@@ -1,22 +1,8 @@
-import type { MenuItem, MenuItemWithDefaults } from "./schemas";
-
 // Re-export price formatting utilities from the centralized location
 export {
 	formatPrice,
 	formatPriceModifier,
 } from "@menuvo/ui/components/price-input";
-
-/**
- * @deprecated Since API now returns isDefault directly, this is a pass-through.
- * Kept for backward compatibility but can be removed once all callers are updated.
- */
-export function enrichMenuItemWithDefaults(
-	item: MenuItem,
-): MenuItemWithDefaults {
-	// API now returns all default/quantity fields directly
-	// This function is now a pass-through for backward compatibility
-	return item as MenuItemWithDefaults;
-}
 
 /**
  * Selected option structure for cart items.

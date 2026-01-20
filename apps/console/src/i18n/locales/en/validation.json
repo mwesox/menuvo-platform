@@ -66,6 +66,7 @@
 		"fullName": "Please enter first and last name"
 	},
 	"email": {
+		"required": "Email is required",
 		"invalid": "Please enter a valid email address"
 	},
 	"phone": {
@@ -93,5 +94,19 @@
 	"country": {
 		"required": "Country is required",
 		"max": "Country name is too long"
+	},
+	"time": {
+		"invalid": "Invalid time format (HH:MM)"
+	},
+	"date": {
+		"invalid": "Invalid date format"
+	},
+	"closure": {
+		"endBeforeStart": "End date must be on or after start date"
+	},
+	"servicePoint": {
+		"codeRequired": "Code is required",
+		"codeFormat": "Code can only contain lowercase letters, numbers, and hyphens",
+		"nameRequired": "Name is required"
 	}
 }

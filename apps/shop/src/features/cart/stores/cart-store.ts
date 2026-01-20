@@ -33,6 +33,8 @@ export interface CartItem {
 	storeId: string;
 	/** Store slug this item belongs to */
 	storeSlug: string;
+	/** Whether this item was added from AI recommendations */
+	fromRecommendation?: boolean;
 }
 
 interface CartState {
@@ -119,6 +121,9 @@ export const useCartStore = create<CartStore>()(
 						// Increment quantity instead of duplicating
 						const updatedItems = [...state.items];
 						const existing = updatedItems[existingIndex];
+						if (!existing) {
+							return state;
+						}
 						const newQuantity = existing.quantity + item.quantity;
 						updatedItems[existingIndex] = {
 							...existing,

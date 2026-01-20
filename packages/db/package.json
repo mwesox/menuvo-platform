@@ -12,8 +12,9 @@
     "migrate": "drizzle-kit migrate",
     "push": "drizzle-kit push",
     "studio": "drizzle-kit studio",
+    "build": "tsc -b",
     "check": "biome check .",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc -b --emitDeclarationOnly"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

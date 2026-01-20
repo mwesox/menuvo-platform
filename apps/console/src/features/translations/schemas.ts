@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 import { ENTITY_TYPES, LANGUAGE_CODES } from "./constants.ts";
 
 // Re-export types from constants

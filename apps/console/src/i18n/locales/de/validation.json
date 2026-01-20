@@ -66,6 +66,7 @@
 		"fullName": "Bitte Vor- und Nachname eingeben"
 	},
 	"email": {
+		"required": "E-Mail ist erforderlich",
 		"invalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein"
 	},
 	"phone": {
@@ -78,7 +79,7 @@
 	},
 	"street": {
 		"required": "Straße muss mindestens 3 Zeichen lang sein",
-		"max": "Die Straßenadresse ist zu lang",
+		"max": "Die Straße ist zu lang",
 		"incomplete": "Bitte Straße und Hausnummer eingeben"
 	},
 	"city": {
@@ -93,5 +94,19 @@
 	"country": {
 		"required": "Land ist erforderlich",
 		"max": "Der Ländername ist zu lang"
+	},
+	"time": {
+		"invalid": "Ungültiges Zeitformat (HH:MM)"
+	},
+	"date": {
+		"invalid": "Ungültiges Datumsformat"
+	},
+	"closure": {
+		"endBeforeStart": "Enddatum muss am oder nach dem Startdatum liegen"
+	},
+	"servicePoint": {
+		"codeRequired": "Code ist erforderlich",
+		"codeFormat": "Code darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten",
+		"nameRequired": "Name ist erforderlich"
 	}
 }

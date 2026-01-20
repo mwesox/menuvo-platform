@@ -1,4 +1,4 @@
-import type { MollieOnboardingStatus } from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Alert,
 	AlertDescription,
@@ -11,6 +11,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@menuvo/ui";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { inferRouterOutputs } from "@trpc/server";
 import {
 	AlertTriangle,
 	CheckCircle,
@@ -19,20 +21,16 @@ import {
 	ExternalLink,
 	RefreshCw,
 } from "lucide-react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	useGetMollieDashboardUrl,
-	useRefreshMolliePaymentStatus,
-} from "../../queries";
+import { toast } from "sonner";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
+
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type MollieStatus = RouterOutput["payments"]["getMollieStatus"];
 
 interface MollieStatusCardProps {
-	mollieStatus: {
-		mollieOrganizationId: string | null;
-		mollieProfileId: string | null;
-		mollieOnboardingStatus: MollieOnboardingStatus | null;
-		mollieCanReceivePayments: boolean | null;
-		mollieCanReceiveSettlements: boolean | null;
-	};
+	mollieStatus: MollieStatus;
 }
 
 /**
@@ -41,20 +39,63 @@ interface MollieStatusCardProps {
  */
 export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 	const { t } = useTranslation("settings");
-	const refreshStatus = useRefreshMolliePaymentStatus();
-	const getDashboardUrl = useGetMollieDashboardUrl();
+	const { t: tToasts } = useTranslation("toasts");
+	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
+	const queryClient = useQueryClient();
+	const [isRefreshing, setIsRefreshing] = useState(false);
 
-	const handleRefresh = () => {
-		refreshStatus.mutate();
+	const refreshStatus = useCallback(async () => {
+		try {
+			await queryClient.fetchQuery(
+				trpc.payments.getOnboardingStatus.queryOptions(),
+			);
+			queryClient.invalidateQueries({
+				queryKey: trpc.payments.getMollieStatus.queryKey(),
+			});
+			toast.success(tToasts("success.paymentStatusRefreshed"));
+		} catch {
+			toast.error(tToasts("error.refreshPaymentStatus"));
+		}
+	}, [queryClient, tToasts, trpc]);
+
+	const getDashboardUrl = useMutation({
+		mutationKey: ["payments", "getMollieDashboardUrl"],
+		mutationFn: async () => {
+			const result = (await trpcClient.payments.getDashboardUrl.query()) as {
+				dashboardUrl?: string;
+			};
+			return result;
+		},
+		onSuccess: (data) => {
+			if (data?.dashboardUrl) {
+				window.open(data.dashboardUrl, "_blank");
+			} else {
+				// Dashboard URL unavailable (token expired or invalid)
+				toast.error(tToasts("error.getMollieDashboardUrl"));
+			}
+		},
+		onError: () => {
+			toast.error(tToasts("error.getMollieDashboardUrl"));
+		},
+	});
+
+	const handleRefresh = async () => {
+		setIsRefreshing(true);
+		try {
+			await refreshStatus();
+		} finally {
+			setIsRefreshing(false);
+		}
 	};
 
 	const handleCompleteVerification = () => {
 		getDashboardUrl.mutate();
 	};
 
-	const isComplete = mollieStatus.mollieOnboardingStatus === "completed";
-	const isInReview = mollieStatus.mollieOnboardingStatus === "in-review";
-	const needsData = mollieStatus.mollieOnboardingStatus === "needs-data";
+	const isComplete = mollieStatus.onboardingStatus === "completed";
+	const isInReview = mollieStatus.onboardingStatus === "in-review";
+	const needsData = mollieStatus.onboardingStatus === "needs-data";
 
 	return (
 		<Card>
@@ -84,10 +125,10 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 					variant="outline"
 					size="sm"
 					onClick={handleRefresh}
-					disabled={refreshStatus.isPending}
+					disabled={isRefreshing}
 				>
 					<RefreshCw
-						className={`me-2 size-4 ${refreshStatus.isPending ? "animate-spin" : ""}`}
+						className={`me-2 size-4 ${isRefreshing ? "animate-spin" : ""}`}
 					/>
 					{t("payments.actions.refresh")}
 				</Button>
@@ -97,7 +138,7 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 				<div className="space-y-3">
 					<StatusRow
 						label={t("payments.mollie.status.account.label")}
-						status={mollieStatus.mollieOrganizationId ? "active" : "inactive"}
+						status={mollieStatus.organizationId ? "active" : "inactive"}
 						activeText={t("payments.mollie.status.account.connected")}
 						inactiveText={t("payments.mollie.status.account.notConnected")}
 					/>
@@ -110,17 +151,13 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 					/>
 					<StatusRow
 						label={t("payments.mollie.status.payments.label")}
-						status={
-							mollieStatus.mollieCanReceivePayments ? "active" : "pending"
-						}
+						status={mollieStatus.canReceivePayments ? "active" : "pending"}
 						activeText={t("payments.mollie.status.payments.enabled")}
 						pendingText={t("payments.mollie.status.payments.pending")}
 					/>
 					<StatusRow
 						label={t("payments.mollie.status.settlements.label")}
-						status={
-							mollieStatus.mollieCanReceiveSettlements ? "active" : "pending"
-						}
+						status={mollieStatus.canReceiveSettlements ? "active" : "pending"}
 						activeText={t("payments.mollie.status.settlements.enabled")}
 						pendingText={t("payments.mollie.status.settlements.pending")}
 					/>
@@ -128,12 +165,27 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 
 				{/* PayPal included badge */}
 				{isComplete && (
-					<div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
-						<CheckCircle className="size-4 text-green-600" />
-						<span className="font-medium text-blue-800 text-sm">
-							{t("payments.mollie.status.paypalEnabled")}
-						</span>
-					</div>
+					<>
+						<div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+							<CheckCircle className="size-4 text-green-600" />
+							<span className="font-medium text-blue-800 text-sm">
+								{t("payments.mollie.status.paypalEnabled")}
+							</span>
+						</div>
+						<Button
+							variant="outline"
+							onClick={handleCompleteVerification}
+							disabled={getDashboardUrl.isPending}
+							className="w-full"
+						>
+							{getDashboardUrl.isPending ? (
+								<RefreshCw className="me-2 size-4 animate-spin" />
+							) : (
+								<ExternalLink className="me-2 size-4" />
+							)}
+							{t("payments.mollie.actions.manageDashboard")}
+						</Button>
+					</>
 				)}
 
 				{/* In review notice */}

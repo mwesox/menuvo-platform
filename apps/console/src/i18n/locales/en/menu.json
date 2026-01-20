@@ -19,22 +19,29 @@
 		"itemDetails": "Item Details",
 		"allergens": "Allergens",
 		"categoryDetails": "Category Details",
-		"optionGroupDetails": "Option Group Details"
+		"optionGroupDetails": "Option Group Details",
+		"aiDataImport": "AI Data Import"
 	},
 	"table": {
 		"category": "Category",
+		"vatGroup": "VAT Group",
 		"image": "Image",
 		"items": "Items",
 		"status": "Status",
+		"active": "Active",
+		"action": "Action",
 		"price": "Price",
 		"name": "Name",
 		"type": "Type",
-		"choices": "Choices"
+		"choices": "Choices",
+		"description": "Description",
+		"validation": "Issues"
 	},
 	"labels": {
 		"categoryName": "Category Name",
 		"itemName": "Item Name",
 		"kitchenName": "Kitchen Name",
+		"active": "Active",
 		"optionGroupName": "Option Group Name",
 		"optionGroupType": "Modifier Type",
 		"sortOrder": "Sort Order",
@@ -102,13 +109,15 @@
 		"choiceName": "e.g., Extra Cheese, Pepperoni",
 		"itemDescription": "Describe this item...",
 		"aggregateMinQuantity": "No minimum",
-		"aggregateMaxQuantity": "No maximum"
+		"aggregateMaxQuantity": "No maximum",
+		"pickDate": "Pick a date"
 	},
 	"hints": {
 		"numFreeOptions": "Number of choices customers can add for free before being charged",
 		"aggregateMinQuantity": "Minimum total quantity customer must select",
 		"aggregateMaxQuantity": "Maximum total quantity customer can select",
-		"defaultSelected": "This option will be pre-selected by default when customers view the option group"
+		"defaultSelected": "This option will be pre-selected by default when customers view the option group",
+		"kitchenName": "Short name displayed on kitchen monitor and order tickets"
 	},
 	"optionTypes": {
 		"singleSelect": "Single Select",
@@ -205,6 +214,13 @@
 	"filters": {
 		"allCategories": "All categories"
 	},
+	"tooltips": {
+		"activateItem": "Activate item",
+		"deactivateItem": "Deactivate item",
+		"cannotActivateWithIssues": "Resolve issues before activating",
+		"activateCategory": "Activate category",
+		"deactivateCategory": "Deactivate category"
+	},
 	"common": {
 		"yes": "Yes",
 		"no": "No"
@@ -297,5 +313,80 @@
 		"lupin": "Lupin",
 		"molluscs": "Molluscs",
 		"sulphites": "Sulphites"
+	},
+	"validation": {
+		"title": "Publish Readiness",
+		"allGood": "Ready to publish",
+		"itemReadyToPublish": "This item has no issues and can be published.",
+		"issuesTitle": "Issues",
+		"cannotPublishWithIssues": "Resolve issues before publishing",
+		"issue": "issue",
+		"issues": "issues",
+		"codes": {
+			"MISSING_NAME": "Item name is required",
+			"MISSING_VAT_GROUP": "No VAT group configured (set on item or category)",
+			"MISSING_CATEGORY": "Item must belong to a category",
+			"ZERO_PRICE": "Item has zero price",
+			"MISSING_IMAGE": "No image uploaded",
+			"CATEGORY_INACTIVE": "Parent category is inactive"
+		}
+	},
+	"vat": {
+		"titles": {
+			"vatGroups": "VAT Groups",
+			"addVatGroup": "Add VAT Group",
+			"editVatGroup": "Edit VAT Group"
+		},
+		"table": {
+			"code": "Code",
+			"rate": "Rate"
+		},
+		"labels": {
+			"code": "Code",
+			"rate": "Tax Rate",
+			"vatGroup": "VAT Group",
+			"inheritFromCategory": "Inherit from category",
+			"noneSelected": "None (items must set VAT)"
+		},
+		"placeholders": {
+			"code": "e.g., food, drinks, alcohol",
+			"name": "e.g., Reduced Rate (Food)",
+			"rate": "e.g., 7",
+			"description": "Optional description for this VAT group"
+		},
+		"hints": {
+			"code": "Unique identifier (lowercase letters, numbers, hyphens only)",
+			"rate": "Enter the tax rate as a percentage (e.g., 7 for 7%, 19 for 19%)",
+			"defaultVatGroup": "Default tax rate for all items in this category"
+		},
+		"dialogs": {
+			"createVatGroupDescription": "Create a new VAT group for your items.",
+			"updateVatGroupDescription": "Update the VAT group details."
+		},
+		"buttons": {
+			"createVatGroup": "Create VAT Group"
+		},
+		"emptyStates": {
+			"noVatGroups": "No VAT groups yet",
+			"noVatGroupsDescription": "Create VAT groups to manage tax rates for your items."
+		},
+		"pageHeaders": {
+			"vatGroupsDescription": "Manage VAT groups for your items"
+		}
+	},
+	"availability": {
+		"title": "Availability Schedule",
+		"description": "Control when this category is visible to customers. All rules must be satisfied for the category to show.",
+		"timeRange": "Time Range",
+		"timeRangeHint": "Leave empty to apply to all times. Supports midnight crossover (e.g., 22:00-02:00).",
+		"daysOfWeek": "Days of Week",
+		"daysHint": "Leave empty to apply to all days.",
+		"startDate": "Start Date",
+		"endDate": "End Date",
+		"dateRange": "Date Range",
+		"badge": "Scheduled",
+		"notConfigured": "Not configured",
+		"enabledNoRules": "Enabled (no rules set)",
+		"daysCount": "{{count}} days"
 	}
 }

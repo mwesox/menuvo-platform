@@ -71,6 +71,25 @@
 		"activateZone": "Activate Zone",
 		"deactivateZone": "Deactivate Zone"
 	},
+	"toolbar": {
+		"searchPlaceholder": "Search by name, code, or zone...",
+		"filterByZone": "Filter by zone",
+		"filterByStatus": "Filter by status",
+		"allZones": "All zones",
+		"allStatuses": "All",
+		"activeOnly": "Active only",
+		"inactiveOnly": "Inactive only"
+	},
+	"zones": {
+		"unassigned": "Unassigned",
+		"activeCount": "{{active}} / {{total}} active",
+		"activateAll": "Activate all",
+		"deactivateAll": "Deactivate all"
+	},
+	"filters": {
+		"noResults": "No service points match your filters",
+		"clearFilters": "Clear filters"
+	},
 	"batch": {
 		"title": "Batch Create Service Points",
 		"description": "Create multiple service points at once with sequential naming.",

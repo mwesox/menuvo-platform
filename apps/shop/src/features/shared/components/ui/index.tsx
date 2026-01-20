@@ -7,7 +7,7 @@
 
 import { cn } from "@menuvo/ui/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ComponentProps } from "react";
+import { type ComponentProps, forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 import { formatPrice as formatPriceCents } from "../../../utils";
 
@@ -37,27 +37,27 @@ type HeadingProps = ComponentProps<"h1"> &
 	};
 
 /**
- * Shop heading with serif font (Instrument Serif).
+ * Shop heading component.
  * Use for all headings, titles, and item names.
  */
-export function ShopHeading({
-	as: Component = "h2",
-	size,
-	className,
-	style,
-	...props
-}: HeadingProps) {
-	return (
-		<Component
-			className={cn(headingVariants({ size }), className)}
-			style={{ fontFamily: "var(--font-heading)", ...style }}
-			{...props}
-		/>
-	);
-}
+export const ShopHeading = forwardRef<HTMLElement, HeadingProps>(
+	({ as: Component = "h2", size, className, style, ...props }, ref) => {
+		// Ensure Component is always defined
+		const Tag = Component || "h2";
+		return (
+			<Tag
+				ref={ref as React.Ref<HTMLHeadingElement>}
+				className={cn(headingVariants({ size }), "font-semibold", className)}
+				style={style}
+				{...props}
+			/>
+		);
+	},
+);
+ShopHeading.displayName = "ShopHeading";
 
 /**
- * Shop body text with sans-serif font (DM Sans).
+ * Shop body text.
  * Use for descriptions and regular content.
  */
 export function ShopText({ className, ...props }: ComponentProps<"p">) {
@@ -174,7 +174,7 @@ export function ShopPriceRow({
 // =============================================================================
 
 const badgeVariants = cva(
-	"inline-flex items-center rounded-full font-medium text-xs",
+	"inline-flex items-center rounded-md font-medium text-xs",
 	{
 		variants: {
 			variant: {
@@ -311,7 +311,7 @@ export function ShopButton({
 }
 
 const pillButtonVariants = cva(
-	"inline-flex items-center justify-center whitespace-nowrap rounded-full font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+	"inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 	{
 		variants: {
 			variant: {
@@ -364,7 +364,7 @@ export function ShopPillButton({
 // CARD
 // =============================================================================
 
-const cardVariants = cva("rounded-xl bg-card transition-colors", {
+const cardVariants = cva("rounded-lg bg-card transition-colors", {
 	variants: {
 		variant: {
 			default: "",
@@ -452,7 +452,7 @@ export function ShopImage({
 	return (
 		<div
 			className={cn(
-				"overflow-hidden rounded-lg bg-gradient-to-br from-amber-50 to-orange-50",
+				"overflow-hidden rounded-lg bg-muted",
 				aspectClasses[aspectRatio],
 				className,
 			)}

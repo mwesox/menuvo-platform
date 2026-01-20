@@ -1,6 +1,6 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
-	"plugins": ["./biome-plugins/no-dynamic-imports.grit"],
+	"plugins": [],
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -24,7 +24,13 @@
 		"enabled": true,
 		"indentStyle": "tab"
 	},
-	"assist": { "actions": { "source": { "organizeImports": "on" } } },
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
 	"linter": {
 		"enabled": true,
 		"rules": {

@@ -1,4 +1,4 @@
-import type { Category, Item } from "@menuvo/db/schema";
+import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Button,
 	Card,
@@ -7,6 +7,7 @@ import {
 	CardHeader,
 	CardTitle,
 	Checkbox,
+	cn,
 	Field,
 	FieldError,
 	FieldGroup,
@@ -22,21 +23,27 @@ import {
 	SelectTrigger,
 	SelectValue,
 	Skeleton,
+	Switch,
 	Tabs,
 	TabsContent,
 	TabsList,
 	TabsTrigger,
 	Textarea,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
 } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+import { InfoIcon } from "lucide-react";
 import { Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { ImageUploadField } from "@/features/images/components/image-upload-field.tsx";
 import { useDisplayLanguage } from "@/features/menu/contexts/display-language-context";
-import { trpcClient, useTRPC } from "@/lib/trpc";
+import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { ALLERGEN_KEYS } from "../constants.ts";
 import { getDisplayName } from "../logic/display.ts";
 import {
@@ -45,8 +52,21 @@ import {
 	translationsToForm,
 } from "../schemas.ts";
 import { ItemOptionsSelector } from "./item-options-selector.tsx";
+import { ItemValidationPanel } from "./item-validation-panel.tsx";
+import { VatGroupSelector } from "./vat-group-selector.tsx";
 
-export type CategoryWithItems = Category & { items: unknown[] };
+type RouterOutput = inferRouterOutputs<AppRouter>;
+type RouterInput = inferRouterInputs<AppRouter>;
+type Category = RouterOutput["menu"]["categories"]["list"][number];
+type Item = NonNullable<RouterOutput["menu"]["items"]["getById"]>;
+type CreateItemInput = RouterInput["menu"]["items"]["create"];
+type UpdateItemInput = RouterInput["menu"]["items"]["update"];
+type CategoryItemSummary = {
+	id: string;
+	isActive: boolean;
+	imageUrl: string | null;
+};
+export type CategoryWithItems = Category & { items: CategoryItemSummary[] };
 
 interface ItemFormProps {
 	item?: Item;
@@ -72,6 +92,7 @@ export function ItemForm({
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const trpc = useTRPC();
+	const trpcClient = useTRPCClient();
 	const language = useDisplayLanguage();
 	const isEditing = !!item;
 
@@ -84,28 +105,16 @@ export function ItemForm({
 
 	// Mutations that work with dynamic categoryId from form
 	const createItemMutation = useMutation({
-		mutationFn: (input: {
-			categoryId: string;
-			translations: Record<string, { name: string; description?: string }>;
-			price: number;
-			imageUrl?: string;
-			allergens: string[];
-			kitchenName?: string;
-		}) =>
-			trpcClient.item.create.mutate({
-				categoryId: input.categoryId,
-				translations: input.translations,
-				price: input.price,
-				imageUrl: input.imageUrl,
-				allergens: input.allergens,
-				kitchenName: input.kitchenName,
-			}),
+		mutationFn: (input: CreateItemInput) =>
+			trpcClient.menu.items.create.mutate(input),
 		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({
-				queryKey: trpc.item.listByStore.queryKey({ storeId }),
+				queryKey: trpc.menu.items.listByStore.queryKey({ storeId }),
 			});
 			queryClient.invalidateQueries({
-				queryKey: trpc.category.getById.queryKey({ id: variables.categoryId }),
+				queryKey: trpc.menu.queries.getCategory.queryKey({
+					categoryId: variables.categoryId,
+				}),
 			});
 			toast.success(tToasts("success.itemCreated"));
 		},
@@ -115,50 +124,67 @@ export function ItemForm({
 	});
 
 	const updateItemMutation = useMutation({
-		mutationFn: (input: {
-			itemId: string;
-			categoryId?: string;
-			translations?: Record<string, { name: string; description?: string }>;
-			price?: number;
-			imageUrl?: string;
-			allergens?: string[];
-			kitchenName?: string;
-		}) =>
-			trpcClient.item.update.mutate({
-				id: input.itemId,
-				categoryId: input.categoryId,
-				translations: input.translations,
-				price: input.price,
-				imageUrl: input.imageUrl,
-				allergens: input.allergens,
-				kitchenName: input.kitchenName,
-			}),
+		mutationFn: (input: UpdateItemInput) =>
+			trpcClient.menu.items.update.mutate(input),
 		onSuccess: (updatedItem, variables) => {
-			// Invalidate item detail cache (setQueryData not used because API returns flat item, not full nested structure)
+			// Invalidate item detail cache
 			queryClient.invalidateQueries({
-				queryKey: trpc.item.getById.queryKey({ id: updatedItem.id }),
+				queryKey: trpc.menu.items.getById.queryKey({ id: updatedItem.id }),
 			});
-			// Invalidate list query to ensure fresh data on navigation
+			// Invalidate list query
 			queryClient.invalidateQueries({
-				queryKey: trpc.item.listByStore.queryKey({ storeId }),
+				queryKey: trpc.menu.items.listByStore.queryKey({ storeId }),
 			});
-			// Invalidate category detail (if category changed, invalidate both old and new)
-			if (variables.categoryId) {
+			// Always invalidate the current category
+			if (initialCategoryId) {
 				queryClient.invalidateQueries({
-					queryKey: trpc.category.getById.queryKey({
-						id: variables.categoryId,
+					queryKey: trpc.menu.queries.getCategory.queryKey({
+						categoryId: initialCategoryId,
 					}),
 				});
 			}
-			if (initialCategoryId && initialCategoryId !== variables.categoryId) {
+			// If category changed, also invalidate the new category
+			if (variables.categoryId && variables.categoryId !== initialCategoryId) {
 				queryClient.invalidateQueries({
-					queryKey: trpc.category.getById.queryKey({ id: initialCategoryId }),
+					queryKey: trpc.menu.queries.getCategory.queryKey({
+						categoryId: variables.categoryId,
+					}),
 				});
 			}
 			toast.success(tToasts("success.itemUpdated"));
 		},
 		onError: () => {
 			toast.error(tToasts("error.updateItem"));
+		},
+	});
+
+	const toggleActiveMutation = useMutation({
+		mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+			trpcClient.menu.items.toggleActive.mutate({ id, isActive }),
+		onSuccess: () => {
+			// No toast - the switch provides immediate visual feedback
+			if (item) {
+				queryClient.invalidateQueries({
+					queryKey: trpc.menu.items.getById.queryKey({ id: item.id }),
+				});
+			}
+			if (initialCategoryId) {
+				queryClient.invalidateQueries({
+					queryKey: trpc.menu.queries.getCategory.queryKey({
+						categoryId: initialCategoryId,
+					}),
+				});
+			}
+			queryClient.invalidateQueries({
+				queryKey: trpc.menu.items.listByStore.queryKey({ storeId }),
+			});
+		},
+		onError: (error) => {
+			if (error.message.includes("validation")) {
+				toast.error(tToasts("error.cannotActivateWithIssues"));
+			} else {
+				toast.error(tToasts("error.updateItem"));
+			}
 		},
 	});
 
@@ -177,6 +203,7 @@ export function ItemForm({
 			imageUrl: item?.imageUrl ?? "",
 			allergens: item?.allergens ?? ([] as string[]),
 			kitchenName: item?.kitchenName ?? "",
+			vatGroupId: item?.vatGroupId ?? null,
 		},
 		validators: {
 			onSubmit: itemFormSchema,
@@ -195,13 +222,14 @@ export function ItemForm({
 
 				if (isEditing) {
 					await updateItemMutation.mutateAsync({
-						itemId: item.id,
+						id: item.id,
 						categoryId: selectedCategoryId,
 						translations,
 						price: priceInCents,
 						imageUrl: value.imageUrl || undefined,
 						allergens: value.allergens,
 						kitchenName: value.kitchenName || undefined,
+						vatGroupId: value.vatGroupId,
 					});
 					itemId = item.id;
 				} else {
@@ -212,12 +240,13 @@ export function ItemForm({
 						imageUrl: value.imageUrl || undefined,
 						allergens: value.allergens,
 						kitchenName: value.kitchenName || undefined,
+						vatGroupId: value.vatGroupId ?? undefined,
 					});
 					itemId = newItem.id;
 				}
 
 				// Save item options
-				await trpcClient.option.updateItemOptions.mutate({
+				await trpcClient.menu.options.updateItemOptions.mutate({
 					itemId,
 					optionGroupIds: selectedOptionGroupIds,
 				});
@@ -225,9 +254,8 @@ export function ItemForm({
 				// Navigate back to the category's items list
 				const targetCategoryId = selectedCategoryId;
 				navigate({
-					to: "/menu/categories/$categoryId",
-					params: { categoryId: targetCategoryId },
-					search: { storeId },
+					to: "/stores/$storeId/menu/categories/$categoryId",
+					params: { storeId, categoryId: targetCategoryId },
 				});
 			} catch {
 				// Error toast is handled by mutation hooks
@@ -243,6 +271,11 @@ export function ItemForm({
 			}}
 			className="space-y-6"
 		>
+			{/* Validation Panel - only shown when editing */}
+			{isEditing && item.validation && (
+				<ItemValidationPanel validation={item.validation} />
+			)}
+
 			<Tabs defaultValue="details">
 				<TabsList>
 					<TabsTrigger value="details">{t("titles.itemDetails")}</TabsTrigger>
@@ -261,16 +294,16 @@ export function ItemForm({
 						</CardHeader>
 						<CardContent>
 							<FieldGroup>
-								{/* Row 1: Name + Kitchen Name + Price (responsive grid) */}
-								<div className="grid gap-6 md:grid-cols-[1fr,160px,160px]">
+								{/* Row: Name + Kitchen Name */}
+								<div className="grid gap-6 md:grid-cols-2">
 									<form.Field name="name">
 										{(field) => {
 											const isInvalid =
 												field.state.meta.isTouched && !field.state.meta.isValid;
 											return (
 												<Field data-invalid={isInvalid}>
-													<FieldLabel htmlFor={field.name}>
-														{tForms("fields.name")} *
+													<FieldLabel htmlFor={field.name} required>
+														{tForms("fields.name")}
 													</FieldLabel>
 													<Input
 														id={field.name}
@@ -280,6 +313,7 @@ export function ItemForm({
 														onBlur={field.handleBlur}
 														onChange={(e) => field.handleChange(e.target.value)}
 														aria-invalid={isInvalid}
+														required
 													/>
 													{isInvalid && (
 														<FieldError errors={field.state.meta.errors} />
@@ -295,8 +329,19 @@ export function ItemForm({
 												field.state.meta.isTouched && !field.state.meta.isValid;
 											return (
 												<Field data-invalid={isInvalid}>
-													<FieldLabel htmlFor={field.name}>
+													<FieldLabel
+														htmlFor={field.name}
+														className="inline-flex items-center gap-1"
+													>
 														{t("labels.kitchenName")}
+														<Tooltip>
+															<TooltipTrigger asChild>
+																<InfoIcon className="size-3.5 text-muted-foreground" />
+															</TooltipTrigger>
+															<TooltipContent>
+																{t("hints.kitchenName")}
+															</TooltipContent>
+														</Tooltip>
 													</FieldLabel>
 													<Input
 														id={field.name}
@@ -315,15 +360,18 @@ export function ItemForm({
 											);
 										}}
 									</form.Field>
+								</div>
 
+								{/* Row: Price + Status (when editing) */}
+								<div className="flex items-end gap-6">
 									<form.Field name="price">
 										{(field) => {
 											const isInvalid =
 												field.state.meta.isTouched && !field.state.meta.isValid;
 											return (
-												<Field data-invalid={isInvalid}>
-													<FieldLabel htmlFor={field.name}>
-														{tForms("fields.price")} *
+												<Field data-invalid={isInvalid} className="w-40">
+													<FieldLabel htmlFor={field.name} required>
+														{tForms("fields.price")}
 													</FieldLabel>
 													<PriceInput
 														id={field.name}
@@ -341,50 +389,118 @@ export function ItemForm({
 											);
 										}}
 									</form.Field>
+
+									{/* Status toggle - only shown when editing */}
+									{isEditing && item && (
+										<div className="flex h-10 items-center gap-2">
+											<Switch
+												id="item-active-toggle"
+												checked={item.isActive}
+												disabled={
+													toggleActiveMutation.isPending ||
+													(!item.isActive &&
+														item.validation &&
+														!item.validation.isPublishable)
+												}
+												onCheckedChange={() => {
+													const isPublishable =
+														item.validation?.isPublishable ?? true;
+													if (!item.isActive && !isPublishable) {
+														toast.error(
+															tToasts("error.cannotActivateWithIssues"),
+														);
+														return;
+													}
+													toggleActiveMutation.mutate({
+														id: item.id,
+														isActive: !item.isActive,
+													});
+												}}
+											/>
+											<span
+												className={cn(
+													"whitespace-nowrap font-medium text-sm",
+													item.isActive
+														? "text-green-600 dark:text-green-500"
+														: "text-muted-foreground",
+												)}
+											>
+												{item.isActive
+													? t("labels.active")
+													: t("labels.hidden")}
+											</span>
+										</div>
+									)}
 								</div>
 
-								{/* Row 2: Category (full width) */}
-								<form.Field name="categoryId">
-									{(field) => {
-										const isInvalid =
-											field.state.meta.isTouched && !field.state.meta.isValid;
-										return (
-											<Field data-invalid={isInvalid}>
-												<FieldLabel htmlFor={field.name}>
-													{tForms("fields.category")} *
-												</FieldLabel>
-												<Select
-													value={field.state.value}
-													onValueChange={field.handleChange}
-												>
-													<SelectTrigger
-														id={field.name}
-														aria-invalid={isInvalid}
+								{/* Row: Category + VAT Group */}
+								<div className="grid gap-6 md:grid-cols-2">
+									<form.Field name="categoryId">
+										{(field) => {
+											const isInvalid =
+												field.state.meta.isTouched && !field.state.meta.isValid;
+											return (
+												<Field data-invalid={isInvalid}>
+													<FieldLabel htmlFor={field.name} required>
+														{tForms("fields.category")}
+													</FieldLabel>
+													<Select
+														value={field.state.value}
+														onValueChange={field.handleChange}
 													>
-														<SelectValue
-															placeholder={t("placeholders.selectCategory")}
-														/>
-													</SelectTrigger>
-													<SelectContent>
-														{categories.map((category) => (
-															<SelectItem key={category.id} value={category.id}>
-																{getDisplayName(
-																	category.translations,
-																	language,
-																)}
-															</SelectItem>
-														))}
-													</SelectContent>
-												</Select>
-												{isInvalid && (
-													<FieldError errors={field.state.meta.errors} />
-												)}
-											</Field>
-										);
-									}}
-								</form.Field>
+														<SelectTrigger
+															id={field.name}
+															aria-invalid={isInvalid}
+														>
+															<SelectValue
+																placeholder={t("placeholders.selectCategory")}
+															/>
+														</SelectTrigger>
+														<SelectContent>
+															{categories.map((category) => (
+																<SelectItem
+																	key={category.id}
+																	value={category.id}
+																>
+																	{getDisplayName(
+																		category.translations,
+																		language,
+																	)}
+																</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+													{isInvalid && (
+														<FieldError errors={field.state.meta.errors} />
+													)}
+												</Field>
+											);
+										}}
+									</form.Field>
 
-								{/* Row 3: Description (full width, 2 rows) */}
+									<form.Field name="vatGroupId">
+										{(field) => (
+											<Field>
+												<FieldLabel htmlFor="item-vat-group">
+													{t("vat.labels.vatGroup")}
+												</FieldLabel>
+												<Suspense
+													fallback={
+														<div className="h-10 animate-pulse rounded-md bg-muted" />
+													}
+												>
+													<VatGroupSelector
+														value={field.state.value}
+														onChange={(value) => field.handleChange(value)}
+														showInheritOption
+													/>
+												</Suspense>
+											</Field>
+										)}
+									</form.Field>
+								</div>
+
+								{/* Description - full width */}
 								<form.Field name="description">
 									{(field) => {
 										const isInvalid =
@@ -531,13 +647,17 @@ export function ItemForm({
 
 			<form.Subscribe selector={(state) => state.isSubmitting}>
 				{(isSubmitting) => (
-					<Field orientation="horizontal">
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => window.history.back()}
-						>
-							{tCommon("buttons.cancel")}
+					<div className="flex justify-end gap-3">
+						<Button type="button" variant="outline" asChild>
+							<Link
+								to="/stores/$storeId/menu/categories/$categoryId"
+								params={{
+									storeId,
+									categoryId: initialCategoryId ?? categoryId ?? "",
+								}}
+							>
+								{tCommon("buttons.cancel")}
+							</Link>
 						</Button>
 						<LoadingButton
 							type="submit"
@@ -550,7 +670,7 @@ export function ItemForm({
 						>
 							{isEditing ? t("buttons.updateItem") : t("buttons.createItem")}
 						</LoadingButton>
-					</Field>
+					</div>
 				)}
 			</form.Subscribe>
 		</form>

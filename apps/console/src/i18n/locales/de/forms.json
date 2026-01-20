@@ -15,34 +15,30 @@
 		"category": "Kategorie",
 		"businessName": "Firmenname",
 		"storeName": "Filialname",
-		"storeNameRequired": "Filialname *",
-		"streetRequired": "Straßenadresse *",
-		"cityRequired": "Stadt *",
-		"postalCodeRequired": "Postleitzahl *",
-		"countryRequired": "Land *"
+		"streetAddress": "Straßenadresse"
 	},
 	"placeholders": {
-		"enterName": "Name eingeben",
-		"enterEmail": "E-Mail-Adresse eingeben",
-		"enterPhone": "Telefonnummer eingeben",
-		"enterStreet": "Straßenadresse eingeben",
-		"enterCity": "Stadt eingeben",
-		"enterPostalCode": "Postleitzahl eingeben",
+		"enterName": "Dein vollständiger Name",
+		"enterEmail": "Deine geschäftliche E-Mail",
+		"enterPhone": "Deine Telefonnummer",
+		"enterStreet": "Straße und Hausnummer",
+		"enterCity": "Deine Stadt",
+		"enterPostalCode": "Deine Postleitzahl",
 		"selectCountry": "Land auswählen",
 		"selectTimezone": "Zeitzone auswählen",
 		"selectCurrency": "Währung auswählen",
 		"enterDescription": "Beschreibung eingeben",
 		"enterPrice": "0,00",
 		"selectLanguage": "Sprache auswählen",
-		"enterBusinessName": "Firmennamen eingeben",
-		"enterStoreName": "Filialnamen eingeben",
-		"downtownLocation": "Innenstadtfiliale",
-		"mainStreet": "Hauptstraße 123",
-		"berlin": "Berlin",
-		"postalCode10115": "10115",
-		"germany": "Deutschland",
-		"phoneExample": "+49 123 456 789",
-		"storeEmail": "filiale@beispiel.de"
+		"enterBusinessName": "Dein Firmenname",
+		"enterStoreName": "Name deiner Filiale",
+		"downtownLocation": "Name dieser Filiale",
+		"mainStreet": "Straße und Hausnummer",
+		"berlin": "Deine Stadt",
+		"postalCode10115": "Deine Postleitzahl",
+		"germany": "Dein Land",
+		"phoneExample": "Telefonnummer der Filiale",
+		"storeEmail": "E-Mail der Filiale"
 	},
 	"validation": {
 		"required": "Dieses Feld ist erforderlich",
@@ -52,6 +48,30 @@
 		"maxLength": "Darf maximal {{max}} Zeichen lang sein",
 		"invalidFormat": "Ungültiges Format",
 		"mustBePositive": "Muss eine positive Zahl sein",
-		"mustBeNumber": "Muss eine Zahl sein"
+		"mustBeNumber": "Muss eine Zahl sein",
+		"storeName": {
+			"minLength": "Filialname muss mindestens 2 Zeichen lang sein",
+			"maxLength": "Filialname darf maximal 100 Zeichen lang sein"
+		},
+		"street": {
+			"required": "Straßenadresse ist erforderlich"
+		},
+		"city": {
+			"required": "Stadt ist erforderlich"
+		},
+		"postalCode": {
+			"required": "Postleitzahl ist erforderlich"
+		},
+		"country": {
+			"required": "Land ist erforderlich"
+		},
+		"phone": {
+			"required": "Telefonnummer ist erforderlich",
+			"invalid": "Ungültiges Telefonnummernformat"
+		},
+		"email": {
+			"required": "E-Mail-Adresse ist erforderlich",
+			"invalid": "Ungültige E-Mail-Adresse"
+		}
 	}
 }

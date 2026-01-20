@@ -1,0 +1,30 @@
+{
+	"$schema": "https://unpkg.com/knip@5/schema.json",
+	"ignore": ["**/*.d.ts", "_archive/**"],
+	"workspaces": {
+		".": {},
+		"apps/api": {
+			"project": ["src/**/*.ts"]
+		},
+		"apps/console": {
+			"project": ["src/**/*.{ts,tsx}"],
+			"ignore": ["src/routeTree.gen.ts"]
+		},
+		"apps/shop": {
+			"project": ["src/**/*.{ts,tsx}"],
+			"ignore": ["src/routeTree.gen.ts"]
+		},
+		"apps/business": {
+			"project": ["src/**/*.{ts,tsx}"],
+			"ignore": ["src/routeTree.gen.ts"]
+		},
+		"packages/db": {
+			"project": ["src/**/*.ts"],
+			"includeEntryExports": true
+		},
+		"packages/ui": {
+			"project": ["src/**/*.{ts,tsx}"],
+			"includeEntryExports": true
+		}
+	}
+}

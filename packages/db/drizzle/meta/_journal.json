@@ -8,6 +8,69 @@
       "when": 1767993656334,
       "tag": "0000_puzzling_major_mapleleaf",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1768319586598,
+      "tag": "0001_deep_boomer",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768407158304,
+      "tag": "0002_faithful_inertia",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1768418343756,
+      "tag": "0003_naive_zzzax",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1768423201029,
+      "tag": "0004_ambitious_dexter_bennett",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1768753128813,
+      "tag": "0005_bizarre_skullbuster",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1768771289803,
+      "tag": "0006_thick_tony_stark",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1737232800000,
+      "tag": "0007_rename_is_available_to_is_active",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1737244800000,
+      "tag": "0008_fractional_ordering",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1737300000000,
+      "tag": "0009_add_category_availability_schedule",
+      "breakpoints": true
     }
   ]
 }

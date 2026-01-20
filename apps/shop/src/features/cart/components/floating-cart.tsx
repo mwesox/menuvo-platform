@@ -1,14 +1,14 @@
 import { cn } from "@menuvo/ui/lib/utils";
 import { ShoppingCart } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useShop } from "../../shared/contexts/shop-context";
+import { useShopUIStore } from "../../shared";
 import { formatPrice } from "../../utils";
 import { useCartStore } from "../stores/cart-store";
 
 /**
  * Mobile floating cart bar.
  * Full-width bottom bar visible on mobile when cart has items.
- * Opens CartDrawer on click (via ShopContext).
+ * Opens CartDrawer on click (via Zustand store).
  */
 export function FloatingCart() {
 	const { t } = useTranslation("shop");
@@ -16,7 +16,7 @@ export function FloatingCart() {
 	// Compute from items (getters don't work with persist middleware)
 	const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 	const subtotal = items.reduce((sum, item) => sum + item.totalPrice, 0);
-	const { openCartDrawer } = useShop();
+	const openCartDrawer = useShopUIStore((s) => s.openCartDrawer);
 
 	// Don't render if cart is empty
 	if (itemCount === 0) {
@@ -30,7 +30,7 @@ export function FloatingCart() {
 			className={cn(
 				"fixed right-4 bottom-6 left-4 md:hidden",
 				"bg-primary text-primary-foreground",
-				"rounded-2xl px-5 py-4 shadow-xl",
+				"rounded-xl px-5 py-4 shadow-xl",
 				"flex items-center justify-between",
 				"z-40 font-medium",
 				"transition-all duration-300",

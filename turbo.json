@@ -1,24 +1,43 @@
 {
-	"$schema": "https://turborepo.com/schema.json",
-	"ui": "stream",
-	"tasks": {
-		"build": {
-			"dependsOn": ["^build"],
-			"inputs": ["$TURBO_DEFAULT$", ".env*"],
-			"outputs": ["dist/**", ".output/**"]
-		},
-		"dev": {
-			"cache": false,
-			"persistent": true
-		},
-		"check": {
-			"dependsOn": ["^check"]
-		},
-		"check-types": {
-			"dependsOn": ["^check-types"]
-		},
-		"test": {
-			"dependsOn": ["^build"]
-		}
-	}
+  "$schema": "https://turborepo.com/schema.json",
+  "ui": "stream",
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ],
+      "outputs": [
+        "dist/**",
+        ".output/**",
+        "**/*.tsbuildinfo"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "check": {
+      "dependsOn": [
+        "^check"
+      ]
+    },
+    "check-types": {
+      "dependsOn": [
+        "^check-types"
+      ],
+      "outputs": [
+        "dist/**/*.d.ts",
+        "dist/**/*.d.ts.map",
+        "dist/**/*.tsbuildinfo",
+        "tsconfig.tsbuildinfo",
+        "tsconfig.*.tsbuildinfo",
+        "node_modules/.tmp/*.tsbuildinfo"
+      ]
+    },
+    "test": {}
+  }
 }

@@ -8,6 +8,10 @@
 		"hours": "{{count}} Std+",
 		"days": "{{count}} Tag+"
 	},
+	"pickupTime": {
+		"today": "Heute",
+		"tomorrow": "Morgen"
+	},
 	"columns": {
 		"new": "Neu",
 		"preparing": "In Zubereitung",

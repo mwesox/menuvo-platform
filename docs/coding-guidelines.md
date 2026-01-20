@@ -55,30 +55,30 @@ const deferredQuery = useDeferredValue(query);
 
 ### Granularity
 
-| Situation | Action |
-|-----------|--------|
-| Pattern repeats 3+ times | Extract to component |
-| Component > 150 lines | Split into sub-components |
-| Component has 3+ useState | Extract logic to hook |
-| Multiple concerns in one file | Split by concern |
-| Scrolling to understand | Too big, split it |
+| Situation                     | Action                    |
+|-------------------------------|---------------------------|
+| Pattern repeats 3+ times      | Extract to component      |
+| Component > 150 lines         | Split into sub-components |
+| Component has 3+ useState     | Extract logic to hook     |
+| Multiple concerns in one file | Split by concern          |
+| Scrolling to understand       | Too big, split it         |
 
 ### Composition Principles
 
-| Principle | Guideline |
-|-----------|-----------|
-| **Single Responsibility** | One reason to change per component |
+| Principle                 | Guideline                                     |
+|---------------------------|-----------------------------------------------|
+| **Single Responsibility** | One reason to change per component            |
 | **Composition over size** | Compose small components, don't grow big ones |
-| **Logic extraction** | Stateful logic → hooks, pure logic → `logic/` |
-| **Prop drilling limit** | Max 2 levels, then use composition or context |
+| **Logic extraction**      | Stateful logic → hooks, pure logic → `logic/` |
+| **Prop drilling limit**   | Max 2 levels, then use composition or context |
 
 ### Styling
 
-| Rule | Guideline |
-|------|-----------|
-| Use shadcn variants | Don't duplicate Tailwind patterns |
-| Use CVA for custom variants | Keep conditional styling in one place |
-| Extract repeated patterns | 3+ usages = new component |
+| Rule                        | Guideline                                  |
+|-----------------------------|--------------------------------------------|
+| Use shadcn variants         | Don't duplicate Tailwind patterns          |
+| Use CVA for custom variants | Keep conditional styling in one place      |
+| Extract repeated patterns   | 3+ usages = new component                  |
 | Primitives own their styles | Feature components compose, don't override |
 
 ### What Components Should NOT Do
@@ -94,77 +94,60 @@ const deferredQuery = useDeferredValue(query);
 
 ### Form Schemas
 
-| Rule | Guideline |
-|------|-----------|
-| Location | `features/{f}/schemas.ts` |
-| Naming | `{entity}FormSchema` |
-| Types | Strings for all inputs (transform later) |
-| Messages | User-friendly error messages |
-| Context IDs | Excluded (added by mutation hook) |
+| Rule        | Guideline                                |
+|-------------|------------------------------------------|
+| Location    | `features/{f}/schemas.ts`                |
+| Naming      | `{entity}FormSchema`                     |
+| Types       | Strings for all inputs (transform later) |
+| Messages    | User-friendly error messages             |
+| Context IDs | Excluded (added by mutation hook)        |
 
 ### API Schemas
 
-| Rule | Guideline |
-|------|-----------|
-| Location | `packages/trpc/schemas/` |
-| Naming | `{action}{Entity}Schema` (createItem, updateStore) |
-| Types | Actual types (numbers, booleans, dates) |
-| Context IDs | Included (storeId, merchantId) |
-| Optional fields | Use `.optional()` for updates |
+| Rule            | Guideline                                          |
+|-----------------|----------------------------------------------------|
+| Location        | `packages/trpc/routers/{domain}/schemas.ts`        |
+| Naming          | `{action}{Entity}Schema` (createItem, updateStore) |
+| Types           | Actual types (numbers, booleans, dates)            |
+| Context IDs     | Included (storeId, merchantId)                     |
+| Optional fields | Use `.optional()` for updates                      |
 
 ### Type Inference
 
-| Need | Source |
-|------|--------|
-| Form values type | `z.infer<typeof itemFormSchema>` |
-| API input type | `z.infer<typeof createItemSchema>` |
-| Database type | `InferSelectModel<typeof items>` |
+| Need             | Source                             |
+|------------------|------------------------------------|
+| Form values type | `z.infer<typeof itemFormSchema>`   |
+| API input type   | `z.infer<typeof createItemSchema>` |
+| Database type    | `InferSelectModel<typeof items>`   |
 
 ### Enum & Const Arrays
 
-| Rule | Guideline |
-|------|-----------|
-| Source of truth | `packages/db/schema/` - define as `const array` with `as const` |
-| Zod schemas | `packages/trpc/schemas/` - derive using `z.enum(dbArray)`, never duplicate values |
-| App imports | Always from `@menuvo/trpc/schemas`, never from `@menuvo/db` |
-| Local types | Never create type mirrors in apps - import from tRPC |
-
-**Example - Correct pattern:**
-
-```typescript
-// packages/db/schema/index.ts (SOURCE)
-export const orderStatuses = ["awaiting_payment", "confirmed", ...] as const;
-export type OrderStatus = (typeof orderStatuses)[number];
-
-// packages/trpc/schemas/order.schema.ts (DERIVES)
-import { orderStatuses } from "@menuvo/db/schema";
-export const orderStatusEnum = z.enum(orderStatuses);
-export type OrderStatusType = z.infer<typeof orderStatusEnum>;
-
-// apps/console/features/orders (CONSUMES)
-import { type OrderStatusType } from "@menuvo/trpc/schemas";
-```
+| Rule            | Guideline                                                                    |
+|-----------------|------------------------------------------------------------------------------|
+| Source of truth | `packages/db/schema/` - define as `const array` with `as const`              |
+| Zod schemas     | `packages/trpc/routers/{domain}/schemas.ts` - derive using `z.enum(dbArray)` |
+| App imports     | Always from `@menuvo/trpc`, never from `@menuvo/db`                          |
+| Local types     | Never create type mirrors in apps - import from tRPC                         |
 
 ### Composite Types
 
-| Need | Location |
-|------|----------|
-| Database join result | Define locally in feature `types.ts` |
-| tRPC response with relations | Use tRPC router inference |
-| Extended form state | Define locally in feature `schemas.ts` or `types.ts` |
+| Need                         | Location                                             |
+|------------------------------|------------------------------------------------------|
+| Database join result         | Define locally in feature `types.ts`                 |
+| tRPC response with relations | Use tRPC router inference                            |
+| Extended form state          | Define locally in feature `schemas.ts` or `types.ts` |
 
 ---
 
 ## tRPC Procedure Rules
 
-### Organization
+### Procedure Types
 
-| Rule | Guideline |
-|------|-----------|
-| One router per domain | `storeRouter`, `itemRouter`, `orderRouter` |
-| Procedures are verbs | `get`, `list`, `create`, `update`, `delete` |
-| Protected by default | Use `protectedProcedure` for authenticated routes |
-| Public when needed | Use `publicProcedure` only for unauthenticated access |
+| Type                  | Use When                                         |
+|-----------------------|--------------------------------------------------|
+| `publicProcedure`     | Unauthenticated access (storefront, public menu) |
+| `protectedProcedure`  | Requires valid session                           |
+| `storeOwnerProcedure` | Requires owner/admin role                        |
 
 ### Input Validation
 
@@ -211,12 +194,12 @@ throw new TRPCError({
 
 ### Response Data
 
-| Rule | Guideline |
-|------|-----------|
-| Use Drizzle `columns` | Fetch only needed fields, omit sensitive data |
-| Use `.output()` for public APIs | Explicit contract, strips extra fields |
-| Skip `.output()` internally | Type inference sufficient, no runtime overhead |
-| Never expose payment fields | `stripeAccountId`, `mollieProfileId`, etc. |
+| Rule                            | Guideline                                      |
+|---------------------------------|------------------------------------------------|
+| Use Drizzle `columns`           | Fetch only needed fields, omit sensitive data  |
+| Use `.output()` for public APIs | Explicit contract, strips extra fields         |
+| Skip `.output()` internally     | Type inference sufficient, no runtime overhead |
+| Never expose payment fields     | `stripeAccountId`, `mollieProfileId`, etc.     |
 
 ```typescript
 // Preferred: column projection
@@ -300,13 +283,13 @@ export function useCreateItem() {
 
 ### Rules
 
-| Rule | Guideline |
-|------|-----------|
-| Use `queryOptions()` | Type-safe query configuration |
-| Use `queryKey()` | Type-safe invalidation |
-| Use `pathKey()` | Invalidate entire routers |
-| Always invalidate on mutation | Keep cache in sync |
-| Show toast feedback | User needs confirmation |
+| Rule                          | Guideline                     |
+|-------------------------------|-------------------------------|
+| Use `queryOptions()`          | Type-safe query configuration |
+| Use `queryKey()`              | Type-safe invalidation        |
+| Use `pathKey()`               | Invalidate entire routers     |
+| Always invalidate on mutation | Keep cache in sync            |
+| Show toast feedback           | User needs confirmation       |
 
 ---
 
@@ -346,6 +329,15 @@ function StorePage() {
 }
 ```
 
+### `useLoaderData` vs `useSuspenseQuery`
+
+| Method                  | Behavior                                         |
+|-------------------------|--------------------------------------------------|
+| `Route.useLoaderData()` | Snapshot - doesn't update on cache invalidation  |
+| `useSuspenseQuery()`    | Subscribes to cache - re-renders on invalidation |
+
+**Rule**: If you `invalidateQueries` for that data, use `useSuspenseQuery` in the component.
+
 ### Matching Query Keys
 
 ```typescript
@@ -361,12 +353,12 @@ const storeKeys = {
 
 ### Rules
 
-| Rule | Guideline |
-|------|-----------|
-| Loaders use `trpcClient` | Can't use hooks outside React |
-| Components use `useTRPC()` | Get queryOptions factory |
-| Match query keys | Ensures cache hit from loader |
-| Keep routes thin | No business logic |
+| Rule                       | Guideline                     |
+|----------------------------|-------------------------------|
+| Loaders use `trpcClient`   | Can't use hooks outside React |
+| Components use `useTRPC()` | Get queryOptions factory      |
+| Match query keys           | Ensures cache hit from loader |
+| Keep routes thin           | No business logic             |
 
 ---
 
@@ -374,23 +366,23 @@ const storeKeys = {
 
 ### When to Create Custom Hooks
 
-| Scenario | Create Hook? |
-|----------|--------------|
-| Mutation with toast/cache invalidation | Yes → `queries.ts` |
-| Same query used in 3+ components | Yes → `queries.ts` |
-| Complex UI state (3+ useState) | Yes → `hooks/` |
-| Simple useState in one component | No, inline |
-| Server data sharing | No, use TanStack Query directly |
+| Scenario                               | Create Hook?                    |
+|----------------------------------------|---------------------------------|
+| Mutation with toast/cache invalidation | Yes → `queries.ts`              |
+| Same query used in 3+ components       | Yes → `queries.ts`              |
+| Complex UI state (3+ useState)         | Yes → `hooks/`                  |
+| Simple useState in one component       | No, inline                      |
+| Server data sharing                    | No, use TanStack Query directly |
 
 ### Naming Conventions
 
-| Hook Type | Pattern | Example |
-|-----------|---------|---------|
-| Mutations | `use{Action}{Entity}` | `useCreateCategory()` |
-| Queries | `{entity}Queries` object | `storeQueries.detail(id)` |
-| Context | `use{Feature}` | `useShop()`, `useConsole()` |
-| UI state | `use{Concern}` | `useMenuPageState()` |
-| Stores | `use{Entity}Store` | `useCartStore()` |
+| Hook Type | Pattern                  | Example                     |
+|-----------|--------------------------|-----------------------------|
+| Mutations | `use{Action}{Entity}`    | `useCreateCategory()`       |
+| Queries   | `{entity}Queries` object | `storeQueries.detail(id)`   |
+| Context   | `use{Feature}`           | `useShop()`, `useConsole()` |
+| UI state  | `use{Concern}`           | `useMenuPageState()`        |
+| Stores    | `use{Entity}Store`       | `useCartStore()`            |
 
 ### Hook Rules
 
@@ -403,68 +395,114 @@ const storeKeys = {
 
 ## Form State Management
 
-| Concern | Tool | NOT |
-|---------|------|-----|
-| Form values | TanStack Form `useForm` | useState |
-| Field validation | Zod schema | Manual checks |
-| Submit state | Form's `isSubmitting` | useState |
-| Server errors | Mutation's `isError` | Form state |
+| Concern          | Tool                    | NOT           |
+|------------------|-------------------------|---------------|
+| Form values      | TanStack Form `useForm` | useState      |
+| Field validation | Zod schema              | Manual checks |
+| Submit state     | Form's `isSubmitting`   | useState      |
+| Server errors    | Mutation's `isError`    | Form state    |
 
 ### Validation Responsibility
 
-| Layer | What It Validates | How |
-|-------|-------------------|-----|
-| Form | Field format, required fields | TanStack Form + Zod |
-| Mutation Hook | — | Transforms only, no validation |
-| tRPC Procedure | Full input validation | `.input(schema)` |
+| Layer          | What It Validates             | How                            |
+|----------------|-------------------------------|--------------------------------|
+| Form           | Field format, required fields | TanStack Form + Zod            |
+| Mutation Hook  | —                             | Transforms only, no validation |
+| tRPC Procedure | Full input validation         | `.input(schema)`               |
+
+### Client-Side Validation Pattern
+
+```tsx
+// 1. Define schema in features/{f}/schemas.ts
+export const itemFormSchema = z.object({
+  name: z.string().min(2, "validation:itemName.min"),
+  price: z.string().min(1, "validation:itemPrice.required"),
+});
+
+// 2. Connect to useForm
+const form = useForm({
+  defaultValues: { name: "", price: "" },
+  validators: { onSubmit: itemFormSchema },
+  onSubmit: async ({ value }) => { /* ... */ },
+});
+
+// 3. Field component pattern (accessibility)
+<form.Field name="name">
+  {(field) => {
+    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+    return (
+      <Field data-invalid={isInvalid}>
+        <FieldLabel>{t("fields.name")}</FieldLabel>
+        <Input
+          name={field.name}
+          value={field.state.value}
+          onChange={(e) => field.handleChange(e.target.value)}
+          onBlur={field.handleBlur}
+          aria-invalid={isInvalid}
+        />
+        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+      </Field>
+    );
+  }}
+</form.Field>
+```
+
+| Rule                      | Guideline                                           |
+|---------------------------|-----------------------------------------------------|
+| Schema location           | `features/{f}/schemas.ts`                           |
+| Error messages            | Use `validation:` prefix for i18n keys              |
+| Always include            | `name`, `onBlur`, `aria-invalid`, `data-invalid`    |
+| FieldError component      | Translates `validation:` prefixed messages          |
 
 ---
 
 ## Naming Conventions
 
 **Files:** kebab-case
+
 - `store-form.tsx`, `create-item.ts`
 
 **Functions:**
 
-| Prefix | Use |
-|--------|-----|
-| `get*` | Queries |
-| `create*`, `update*`, `delete*` | Mutations |
-| `is*`, `has*`, `can*` | Boolean checks |
-| `calculate*`, `format*` | Transformations |
-| `use*` | React hooks |
+| Prefix                          | Use             |
+|---------------------------------|-----------------|
+| `get*`                          | Queries         |
+| `create*`, `update*`, `delete*` | Mutations       |
+| `is*`, `has*`, `can*`           | Boolean checks  |
+| `calculate*`, `format*`         | Transformations |
+| `use*`                          | React hooks     |
 
 ---
 
 ## Error Handling
 
-| Layer | Pattern |
-|-------|---------|
-| tRPC procedures | `throw new TRPCError({ code, message })` |
-| Mutations | Toast on error, log to Sentry |
-| Routes | Use `errorComponent` for error boundaries |
-| Components | Try/catch for async operations |
+| Layer           | Pattern                                   |
+|-----------------|-------------------------------------------|
+| tRPC procedures | `throw new TRPCError({ code, message })`  |
+| Mutations       | Toast on error, log to Sentry             |
+| Routes          | Use `errorComponent` for error boundaries |
+| Components      | Try/catch for async operations            |
 
 ---
 
 ## Testing
 
-| Type | Location | Approach |
-|------|----------|----------|
-| API Integration | `apps/api/src/**/*.test.ts` | Real test DB, no mocks |
-| Unit | `**/logic/*.test.ts` | Pure functions, no mocks |
-| Component | `**/*.test.tsx` | Mock tRPC client |
+| Type             | Approach                                        |
+|------------------|-------------------------------------------------|
+| Domain functions | Unit test with mocked dependencies              |
+| Pure logic       | Unit test, no mocks needed                      |
+| Components       | Mock tRPC client                                |
+| Infrastructure   | Integration test with real services (test mode) |
 
 ---
 
 ## Adding a New Feature
 
-1. **Database** → `packages/db/schema/` (if new entity)
-2. **API Schema** → `packages/trpc/schemas/`
-3. **tRPC Router** → `packages/trpc/routers/`
-4. **Queries** → `apps/{app}/src/features/{f}/queries.ts`
-5. **Form Schemas** → `apps/{app}/src/features/{f}/schemas.ts`
-6. **Components** → `apps/{app}/src/features/{f}/components/`
-7. **Route** → `apps/{app}/src/routes/` (thin wiring only)
-8. **Tests** → `logic/*.test.ts`, `*.test.ts`
+See `docs/architecture.md` for detailed folder structure. High-level flow:
+
+1. **Database schema** → `packages/db/schema/`
+2. **Domain logic** → `apps/api/src/domain/{slice}/`
+3. **tRPC router + schema** → `packages/trpc/routers/{domain}/`
+4. **Frontend queries** → `apps/{app}/src/features/{f}/queries.ts`
+5. **Frontend components** → `apps/{app}/src/features/{f}/components/`
+6. **Route** → `apps/{app}/src/routes/` (thin wiring only)

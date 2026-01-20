@@ -13,7 +13,7 @@
  *   const { data } = useQuery(trpc.store.list.queryOptions());
  */
 
-import type { AppRouter } from "@menuvo/trpc";
+import type { AppRouter } from "@menuvo/api/trpc";
 import { QueryClient } from "@tanstack/react-query";
 import {
 	createTRPCClient,
@@ -22,6 +22,7 @@ import {
 	isNonJsonSerializable,
 	splitLink,
 } from "@trpc/client";
+import { createTRPCQueryUtils } from "@trpc/react-query";
 import {
 	createTRPCContext,
 	createTRPCOptionsProxy,
@@ -29,13 +30,8 @@ import {
 import superjson from "superjson";
 import { env } from "../env";
 
-// API URL - in production uses VITE_API_URL, in dev Vite proxies /trpc
-const getBaseUrl = () => {
-	if (typeof window !== "undefined") {
-		return env.VITE_API_URL || "";
-	}
-	return env.VITE_API_URL || "http://localhost:4000";
-};
+// API URL - defaults are set in env.ts
+const getBaseUrl = () => env.VITE_API_URL;
 
 /**
  * Custom fetch that includes credentials for cross-origin cookie support.
@@ -121,3 +117,14 @@ export const trpc = createTRPCOptionsProxy<AppRouter>({
 	client: trpcClient,
 	queryClient,
 });
+
+/**
+ * Query utils for route loaders (provides .fetch(), .ensureData(), etc.)
+ * Use: trpcUtils.store.getWithDetails.ensureData({ storeId })
+ */
+export const trpcUtils = createTRPCQueryUtils({
+	client: trpcClient,
+	queryClient,
+});
+
+export type TrpcProxy = typeof trpc;

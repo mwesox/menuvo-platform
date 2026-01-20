@@ -1,4 +1,12 @@
 {
+	"nav": {
+		"business": "Business",
+		"language": "Language",
+		"payments": "Payments",
+		"ai": "Upselling",
+		"staff": "Staff & Permissions",
+		"brand": "Branding"
+	},
 	"pageTitle": "Merchant Settings",
 	"storePageTitle": "Store Settings",
 	"pageDescription": "Settings for {{merchantName}}",
@@ -25,6 +33,10 @@
 		"brand": {
 			"title": "Branding",
 			"description": "Customize your shop appearance"
+		},
+		"aiRecommendations": {
+			"title": "Upselling",
+			"description": "Product suggestions at checkout"
 		},
 		"comingSoon": "Coming Soon"
 	},
@@ -78,7 +90,7 @@
 		"noAddressConfigured": "No address configured"
 	},
 	"placeholders": {
-		"closureReason": "e.g., Holiday, Vacation, Renovation",
+		"closureReason": "Reason for closure",
 		"pickDate": "Pick a date"
 	},
 	"actions": {
@@ -293,8 +305,43 @@
 				}
 			},
 			"actions": {
-				"completeVerification": "Complete Verification"
+				"completeVerification": "Complete Verification",
+				"manageDashboard": "Open Mollie Dashboard"
 			}
 		}
+	},
+	"aiRecommendations": {
+		"title": "Upselling",
+		"description": "Configure product suggestions that appear at checkout to help customers discover complementary items.",
+		"storeContext": "Configuring upselling for {{storeName}}",
+		"enableToggle": "Enable Upselling",
+		"enableDescription": "Show product suggestions at checkout based on cart contents",
+		"toneLabel": "Suggestion Style",
+		"toneHint": "Choose how suggestions are presented to your guests.",
+		"previewLabel": "Preview",
+		"tones": {
+			"professional": {
+				"label": "Elegant",
+				"subtitle": "Fine Dining",
+				"exampleTitle": "Recommended with your order",
+				"exampleReason": "Recommended by the sommelier"
+			},
+			"friendly": {
+				"label": "Friendly",
+				"subtitle": "Café & Bistro",
+				"exampleTitle": "This goes perfectly with it!",
+				"exampleReason": "Our guests love this combo!"
+			},
+			"playful": {
+				"label": "Casual",
+				"subtitle": "Fast Food & Casual",
+				"exampleTitle": "Your pizza wants company!",
+				"exampleReason": "Pizza's best friend!"
+			}
+		},
+		"pairingRulesLabel": "Pairing Rules",
+		"rulePlaceholder": "e.g. Pair pizza with cola or beer",
+		"pairingRulesHint": "Add rules to define which items pair well together. Be specific about combinations.",
+		"addRule": "Add Rule"
 	}
 }

@@ -11,7 +11,7 @@ export function Footer() {
 	const currentYear = new Date().getFullYear();
 
 	return (
-		<footer className="mt-auto border-zinc-200 border-t bg-white dark:border-zinc-800 dark:bg-zinc-950">
+		<footer className="mt-auto border-border border-t bg-background">
 			<div className="px-4 py-6 lg:px-6">
 				<nav
 					aria-label={t("footer.dataProtection")}
@@ -21,7 +21,7 @@ export function Footer() {
 						<a
 							key={link.href}
 							href={link.href}
-							className="text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+							className="text-muted-foreground transition-colors hover:text-foreground"
 						>
 							{t(`footer.${link.labelKey}`)}
 						</a>
@@ -30,12 +30,12 @@ export function Footer() {
 
 				<Separator className="my-4" />
 
-				<div className="flex flex-col items-center gap-2 text-center text-xs text-zinc-500 dark:text-zinc-400">
+				<div className="flex flex-col items-center gap-2 text-center text-muted-foreground text-xs">
 					<p>
 						{t("footer.dpoContact")}:{" "}
 						<a
 							href={`mailto:${t("dpo.email")}`}
-							className="underline hover:text-zinc-900 dark:hover:text-zinc-50"
+							className="underline hover:text-foreground"
 						>
 							{t("dpo.email")}
 						</a>

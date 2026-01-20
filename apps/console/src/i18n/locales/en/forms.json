@@ -15,34 +15,30 @@
 		"category": "Category",
 		"businessName": "Business Name",
 		"storeName": "Store Name",
-		"storeNameRequired": "Store Name *",
-		"streetRequired": "Street Address *",
-		"cityRequired": "City *",
-		"postalCodeRequired": "Postal Code *",
-		"countryRequired": "Country *"
+		"streetAddress": "Street Address"
 	},
 	"placeholders": {
-		"enterName": "Enter name",
-		"enterEmail": "Enter email address",
-		"enterPhone": "Enter phone number",
-		"enterStreet": "Enter street address",
-		"enterCity": "Enter city",
-		"enterPostalCode": "Enter postal code",
+		"enterName": "Your full name",
+		"enterEmail": "Your business email",
+		"enterPhone": "Your phone number",
+		"enterStreet": "Street and number",
+		"enterCity": "Your city",
+		"enterPostalCode": "Your postal code",
 		"selectCountry": "Select country",
 		"selectTimezone": "Select timezone",
 		"selectCurrency": "Select currency",
 		"enterDescription": "Enter description",
 		"enterPrice": "0.00",
 		"selectLanguage": "Select language",
-		"enterBusinessName": "Enter business name",
-		"enterStoreName": "Enter store name",
-		"downtownLocation": "Downtown Location",
-		"mainStreet": "123 Main Street",
-		"berlin": "Berlin",
-		"postalCode10115": "10115",
-		"germany": "Germany",
-		"phoneExample": "+49 123 456 789",
-		"storeEmail": "store@example.com"
+		"enterBusinessName": "Your business name",
+		"enterStoreName": "Name of your store",
+		"downtownLocation": "Name of this store",
+		"mainStreet": "Street and number",
+		"berlin": "Your city",
+		"postalCode10115": "Your postal code",
+		"germany": "Your country",
+		"phoneExample": "Store phone number",
+		"storeEmail": "Store email address"
 	},
 	"validation": {
 		"required": "This field is required",
@@ -52,6 +48,30 @@
 		"maxLength": "Must be no more than {{max}} characters",
 		"invalidFormat": "Invalid format",
 		"mustBePositive": "Must be a positive number",
-		"mustBeNumber": "Must be a number"
+		"mustBeNumber": "Must be a number",
+		"storeName": {
+			"minLength": "Store name must be at least 2 characters",
+			"maxLength": "Store name must be less than 100 characters"
+		},
+		"street": {
+			"required": "Street address is required"
+		},
+		"city": {
+			"required": "City is required"
+		},
+		"postalCode": {
+			"required": "Postal code is required"
+		},
+		"country": {
+			"required": "Country is required"
+		},
+		"phone": {
+			"required": "Phone number is required",
+			"invalid": "Invalid phone number format"
+		},
+		"email": {
+			"required": "Email address is required",
+			"invalid": "Invalid email address"
+		}
 	}
 }

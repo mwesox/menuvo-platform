@@ -1,10 +1,9 @@
-import type { OptionGroup } from "@menuvo/db/schema";
 import { Badge, Checkbox } from "@menuvo/ui";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useDisplayLanguage } from "@/features/menu/contexts/display-language-context";
 import { getDisplayName } from "@/features/menu/logic/display";
-import { optionGroupQueries } from "../options.queries.ts";
+import { useTRPC } from "@/lib/trpc";
 
 interface ItemOptionsSelectorProps {
 	storeId: string;
@@ -18,15 +17,14 @@ export function ItemOptionsSelector({
 	onSelectionChange,
 }: ItemOptionsSelectorProps) {
 	const { t } = useTranslation("menu");
+	const trpc = useTRPC();
 	const language = useDisplayLanguage();
-	const { data: optionGroups } = useSuspenseQuery(
-		optionGroupQueries.byStore(storeId),
+	const { data: optionGroups = [] } = useQuery(
+		trpc.menu.options.listGroups.queryOptions({ storeId }),
 	);
 
 	// Filter to only show active option groups
-	const activeOptionGroups = optionGroups.filter(
-		(group: OptionGroup) => group.isActive,
-	);
+	const activeOptionGroups = optionGroups.filter((group) => group.isActive);
 
 	const handleToggle = (optionGroupId: string, checked: boolean) => {
 		const isCurrentlySelected = selectedOptionGroupIds.includes(optionGroupId);
@@ -57,7 +55,7 @@ export function ItemOptionsSelector({
 
 	return (
 		<div className="space-y-3">
-			{activeOptionGroups.map((group: OptionGroup) => {
+			{activeOptionGroups.map((group) => {
 				const isSelected = selectedOptionGroupIds.includes(group.id);
 
 				return (

@@ -1,12 +1,11 @@
 import { Button } from "@menuvo/ui/components/button";
 import {
-	Drawer,
-	DrawerContent,
-	DrawerDescription,
-	DrawerFooter,
-	DrawerHeader,
-	DrawerTitle,
-} from "@menuvo/ui/components/drawer";
+	Card,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@menuvo/ui/components/card";
 import { useTranslation } from "react-i18next";
 import { useCookieConsentOptional } from "../contexts/cookie-consent-context";
 
@@ -20,26 +19,26 @@ export function CookieBanner() {
 
 	const { showBanner, acceptAll, rejectNonEssential } = cookieConsent;
 
+	if (!showBanner) {
+		return null;
+	}
+
 	return (
-		<Drawer open={showBanner} onOpenChange={() => {}}>
-			<DrawerContent
+		<div className="slide-in-from-bottom fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 animate-in duration-300">
+			<Card
+				className="gap-4 py-4"
 				style={{
 					backgroundColor: "var(--card)",
-					fontFamily: "var(--font-body)",
+					borderColor: "var(--border)",
 				}}
 			>
-				<DrawerHeader className="text-center">
-					<DrawerTitle
-						className="text-foreground"
-						style={{ fontFamily: "var(--font-heading)" }}
-					>
+				<CardHeader className="gap-1 pb-0">
+					<CardTitle className="font-semibold text-base">
 						{t("cookie.bannerTitle")}
-					</DrawerTitle>
-					<DrawerDescription className="text-muted-foreground">
-						{t("cookie.bannerDescription")}
-					</DrawerDescription>
-				</DrawerHeader>
-				<DrawerFooter className="flex-row gap-3">
+					</CardTitle>
+					<CardDescription>{t("cookie.bannerDescription")}</CardDescription>
+				</CardHeader>
+				<CardFooter className="flex gap-3 pt-0">
 					<Button
 						variant="outline"
 						className="flex-1"
@@ -57,8 +56,8 @@ export function CookieBanner() {
 					>
 						{t("cookie.acceptAll")}
 					</Button>
-				</DrawerFooter>
-			</DrawerContent>
-		</Drawer>
+				</CardFooter>
+			</Card>
+		</div>
 	);
 }

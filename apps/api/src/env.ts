@@ -3,15 +3,21 @@ import { z } from "zod";
 
 export const env = createEnv({
 	server: {
-		SERVER_URL: z.string().url().optional(),
+		// Core URLs with dev defaults
+		SERVER_URL: z.string().url().default("http://localhost:4000"),
+		CONSOLE_URL: z.string().url().default("http://localhost:3000"),
 		DATABASE_URL: z.string().url().optional(),
-		// Stripe (deprecated - use Mollie instead)
-		STRIPE_SECRET_KEY: z.string().optional(),
-		STRIPE_WEBHOOK_SECRET: z.string().optional(),
-		STRIPE_WEBHOOK_SECRET_THIN: z.string().optional(),
-		STRIPE_PRICE_STARTER: z.string().optional(),
-		STRIPE_PRICE_PRO: z.string().optional(),
-		STRIPE_PRICE_MAX: z.string().optional(),
+		// Environment
+		NODE_ENV: z
+			.enum(["development", "production", "test"])
+			.default("development"),
+		LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+		// CORS allowed origins (comma-separated list of URLs)
+		ALLOWED_ORIGINS: z
+			.string()
+			.default(
+				"http://localhost:3000,http://localhost:3001,http://localhost:5173",
+			),
 		// OpenRouter AI
 		OPENROUTER_API_KEY: z.string().min(1),
 		// S3-compatible Storage (public images bucket)
@@ -23,17 +29,14 @@ export const env = createEnv({
 		S3_BASE_URL: z.string().url().optional(),
 		// S3 internal files bucket (for imports, not public)
 		S3_FILES_BUCKET: z.string().min(1).optional(),
-		// Encryption (for OAuth tokens)
-		ENCRYPTION_KEY: z.string().min(32).optional(),
+		// Encryption (for OAuth tokens) - 64 hex chars = 32 bytes = 256 bits
+		ENCRYPTION_KEY: z.string().length(64),
 		// Mollie
 		MOLLIE_API_KEY: z.string().min(1).optional(),
 		MOLLIE_CLIENT_ID: z.string().min(1).optional(),
 		MOLLIE_CLIENT_SECRET: z.string().min(1).optional(),
 		MOLLIE_REDIRECT_URI: z.string().url().optional(),
 		MOLLIE_ORG_ACCESS_TOKEN: z.string().min(1).optional(),
-		MOLLIE_PRICE_STARTER: z.string().optional(),
-		MOLLIE_PRICE_PRO: z.string().optional(),
-		MOLLIE_PRICE_MAX: z.string().optional(),
 		MOLLIE_TEST_MODE: z
 			.enum(["true", "false"])
 			.default("true")
@@ -42,10 +45,23 @@ export const env = createEnv({
 			.enum(["true", "false"])
 			.default("false")
 			.transform((v) => v === "true"),
-		// Microsoft Graph Email (Azure AD)
-		EMAIL_TENANT_ID: z.string().min(1).optional(),
-		EMAIL_CLIENT_ID: z.string().min(1).optional(),
-		EMAIL_CLIENT_SECRET: z.string().min(1).optional(),
+		// SMTP Email
+		SMTP_HOST: z.string().min(1).optional(),
+		SMTP_PORT: z.coerce.number().default(587),
+		SMTP_USER: z.string().min(1).optional(),
+		SMTP_PASSWORD: z.string().min(1).optional(),
+		// Menu Import AI Model
+		MENU_IMPORT_MODEL_ID: z
+			.string()
+			.default("nvidia/nemotron-3-nano-30b-a3b:free"),
+		MENU_IMPORT_MODEL_STRUCTURED: z
+			.enum(["true", "false"])
+			.default("false")
+			.transform((v) => v === "true"),
+		// AI Recommendations Model
+		AI_RECOMMENDATIONS_MODEL_ID: z
+			.string()
+			.default("openai/gpt-oss-safeguard-20b"),
 	},
 
 	/**
@@ -53,13 +69,11 @@ export const env = createEnv({
 	 */
 	runtimeEnv: {
 		SERVER_URL: process.env.SERVER_URL,
+		CONSOLE_URL: process.env.CONSOLE_URL,
 		DATABASE_URL: process.env.DATABASE_URL,
-		STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-		STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-		STRIPE_WEBHOOK_SECRET_THIN: process.env.STRIPE_WEBHOOK_SECRET_THIN,
-		STRIPE_PRICE_STARTER: process.env.STRIPE_PRICE_STARTER,
-		STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO,
-		STRIPE_PRICE_MAX: process.env.STRIPE_PRICE_MAX,
+		NODE_ENV: process.env.NODE_ENV,
+		LOG_LEVEL: process.env.LOG_LEVEL,
+		ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
 		OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
 		// S3-compatible Storage
 		S3_ENDPOINT: process.env.S3_ENDPOINT,
@@ -77,15 +91,18 @@ export const env = createEnv({
 		MOLLIE_CLIENT_SECRET: process.env.MOLLIE_CLIENT_SECRET,
 		MOLLIE_REDIRECT_URI: process.env.MOLLIE_REDIRECT_URI,
 		MOLLIE_ORG_ACCESS_TOKEN: process.env.MOLLIE_ORG_ACCESS_TOKEN,
-		MOLLIE_PRICE_STARTER: process.env.MOLLIE_PRICE_STARTER,
-		MOLLIE_PRICE_PRO: process.env.MOLLIE_PRICE_PRO,
-		MOLLIE_PRICE_MAX: process.env.MOLLIE_PRICE_MAX,
 		MOLLIE_TEST_MODE: process.env.MOLLIE_TEST_MODE,
 		MOLLIE_SKIP_ONBOARDING_CHECK: process.env.MOLLIE_SKIP_ONBOARDING_CHECK,
-		// Microsoft Graph Email
-		EMAIL_TENANT_ID: process.env.EMAIL_TENANT_ID,
-		EMAIL_CLIENT_ID: process.env.EMAIL_CLIENT_ID,
-		EMAIL_CLIENT_SECRET: process.env.EMAIL_CLIENT_SECRET,
+		// SMTP Email
+		SMTP_HOST: process.env.SMTP_HOST,
+		SMTP_PORT: process.env.SMTP_PORT,
+		SMTP_USER: process.env.SMTP_USER,
+		SMTP_PASSWORD: process.env.SMTP_PASSWORD,
+		// Menu Import AI Model
+		MENU_IMPORT_MODEL_ID: process.env.MENU_IMPORT_MODEL_ID,
+		MENU_IMPORT_MODEL_STRUCTURED: process.env.MENU_IMPORT_MODEL_STRUCTURED,
+		// AI Recommendations Model
+		AI_RECOMMENDATIONS_MODEL_ID: process.env.AI_RECOMMENDATIONS_MODEL_ID,
 	},
 
 	emptyStringAsUndefined: true,
