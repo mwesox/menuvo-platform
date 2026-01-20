@@ -1,0 +1,28 @@
+# Dependencies - reinstall in container for correct platform
+node_modules
+**/node_modules
+
+# Build outputs
+dist
+**/dist
+.turbo
+**/.turbo
+
+# Development files
+.git
+.gitignore
+*.md
+!README.md
+.env*
+.vscode
+.idea
+
+# Test files
+**/*.test.ts
+**/*.spec.ts
+**/test/
+**/tests/
+**/__tests__/
+
+# Archive
+_archive

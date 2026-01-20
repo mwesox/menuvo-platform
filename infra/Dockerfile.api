@@ -8,6 +8,9 @@
 FROM oven/bun:1-alpine AS builder
 WORKDIR /app
 
+# Install build dependencies for native modules (sharp)
+RUN apk add --no-cache vips-dev build-base python3
+
 # Copy workspace root files
 COPY package.json bun.lock turbo.json ./
 
@@ -20,8 +23,8 @@ COPY apps/console/package.json ./apps/console/
 COPY apps/shop/package.json ./apps/shop/
 COPY apps/business/package.json ./apps/business/
 
-# Install all dependencies
-RUN bun install --frozen-lockfile
+# Install all dependencies (without frozen-lockfile for cross-platform native modules)
+RUN bun install
 
 # Copy source code (includes drizzle.config.ts in packages/db)
 COPY packages/db ./packages/db
