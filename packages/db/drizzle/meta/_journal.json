@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1768949611370,
-      "tag": "0000_careful_gargoyle",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1768987877565,
-      "tag": "0001_chubby_gravity",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1769006656704,
-      "tag": "0002_nebulous_warlock",
+      "when": 1769018740650,
+      "tag": "0000_heavy_ravenous",
       "breakpoints": true
     }
   ]
