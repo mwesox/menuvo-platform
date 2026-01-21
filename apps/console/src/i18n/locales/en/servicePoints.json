@@ -7,6 +7,8 @@
 	},
 	"descriptions": {
 		"manageServicePoints": "Manage QR codes for tables, counters, and other service locations.",
+		"createServicePoint": "Create a new service point for your store. Each service point gets a unique QR code.",
+		"editServicePoint": "Update the service point details.",
 		"createDescription": "Create a new service point for your store. Each service point gets a unique QR code.",
 		"editDescription": "Update the service point details.",
 		"deleteDescription": "This will permanently delete this service point and its QR code. Any existing printed QR codes will stop working. This action cannot be undone.",
@@ -53,7 +55,8 @@
 		"delete": "Delete",
 		"edit": "Edit",
 		"batchCreate": "Batch Create",
-		"zones": "Zones"
+		"zones": "Zones",
+		"backToList": "Back to Service Points"
 	},
 	"attributeTypes": {
 		"text": "text",

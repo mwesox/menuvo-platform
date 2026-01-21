@@ -2,8 +2,8 @@
  * Main Kitchen Monitor page component.
  */
 
+import { Box, Flex, HStack, Text, VStack } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
-import { TooltipProvider } from "@menuvo/ui";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import { Store } from "lucide-react";
@@ -11,7 +11,6 @@ import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
 import type { OrderWithItems } from "@/features/orders/types";
 import { useTRPC } from "@/lib/trpc";
-import { cn } from "@/lib/utils";
 import { useAudioPermission } from "../hooks/use-audio-permission";
 import { useKitchenBoard } from "../hooks/use-kitchen-board";
 import { useOrderNotifications } from "../hooks/use-order-notifications";
@@ -78,52 +77,48 @@ export function KitchenPage({ search, loaderData }: KitchenPageProps) {
 	// No stores available
 	if (stores.length === 0) {
 		return (
-			<TooltipProvider>
-				<div className="flex h-full flex-col">
-					<PageActionBar title={t("title")} />
-					<div className="flex flex-1 items-center justify-center">
-						<div className="flex flex-col items-center gap-2 text-muted-foreground">
-							<Store className="size-12" />
-							<p>{t("noStores")}</p>
-						</div>
-					</div>
-				</div>
-			</TooltipProvider>
+			<Flex direction="column" height="100%">
+				<PageActionBar title={t("title")} />
+				<Flex flex="1" align="center" justify="center">
+					<VStack gap="2" color="fg.muted">
+						<Store size={48} />
+						<Text>{t("noStores")}</Text>
+					</VStack>
+				</Flex>
+			</Flex>
 		);
 	}
 
 	// Build actions for action bar
 	const actions = (
-		<div className="flex flex-wrap items-center gap-2">
+		<HStack gap="2" wrap="wrap">
 			<AudioControl
 				onRequestPermission={requestPermission}
 				onPlayTestSound={playNotification}
 			/>
 			<ConnectionStatus />
-		</div>
+		</HStack>
 	);
 
 	return (
-		<TooltipProvider>
-			<div
-				className={cn(
-					"flex h-full flex-col",
-					alertActive && "kitchen-alert-active",
-				)}
-			>
-				<PageActionBar title={t("title")} actions={actions} />
+		<Box
+			display="flex"
+			flexDirection="column"
+			height="100%"
+			className={alertActive ? "kitchen-alert-active" : undefined}
+		>
+			<PageActionBar title={t("title")} actions={actions} />
 
-				<div className="flex-1 overflow-hidden p-4">
-					<KanbanBoard
-						columns={columns}
-						storeId={storeId}
-						moveCard={moveCard}
-						moveToNext={moveToNext}
-						canDrop={canDrop}
-						lastMovedOrderId={lastMovedOrderId}
-					/>
-				</div>
-			</div>
-		</TooltipProvider>
+			<Box flex="1" overflow="hidden" p="4">
+				<KanbanBoard
+					columns={columns}
+					storeId={storeId}
+					moveCard={moveCard}
+					moveToNext={moveToNext}
+					canDrop={canDrop}
+					lastMovedOrderId={lastMovedOrderId}
+				/>
+			</Box>
+		</Box>
 	);
 }

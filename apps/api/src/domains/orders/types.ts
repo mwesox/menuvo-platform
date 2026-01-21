@@ -93,6 +93,15 @@ export interface OrderStats {
 }
 
 /**
+ * Daily order statistics for charts
+ */
+export interface DailyOrderStats {
+	date: string; // ISO date string (YYYY-MM-DD)
+	orders: number;
+	revenue: number; // In cents
+}
+
+/**
  * Export order format
  */
 export interface ExportOrder {

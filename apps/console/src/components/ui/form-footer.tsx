@@ -1,4 +1,4 @@
-import { Button, LoadingButton } from "@menuvo/ui";
+import { Button, HStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 
 interface FormFooterProps {
@@ -32,7 +32,7 @@ export function FormFooter({
 	onSubmit,
 }: FormFooterProps) {
 	return (
-		<>
+		<HStack gap="3" justify="flex-end">
 			{onCancel && (
 				<Button type="button" variant="outline" onClick={onCancel}>
 					{cancelLabel}
@@ -42,15 +42,15 @@ export function FormFooter({
 			{primaryAction ? (
 				primaryAction
 			) : (
-				<LoadingButton
+				<Button
 					type={onSubmit ? "button" : "submit"}
 					onClick={onSubmit}
-					isLoading={isLoading}
+					loading={isLoading}
 					loadingText={loadingLabel}
 				>
 					{primaryLabel}
-				</LoadingButton>
+				</Button>
 			)}
-		</>
+		</HStack>
 	);
 }

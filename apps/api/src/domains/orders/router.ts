@@ -22,6 +22,7 @@ import {
 	cancelOrderSchema,
 	createOrderSchema,
 	createRefundSchema,
+	getDailyStatsSchema,
 	getOrderByIdSchema,
 	getOrderStatsSchema,
 	getOrdersForExportSchema,
@@ -466,6 +467,33 @@ export const orderRouter = router({
 						startDate: input.startDate,
 						endDate: input.endDate,
 					},
+				);
+			} catch (error) {
+				if (error instanceof Error) {
+					if (error.message.includes("access")) {
+						throw new TRPCError({
+							code: "FORBIDDEN",
+							message: error.message,
+						});
+					}
+				}
+				throw error;
+			}
+		}),
+
+	/**
+	 * Get daily order statistics for charts (store owner only)
+	 * Returns daily order counts and revenue for the specified date range
+	 */
+	getDailyStats: storeOwnerProcedure
+		.input(getDailyStatsSchema)
+		.query(async ({ ctx, input }) => {
+			try {
+				return await ctx.services.orders.getDailyOrderStats(
+					input.storeId,
+					ctx.session.merchantId,
+					input.startDate,
+					input.endDate,
 				);
 			} catch (error) {
 				if (error instanceof Error) {

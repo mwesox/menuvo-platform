@@ -1,14 +1,22 @@
+import {
+	Box,
+	Card,
+	HStack,
+	Icon,
+	Switch,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
-import { Button, Switch } from "@menuvo/ui";
-import { cn } from "@menuvo/ui/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { inferRouterInputs } from "@trpc/server";
 import { ShoppingBag, Truck, UtensilsCrossed } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ContentSection } from "@/components/ui/content-section";
+import { SettingsFormFooter } from "@/components/layout/settings-form-footer";
+import { FormSection } from "@/components/ui/form-section";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 interface StoreOrderTypesFormProps {
@@ -25,7 +33,7 @@ interface OrderTypeFormValue {
 
 interface OrderTypeConfig {
 	key: OrderTypeKey;
-	icon: React.ComponentType<{ className?: string }>;
+	icon: React.ComponentType<{ style?: React.CSSProperties }>;
 }
 
 const ORDER_TYPE_CONFIG: OrderTypeConfig[] = [
@@ -36,7 +44,6 @@ const ORDER_TYPE_CONFIG: OrderTypeConfig[] = [
 
 export function StoreOrderTypesForm({ storeId }: StoreOrderTypesFormProps) {
 	const { t } = useTranslation("stores");
-	const { t: tCommon } = useTranslation("common");
 	const { t: tToasts } = useTranslation("toasts");
 	const trpc = useTRPC();
 	const trpcClient = useTRPCClient();
@@ -106,6 +113,12 @@ export function StoreOrderTypesForm({ storeId }: StoreOrderTypesFormProps) {
 		},
 	});
 
+	// Reset form when settings change
+	useEffect(() => {
+		form.reset(defaultValues);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [defaultValues]);
+
 	const getOrderTypeLabel = (key: OrderTypeKey): string => {
 		const labels: Record<OrderTypeKey, string> = {
 			dine_in: t("orderTypes.dine_in"),
@@ -130,64 +143,94 @@ export function StoreOrderTypesForm({ storeId }: StoreOrderTypesFormProps) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="space-y-8"
 		>
-			<ContentSection
-				title={t("orderTypes.title")}
-				description={t("orderTypes.description")}
-			>
-				<div className="space-y-3">
-					{ORDER_TYPE_CONFIG.map(({ key, icon: Icon }) => (
-						<form.Field key={key} name={key}>
-							{(field) => (
-								<label
-									htmlFor={`order-type-${key}`}
-									className={cn(
-										"flex cursor-pointer items-center gap-4 rounded-lg border p-4 transition-colors",
-										field.state.value
-											? "border-primary/50 bg-primary/5"
-											: "border-border bg-background hover:bg-muted/50",
-									)}
-								>
-									<div
-										className={cn(
-											"flex size-10 shrink-0 items-center justify-center rounded-lg",
-											field.state.value
-												? "bg-primary/10 text-primary"
-												: "bg-muted text-muted-foreground",
-										)}
-									>
-										<Icon className="size-5" />
-									</div>
-									<div className="flex-1">
-										<div className="font-medium">{getOrderTypeLabel(key)}</div>
-										<div className="text-muted-foreground text-sm">
-											{getOrderTypeDescription(key)}
-										</div>
-									</div>
-									<Switch
-										id={`order-type-${key}`}
-										checked={field.state.value}
-										onCheckedChange={field.handleChange}
-									/>
-								</label>
-							)}
-						</form.Field>
-					))}
-				</div>
-			</ContentSection>
+			<VStack layerStyle="settingsContent">
+				<FormSection
+					title={t("orderTypes.title")}
+					description={t("orderTypes.description")}
+				>
+					<VStack gap="3" align="stretch">
+						{ORDER_TYPE_CONFIG.map(({ key, icon: IconComponent }) => (
+							<form.Field key={key} name={key}>
+								{(field) => (
+									<Box asChild cursor="pointer">
+										<label htmlFor={`order-type-${key}`}>
+											<Card.Root
+												bg={
+													field.state.value
+														? "colorPalette.primary/5"
+														: "bg.panel"
+												}
+												borderColor={
+													field.state.value
+														? "colorPalette.primary/50"
+														: "border.emphasized"
+												}
+												_hover={{
+													bg: field.state.value
+														? "colorPalette.primary/5"
+														: "bg.muted/50",
+												}}
+											>
+												<Card.Body>
+													<HStack gap="4" align="center">
+														<Box
+															display="flex"
+															w="10"
+															h="10"
+															flexShrink="0"
+															alignItems="center"
+															justifyContent="center"
+															rounded="lg"
+															bg={
+																field.state.value
+																	? "colorPalette.primary/10"
+																	: "bg.muted"
+															}
+															color={
+																field.state.value
+																	? "colorPalette.primary"
+																	: "fg.muted"
+															}
+														>
+															<Icon fontSize="lg">
+																<IconComponent />
+															</Icon>
+														</Box>
+														<VStack align="start" gap="0" flex="1">
+															<Text fontWeight="medium">
+																{getOrderTypeLabel(key)}
+															</Text>
+															<Text color="fg.muted" textStyle="sm">
+																{getOrderTypeDescription(key)}
+															</Text>
+														</VStack>
+														<Switch.Root
+															id={`order-type-${key}`}
+															checked={field.state.value}
+															onCheckedChange={(e) =>
+																field.handleChange(e.checked)
+															}
+															colorPalette="red"
+														>
+															<Switch.HiddenInput />
+															<Switch.Control />
+														</Switch.Root>
+													</HStack>
+												</Card.Body>
+											</Card.Root>
+										</label>
+									</Box>
+								)}
+							</form.Field>
+						))}
+					</VStack>
+				</FormSection>
 
-			<div className="flex justify-end border-t pt-6">
 				<form.Subscribe selector={(state) => state.isSubmitting}>
-					{(isSubmitting) => (
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting
-								? tCommon("states.saving")
-								: tCommon("buttons.saveChanges")}
-						</Button>
-					)}
+					{(isSubmitting) => <SettingsFormFooter isSubmitting={isSubmitting} />}
 				</form.Subscribe>
-			</div>
+			</VStack>
 		</form>
 	);
 }

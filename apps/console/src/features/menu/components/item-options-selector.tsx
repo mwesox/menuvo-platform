@@ -1,4 +1,4 @@
-import { Badge, Checkbox } from "@menuvo/ui";
+import { Badge, Box, Checkbox, Text, VStack } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useDisplayLanguage } from "@/features/menu/contexts/display-language-context";
@@ -45,44 +45,47 @@ export function ItemOptionsSelector({
 
 	if (activeOptionGroups.length === 0) {
 		return (
-			<div className="rounded-lg border border-dashed p-6 text-center">
-				<p className="text-muted-foreground text-sm">
+			<Box
+				rounded="lg"
+				borderWidth="1px"
+				borderStyle="dashed"
+				p="6"
+				textAlign="center"
+			>
+				<Text color="fg.muted" textStyle="sm">
 					{t("optionGroups.noOptionGroupsYet")}
-				</p>
-			</div>
+				</Text>
+			</Box>
 		);
 	}
 
 	return (
-		<div className="space-y-3">
+		<VStack gap="3" align="stretch">
 			{activeOptionGroups.map((group) => {
 				const isSelected = selectedOptionGroupIds.includes(group.id);
 
 				return (
-					<div key={group.id} className="flex items-center gap-3">
-						<Checkbox
-							id={group.id}
-							checked={isSelected}
-							onCheckedChange={(checked) =>
-								handleToggle(group.id, checked === true)
-							}
-						/>
-						<label
-							htmlFor={group.id}
-							className="flex cursor-pointer items-center gap-2"
-						>
-							<span className="font-medium">
-								{getDisplayName(group.translations, language)}
-							</span>
-							{group.isRequired && (
-								<Badge variant="destructive">
-									{t("optionGroups.required")}
-								</Badge>
-							)}
-						</label>
-					</div>
+					<Checkbox.Root
+						key={group.id}
+						id={group.id}
+						checked={isSelected}
+						onCheckedChange={(e) => handleToggle(group.id, e.checked === true)}
+					>
+						<Checkbox.HiddenInput />
+						<Checkbox.Control />
+						<Checkbox.Label>
+							<Box display="flex" alignItems="center" gap="2">
+								<Text fontWeight="medium">
+									{getDisplayName(group.translations, language)}
+								</Text>
+								{group.isRequired && (
+									<Badge colorPalette="red">{t("optionGroups.required")}</Badge>
+								)}
+							</Box>
+						</Checkbox.Label>
+					</Checkbox.Root>
 				);
 			})}
-		</div>
+		</VStack>
 	);
 }

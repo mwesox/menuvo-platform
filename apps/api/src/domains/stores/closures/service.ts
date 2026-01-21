@@ -2,10 +2,15 @@
  * Closures Service
  *
  * Service facade for store closure operations.
+ * Uses JSONB column in store_settings table.
  */
 
 import type { Database } from "@menuvo/db";
-import { storeClosures, stores } from "@menuvo/db/schema";
+import {
+	type StoreClosuresConfig,
+	storeSettings,
+	stores,
+} from "@menuvo/db/schema";
 import { eq } from "drizzle-orm";
 import {
 	ForbiddenError,
@@ -13,10 +18,16 @@ import {
 	ValidationError,
 } from "../../errors.js";
 import type { IClosuresService } from "./interface.js";
-import type { CreateClosureInput, UpdateClosureInput } from "./types.js";
+import type {
+	CreateClosureInput,
+	DeleteClosureInput,
+	GetClosureByIdInput,
+	StoreClosureOutput,
+	UpdateClosureInput,
+} from "./types.js";
 
 /**
- * Closures service implementation
+ * Closures service implementation using JSONB storage
  */
 export class ClosuresService implements IClosuresService {
 	private readonly db: Database;
@@ -25,175 +36,255 @@ export class ClosuresService implements IClosuresService {
 		this.db = db;
 	}
 
-	async list(storeId: string, merchantId: string) {
-		// Verify store ownership
+	/**
+	 * Verify store ownership and return the store
+	 */
+	private async verifyStoreOwnership(
+		storeId: string,
+		merchantId: string,
+	): Promise<void> {
 		const store = await this.db.query.stores.findFirst({
 			where: eq(stores.id, storeId),
 			columns: { id: true, merchantId: true },
 		});
 
-		if (!store || store.merchantId !== merchantId) {
-			throw new ForbiddenError("You do not have access to this store");
+		if (!store) {
+			throw new NotFoundError("Store not found");
 		}
 
-		const closures = await this.db.query.storeClosures.findMany({
-			where: eq(storeClosures.storeId, storeId),
-			orderBy: (c, { asc }) => [asc(c.startDate)],
-		});
-
-		return closures;
+		if (store.merchantId !== merchantId) {
+			throw new ForbiddenError("You do not have access to this store");
+		}
 	}
 
-	async getById(closureId: string, merchantId: string) {
-		const closure = await this.db.query.storeClosures.findFirst({
-			where: eq(storeClosures.id, closureId),
-			with: {
-				store: {
-					columns: { merchantId: true },
-				},
-			},
+	/**
+	 * Get closures from storeSettings for a specific store
+	 */
+	private async getClosuresForStore(
+		storeId: string,
+	): Promise<StoreClosuresConfig> {
+		const settings = await this.db.query.storeSettings.findFirst({
+			where: eq(storeSettings.storeId, storeId),
+			columns: { closures: true },
 		});
+		return settings?.closures ?? [];
+	}
+
+	async list(
+		storeId: string,
+		merchantId: string,
+	): Promise<StoreClosureOutput[]> {
+		await this.verifyStoreOwnership(storeId, merchantId);
+
+		const closures = await this.getClosuresForStore(storeId);
+
+		// Sort by start date
+		return closures
+			.map((c) => ({
+				id: c.id,
+				startDate: c.startDate,
+				endDate: c.endDate,
+				reason: c.reason,
+			}))
+			.sort((a, b) => a.startDate.localeCompare(b.startDate));
+	}
+
+	async getById(
+		input: GetClosureByIdInput,
+		merchantId: string,
+	): Promise<StoreClosureOutput> {
+		await this.verifyStoreOwnership(input.storeId, merchantId);
+
+		const closures = await this.getClosuresForStore(input.storeId);
+		const closure = closures.find((c) => c.id === input.closureId);
 
 		if (!closure) {
 			throw new NotFoundError("Closure not found");
 		}
 
-		if (closure.store.merchantId !== merchantId) {
-			throw new ForbiddenError("You do not have access to this closure");
-		}
-
-		// Return closure without the nested store relation
-		const { store: _, ...closureData } = closure;
-		return closureData;
+		return {
+			id: closure.id,
+			startDate: closure.startDate,
+			endDate: closure.endDate,
+			reason: closure.reason,
+		};
 	}
 
-	async create(input: CreateClosureInput) {
-		// Check for overlapping closures
-		const existingClosures = await this.db.query.storeClosures.findMany({
-			where: eq(storeClosures.storeId, input.storeId),
-		});
+	async create(
+		input: CreateClosureInput,
+		merchantId: string,
+	): Promise<StoreClosureOutput> {
+		// Verify store ownership at service layer for defense in depth
+		await this.verifyStoreOwnership(input.storeId, merchantId);
 
-		const newStart = new Date(input.startDate);
-		const newEnd = new Date(input.endDate);
+		// Use transaction to prevent race conditions
+		return await this.db.transaction(async (tx) => {
+			// Get existing closures within transaction
+			const settings = await tx.query.storeSettings.findFirst({
+				where: eq(storeSettings.storeId, input.storeId),
+				columns: { closures: true },
+			});
 
-		for (const existing of existingClosures) {
-			const existStart = new Date(existing.startDate);
-			const existEnd = new Date(existing.endDate);
+			const existingClosures = settings?.closures ?? [];
 
-			if (newStart <= existEnd && newEnd >= existStart) {
-				throw new ValidationError(
-					`This closure overlaps with an existing closure (${existing.startDate} to ${existing.endDate})`,
-				);
+			// Check for overlapping closures
+			const newStart = new Date(input.startDate);
+			const newEnd = new Date(input.endDate);
+
+			for (const existing of existingClosures) {
+				const existStart = new Date(existing.startDate);
+				const existEnd = new Date(existing.endDate);
+
+				if (newStart <= existEnd && newEnd >= existStart) {
+					throw new ValidationError(
+						`This closure overlaps with an existing closure (${existing.startDate} to ${existing.endDate})`,
+					);
+				}
 			}
-		}
 
-		const [closure] = await this.db
-			.insert(storeClosures)
-			.values({
-				storeId: input.storeId,
+			// Create new closure with UUID
+			const newClosure: StoreClosuresConfig[number] = {
+				id: crypto.randomUUID(),
 				startDate: input.startDate,
 				endDate: input.endDate,
 				reason: input.reason ?? null,
-			})
-			.returning();
+			};
 
-		if (!closure) {
-			throw new ValidationError("Failed to create closure");
-		}
+			// Add to array
+			const updatedClosures: StoreClosuresConfig = [
+				...existingClosures,
+				newClosure,
+			];
 
-		return closure;
+			// Upsert storeSettings with new closures
+			await tx
+				.insert(storeSettings)
+				.values({
+					storeId: input.storeId,
+					closures: updatedClosures,
+				})
+				.onConflictDoUpdate({
+					target: storeSettings.storeId,
+					set: { closures: updatedClosures },
+				});
+
+			return {
+				id: newClosure.id,
+				startDate: newClosure.startDate,
+				endDate: newClosure.endDate,
+				reason: newClosure.reason,
+			};
+		});
 	}
 
 	async update(
-		closureId: string,
-		merchantId: string,
 		input: UpdateClosureInput,
-	) {
-		// Verify ownership
-		const existingClosure = await this.db.query.storeClosures.findFirst({
-			where: eq(storeClosures.id, closureId),
-			with: {
-				store: {
-					columns: { merchantId: true },
-				},
-			},
-		});
+		merchantId: string,
+	): Promise<StoreClosureOutput> {
+		await this.verifyStoreOwnership(input.storeId, merchantId);
 
-		if (!existingClosure) {
-			throw new NotFoundError("Closure not found");
-		}
+		// Use transaction to prevent race conditions
+		return await this.db.transaction(async (tx) => {
+			// Get existing closures within transaction
+			const settings = await tx.query.storeSettings.findFirst({
+				where: eq(storeSettings.storeId, input.storeId),
+				columns: { closures: true },
+			});
 
-		if (existingClosure.store.merchantId !== merchantId) {
-			throw new ForbiddenError("You do not have access to this closure");
-		}
+			const closures = settings?.closures ?? [];
+			const closureIndex = closures.findIndex((c) => c.id === input.closureId);
 
-		// Determine final dates for validation
-		const finalStartDate = input.startDate ?? existingClosure.startDate;
-		const finalEndDate = input.endDate ?? existingClosure.endDate;
-
-		if (new Date(finalEndDate) < new Date(finalStartDate)) {
-			throw new ValidationError("End date must be on or after start date");
-		}
-
-		// Check for overlapping closures (excluding current)
-		const otherClosures = await this.db.query.storeClosures.findMany({
-			where: eq(storeClosures.storeId, existingClosure.storeId),
-		});
-
-		const newStart = new Date(finalStartDate);
-		const newEnd = new Date(finalEndDate);
-
-		for (const other of otherClosures) {
-			if (other.id === closureId) continue;
-
-			const otherStart = new Date(other.startDate);
-			const otherEnd = new Date(other.endDate);
-
-			if (newStart <= otherEnd && newEnd >= otherStart) {
-				throw new ValidationError(
-					`This closure would overlap with an existing closure (${other.startDate} to ${other.endDate})`,
-				);
+			const existingClosure = closures[closureIndex];
+			if (!existingClosure) {
+				throw new NotFoundError("Closure not found");
 			}
-		}
 
-		// Build update object
-		const updateData: Record<string, unknown> = {};
-		if (input.startDate !== undefined) updateData.startDate = input.startDate;
-		if (input.endDate !== undefined) updateData.endDate = input.endDate;
-		if (input.reason !== undefined) updateData.reason = input.reason ?? null;
+			// Determine final dates for validation
+			const finalStartDate = input.startDate ?? existingClosure.startDate;
+			const finalEndDate = input.endDate ?? existingClosure.endDate;
 
-		const [closure] = await this.db
-			.update(storeClosures)
-			.set(updateData)
-			.where(eq(storeClosures.id, closureId))
-			.returning();
+			if (new Date(finalEndDate) < new Date(finalStartDate)) {
+				throw new ValidationError("End date must be on or after start date");
+			}
 
-		if (!closure) {
-			throw new NotFoundError("Closure not found");
-		}
+			// Check for overlapping closures (excluding current)
+			const newStart = new Date(finalStartDate);
+			const newEnd = new Date(finalEndDate);
 
-		return closure;
+			for (const other of closures) {
+				if (other.id === input.closureId) continue;
+
+				const otherStart = new Date(other.startDate);
+				const otherEnd = new Date(other.endDate);
+
+				if (newStart <= otherEnd && newEnd >= otherStart) {
+					throw new ValidationError(
+						`This closure would overlap with an existing closure (${other.startDate} to ${other.endDate})`,
+					);
+				}
+			}
+
+			// Update closure
+			const updatedClosure: StoreClosuresConfig[number] = {
+				id: input.closureId,
+				startDate: finalStartDate,
+				endDate: finalEndDate,
+				reason:
+					input.reason !== undefined
+						? (input.reason ?? null)
+						: existingClosure.reason,
+			};
+
+			// Replace in array
+			const updatedClosures: StoreClosuresConfig = [
+				...closures.slice(0, closureIndex),
+				updatedClosure,
+				...closures.slice(closureIndex + 1),
+			];
+
+			// Update storeSettings
+			await tx
+				.update(storeSettings)
+				.set({ closures: updatedClosures })
+				.where(eq(storeSettings.storeId, input.storeId));
+
+			return {
+				id: updatedClosure.id,
+				startDate: updatedClosure.startDate,
+				endDate: updatedClosure.endDate,
+				reason: updatedClosure.reason,
+			};
+		});
 	}
 
-	async delete(closureId: string, merchantId: string): Promise<void> {
-		// Verify ownership
-		const closure = await this.db.query.storeClosures.findFirst({
-			where: eq(storeClosures.id, closureId),
-			with: {
-				store: {
-					columns: { merchantId: true },
-				},
-			},
+	async delete(input: DeleteClosureInput, merchantId: string): Promise<void> {
+		await this.verifyStoreOwnership(input.storeId, merchantId);
+
+		// Use transaction to prevent race conditions
+		await this.db.transaction(async (tx) => {
+			// Get existing closures within transaction
+			const settings = await tx.query.storeSettings.findFirst({
+				where: eq(storeSettings.storeId, input.storeId),
+				columns: { closures: true },
+			});
+
+			const closures = settings?.closures ?? [];
+			const closureExists = closures.some((c) => c.id === input.closureId);
+
+			if (!closureExists) {
+				throw new NotFoundError("Closure not found");
+			}
+
+			// Remove from array
+			const updatedClosures: StoreClosuresConfig = closures.filter(
+				(c) => c.id !== input.closureId,
+			);
+
+			// Update storeSettings
+			await tx
+				.update(storeSettings)
+				.set({ closures: updatedClosures })
+				.where(eq(storeSettings.storeId, input.storeId));
 		});
-
-		if (!closure) {
-			throw new NotFoundError("Closure not found");
-		}
-
-		if (closure.store.merchantId !== merchantId) {
-			throw new ForbiddenError("You do not have access to this closure");
-		}
-
-		await this.db.delete(storeClosures).where(eq(storeClosures.id, closureId));
 	}
 }

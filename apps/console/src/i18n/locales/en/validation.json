@@ -108,5 +108,31 @@
 		"codeRequired": "Code is required",
 		"codeFormat": "Code can only contain lowercase letters, numbers, and hyphens",
 		"nameRequired": "Name is required"
+	},
+	"companyName": {
+		"min": "Company name must be at least 2 characters",
+		"max": "Company name must be less than 255 characters"
+	},
+	"representativeName": {
+		"min": "Representative name must be at least 2 characters",
+		"max": "Representative name must be less than 255 characters"
+	},
+	"legalFormOther": {
+		"min": "Legal form must be at least 2 characters",
+		"max": "Legal form must be less than 100 characters",
+		"required": "Please specify the legal form"
+	},
+	"registerCourt": {
+		"min": "Register court must be at least 2 characters",
+		"max": "Register court must be less than 100 characters",
+		"required": "Register court is required"
+	},
+	"registerNumber": {
+		"min": "Register number must be at least 2 characters",
+		"max": "Register number must be less than 50 characters",
+		"required": "Register number is required"
+	},
+	"vatId": {
+		"format": "VAT ID must be in format DE followed by 9 digits (e.g., DE123456789)"
 	}
 }

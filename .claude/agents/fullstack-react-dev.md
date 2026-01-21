@@ -25,25 +25,42 @@ Use this agent when:
 - Building React components with TanStack Form
 - Setting up data fetching with TanStack Query
 - Working with Drizzle ORM schemas
-- Adding shadcn/ui components
+- Creating Chakra UI components
 - Creating route loaders and pages
 
 ---
 
 ## Project Stack
 
-| Tool            | Purpose                       |
-|-----------------|-------------------------------|
-| Hono            | API framework                 |
-| tRPC v11        | Type-safe API layer           |
-| TanStack Router | Client routing (Console)      |
-| TanStack Query  | Server state management       |
-| TanStack Form   | Forms with Zod validation     |
-| Drizzle ORM     | PostgreSQL database           |
-| Shadcn/ui       | Component library             |
-| Tailwind CSS v4 | Styling                       |
-| Zustand         | Client state with persist     |
+| Tool            | Purpose                   |
+|-----------------|---------------------------|
+| Hono            | API framework             |
+| tRPC v11        | Type-safe API layer       |
+| TanStack Router | Client routing (Console)  |
+| TanStack Query  | Server state management   |
+| TanStack Form   | Forms with Zod validation |
+| Drizzle ORM     | PostgreSQL database       |
+| Chakra UI v3    | Component library         |
+| Zustand         | Client state with persist |
 | Biome           | Linting (tabs, double quotes) |
+
+---
+
+## Chakra UI Usage
+
+**IMPORTANT: Always use the Chakra MCP tools** when working with UI components:
+
+- `mcp__chakra-ui__get_component_example` - Get usage examples for components
+- `mcp__chakra-ui__get_component_props` - Get component props and variants
+- `mcp__chakra-ui__list_components` - List all available components
+- `mcp__chakra-ui__get_component_templates` - Get pre-built templates/blocks
+- `mcp__chakra-ui__v2_to_v3_code_review` - Review code for Chakra v3 patterns
+
+Import components from Chakra UI:
+
+```tsx
+import { Button, Card, Input, Stack, Text } from "@chakra-ui/react";
+```
 
 ---
 
@@ -68,7 +85,7 @@ menuvo-platform/
 │   │   ├── routers/      # Domain routers (menu/, store/, payments/)
 │   │   ├── middleware/   # tRPC procedure middleware
 │   │   └── context.ts    # Interface definitions only
-│   └── ui/               # Shared shadcn components
+│   └── ui/               # Shared components
 ```
 
 ### Key Rules
@@ -294,10 +311,10 @@ export function useCreateItem() {
       queryClient.invalidateQueries({
         queryKey: trpc.menu.items.list.queryKey({ storeId: variables.storeId })
       });
-      toast.success("Item created");
+      toaster.success({ title: "Item created" });
     },
     onError: (error) => {
-      toast.error(error.message);
+      toaster.error({ title: error.message });
     },
   });
 }
@@ -329,24 +346,6 @@ loader: async ({ context, params }) => {
 
 ---
 
-## Shadcn/ui Components
-
-Import from `@menuvo/ui` (shared package) or local `@/components/ui/`.
-
-```tsx
-import { Button } from "@menuvo/ui/button";
-import { Card, CardHeader, CardContent } from "@menuvo/ui/card";
-import { Input } from "@menuvo/ui/input";
-```
-
-Add new components to the shared package:
-
-```bash
-cd packages/ui && bunx --bun shadcn@latest add <component>
-```
-
----
-
 ## Commands
 
 ```bash
@@ -357,6 +356,7 @@ bun --filter @menuvo/console dev  # Start Console SPA
 bun --filter @menuvo/shop dev     # Start Shop SSR
 
 bun run check                     # Lint + format
+bun run check-types               # Type check
 bun run test                      # Tests
 
 # Database
@@ -378,7 +378,7 @@ bun run db:studio                 # Drizzle Studio
 | Add API schema               | `packages/trpc/routers/{domain}/schemas.ts`                                   |
 | Add domain logic             | `apps/api/src/domain/{slice}/`                                                |
 | Add external service adapter | `apps/api/src/infrastructure/{service}/`                                      |
-| Add UI primitive             | `packages/ui/components/`                                                     |
+| Add UI component             | Use Chakra UI components directly                                             |
 | Add feature UI               | `apps/{app}/src/features/{f}/components/`                                     |
 | Configure queries            | `apps/{app}/src/features/{f}/queries.ts`                                      |
 | Wire up a page               | `apps/{app}/src/routes/`                                                      |
@@ -412,5 +412,5 @@ When completing tasks, provide:
 8. [ ] Keep routers thin - delegate to domain layer
 9. [ ] Use TanStack Form with Zod
 10. [ ] Transform in mutation hooks
-11. [ ] Use shadcn components from @menuvo/ui
+11. [ ] Use Chakra MCP to get component docs
 12. [ ] Use hierarchical API namespaces (menu.categories, not category)

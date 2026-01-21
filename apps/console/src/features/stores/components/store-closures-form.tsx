@@ -1,24 +1,18 @@
-import type { AppRouter } from "@menuvo/api/trpc";
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
 	Button,
-	Calendar,
-	Field,
-	FieldError,
-	FieldLabel,
+	Card,
+	Dialog,
+	HStack,
+	Icon,
+	IconButton,
 	Input,
 	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@menuvo/ui";
+	Portal,
+	Separator,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
@@ -27,9 +21,10 @@ import { CalendarIcon, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ContentSection } from "@/components/ui/content-section";
+import { Calendar } from "@/components/ui/calendar";
+import { FormField } from "@/components/ui/form-field";
+import { FormSection } from "@/components/ui/form-section";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
-import { cn } from "@/lib/utils.ts";
 import { closureFormSchema } from "../schemas";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
@@ -49,16 +44,16 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 	const [editingId, setEditingId] = useState<string | null>(null);
 
 	return (
-		<div className="space-y-8">
-			<ContentSection
+		<VStack layerStyle="settingsContent">
+			<FormSection
 				title={t("sections.closures")}
 				description={t("descriptions.closures")}
 			>
-				<div className="space-y-4">
+				<VStack gap="4" align="stretch">
 					{closures.length === 0 && !isAdding && (
-						<p className="py-4 text-center text-muted-foreground text-sm">
+						<Text textAlign="center" color="fg.muted" textStyle="sm">
 							{t("emptyStates.noClosures")}
-						</p>
+						</Text>
 					)}
 
 					{closures.map((closure: StoreClosure) =>
@@ -87,18 +82,23 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 							onCancel={() => setIsAdding(false)}
 						/>
 					)}
-				</div>
-			</ContentSection>
+				</VStack>
+			</FormSection>
 
 			{!isAdding && editingId === null && (
-				<div className="flex justify-end border-t pt-6">
-					<Button onClick={() => setIsAdding(true)}>
-						<Plus className="me-2 size-4" />
-						{t("actions.addClosure")}
-					</Button>
-				</div>
+				<>
+					<Separator />
+					<HStack justify="flex-end">
+						<Button onClick={() => setIsAdding(true)}>
+							<Icon fontSize="md" me="2">
+								<Plus />
+							</Icon>
+							{t("actions.addClosure")}
+						</Button>
+					</HStack>
+				</>
 			)}
-		</div>
+		</VStack>
 	);
 }
 
@@ -118,7 +118,7 @@ function ClosureListItem({ closure, storeId, onEdit }: ClosureListItemProps) {
 
 	const deleteMutation = useMutation({
 		...trpc.store.closures.delete.mutationOptions(),
-		mutationFn: async (input: { id: string }) =>
+		mutationFn: async (input: { storeId: string; id: string }) =>
 			trpcClient.store.closures.delete.mutate(input),
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -139,43 +139,85 @@ function ClosureListItem({ closure, storeId, onEdit }: ClosureListItemProps) {
 		? format(startDate, "MMM d, yyyy")
 		: `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
 
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
 	return (
-		<div className="flex items-center justify-between rounded-lg border px-4 py-3">
-			<div>
-				<p className="font-medium">{dateDisplay}</p>
-				{closure.reason && (
-					<p className="text-muted-foreground text-sm">{closure.reason}</p>
-				)}
-			</div>
-			<div className="flex items-center gap-2">
-				<Button variant="ghost" size="icon" onClick={onEdit}>
-					<Pencil className="size-4" />
-				</Button>
-				<AlertDialog>
-					<AlertDialogTrigger asChild>
-						<Button variant="ghost" size="icon">
-							<Trash2 className="size-4" />
-						</Button>
-					</AlertDialogTrigger>
-					<AlertDialogContent>
-						<AlertDialogHeader>
-							<AlertDialogTitle>{t("actions.deleteClosure")}</AlertDialogTitle>
-							<AlertDialogDescription>
-								{t("confirmations.deleteClosure")}
-							</AlertDialogDescription>
-						</AlertDialogHeader>
-						<AlertDialogFooter>
-							<AlertDialogCancel>{tCommon("buttons.cancel")}</AlertDialogCancel>
-							<AlertDialogAction
-								onClick={() => deleteMutation.mutate({ id: closure.id })}
+		<>
+			<Card.Root>
+				<Card.Body>
+					<HStack justify="space-between">
+						<VStack align="start" gap="0">
+							<Text fontWeight="medium">{dateDisplay}</Text>
+							{closure.reason && (
+								<Text color="fg.muted" textStyle="sm">
+									{closure.reason}
+								</Text>
+							)}
+						</VStack>
+						<HStack gap="2">
+							<IconButton
+								variant="ghost"
+								size="sm"
+								aria-label="Edit"
+								onClick={onEdit}
 							>
-								{tCommon("buttons.delete")}
-							</AlertDialogAction>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialog>
-			</div>
-		</div>
+								<Icon fontSize="md">
+									<Pencil />
+								</Icon>
+							</IconButton>
+							<IconButton
+								variant="ghost"
+								size="sm"
+								aria-label="Delete"
+								onClick={() => setShowDeleteDialog(true)}
+							>
+								<Icon fontSize="md">
+									<Trash2 />
+								</Icon>
+							</IconButton>
+						</HStack>
+					</HStack>
+				</Card.Body>
+			</Card.Root>
+
+			<Dialog.Root
+				open={showDeleteDialog}
+				onOpenChange={(e) => setShowDeleteDialog(e.open)}
+				role="alertdialog"
+			>
+				<Portal>
+					<Dialog.Backdrop />
+					<Dialog.Positioner>
+						<Dialog.Content>
+							<Dialog.Header>
+								<Dialog.Title>{t("actions.deleteClosure")}</Dialog.Title>
+								<Dialog.Description>
+									{t("confirmations.deleteClosure")}
+								</Dialog.Description>
+							</Dialog.Header>
+							<Dialog.Footer>
+								<Button
+									variant="outline"
+									onClick={() => setShowDeleteDialog(false)}
+								>
+									{tCommon("buttons.cancel")}
+								</Button>
+								<Button
+									colorPalette="red"
+									onClick={() => {
+										deleteMutation.mutate({ storeId, id: closure.id });
+										setShowDeleteDialog(false);
+									}}
+									loading={deleteMutation.isPending}
+								>
+									{tCommon("buttons.delete")}
+								</Button>
+							</Dialog.Footer>
+						</Dialog.Content>
+					</Dialog.Positioner>
+				</Portal>
+			</Dialog.Root>
+		</>
 	);
 }
 
@@ -224,9 +266,10 @@ function ClosureForm({
 	const updateMutation = useMutation({
 		...trpc.store.closures.update.mutationOptions(),
 		mutationFn: async (input: {
+			storeId: string;
 			id: string;
-			startDate: string;
-			endDate: string;
+			startDate?: string;
+			endDate?: string;
 			reason?: string;
 		}) => trpcClient.store.closures.update.mutate(input),
 		onSuccess: () => {
@@ -256,6 +299,7 @@ function ClosureForm({
 		onSubmit: async ({ value }) => {
 			if (closure) {
 				updateMutation.mutate({
+					storeId,
 					id: closure.id,
 					startDate: value.startDate,
 					endDate: value.endDate,
@@ -278,87 +322,77 @@ function ClosureForm({
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="space-y-4 rounded-lg border p-4"
 		>
-			<div className="grid gap-4 sm:grid-cols-2">
-				<form.Field name="startDate">
-					{(field) => {
-						const isInvalid =
-							field.state.meta.isTouched && !field.state.meta.isValid;
-						return (
-							<Field data-invalid={isInvalid}>
-								<FieldLabel>{t("labels.startDate")}</FieldLabel>
-								<DatePicker
-									value={field.state.value}
-									onChange={field.handleChange}
-									onBlur={field.handleBlur}
-									isInvalid={isInvalid}
-								/>
-								{isInvalid && <FieldError errors={field.state.meta.errors} />}
-							</Field>
-						);
-					}}
-				</form.Field>
+			<Card.Root>
+				<Card.Body>
+					<VStack gap="4" align="stretch">
+						<HStack gap="4" flexWrap="wrap">
+							<form.Field name="startDate">
+								{(field) => (
+									<FormField field={field} label={t("labels.startDate")}>
+										<DatePicker
+											value={field.state.value}
+											onChange={field.handleChange}
+											onBlur={field.handleBlur}
+										/>
+									</FormField>
+								)}
+							</form.Field>
 
-				<form.Field name="endDate">
-					{(field) => {
-						const isInvalid =
-							field.state.meta.isTouched && !field.state.meta.isValid;
-						return (
-							<Field data-invalid={isInvalid}>
-								<FieldLabel>{t("labels.endDate")}</FieldLabel>
-								<DatePicker
-									value={field.state.value}
-									onChange={field.handleChange}
-									onBlur={field.handleBlur}
-									isInvalid={isInvalid}
-								/>
-								{isInvalid && <FieldError errors={field.state.meta.errors} />}
-							</Field>
-						);
-					}}
-				</form.Field>
-			</div>
+							<form.Field name="endDate">
+								{(field) => (
+									<FormField field={field} label={t("labels.endDate")}>
+										<DatePicker
+											value={field.state.value}
+											onChange={field.handleChange}
+											onBlur={field.handleBlur}
+										/>
+									</FormField>
+								)}
+							</form.Field>
+						</HStack>
 
-			<form.Field name="reason">
-				{(field) => {
-					const isInvalid =
-						field.state.meta.isTouched && !field.state.meta.isValid;
-					return (
-						<Field data-invalid={isInvalid}>
-							<FieldLabel>
-								{t("labels.reason")} ({tCommon("labels.optional")})
-							</FieldLabel>
-							<Input
-								name={field.name}
-								placeholder={t("placeholders.closureReason")}
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-								aria-invalid={isInvalid}
-							/>
-							{isInvalid && <FieldError errors={field.state.meta.errors} />}
-						</Field>
-					);
-				}}
-			</form.Field>
+						<form.Field name="reason">
+							{(field) => (
+								<FormField
+									field={field}
+									label={`${t("labels.reason")} (${tCommon("labels.optional")})`}
+								>
+									<Input
+										id={field.name}
+										name={field.name}
+										placeholder={t("placeholders.closureReason")}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</FormField>
+							)}
+						</form.Field>
 
-			<div className="flex justify-end gap-2">
-				<Button type="button" variant="outline" onClick={onCancel}>
-					{tCommon("buttons.cancel")}
-				</Button>
-				<form.Subscribe selector={(state) => state.isSubmitting}>
-					{(isSubmitting) => (
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting
-								? tCommon("states.saving")
-								: closure
-									? tCommon("buttons.update")
-									: tCommon("buttons.add")}
-						</Button>
-					)}
-				</form.Subscribe>
-			</div>
+						<HStack justify="flex-end" gap="2">
+							<Button type="button" variant="outline" onClick={onCancel}>
+								{tCommon("buttons.cancel")}
+							</Button>
+							<form.Subscribe selector={(state) => state.isSubmitting}>
+								{(isSubmitting) => (
+									<Button
+										type="submit"
+										disabled={isSubmitting}
+										loading={isSubmitting}
+									>
+										{isSubmitting
+											? tCommon("states.saving")
+											: closure
+												? tCommon("buttons.update")
+												: tCommon("buttons.add")}
+									</Button>
+								)}
+							</form.Subscribe>
+						</HStack>
+					</VStack>
+				</Card.Body>
+			</Card.Root>
 		</form>
 	);
 }
@@ -367,10 +401,9 @@ interface DatePickerProps {
 	value: string;
 	onChange: (value: string) => void;
 	onBlur?: () => void;
-	isInvalid?: boolean;
 }
 
-function DatePicker({ value, onChange, onBlur, isInvalid }: DatePickerProps) {
+function DatePicker({ value, onChange, onBlur }: DatePickerProps) {
 	const { t } = useTranslation("settings");
 	const [open, setOpen] = useState(false);
 	const date = value ? parseISO(value) : undefined;
@@ -382,40 +415,40 @@ function DatePicker({ value, onChange, onBlur, isInvalid }: DatePickerProps) {
 		}
 	};
 
-	const handleOpenChange = (isOpen: boolean) => {
-		setOpen(isOpen);
-		if (!isOpen && onBlur) {
+	const handleOpenChange = (e: { open: boolean }) => {
+		setOpen(e.open);
+		if (!e.open && onBlur) {
 			onBlur();
 		}
 	};
 
 	return (
-		<Popover open={open} onOpenChange={handleOpenChange}>
-			<PopoverTrigger asChild>
+		<Popover.Root open={open} onOpenChange={handleOpenChange}>
+			<Popover.Trigger asChild>
 				<Button
 					variant="outline"
-					aria-invalid={isInvalid}
-					className={cn(
-						"w-full justify-start text-start font-normal",
-						!date && "text-muted-foreground",
-					)}
+					w="full"
+					textStyle="sm"
+					color={!date ? "fg.muted" : undefined}
 				>
-					<CalendarIcon className="me-2 size-4" />
-					{date ? (
-						format(date, "PPP")
-					) : (
-						<span>{t("placeholders.pickDate")}</span>
-					)}
+					<Icon fontSize="md" me="2">
+						<CalendarIcon />
+					</Icon>
+					{date ? format(date, "PPP") : t("placeholders.pickDate")}
 				</Button>
-			</PopoverTrigger>
-			<PopoverContent className="w-auto p-0" align="start">
-				<Calendar
-					mode="single"
-					selected={date}
-					onSelect={handleSelect}
-					initialFocus
-				/>
-			</PopoverContent>
-		</Popover>
+			</Popover.Trigger>
+			<Portal>
+				<Popover.Positioner>
+					<Popover.Content>
+						<Calendar
+							mode="single"
+							selected={date}
+							onSelect={handleSelect}
+							initialFocus
+						/>
+					</Popover.Content>
+				</Popover.Positioner>
+			</Portal>
+		</Popover.Root>
 	);
 }

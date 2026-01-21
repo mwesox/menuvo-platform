@@ -1,12 +1,4 @@
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-	Field,
-	FieldLabel,
-} from "@menuvo/ui";
+import { Card, Field, Text } from "@chakra-ui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -48,25 +40,25 @@ export function StoreImageFields({
 	);
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>{t("titles.storeImages")}</CardTitle>
-				<CardDescription>{t("descriptions.storeImages")}</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<Field>
-					<FieldLabel>{t("fields.storeLogo")}</FieldLabel>
-					<p className="mb-2 text-muted-foreground text-sm">
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>{t("titles.storeImages")}</Card.Title>
+				<Card.Description>{t("descriptions.storeImages")}</Card.Description>
+			</Card.Header>
+			<Card.Body>
+				<Field.Root>
+					<Field.Label>{t("fields.storeLogo")}</Field.Label>
+					<Text mb="2" color="fg.muted" textStyle="sm">
 						{t("hints.storeLogoHint")}
-					</p>
+					</Text>
 					<ImageUploadField
 						value={logoUrl || undefined}
 						onChange={handleLogoChange}
 						merchantId={merchantId}
 						imageType="store_logo"
 					/>
-				</Field>
-			</CardContent>
-		</Card>
+				</Field.Root>
+			</Card.Body>
+		</Card.Root>
 	);
 }

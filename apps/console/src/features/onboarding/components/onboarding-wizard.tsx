@@ -1,10 +1,11 @@
-import { Logo } from "@menuvo/ui";
+import { Box, Flex } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence } from "motion/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Logo } from "@/components/ui/logo";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { useOnboardingWizard } from "../hooks/use-onboarding-wizard";
 import {
@@ -102,12 +103,19 @@ export function OnboardingWizard() {
 	};
 
 	return (
-		<div className="flex min-h-dvh flex-col bg-background">
+		<Flex minH="100dvh" direction="column" bg="bg">
 			{/* Header with logo - in document flow, show on all slides except welcome */}
 			{!wizard.isWelcome && (
-				<header className="flex shrink-0 items-center justify-center py-8 sm:py-10">
+				<Box
+					as="header"
+					flexShrink="0"
+					display="flex"
+					alignItems="center"
+					justifyContent="center"
+					py={{ base: "8", sm: "10" }}
+				>
 					<Logo height={56} />
-				</header>
+				</Box>
 			)}
 
 			{/* Progress bar - only show after welcome and not during navigation */}
@@ -119,7 +127,11 @@ export function OnboardingWizard() {
 			)}
 
 			{/* Slides container - flex-1 when header is shown */}
-			<div className={wizard.isWelcome ? "" : "flex flex-1 flex-col"}>
+			<Box
+				flex={wizard.isWelcome ? undefined : "1"}
+				display={wizard.isWelcome ? undefined : "flex"}
+				flexDirection={wizard.isWelcome ? undefined : "column"}
+			>
 				<AnimatePresence mode="wait" custom={wizard.direction}>
 					{/* Slide 0: Welcome */}
 					{wizard.currentSlide === 0 && (
@@ -210,7 +222,7 @@ export function OnboardingWizard() {
 						/>
 					)}
 				</AnimatePresence>
-			</div>
-		</div>
+			</Box>
+		</Flex>
 	);
 }

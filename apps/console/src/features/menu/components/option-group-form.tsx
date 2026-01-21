@@ -1,25 +1,19 @@
-import type { AppRouter } from "@menuvo/api/trpc";
 import {
+	Box,
 	Button,
 	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
+	createListCollection,
 	Field,
-	FieldError,
-	FieldGroup,
-	FieldLabel,
-	formatPriceModifier,
+	HStack,
 	Input,
-	LoadingButton,
+	Portal,
 	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
+	Text,
 	Textarea,
-} from "@menuvo/ui";
+	VisuallyHidden,
+	VStack,
+} from "@chakra-ui/react";
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -27,6 +21,8 @@ import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { FormField } from "@/components/ui/form-field";
+import { formatPriceModifier } from "@/components/ui/price-input";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { getLocalizedContent } from "../logic/localization";
 import {
@@ -190,138 +186,151 @@ export function OptionGroupForm({
 		},
 	});
 
+	const typeCollection = createListCollection({
+		items: [
+			{ value: "single_select", label: t("optionTypes.singleSelect") },
+			{ value: "multi_select", label: t("optionTypes.multiSelect") },
+			{ value: "quantity_select", label: t("optionTypes.quantitySelect") },
+		],
+	});
+
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>
 					{isEditing ? t("titles.editOptionGroup") : t("titles.addOptionGroup")}
-				</CardTitle>
-				<CardDescription>
+				</Card.Title>
+				<Card.Description>
 					{isEditing
 						? t("dialogs.updateOptionGroupDescription")
 						: t("dialogs.createOptionGroupDescription")}
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
+				</Card.Description>
+			</Card.Header>
+			<Card.Body>
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
 						form.handleSubmit();
 					}}
 				>
-					<FieldGroup>
+					<VStack gap="6" align="stretch">
 						<form.Field name="name">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="option-group-name">
-											{tForms("fields.name")} *
-										</FieldLabel>
-										<Input
-											id="option-group-name"
-											name={field.name}
-											placeholder={t("placeholders.optionGroupName")}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
+							{(field) => (
+								<FormField
+									field={field}
+									label={`${tForms("fields.name")} *`}
+									required
+								>
+									<Input
+										id="option-group-name"
+										name={field.name}
+										placeholder={t("placeholders.optionGroupName")}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</FormField>
+							)}
 						</form.Field>
 
 						<form.Field name="description">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="option-group-description">
-											{tForms("fields.description")}
-										</FieldLabel>
-										<Textarea
-											id="option-group-description"
-											name={field.name}
-											placeholder={t("placeholders.optionGroupDescription")}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											rows={3}
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
+							{(field) => (
+								<FormField field={field} label={tForms("fields.description")}>
+									<Textarea
+										id="option-group-description"
+										name={field.name}
+										placeholder={t("placeholders.optionGroupDescription")}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										rows={3}
+									/>
+								</FormField>
+							)}
 						</form.Field>
 
 						<form.Field name="type">
 							{(field) => (
-								<Field>
-									<FieldLabel htmlFor="option-group-type">
+								<Field.Root>
+									<Field.Label htmlFor="option-group-type">
 										{t("labels.optionGroupType")}
-									</FieldLabel>
-									<Select
-										value={field.state.value}
-										onValueChange={(value) =>
-											field.handleChange(value as OptionGroupType)
+									</Field.Label>
+									<Select.Root
+										collection={typeCollection}
+										value={field.state.value ? [field.state.value] : []}
+										onValueChange={(e) =>
+											field.handleChange((e.value[0] ?? "") as OptionGroupType)
 										}
 									>
-										<SelectTrigger id="option-group-type">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="single_select">
-												{t("optionTypes.singleSelect")}
-											</SelectItem>
-											<SelectItem value="multi_select">
-												{t("optionTypes.multiSelect")}
-											</SelectItem>
-											<SelectItem value="quantity_select">
-												{t("optionTypes.quantitySelect")}
-											</SelectItem>
-										</SelectContent>
-									</Select>
-								</Field>
+										<Select.HiddenSelect />
+										<Select.Control>
+											<Select.Trigger id="option-group-type">
+												<Select.ValueText />
+												<Select.IndicatorGroup>
+													<Select.Indicator />
+												</Select.IndicatorGroup>
+											</Select.Trigger>
+										</Select.Control>
+										<Portal>
+											<Select.Positioner>
+												<Select.Content>
+													{typeCollection.items.map((item) => (
+														<Select.Item key={item.value} item={item}>
+															{item.label}
+															<Select.ItemIndicator />
+														</Select.Item>
+													))}
+												</Select.Content>
+											</Select.Positioner>
+										</Portal>
+									</Select.Root>
+								</Field.Root>
 							)}
 						</form.Field>
-					</FieldGroup>
+					</VStack>
 
 					{/* Choices Section */}
-					<div className="mt-6 space-y-4">
-						<div>
-							<h3 className="font-medium text-sm">{t("labels.choices")}</h3>
-						</div>
+					<Box mt="6">
+						<VStack gap="4" align="stretch">
+							<Text fontWeight="medium" textStyle="sm">
+								{t("labels.choices")}
+							</Text>
 
-						<form.Field name="choices" mode="array">
-							{(field) => (
-								<div className="space-y-2">
-									{field.state.value.length === 0 ? (
-										<p className="py-4 text-center text-muted-foreground text-sm">
-											{t("optionGroups.noChoices")}
-										</p>
-									) : (
-										field.state.value.map((_choice, index) => (
-											<div
-												key={index}
-												className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3"
+							<form.Field name="choices" mode="array">
+								{(field) => (
+									<VStack gap="2" align="stretch">
+										{field.state.value.length === 0 ? (
+											<Text
+												py="4"
+												textAlign="center"
+												color="fg.muted"
+												textStyle="sm"
 											>
-												<div className="flex-1 space-y-3">
-													<form.Field name={`choices[${index}].name`}>
-														{(nameField) => {
-															const isInvalid =
-																nameField.state.meta.isTouched &&
-																!nameField.state.meta.isValid;
-															return (
-																<Field data-invalid={isInvalid}>
+												{t("optionGroups.noChoices")}
+											</Text>
+										) : (
+											field.state.value.map((_choice, index) => (
+												<Box
+													key={index}
+													display="flex"
+													alignItems="flex-start"
+													gap="3"
+													rounded="lg"
+													borderWidth="1px"
+													bg="bg.muted"
+													p="3"
+												>
+													<VStack flex="1" gap="3" align="stretch">
+														<form.Field name={`choices[${index}].name`}>
+															{(nameField) => (
+																<FormField
+																	field={nameField}
+																	label={
+																		<VisuallyHidden>
+																			{t("placeholders.choiceName")}
+																		</VisuallyHidden>
+																	}
+																>
 																	<Input
 																		name={nameField.name}
 																		placeholder={t("placeholders.choiceName")}
@@ -330,85 +339,96 @@ export function OptionGroupForm({
 																			nameField.handleChange(e.target.value)
 																		}
 																		onBlur={nameField.handleBlur}
-																		aria-invalid={isInvalid}
 																	/>
-																	{isInvalid && (
-																		<FieldError
-																			errors={nameField.state.meta.errors}
-																		/>
-																	)}
-																</Field>
-															);
-														}}
-													</form.Field>
-													<div className="flex items-center gap-2">
-														<form.Field
-															name={`choices[${index}].priceModifier`}
-														>
-															{(priceField) => {
-																const cents =
-																	Number.parseInt(priceField.state.value, 10) ||
-																	0;
-																return (
-																	<div className="flex items-center gap-2">
-																		<Input
-																			type="number"
-																			placeholder="0"
-																			value={priceField.state.value}
-																			onChange={(e) =>
-																				priceField.handleChange(e.target.value)
-																			}
-																			onBlur={priceField.handleBlur}
-																			className="w-24"
-																		/>
-																		<span className="text-muted-foreground text-sm">
-																			ct
-																		</span>
-																		<span className="min-w-[70px] text-muted-foreground text-sm tabular-nums">
-																			({formatPriceModifier(cents)})
-																		</span>
-																	</div>
-																);
-															}}
+																</FormField>
+															)}
 														</form.Field>
-													</div>
-												</div>
-												<Button
-													type="button"
-													variant="ghost"
-													size="icon"
-													className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-													onClick={() => field.removeValue(index)}
-												>
-													<Trash2Icon className="size-4" />
-													<span className="sr-only">
-														{tCommon("buttons.delete")}
-													</span>
-												</Button>
-											</div>
-										))
-									)}
-									<Button
-										type="button"
-										variant="outline"
-										size="sm"
-										onClick={() =>
-											field.pushValue({
-												name: "",
-												priceModifier: "0",
-											})
-										}
-										className="mt-2"
-									>
-										<PlusIcon className="mr-1.5 size-4" />
-										{t("actions.addChoice")}
-									</Button>
-								</div>
-							)}
-						</form.Field>
-					</div>
+														<HStack gap="2" alignItems="center">
+															<form.Field
+																name={`choices[${index}].priceModifier`}
+															>
+																{(priceField) => {
+																	const cents =
+																		Number.parseInt(
+																			priceField.state.value,
+																			10,
+																		) || 0;
+																	return (
+																		<HStack gap="2" alignItems="center">
+																			<Input
+																				type="number"
+																				placeholder="0"
+																				value={priceField.state.value}
+																				onChange={(e) =>
+																					priceField.handleChange(
+																						e.target.value,
+																					)
+																				}
+																				onBlur={priceField.handleBlur}
+																				w="24"
+																			/>
+																			<Text color="fg.muted" textStyle="sm">
+																				ct
+																			</Text>
+																			<Text
+																				minW="70px"
+																				color="fg.muted"
+																				textStyle="sm"
+																				fontVariantNumeric="tabular-nums"
+																			>
+																				({formatPriceModifier(cents)})
+																			</Text>
+																		</HStack>
+																	);
+																}}
+															</form.Field>
+														</HStack>
+													</VStack>
+													<Button
+														type="button"
+														variant="ghost"
+														size="sm"
+														colorPalette="red"
+														onClick={() => field.removeValue(index)}
+													>
+														<Trash2Icon
+															style={{ height: "1rem", width: "1rem" }}
+														/>
+														<VisuallyHidden>
+															{tCommon("buttons.delete")}
+														</VisuallyHidden>
+													</Button>
+												</Box>
+											))
+										)}
+										<Button
+											type="button"
+											variant="outline"
+											size="sm"
+											onClick={() =>
+												field.pushValue({
+													name: "",
+													priceModifier: "0",
+												})
+											}
+											mt="2"
+										>
+											<PlusIcon
+												style={{
+													marginRight: "0.375rem",
+													height: "1rem",
+													width: "1rem",
+												}}
+											/>
+											{t("actions.addChoice")}
+										</Button>
+									</VStack>
+								)}
+							</form.Field>
+						</VStack>
+					</Box>
 
-					<div className="mt-6 flex justify-end gap-3">
+					<HStack mt="6" justify="flex-end" gap="3">
 						<Button type="button" variant="outline" asChild>
 							<Link to="/stores/$storeId/menu/options" params={{ storeId }}>
 								{tCommon("buttons.cancel")}
@@ -421,10 +441,10 @@ export function OptionGroupForm({
 							})}
 						>
 							{({ isSubmitting, canSubmit }) => (
-								<LoadingButton
+								<Button
 									type="submit"
 									disabled={!canSubmit}
-									isLoading={isSubmitting}
+									loading={isSubmitting}
 									loadingText={
 										isEditing
 											? tCommon("states.saving")
@@ -434,12 +454,12 @@ export function OptionGroupForm({
 									{isEditing
 										? tCommon("buttons.saveChanges")
 										: t("buttons.createOptionGroup")}
-								</LoadingButton>
+								</Button>
 							)}
 						</form.Subscribe>
-					</div>
+					</HStack>
 				</form>
-			</CardContent>
-		</Card>
+			</Card.Body>
+		</Card.Root>
 	);
 }

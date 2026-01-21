@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, Skeleton } from "@menuvo/ui";
+import { Card, HStack, SimpleGrid, Skeleton, VStack } from "@chakra-ui/react";
 import {
 	CardFormSkeleton,
 	PageActionBarSkeleton,
@@ -9,38 +9,38 @@ import {
  */
 export function StoreCardSkeleton() {
 	return (
-		<Card className="h-full overflow-hidden">
-			<CardHeader className="pb-4">
-				<div className="flex items-start gap-4">
+		<Card.Root h="full" overflow="hidden">
+			<Card.Header pb="4">
+				<HStack align="flex-start" gap="4">
 					{/* Icon */}
-					<Skeleton className="size-12 shrink-0 rounded-lg" />
-					<div className="flex-1 space-y-2">
+					<Skeleton h="12" w="12" flexShrink="0" rounded="lg" />
+					<VStack flex="1" gap="2" align="stretch">
 						{/* Store name */}
-						<Skeleton className="h-6 w-3/4" />
+						<Skeleton h="6" w="3/4" />
 						{/* Address */}
-						<div className="flex items-start gap-1.5">
-							<Skeleton className="mt-0.5 size-4 shrink-0 rounded-full" />
-							<div className="space-y-1">
-								<Skeleton className="size-40" />
-								<Skeleton className="h-4 w-32" />
-							</div>
-						</div>
-					</div>
-				</div>
-			</CardHeader>
-			<CardContent className="pt-0">
-				<div className="grid grid-cols-2 gap-4">
-					<div className="flex items-center gap-2">
-						<Skeleton className="size-4 rounded-full" />
-						<Skeleton className="h-4 w-24" />
-					</div>
-					<div className="flex items-center gap-2">
-						<Skeleton className="size-4 rounded-full" />
-						<Skeleton className="h-4 w-32" />
-					</div>
-				</div>
-			</CardContent>
-		</Card>
+						<HStack align="flex-start" gap="1.5">
+							<Skeleton mt="0.5" h="4" w="4" flexShrink="0" rounded="full" />
+							<VStack gap="1" align="stretch">
+								<Skeleton h="4" w="40" />
+								<Skeleton h="4" w="32" />
+							</VStack>
+						</HStack>
+					</VStack>
+				</HStack>
+			</Card.Header>
+			<Card.Body pt="0">
+				<SimpleGrid columns={2} gap="4">
+					<HStack align="center" gap="2">
+						<Skeleton h="4" w="4" rounded="full" />
+						<Skeleton h="4" w="24" />
+					</HStack>
+					<HStack align="center" gap="2">
+						<Skeleton h="4" w="4" rounded="full" />
+						<Skeleton h="4" w="32" />
+					</HStack>
+				</SimpleGrid>
+			</Card.Body>
+		</Card.Root>
 	);
 }
 
@@ -49,16 +49,16 @@ export function StoreCardSkeleton() {
  */
 export function StoresPageSkeleton() {
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBarSkeleton />
 
-			<div className="grid gap-6 lg:grid-cols-2">
+			<SimpleGrid columns={{ base: 1, lg: 2 }} gap="6">
 				<StoreCardSkeleton />
 				<StoreCardSkeleton />
 				<StoreCardSkeleton />
 				<StoreCardSkeleton />
-			</div>
-		</div>
+			</SimpleGrid>
+		</VStack>
 	);
 }
 
@@ -68,10 +68,10 @@ export function StoresPageSkeleton() {
  */
 export function StoreDetailSkeleton() {
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBarSkeleton withTabs />
 			<StoreDetailContentSkeleton />
-		</div>
+		</VStack>
 	);
 }
 
@@ -81,29 +81,37 @@ export function StoreDetailSkeleton() {
  */
 export function StoreDetailContentSkeleton() {
 	return (
-		<div className="mt-6 space-y-6">
+		<VStack gap="6" align="stretch" mt="6">
 			{/* Active Status Toggle */}
-			<div className="flex items-center justify-between rounded-lg border p-4">
-				<div className="space-y-1">
-					<Skeleton className="h-5 w-24" />
-					<Skeleton className="size-48" />
-				</div>
-				<Skeleton className="h-6 w-11 rounded-full" />
-			</div>
+			<HStack
+				justify="space-between"
+				align="center"
+				rounded="lg"
+				borderWidth="1px"
+				p="4"
+			>
+				<VStack gap="1" align="stretch">
+					<Skeleton h="5" w="24" />
+					<Skeleton h="4" w="48" />
+				</VStack>
+				<Skeleton h="6" w="11" rounded="full" />
+			</HStack>
 
 			{/* Store form card */}
 			<CardFormSkeleton rows={5} />
 
 			{/* Image fields card */}
-			<Card>
-				<CardHeader>
-					<Skeleton className="h-6 w-32" />
-					<Skeleton className="mt-1 h-4 w-56" />
-				</CardHeader>
-				<CardContent>
-					<Skeleton className="h-32 w-32 rounded-lg" />
-				</CardContent>
-			</Card>
-		</div>
+			<Card.Root>
+				<Card.Header>
+					<VStack gap="1" align="stretch">
+						<Skeleton h="6" w="32" />
+						<Skeleton h="4" w="56" />
+					</VStack>
+				</Card.Header>
+				<Card.Body>
+					<Skeleton h="32" w="32" rounded="lg" />
+				</Card.Body>
+			</Card.Root>
+		</VStack>
 	);
 }

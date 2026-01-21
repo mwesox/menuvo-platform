@@ -13,6 +13,7 @@ import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as PublicOnboardingRouteImport } from './routes/_public/onboarding'
+import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppOrdersRouteImport } from './routes/_app/orders'
 import { Route as AppMenuRouteImport } from './routes/_app/menu'
 import { Route as AppKitchenRouteImport } from './routes/_app/kitchen'
@@ -24,14 +25,25 @@ import { Route as PublicLegalImpressumRouteImport } from './routes/_public/legal
 import { Route as AppStoresNewRouteImport } from './routes/_app/stores/new'
 import { Route as AppStoresStoreIdRouteImport } from './routes/_app/stores/$storeId'
 import { Route as PublicAuthMerchantLoginRouteImport } from './routes/_public/auth/merchant/login'
+import { Route as AppStoresStoreIdSettingsRouteImport } from './routes/_app/stores/$storeId/settings'
+import { Route as AppStoresStoreIdServicePointsRouteImport } from './routes/_app/stores/$storeId/service-points'
+import { Route as AppStoresStoreIdMenuRouteImport } from './routes/_app/stores/$storeId/menu'
 import { Route as AppStoresStoreIdSettingsIndexRouteImport } from './routes/_app/stores/$storeId/settings/index'
+import { Route as AppStoresStoreIdServicePointsIndexRouteImport } from './routes/_app/stores/$storeId/service-points/index'
 import { Route as AppStoresStoreIdOrdersIndexRouteImport } from './routes/_app/stores/$storeId/orders/index'
 import { Route as AppStoresStoreIdMenuIndexRouteImport } from './routes/_app/stores/$storeId/menu/index'
 import { Route as AppStoresStoreIdKitchenIndexRouteImport } from './routes/_app/stores/$storeId/kitchen/index'
+import { Route as AppStoresStoreIdSettingsOrderTypesRouteImport } from './routes/_app/stores/$storeId/settings/order-types'
+import { Route as AppStoresStoreIdSettingsHoursRouteImport } from './routes/_app/stores/$storeId/settings/hours'
+import { Route as AppStoresStoreIdSettingsClosuresRouteImport } from './routes/_app/stores/$storeId/settings/closures'
+import { Route as AppStoresStoreIdServicePointsNewRouteImport } from './routes/_app/stores/$storeId/service-points/new'
+import { Route as AppStoresStoreIdServicePointsBatchRouteImport } from './routes/_app/stores/$storeId/service-points/batch'
+import { Route as AppStoresStoreIdServicePointsServicePointIdRouteImport } from './routes/_app/stores/$storeId/service-points/$servicePointId'
 import { Route as AppStoresStoreIdOrdersOrderIdRouteImport } from './routes/_app/stores/$storeId/orders/$orderId'
 import { Route as AppStoresStoreIdMenuImportRouteImport } from './routes/_app/stores/$storeId/menu/import'
 import { Route as AppStoresStoreIdMenuVatIndexRouteImport } from './routes/_app/stores/$storeId/menu/vat/index'
 import { Route as AppStoresStoreIdMenuOptionsIndexRouteImport } from './routes/_app/stores/$storeId/menu/options/index'
+import { Route as AppStoresStoreIdServicePointsServicePointIdQrRouteImport } from './routes/_app/stores/$storeId/service-points/$servicePointId/qr'
 import { Route as AppStoresStoreIdMenuVatNewRouteImport } from './routes/_app/stores/$storeId/menu/vat/new'
 import { Route as AppStoresStoreIdMenuVatVatGroupIdRouteImport } from './routes/_app/stores/$storeId/menu/vat/$vatGroupId'
 import { Route as AppStoresStoreIdMenuOptionsNewRouteImport } from './routes/_app/stores/$storeId/menu/options/new'
@@ -60,6 +72,11 @@ const PublicOnboardingRoute = PublicOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => PublicRoute,
 } as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppOrdersRoute = AppOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -81,9 +98,9 @@ const AppStoresIndexRoute = AppStoresIndexRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => AppRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppSettingsRoute,
 } as any)
 const AppHelpIndexRoute = AppHelpIndexRouteImport.update({
   id: '/help/',
@@ -115,11 +132,34 @@ const PublicAuthMerchantLoginRoute = PublicAuthMerchantLoginRouteImport.update({
   path: '/auth/merchant/login',
   getParentRoute: () => PublicRoute,
 } as any)
+const AppStoresStoreIdSettingsRoute =
+  AppStoresStoreIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AppStoresStoreIdRoute,
+  } as any)
+const AppStoresStoreIdServicePointsRoute =
+  AppStoresStoreIdServicePointsRouteImport.update({
+    id: '/service-points',
+    path: '/service-points',
+    getParentRoute: () => AppStoresStoreIdRoute,
+  } as any)
+const AppStoresStoreIdMenuRoute = AppStoresStoreIdMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => AppStoresStoreIdRoute,
+} as any)
 const AppStoresStoreIdSettingsIndexRoute =
   AppStoresStoreIdSettingsIndexRouteImport.update({
-    id: '/settings/',
-    path: '/settings/',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppStoresStoreIdSettingsRoute,
+  } as any)
+const AppStoresStoreIdServicePointsIndexRoute =
+  AppStoresStoreIdServicePointsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppStoresStoreIdServicePointsRoute,
   } as any)
 const AppStoresStoreIdOrdersIndexRoute =
   AppStoresStoreIdOrdersIndexRouteImport.update({
@@ -129,15 +169,51 @@ const AppStoresStoreIdOrdersIndexRoute =
   } as any)
 const AppStoresStoreIdMenuIndexRoute =
   AppStoresStoreIdMenuIndexRouteImport.update({
-    id: '/menu/',
-    path: '/menu/',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 const AppStoresStoreIdKitchenIndexRoute =
   AppStoresStoreIdKitchenIndexRouteImport.update({
     id: '/kitchen/',
     path: '/kitchen/',
     getParentRoute: () => AppStoresStoreIdRoute,
+  } as any)
+const AppStoresStoreIdSettingsOrderTypesRoute =
+  AppStoresStoreIdSettingsOrderTypesRouteImport.update({
+    id: '/order-types',
+    path: '/order-types',
+    getParentRoute: () => AppStoresStoreIdSettingsRoute,
+  } as any)
+const AppStoresStoreIdSettingsHoursRoute =
+  AppStoresStoreIdSettingsHoursRouteImport.update({
+    id: '/hours',
+    path: '/hours',
+    getParentRoute: () => AppStoresStoreIdSettingsRoute,
+  } as any)
+const AppStoresStoreIdSettingsClosuresRoute =
+  AppStoresStoreIdSettingsClosuresRouteImport.update({
+    id: '/closures',
+    path: '/closures',
+    getParentRoute: () => AppStoresStoreIdSettingsRoute,
+  } as any)
+const AppStoresStoreIdServicePointsNewRoute =
+  AppStoresStoreIdServicePointsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AppStoresStoreIdServicePointsRoute,
+  } as any)
+const AppStoresStoreIdServicePointsBatchRoute =
+  AppStoresStoreIdServicePointsBatchRouteImport.update({
+    id: '/batch',
+    path: '/batch',
+    getParentRoute: () => AppStoresStoreIdServicePointsRoute,
+  } as any)
+const AppStoresStoreIdServicePointsServicePointIdRoute =
+  AppStoresStoreIdServicePointsServicePointIdRouteImport.update({
+    id: '/$servicePointId',
+    path: '/$servicePointId',
+    getParentRoute: () => AppStoresStoreIdServicePointsRoute,
   } as any)
 const AppStoresStoreIdOrdersOrderIdRoute =
   AppStoresStoreIdOrdersOrderIdRouteImport.update({
@@ -147,81 +223,88 @@ const AppStoresStoreIdOrdersOrderIdRoute =
   } as any)
 const AppStoresStoreIdMenuImportRoute =
   AppStoresStoreIdMenuImportRouteImport.update({
-    id: '/menu/import',
-    path: '/menu/import',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/import',
+    path: '/import',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 const AppStoresStoreIdMenuVatIndexRoute =
   AppStoresStoreIdMenuVatIndexRouteImport.update({
-    id: '/menu/vat/',
-    path: '/menu/vat/',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/vat/',
+    path: '/vat/',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 const AppStoresStoreIdMenuOptionsIndexRoute =
   AppStoresStoreIdMenuOptionsIndexRouteImport.update({
-    id: '/menu/options/',
-    path: '/menu/options/',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/options/',
+    path: '/options/',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
+  } as any)
+const AppStoresStoreIdServicePointsServicePointIdQrRoute =
+  AppStoresStoreIdServicePointsServicePointIdQrRouteImport.update({
+    id: '/qr',
+    path: '/qr',
+    getParentRoute: () => AppStoresStoreIdServicePointsServicePointIdRoute,
   } as any)
 const AppStoresStoreIdMenuVatNewRoute =
   AppStoresStoreIdMenuVatNewRouteImport.update({
-    id: '/menu/vat/new',
-    path: '/menu/vat/new',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/vat/new',
+    path: '/vat/new',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 const AppStoresStoreIdMenuVatVatGroupIdRoute =
   AppStoresStoreIdMenuVatVatGroupIdRouteImport.update({
-    id: '/menu/vat/$vatGroupId',
-    path: '/menu/vat/$vatGroupId',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/vat/$vatGroupId',
+    path: '/vat/$vatGroupId',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 const AppStoresStoreIdMenuOptionsNewRoute =
   AppStoresStoreIdMenuOptionsNewRouteImport.update({
-    id: '/menu/options/new',
-    path: '/menu/options/new',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/options/new',
+    path: '/options/new',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 const AppStoresStoreIdMenuOptionsOptionGroupIdRoute =
   AppStoresStoreIdMenuOptionsOptionGroupIdRouteImport.update({
-    id: '/menu/options/$optionGroupId',
-    path: '/menu/options/$optionGroupId',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/options/$optionGroupId',
+    path: '/options/$optionGroupId',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 const AppStoresStoreIdMenuCategoriesNewRoute =
   AppStoresStoreIdMenuCategoriesNewRouteImport.update({
-    id: '/menu/categories/new',
-    path: '/menu/categories/new',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/categories/new',
+    path: '/categories/new',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 const AppStoresStoreIdMenuCategoriesCategoryIdIndexRoute =
   AppStoresStoreIdMenuCategoriesCategoryIdIndexRouteImport.update({
-    id: '/menu/categories/$categoryId/',
-    path: '/menu/categories/$categoryId/',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/categories/$categoryId/',
+    path: '/categories/$categoryId/',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 const AppStoresStoreIdMenuCategoriesCategoryIdEditRoute =
   AppStoresStoreIdMenuCategoriesCategoryIdEditRouteImport.update({
-    id: '/menu/categories/$categoryId/edit',
-    path: '/menu/categories/$categoryId/edit',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/categories/$categoryId/edit',
+    path: '/categories/$categoryId/edit',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 const AppStoresStoreIdMenuCategoriesCategoryIdItemsNewRoute =
   AppStoresStoreIdMenuCategoriesCategoryIdItemsNewRouteImport.update({
-    id: '/menu/categories/$categoryId/items/new',
-    path: '/menu/categories/$categoryId/items/new',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/categories/$categoryId/items/new',
+    path: '/categories/$categoryId/items/new',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 const AppStoresStoreIdMenuCategoriesCategoryIdItemsItemIdRoute =
   AppStoresStoreIdMenuCategoriesCategoryIdItemsItemIdRouteImport.update({
-    id: '/menu/categories/$categoryId/items/$itemId',
-    path: '/menu/categories/$categoryId/items/$itemId',
-    getParentRoute: () => AppStoresStoreIdRoute,
+    id: '/categories/$categoryId/items/$itemId',
+    path: '/categories/$categoryId/items/$itemId',
+    getParentRoute: () => AppStoresStoreIdMenuRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/kitchen': typeof AppKitchenRoute
   '/menu': typeof AppMenuRoute
   '/orders': typeof AppOrdersRoute
+  '/settings': typeof AppSettingsRouteWithChildren
   '/onboarding': typeof PublicOnboardingRoute
   '/': typeof AppIndexRoute
   '/stores/$storeId': typeof AppStoresStoreIdRouteWithChildren
@@ -229,20 +312,31 @@ export interface FileRoutesByFullPath {
   '/legal/impressum': typeof PublicLegalImpressumRoute
   '/legal/privacy': typeof PublicLegalPrivacyRoute
   '/help': typeof AppHelpIndexRoute
-  '/settings': typeof AppSettingsIndexRoute
+  '/settings/': typeof AppSettingsIndexRoute
   '/stores': typeof AppStoresIndexRoute
+  '/stores/$storeId/menu': typeof AppStoresStoreIdMenuRouteWithChildren
+  '/stores/$storeId/service-points': typeof AppStoresStoreIdServicePointsRouteWithChildren
+  '/stores/$storeId/settings': typeof AppStoresStoreIdSettingsRouteWithChildren
   '/auth/merchant/login': typeof PublicAuthMerchantLoginRoute
   '/stores/$storeId/menu/import': typeof AppStoresStoreIdMenuImportRoute
   '/stores/$storeId/orders/$orderId': typeof AppStoresStoreIdOrdersOrderIdRoute
+  '/stores/$storeId/service-points/$servicePointId': typeof AppStoresStoreIdServicePointsServicePointIdRouteWithChildren
+  '/stores/$storeId/service-points/batch': typeof AppStoresStoreIdServicePointsBatchRoute
+  '/stores/$storeId/service-points/new': typeof AppStoresStoreIdServicePointsNewRoute
+  '/stores/$storeId/settings/closures': typeof AppStoresStoreIdSettingsClosuresRoute
+  '/stores/$storeId/settings/hours': typeof AppStoresStoreIdSettingsHoursRoute
+  '/stores/$storeId/settings/order-types': typeof AppStoresStoreIdSettingsOrderTypesRoute
   '/stores/$storeId/kitchen': typeof AppStoresStoreIdKitchenIndexRoute
-  '/stores/$storeId/menu': typeof AppStoresStoreIdMenuIndexRoute
+  '/stores/$storeId/menu/': typeof AppStoresStoreIdMenuIndexRoute
   '/stores/$storeId/orders': typeof AppStoresStoreIdOrdersIndexRoute
-  '/stores/$storeId/settings': typeof AppStoresStoreIdSettingsIndexRoute
+  '/stores/$storeId/service-points/': typeof AppStoresStoreIdServicePointsIndexRoute
+  '/stores/$storeId/settings/': typeof AppStoresStoreIdSettingsIndexRoute
   '/stores/$storeId/menu/categories/new': typeof AppStoresStoreIdMenuCategoriesNewRoute
   '/stores/$storeId/menu/options/$optionGroupId': typeof AppStoresStoreIdMenuOptionsOptionGroupIdRoute
   '/stores/$storeId/menu/options/new': typeof AppStoresStoreIdMenuOptionsNewRoute
   '/stores/$storeId/menu/vat/$vatGroupId': typeof AppStoresStoreIdMenuVatVatGroupIdRoute
   '/stores/$storeId/menu/vat/new': typeof AppStoresStoreIdMenuVatNewRoute
+  '/stores/$storeId/service-points/$servicePointId/qr': typeof AppStoresStoreIdServicePointsServicePointIdQrRoute
   '/stores/$storeId/menu/options': typeof AppStoresStoreIdMenuOptionsIndexRoute
   '/stores/$storeId/menu/vat': typeof AppStoresStoreIdMenuVatIndexRoute
   '/stores/$storeId/menu/categories/$categoryId/edit': typeof AppStoresStoreIdMenuCategoriesCategoryIdEditRoute
@@ -266,15 +360,23 @@ export interface FileRoutesByTo {
   '/auth/merchant/login': typeof PublicAuthMerchantLoginRoute
   '/stores/$storeId/menu/import': typeof AppStoresStoreIdMenuImportRoute
   '/stores/$storeId/orders/$orderId': typeof AppStoresStoreIdOrdersOrderIdRoute
+  '/stores/$storeId/service-points/$servicePointId': typeof AppStoresStoreIdServicePointsServicePointIdRouteWithChildren
+  '/stores/$storeId/service-points/batch': typeof AppStoresStoreIdServicePointsBatchRoute
+  '/stores/$storeId/service-points/new': typeof AppStoresStoreIdServicePointsNewRoute
+  '/stores/$storeId/settings/closures': typeof AppStoresStoreIdSettingsClosuresRoute
+  '/stores/$storeId/settings/hours': typeof AppStoresStoreIdSettingsHoursRoute
+  '/stores/$storeId/settings/order-types': typeof AppStoresStoreIdSettingsOrderTypesRoute
   '/stores/$storeId/kitchen': typeof AppStoresStoreIdKitchenIndexRoute
   '/stores/$storeId/menu': typeof AppStoresStoreIdMenuIndexRoute
   '/stores/$storeId/orders': typeof AppStoresStoreIdOrdersIndexRoute
+  '/stores/$storeId/service-points': typeof AppStoresStoreIdServicePointsIndexRoute
   '/stores/$storeId/settings': typeof AppStoresStoreIdSettingsIndexRoute
   '/stores/$storeId/menu/categories/new': typeof AppStoresStoreIdMenuCategoriesNewRoute
   '/stores/$storeId/menu/options/$optionGroupId': typeof AppStoresStoreIdMenuOptionsOptionGroupIdRoute
   '/stores/$storeId/menu/options/new': typeof AppStoresStoreIdMenuOptionsNewRoute
   '/stores/$storeId/menu/vat/$vatGroupId': typeof AppStoresStoreIdMenuVatVatGroupIdRoute
   '/stores/$storeId/menu/vat/new': typeof AppStoresStoreIdMenuVatNewRoute
+  '/stores/$storeId/service-points/$servicePointId/qr': typeof AppStoresStoreIdServicePointsServicePointIdQrRoute
   '/stores/$storeId/menu/options': typeof AppStoresStoreIdMenuOptionsIndexRoute
   '/stores/$storeId/menu/vat': typeof AppStoresStoreIdMenuVatIndexRoute
   '/stores/$storeId/menu/categories/$categoryId/edit': typeof AppStoresStoreIdMenuCategoriesCategoryIdEditRoute
@@ -289,6 +391,7 @@ export interface FileRoutesById {
   '/_app/kitchen': typeof AppKitchenRoute
   '/_app/menu': typeof AppMenuRoute
   '/_app/orders': typeof AppOrdersRoute
+  '/_app/settings': typeof AppSettingsRouteWithChildren
   '/_public/onboarding': typeof PublicOnboardingRoute
   '/_app/': typeof AppIndexRoute
   '/_app/stores/$storeId': typeof AppStoresStoreIdRouteWithChildren
@@ -298,18 +401,29 @@ export interface FileRoutesById {
   '/_app/help/': typeof AppHelpIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/stores/': typeof AppStoresIndexRoute
+  '/_app/stores/$storeId/menu': typeof AppStoresStoreIdMenuRouteWithChildren
+  '/_app/stores/$storeId/service-points': typeof AppStoresStoreIdServicePointsRouteWithChildren
+  '/_app/stores/$storeId/settings': typeof AppStoresStoreIdSettingsRouteWithChildren
   '/_public/auth/merchant/login': typeof PublicAuthMerchantLoginRoute
   '/_app/stores/$storeId/menu/import': typeof AppStoresStoreIdMenuImportRoute
   '/_app/stores/$storeId/orders/$orderId': typeof AppStoresStoreIdOrdersOrderIdRoute
+  '/_app/stores/$storeId/service-points/$servicePointId': typeof AppStoresStoreIdServicePointsServicePointIdRouteWithChildren
+  '/_app/stores/$storeId/service-points/batch': typeof AppStoresStoreIdServicePointsBatchRoute
+  '/_app/stores/$storeId/service-points/new': typeof AppStoresStoreIdServicePointsNewRoute
+  '/_app/stores/$storeId/settings/closures': typeof AppStoresStoreIdSettingsClosuresRoute
+  '/_app/stores/$storeId/settings/hours': typeof AppStoresStoreIdSettingsHoursRoute
+  '/_app/stores/$storeId/settings/order-types': typeof AppStoresStoreIdSettingsOrderTypesRoute
   '/_app/stores/$storeId/kitchen/': typeof AppStoresStoreIdKitchenIndexRoute
   '/_app/stores/$storeId/menu/': typeof AppStoresStoreIdMenuIndexRoute
   '/_app/stores/$storeId/orders/': typeof AppStoresStoreIdOrdersIndexRoute
+  '/_app/stores/$storeId/service-points/': typeof AppStoresStoreIdServicePointsIndexRoute
   '/_app/stores/$storeId/settings/': typeof AppStoresStoreIdSettingsIndexRoute
   '/_app/stores/$storeId/menu/categories/new': typeof AppStoresStoreIdMenuCategoriesNewRoute
   '/_app/stores/$storeId/menu/options/$optionGroupId': typeof AppStoresStoreIdMenuOptionsOptionGroupIdRoute
   '/_app/stores/$storeId/menu/options/new': typeof AppStoresStoreIdMenuOptionsNewRoute
   '/_app/stores/$storeId/menu/vat/$vatGroupId': typeof AppStoresStoreIdMenuVatVatGroupIdRoute
   '/_app/stores/$storeId/menu/vat/new': typeof AppStoresStoreIdMenuVatNewRoute
+  '/_app/stores/$storeId/service-points/$servicePointId/qr': typeof AppStoresStoreIdServicePointsServicePointIdQrRoute
   '/_app/stores/$storeId/menu/options/': typeof AppStoresStoreIdMenuOptionsIndexRoute
   '/_app/stores/$storeId/menu/vat/': typeof AppStoresStoreIdMenuVatIndexRoute
   '/_app/stores/$storeId/menu/categories/$categoryId/edit': typeof AppStoresStoreIdMenuCategoriesCategoryIdEditRoute
@@ -323,6 +437,7 @@ export interface FileRouteTypes {
     | '/kitchen'
     | '/menu'
     | '/orders'
+    | '/settings'
     | '/onboarding'
     | '/'
     | '/stores/$storeId'
@@ -330,20 +445,31 @@ export interface FileRouteTypes {
     | '/legal/impressum'
     | '/legal/privacy'
     | '/help'
-    | '/settings'
+    | '/settings/'
     | '/stores'
+    | '/stores/$storeId/menu'
+    | '/stores/$storeId/service-points'
+    | '/stores/$storeId/settings'
     | '/auth/merchant/login'
     | '/stores/$storeId/menu/import'
     | '/stores/$storeId/orders/$orderId'
+    | '/stores/$storeId/service-points/$servicePointId'
+    | '/stores/$storeId/service-points/batch'
+    | '/stores/$storeId/service-points/new'
+    | '/stores/$storeId/settings/closures'
+    | '/stores/$storeId/settings/hours'
+    | '/stores/$storeId/settings/order-types'
     | '/stores/$storeId/kitchen'
-    | '/stores/$storeId/menu'
+    | '/stores/$storeId/menu/'
     | '/stores/$storeId/orders'
-    | '/stores/$storeId/settings'
+    | '/stores/$storeId/service-points/'
+    | '/stores/$storeId/settings/'
     | '/stores/$storeId/menu/categories/new'
     | '/stores/$storeId/menu/options/$optionGroupId'
     | '/stores/$storeId/menu/options/new'
     | '/stores/$storeId/menu/vat/$vatGroupId'
     | '/stores/$storeId/menu/vat/new'
+    | '/stores/$storeId/service-points/$servicePointId/qr'
     | '/stores/$storeId/menu/options'
     | '/stores/$storeId/menu/vat'
     | '/stores/$storeId/menu/categories/$categoryId/edit'
@@ -367,15 +493,23 @@ export interface FileRouteTypes {
     | '/auth/merchant/login'
     | '/stores/$storeId/menu/import'
     | '/stores/$storeId/orders/$orderId'
+    | '/stores/$storeId/service-points/$servicePointId'
+    | '/stores/$storeId/service-points/batch'
+    | '/stores/$storeId/service-points/new'
+    | '/stores/$storeId/settings/closures'
+    | '/stores/$storeId/settings/hours'
+    | '/stores/$storeId/settings/order-types'
     | '/stores/$storeId/kitchen'
     | '/stores/$storeId/menu'
     | '/stores/$storeId/orders'
+    | '/stores/$storeId/service-points'
     | '/stores/$storeId/settings'
     | '/stores/$storeId/menu/categories/new'
     | '/stores/$storeId/menu/options/$optionGroupId'
     | '/stores/$storeId/menu/options/new'
     | '/stores/$storeId/menu/vat/$vatGroupId'
     | '/stores/$storeId/menu/vat/new'
+    | '/stores/$storeId/service-points/$servicePointId/qr'
     | '/stores/$storeId/menu/options'
     | '/stores/$storeId/menu/vat'
     | '/stores/$storeId/menu/categories/$categoryId/edit'
@@ -389,6 +523,7 @@ export interface FileRouteTypes {
     | '/_app/kitchen'
     | '/_app/menu'
     | '/_app/orders'
+    | '/_app/settings'
     | '/_public/onboarding'
     | '/_app/'
     | '/_app/stores/$storeId'
@@ -398,18 +533,29 @@ export interface FileRouteTypes {
     | '/_app/help/'
     | '/_app/settings/'
     | '/_app/stores/'
+    | '/_app/stores/$storeId/menu'
+    | '/_app/stores/$storeId/service-points'
+    | '/_app/stores/$storeId/settings'
     | '/_public/auth/merchant/login'
     | '/_app/stores/$storeId/menu/import'
     | '/_app/stores/$storeId/orders/$orderId'
+    | '/_app/stores/$storeId/service-points/$servicePointId'
+    | '/_app/stores/$storeId/service-points/batch'
+    | '/_app/stores/$storeId/service-points/new'
+    | '/_app/stores/$storeId/settings/closures'
+    | '/_app/stores/$storeId/settings/hours'
+    | '/_app/stores/$storeId/settings/order-types'
     | '/_app/stores/$storeId/kitchen/'
     | '/_app/stores/$storeId/menu/'
     | '/_app/stores/$storeId/orders/'
+    | '/_app/stores/$storeId/service-points/'
     | '/_app/stores/$storeId/settings/'
     | '/_app/stores/$storeId/menu/categories/new'
     | '/_app/stores/$storeId/menu/options/$optionGroupId'
     | '/_app/stores/$storeId/menu/options/new'
     | '/_app/stores/$storeId/menu/vat/$vatGroupId'
     | '/_app/stores/$storeId/menu/vat/new'
+    | '/_app/stores/$storeId/service-points/$servicePointId/qr'
     | '/_app/stores/$storeId/menu/options/'
     | '/_app/stores/$storeId/menu/vat/'
     | '/_app/stores/$storeId/menu/categories/$categoryId/edit'
@@ -453,6 +599,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicOnboardingRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/orders': {
       id: '/_app/orders'
       path: '/orders'
@@ -483,10 +636,10 @@ declare module '@tanstack/react-router' {
     }
     '/_app/settings/': {
       id: '/_app/settings/'
-      path: '/settings'
-      fullPath: '/settings'
+      path: '/'
+      fullPath: '/settings/'
       preLoaderRoute: typeof AppSettingsIndexRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppSettingsRoute
     }
     '/_app/help/': {
       id: '/_app/help/'
@@ -530,12 +683,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicAuthMerchantLoginRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_app/stores/$storeId/settings/': {
-      id: '/_app/stores/$storeId/settings/'
+    '/_app/stores/$storeId/settings': {
+      id: '/_app/stores/$storeId/settings'
       path: '/settings'
       fullPath: '/stores/$storeId/settings'
-      preLoaderRoute: typeof AppStoresStoreIdSettingsIndexRouteImport
+      preLoaderRoute: typeof AppStoresStoreIdSettingsRouteImport
       parentRoute: typeof AppStoresStoreIdRoute
+    }
+    '/_app/stores/$storeId/service-points': {
+      id: '/_app/stores/$storeId/service-points'
+      path: '/service-points'
+      fullPath: '/stores/$storeId/service-points'
+      preLoaderRoute: typeof AppStoresStoreIdServicePointsRouteImport
+      parentRoute: typeof AppStoresStoreIdRoute
+    }
+    '/_app/stores/$storeId/menu': {
+      id: '/_app/stores/$storeId/menu'
+      path: '/menu'
+      fullPath: '/stores/$storeId/menu'
+      preLoaderRoute: typeof AppStoresStoreIdMenuRouteImport
+      parentRoute: typeof AppStoresStoreIdRoute
+    }
+    '/_app/stores/$storeId/settings/': {
+      id: '/_app/stores/$storeId/settings/'
+      path: '/'
+      fullPath: '/stores/$storeId/settings/'
+      preLoaderRoute: typeof AppStoresStoreIdSettingsIndexRouteImport
+      parentRoute: typeof AppStoresStoreIdSettingsRoute
+    }
+    '/_app/stores/$storeId/service-points/': {
+      id: '/_app/stores/$storeId/service-points/'
+      path: '/'
+      fullPath: '/stores/$storeId/service-points/'
+      preLoaderRoute: typeof AppStoresStoreIdServicePointsIndexRouteImport
+      parentRoute: typeof AppStoresStoreIdServicePointsRoute
     }
     '/_app/stores/$storeId/orders/': {
       id: '/_app/stores/$storeId/orders/'
@@ -546,10 +727,10 @@ declare module '@tanstack/react-router' {
     }
     '/_app/stores/$storeId/menu/': {
       id: '/_app/stores/$storeId/menu/'
-      path: '/menu'
-      fullPath: '/stores/$storeId/menu'
+      path: '/'
+      fullPath: '/stores/$storeId/menu/'
       preLoaderRoute: typeof AppStoresStoreIdMenuIndexRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
     '/_app/stores/$storeId/kitchen/': {
       id: '/_app/stores/$storeId/kitchen/'
@@ -557,6 +738,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/stores/$storeId/kitchen'
       preLoaderRoute: typeof AppStoresStoreIdKitchenIndexRouteImport
       parentRoute: typeof AppStoresStoreIdRoute
+    }
+    '/_app/stores/$storeId/settings/order-types': {
+      id: '/_app/stores/$storeId/settings/order-types'
+      path: '/order-types'
+      fullPath: '/stores/$storeId/settings/order-types'
+      preLoaderRoute: typeof AppStoresStoreIdSettingsOrderTypesRouteImport
+      parentRoute: typeof AppStoresStoreIdSettingsRoute
+    }
+    '/_app/stores/$storeId/settings/hours': {
+      id: '/_app/stores/$storeId/settings/hours'
+      path: '/hours'
+      fullPath: '/stores/$storeId/settings/hours'
+      preLoaderRoute: typeof AppStoresStoreIdSettingsHoursRouteImport
+      parentRoute: typeof AppStoresStoreIdSettingsRoute
+    }
+    '/_app/stores/$storeId/settings/closures': {
+      id: '/_app/stores/$storeId/settings/closures'
+      path: '/closures'
+      fullPath: '/stores/$storeId/settings/closures'
+      preLoaderRoute: typeof AppStoresStoreIdSettingsClosuresRouteImport
+      parentRoute: typeof AppStoresStoreIdSettingsRoute
+    }
+    '/_app/stores/$storeId/service-points/new': {
+      id: '/_app/stores/$storeId/service-points/new'
+      path: '/new'
+      fullPath: '/stores/$storeId/service-points/new'
+      preLoaderRoute: typeof AppStoresStoreIdServicePointsNewRouteImport
+      parentRoute: typeof AppStoresStoreIdServicePointsRoute
+    }
+    '/_app/stores/$storeId/service-points/batch': {
+      id: '/_app/stores/$storeId/service-points/batch'
+      path: '/batch'
+      fullPath: '/stores/$storeId/service-points/batch'
+      preLoaderRoute: typeof AppStoresStoreIdServicePointsBatchRouteImport
+      parentRoute: typeof AppStoresStoreIdServicePointsRoute
+    }
+    '/_app/stores/$storeId/service-points/$servicePointId': {
+      id: '/_app/stores/$storeId/service-points/$servicePointId'
+      path: '/$servicePointId'
+      fullPath: '/stores/$storeId/service-points/$servicePointId'
+      preLoaderRoute: typeof AppStoresStoreIdServicePointsServicePointIdRouteImport
+      parentRoute: typeof AppStoresStoreIdServicePointsRoute
     }
     '/_app/stores/$storeId/orders/$orderId': {
       id: '/_app/stores/$storeId/orders/$orderId'
@@ -567,98 +790,113 @@ declare module '@tanstack/react-router' {
     }
     '/_app/stores/$storeId/menu/import': {
       id: '/_app/stores/$storeId/menu/import'
-      path: '/menu/import'
+      path: '/import'
       fullPath: '/stores/$storeId/menu/import'
       preLoaderRoute: typeof AppStoresStoreIdMenuImportRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
     '/_app/stores/$storeId/menu/vat/': {
       id: '/_app/stores/$storeId/menu/vat/'
-      path: '/menu/vat'
+      path: '/vat'
       fullPath: '/stores/$storeId/menu/vat'
       preLoaderRoute: typeof AppStoresStoreIdMenuVatIndexRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
     '/_app/stores/$storeId/menu/options/': {
       id: '/_app/stores/$storeId/menu/options/'
-      path: '/menu/options'
+      path: '/options'
       fullPath: '/stores/$storeId/menu/options'
       preLoaderRoute: typeof AppStoresStoreIdMenuOptionsIndexRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
+    }
+    '/_app/stores/$storeId/service-points/$servicePointId/qr': {
+      id: '/_app/stores/$storeId/service-points/$servicePointId/qr'
+      path: '/qr'
+      fullPath: '/stores/$storeId/service-points/$servicePointId/qr'
+      preLoaderRoute: typeof AppStoresStoreIdServicePointsServicePointIdQrRouteImport
+      parentRoute: typeof AppStoresStoreIdServicePointsServicePointIdRoute
     }
     '/_app/stores/$storeId/menu/vat/new': {
       id: '/_app/stores/$storeId/menu/vat/new'
-      path: '/menu/vat/new'
+      path: '/vat/new'
       fullPath: '/stores/$storeId/menu/vat/new'
       preLoaderRoute: typeof AppStoresStoreIdMenuVatNewRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
     '/_app/stores/$storeId/menu/vat/$vatGroupId': {
       id: '/_app/stores/$storeId/menu/vat/$vatGroupId'
-      path: '/menu/vat/$vatGroupId'
+      path: '/vat/$vatGroupId'
       fullPath: '/stores/$storeId/menu/vat/$vatGroupId'
       preLoaderRoute: typeof AppStoresStoreIdMenuVatVatGroupIdRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
     '/_app/stores/$storeId/menu/options/new': {
       id: '/_app/stores/$storeId/menu/options/new'
-      path: '/menu/options/new'
+      path: '/options/new'
       fullPath: '/stores/$storeId/menu/options/new'
       preLoaderRoute: typeof AppStoresStoreIdMenuOptionsNewRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
     '/_app/stores/$storeId/menu/options/$optionGroupId': {
       id: '/_app/stores/$storeId/menu/options/$optionGroupId'
-      path: '/menu/options/$optionGroupId'
+      path: '/options/$optionGroupId'
       fullPath: '/stores/$storeId/menu/options/$optionGroupId'
       preLoaderRoute: typeof AppStoresStoreIdMenuOptionsOptionGroupIdRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
     '/_app/stores/$storeId/menu/categories/new': {
       id: '/_app/stores/$storeId/menu/categories/new'
-      path: '/menu/categories/new'
+      path: '/categories/new'
       fullPath: '/stores/$storeId/menu/categories/new'
       preLoaderRoute: typeof AppStoresStoreIdMenuCategoriesNewRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
     '/_app/stores/$storeId/menu/categories/$categoryId/': {
       id: '/_app/stores/$storeId/menu/categories/$categoryId/'
-      path: '/menu/categories/$categoryId'
+      path: '/categories/$categoryId'
       fullPath: '/stores/$storeId/menu/categories/$categoryId'
       preLoaderRoute: typeof AppStoresStoreIdMenuCategoriesCategoryIdIndexRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
     '/_app/stores/$storeId/menu/categories/$categoryId/edit': {
       id: '/_app/stores/$storeId/menu/categories/$categoryId/edit'
-      path: '/menu/categories/$categoryId/edit'
+      path: '/categories/$categoryId/edit'
       fullPath: '/stores/$storeId/menu/categories/$categoryId/edit'
       preLoaderRoute: typeof AppStoresStoreIdMenuCategoriesCategoryIdEditRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
     '/_app/stores/$storeId/menu/categories/$categoryId/items/new': {
       id: '/_app/stores/$storeId/menu/categories/$categoryId/items/new'
-      path: '/menu/categories/$categoryId/items/new'
+      path: '/categories/$categoryId/items/new'
       fullPath: '/stores/$storeId/menu/categories/$categoryId/items/new'
       preLoaderRoute: typeof AppStoresStoreIdMenuCategoriesCategoryIdItemsNewRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
     '/_app/stores/$storeId/menu/categories/$categoryId/items/$itemId': {
       id: '/_app/stores/$storeId/menu/categories/$categoryId/items/$itemId'
-      path: '/menu/categories/$categoryId/items/$itemId'
+      path: '/categories/$categoryId/items/$itemId'
       fullPath: '/stores/$storeId/menu/categories/$categoryId/items/$itemId'
       preLoaderRoute: typeof AppStoresStoreIdMenuCategoriesCategoryIdItemsItemIdRouteImport
-      parentRoute: typeof AppStoresStoreIdRoute
+      parentRoute: typeof AppStoresStoreIdMenuRoute
     }
   }
 }
 
-interface AppStoresStoreIdRouteChildren {
+interface AppSettingsRouteChildren {
+  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
+}
+
+const AppSettingsRouteChildren: AppSettingsRouteChildren = {
+  AppSettingsIndexRoute: AppSettingsIndexRoute,
+}
+
+const AppSettingsRouteWithChildren = AppSettingsRoute._addFileChildren(
+  AppSettingsRouteChildren,
+)
+
+interface AppStoresStoreIdMenuRouteChildren {
   AppStoresStoreIdMenuImportRoute: typeof AppStoresStoreIdMenuImportRoute
-  AppStoresStoreIdOrdersOrderIdRoute: typeof AppStoresStoreIdOrdersOrderIdRoute
-  AppStoresStoreIdKitchenIndexRoute: typeof AppStoresStoreIdKitchenIndexRoute
   AppStoresStoreIdMenuIndexRoute: typeof AppStoresStoreIdMenuIndexRoute
-  AppStoresStoreIdOrdersIndexRoute: typeof AppStoresStoreIdOrdersIndexRoute
-  AppStoresStoreIdSettingsIndexRoute: typeof AppStoresStoreIdSettingsIndexRoute
   AppStoresStoreIdMenuCategoriesNewRoute: typeof AppStoresStoreIdMenuCategoriesNewRoute
   AppStoresStoreIdMenuOptionsOptionGroupIdRoute: typeof AppStoresStoreIdMenuOptionsOptionGroupIdRoute
   AppStoresStoreIdMenuOptionsNewRoute: typeof AppStoresStoreIdMenuOptionsNewRoute
@@ -672,13 +910,9 @@ interface AppStoresStoreIdRouteChildren {
   AppStoresStoreIdMenuCategoriesCategoryIdItemsNewRoute: typeof AppStoresStoreIdMenuCategoriesCategoryIdItemsNewRoute
 }
 
-const AppStoresStoreIdRouteChildren: AppStoresStoreIdRouteChildren = {
+const AppStoresStoreIdMenuRouteChildren: AppStoresStoreIdMenuRouteChildren = {
   AppStoresStoreIdMenuImportRoute: AppStoresStoreIdMenuImportRoute,
-  AppStoresStoreIdOrdersOrderIdRoute: AppStoresStoreIdOrdersOrderIdRoute,
-  AppStoresStoreIdKitchenIndexRoute: AppStoresStoreIdKitchenIndexRoute,
   AppStoresStoreIdMenuIndexRoute: AppStoresStoreIdMenuIndexRoute,
-  AppStoresStoreIdOrdersIndexRoute: AppStoresStoreIdOrdersIndexRoute,
-  AppStoresStoreIdSettingsIndexRoute: AppStoresStoreIdSettingsIndexRoute,
   AppStoresStoreIdMenuCategoriesNewRoute:
     AppStoresStoreIdMenuCategoriesNewRoute,
   AppStoresStoreIdMenuOptionsOptionGroupIdRoute:
@@ -699,6 +933,89 @@ const AppStoresStoreIdRouteChildren: AppStoresStoreIdRouteChildren = {
     AppStoresStoreIdMenuCategoriesCategoryIdItemsNewRoute,
 }
 
+const AppStoresStoreIdMenuRouteWithChildren =
+  AppStoresStoreIdMenuRoute._addFileChildren(AppStoresStoreIdMenuRouteChildren)
+
+interface AppStoresStoreIdServicePointsServicePointIdRouteChildren {
+  AppStoresStoreIdServicePointsServicePointIdQrRoute: typeof AppStoresStoreIdServicePointsServicePointIdQrRoute
+}
+
+const AppStoresStoreIdServicePointsServicePointIdRouteChildren: AppStoresStoreIdServicePointsServicePointIdRouteChildren =
+  {
+    AppStoresStoreIdServicePointsServicePointIdQrRoute:
+      AppStoresStoreIdServicePointsServicePointIdQrRoute,
+  }
+
+const AppStoresStoreIdServicePointsServicePointIdRouteWithChildren =
+  AppStoresStoreIdServicePointsServicePointIdRoute._addFileChildren(
+    AppStoresStoreIdServicePointsServicePointIdRouteChildren,
+  )
+
+interface AppStoresStoreIdServicePointsRouteChildren {
+  AppStoresStoreIdServicePointsServicePointIdRoute: typeof AppStoresStoreIdServicePointsServicePointIdRouteWithChildren
+  AppStoresStoreIdServicePointsBatchRoute: typeof AppStoresStoreIdServicePointsBatchRoute
+  AppStoresStoreIdServicePointsNewRoute: typeof AppStoresStoreIdServicePointsNewRoute
+  AppStoresStoreIdServicePointsIndexRoute: typeof AppStoresStoreIdServicePointsIndexRoute
+}
+
+const AppStoresStoreIdServicePointsRouteChildren: AppStoresStoreIdServicePointsRouteChildren =
+  {
+    AppStoresStoreIdServicePointsServicePointIdRoute:
+      AppStoresStoreIdServicePointsServicePointIdRouteWithChildren,
+    AppStoresStoreIdServicePointsBatchRoute:
+      AppStoresStoreIdServicePointsBatchRoute,
+    AppStoresStoreIdServicePointsNewRoute:
+      AppStoresStoreIdServicePointsNewRoute,
+    AppStoresStoreIdServicePointsIndexRoute:
+      AppStoresStoreIdServicePointsIndexRoute,
+  }
+
+const AppStoresStoreIdServicePointsRouteWithChildren =
+  AppStoresStoreIdServicePointsRoute._addFileChildren(
+    AppStoresStoreIdServicePointsRouteChildren,
+  )
+
+interface AppStoresStoreIdSettingsRouteChildren {
+  AppStoresStoreIdSettingsClosuresRoute: typeof AppStoresStoreIdSettingsClosuresRoute
+  AppStoresStoreIdSettingsHoursRoute: typeof AppStoresStoreIdSettingsHoursRoute
+  AppStoresStoreIdSettingsOrderTypesRoute: typeof AppStoresStoreIdSettingsOrderTypesRoute
+  AppStoresStoreIdSettingsIndexRoute: typeof AppStoresStoreIdSettingsIndexRoute
+}
+
+const AppStoresStoreIdSettingsRouteChildren: AppStoresStoreIdSettingsRouteChildren =
+  {
+    AppStoresStoreIdSettingsClosuresRoute:
+      AppStoresStoreIdSettingsClosuresRoute,
+    AppStoresStoreIdSettingsHoursRoute: AppStoresStoreIdSettingsHoursRoute,
+    AppStoresStoreIdSettingsOrderTypesRoute:
+      AppStoresStoreIdSettingsOrderTypesRoute,
+    AppStoresStoreIdSettingsIndexRoute: AppStoresStoreIdSettingsIndexRoute,
+  }
+
+const AppStoresStoreIdSettingsRouteWithChildren =
+  AppStoresStoreIdSettingsRoute._addFileChildren(
+    AppStoresStoreIdSettingsRouteChildren,
+  )
+
+interface AppStoresStoreIdRouteChildren {
+  AppStoresStoreIdMenuRoute: typeof AppStoresStoreIdMenuRouteWithChildren
+  AppStoresStoreIdServicePointsRoute: typeof AppStoresStoreIdServicePointsRouteWithChildren
+  AppStoresStoreIdSettingsRoute: typeof AppStoresStoreIdSettingsRouteWithChildren
+  AppStoresStoreIdOrdersOrderIdRoute: typeof AppStoresStoreIdOrdersOrderIdRoute
+  AppStoresStoreIdKitchenIndexRoute: typeof AppStoresStoreIdKitchenIndexRoute
+  AppStoresStoreIdOrdersIndexRoute: typeof AppStoresStoreIdOrdersIndexRoute
+}
+
+const AppStoresStoreIdRouteChildren: AppStoresStoreIdRouteChildren = {
+  AppStoresStoreIdMenuRoute: AppStoresStoreIdMenuRouteWithChildren,
+  AppStoresStoreIdServicePointsRoute:
+    AppStoresStoreIdServicePointsRouteWithChildren,
+  AppStoresStoreIdSettingsRoute: AppStoresStoreIdSettingsRouteWithChildren,
+  AppStoresStoreIdOrdersOrderIdRoute: AppStoresStoreIdOrdersOrderIdRoute,
+  AppStoresStoreIdKitchenIndexRoute: AppStoresStoreIdKitchenIndexRoute,
+  AppStoresStoreIdOrdersIndexRoute: AppStoresStoreIdOrdersIndexRoute,
+}
+
 const AppStoresStoreIdRouteWithChildren =
   AppStoresStoreIdRoute._addFileChildren(AppStoresStoreIdRouteChildren)
 
@@ -706,11 +1023,11 @@ interface AppRouteChildren {
   AppKitchenRoute: typeof AppKitchenRoute
   AppMenuRoute: typeof AppMenuRoute
   AppOrdersRoute: typeof AppOrdersRoute
+  AppSettingsRoute: typeof AppSettingsRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppStoresStoreIdRoute: typeof AppStoresStoreIdRouteWithChildren
   AppStoresNewRoute: typeof AppStoresNewRoute
   AppHelpIndexRoute: typeof AppHelpIndexRoute
-  AppSettingsIndexRoute: typeof AppSettingsIndexRoute
   AppStoresIndexRoute: typeof AppStoresIndexRoute
 }
 
@@ -718,11 +1035,11 @@ const AppRouteChildren: AppRouteChildren = {
   AppKitchenRoute: AppKitchenRoute,
   AppMenuRoute: AppMenuRoute,
   AppOrdersRoute: AppOrdersRoute,
+  AppSettingsRoute: AppSettingsRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppStoresStoreIdRoute: AppStoresStoreIdRouteWithChildren,
   AppStoresNewRoute: AppStoresNewRoute,
   AppHelpIndexRoute: AppHelpIndexRoute,
-  AppSettingsIndexRoute: AppSettingsIndexRoute,
   AppStoresIndexRoute: AppStoresIndexRoute,
 }
 

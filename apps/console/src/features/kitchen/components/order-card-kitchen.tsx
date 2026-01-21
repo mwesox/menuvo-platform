@@ -5,11 +5,18 @@
  * Urgency shown via elapsed time text color.
  */
 
-import { Button } from "@menuvo/ui";
+import {
+	Box,
+	Button,
+	Flex,
+	HStack,
+	Separator,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { OrderItem, OrderWithItems } from "@/features/orders/types";
-import { cn } from "@/lib/utils";
 import {
 	FAR_AWAY_THRESHOLD_HOURS,
 	type KanbanColumnId,
@@ -19,16 +26,13 @@ import { useUrgency } from "../hooks/use-urgency";
 import { isOrderTooFarAway } from "../logic/order-sorting";
 
 /** Header style based on ORDER TYPE (not urgency) */
-const getHeaderStyle = (
-	orderType: string,
-	isFarAway: boolean = false,
-): string => {
+const getHeaderBg = (orderType: string, isFarAway: boolean = false): string => {
 	if (orderType === "takeaway") {
 		// Amber = action, needs packaging
-		return isFarAway ? "bg-amber-500 text-white" : "bg-amber-600 text-white";
+		return isFarAway ? "amber.500" : "amber.600";
 	}
 	// Blue = calm, seated, staying (default for dine_in and other types)
-	return isFarAway ? "bg-blue-500 text-white" : "bg-blue-700 text-white";
+	return isFarAway ? "blue.500" : "blue.700";
 };
 
 /**
@@ -89,14 +93,14 @@ function formatPickupTime(
 }
 
 /** Time text style based on urgency - white text on colored backgrounds */
-const getTimeStyle = (level: UrgencyLevel): string => {
+const getTimeTextStyle = (level: UrgencyLevel) => {
 	switch (level) {
 		case "critical":
-			return "font-bold text-white";
+			return { fontWeight: "bold", color: "white" };
 		case "warning":
-			return "font-medium text-white/90";
+			return { fontWeight: "medium", color: "white", opacity: 0.9 };
 		default:
-			return "text-white/80";
+			return { color: "white", opacity: 0.8 };
 	}
 };
 
@@ -158,128 +162,198 @@ export function OrderCardKitchen({
 	// Done cards - muted but still readable, retain order type color hint
 	if (isDone) {
 		return (
-			<div
-				className={cn(
-					"overflow-hidden rounded bg-card opacity-60 shadow-sm",
-					className,
-				)}
+			<Box
+				overflow="hidden"
+				rounded="md"
+				bg="bg.panel"
+				opacity={0.6}
+				shadow="sm"
+				className={className}
 			>
-				<div
-					className={cn(
-						"flex items-center justify-between gap-1 px-3 py-1.5 text-sm opacity-80",
-						getHeaderStyle(order.orderType),
-					)}
+				<Flex
+					alignItems="center"
+					justifyContent="space-between"
+					gap="1"
+					px="3"
+					py="1.5"
+					textStyle="sm"
+					bg={getHeaderBg(order.orderType)}
+					color="white"
+					opacity={0.8}
 				>
-					<span className="min-w-0 truncate">{orderTypeLabel}</span>
-					<span className="min-w-[3ch] shrink-0 text-end font-bold font-mono text-lg">
+					<Text minW="0" truncate>
+						{orderTypeLabel}
+					</Text>
+					<Text
+						minW="3ch"
+						flexShrink={0}
+						textAlign="end"
+						fontWeight="bold"
+						fontFamily="mono"
+						fontSize="lg"
+					>
 						#{String(order.pickupNumber).padStart(3, "0")}
-					</span>
-				</div>
-				<div className="px-3 py-2 text-muted-foreground text-sm">
+					</Text>
+				</Flex>
+				<Box px="3" py="2" color="fg.muted" textStyle="sm">
 					{order.items.length} {order.items.length === 1 ? "item" : "items"}
-				</div>
-			</div>
+				</Box>
+			</Box>
 		);
 	}
 
+	const timeTextStyle = getTimeTextStyle(level);
+
 	return (
-		<div
-			className={cn(
-				"overflow-hidden rounded bg-card shadow-sm",
-				level === "critical" && "animate-pulse-subtle",
-				isLastMoved && "animate-highlight-glow",
-				isFarAway && "opacity-65 grayscale-[40%]",
-				className,
-			)}
+		<Box
+			overflow="hidden"
+			rounded="md"
+			bg="bg.panel"
+			shadow="sm"
+			className={`${level === "critical" ? "animate-pulse-subtle" : ""} ${isLastMoved ? "animate-highlight-glow" : ""} ${className || ""}`}
+			opacity={isFarAway ? 0.65 : undefined}
+			css={isFarAway ? { filter: "grayscale(40%)" } : undefined}
 		>
 			{/* Header: Color by ORDER TYPE - Blue=DineIn, Amber=Takeaway */}
-			<div
-				className={cn(
-					"flex items-center justify-between @[200px]:gap-2 gap-1 px-3 py-2",
-					getHeaderStyle(order.orderType, isFarAway),
-					isFarAway && "opacity-90",
-				)}
+			<Flex
+				alignItems="center"
+				justifyContent="space-between"
+				gap="1"
+				px="3"
+				py="2"
+				bg={getHeaderBg(order.orderType, isFarAway)}
+				color="white"
+				opacity={isFarAway ? 0.9 : 1}
+				className="@[200px]:gap-2"
 			>
-				<span className="min-w-0 truncate font-semibold">{orderTypeLabel}</span>
-				<div className="flex shrink-0 items-center @[200px]:gap-2 gap-1 text-sm">
+				<Text minW="0" truncate fontWeight="semibold">
+					{orderTypeLabel}
+				</Text>
+				<HStack
+					gap="1"
+					flexShrink={0}
+					textStyle="sm"
+					className="@[200px]:gap-2"
+				>
 					{elapsedText && (
-						<span className={cn("@[240px]:inline hidden", getTimeStyle(level))}>
+						<Text display="none" className="@[240px]:inline" {...timeTextStyle}>
 							{elapsedText}
-						</span>
+						</Text>
 					)}
 					{pickupTimeText && (
-						<span className={cn("@[240px]:inline hidden", getTimeStyle(level))}>
+						<Text display="none" className="@[240px]:inline" {...timeTextStyle}>
 							{pickupTimeText}
-						</span>
+						</Text>
 					)}
-					<span className="min-w-[3ch] text-end font-bold font-mono text-xl">
+					<Text
+						minW="3ch"
+						textAlign="end"
+						fontWeight="bold"
+						fontFamily="mono"
+						fontSize="xl"
+					>
 						#{String(order.pickupNumber).padStart(3, "0")}
-					</span>
-				</div>
-			</div>
+					</Text>
+				</HStack>
+			</Flex>
 
 			{/* Customer name - subtle, for call-outs */}
 			{order.customerName && (
-				<div className="truncate border-border/50 border-b bg-muted/30 px-3 py-1 text-muted-foreground text-xs">
+				<Box
+					truncate
+					borderBottomWidth="1px"
+					borderColor="border.subtle"
+					bg="bg.muted"
+					px="3"
+					py="1"
+					color="fg.muted"
+					textStyle="xs"
+				>
 					{order.customerName}
-				</div>
+				</Box>
 			)}
 
 			{/* Items list - clean, focused */}
-			<div className="divide-y divide-border/50">
-				{order.items.map((item: OrderItem) => (
-					<div key={item.id} className="px-3 py-2">
-						<div className="flex gap-2">
-							<span className="w-5 shrink-0 font-bold text-muted-foreground">
-								{item.quantity}
-							</span>
-							<span className="font-medium">
-								{item.kitchenName || item.name}
-							</span>
-						</div>
-						{item.options.length > 0 && (
-							<div className="ms-7 mt-0.5 text-muted-foreground text-sm">
-								{item.options.map((opt: OrderItem["options"][number]) => (
-									<div key={opt.id} className="flex items-center gap-1">
-										<span className="text-muted-foreground/60">•</span>
-										{opt.choiceName}
-										{opt.quantity > 1 && ` (×${opt.quantity})`}
-									</div>
-								))}
-							</div>
-						)}
-					</div>
+			<VStack gap="0">
+				{order.items.map((item: OrderItem, index: number) => (
+					<Box key={item.id} w="100%">
+						{index > 0 && <Separator />}
+						<Box px="3" py="2">
+							<HStack gap="2">
+								<Text w="5" flexShrink={0} fontWeight="bold" color="fg.muted">
+									{item.quantity}
+								</Text>
+								<Text fontWeight="medium">{item.kitchenName || item.name}</Text>
+							</HStack>
+							{item.options.length > 0 && (
+								<VStack
+									gap="0.5"
+									alignItems="start"
+									ms="7"
+									mt="0.5"
+									color="fg.muted"
+									textStyle="sm"
+								>
+									{item.options.map((opt: OrderItem["options"][number]) => (
+										<HStack key={opt.id} gap="1">
+											<Text color="fg.muted" opacity={0.6}>
+												•
+											</Text>
+											<Text>
+												{opt.choiceName}
+												{opt.quantity > 1 && ` (×${opt.quantity})`}
+											</Text>
+										</HStack>
+									))}
+								</VStack>
+							)}
+						</Box>
+					</Box>
 				))}
-			</div>
+			</VStack>
 
 			{/* Customer notes */}
 			{order.customerNotes && (
-				<div className="border-t bg-amber-50/80 px-3 py-2 text-sm">
-					<span className="font-medium text-amber-700">
+				<Box
+					borderTopWidth="1px"
+					bg="bg.warning"
+					opacity={0.8}
+					px="3"
+					py="2"
+					textStyle="sm"
+				>
+					<Text as="span" fontWeight="medium" color="fg.warning">
 						{t("labels.notes")}:
-					</span>{" "}
-					<span className="text-amber-900">{order.customerNotes}</span>
-				</div>
+					</Text>{" "}
+					<Text as="span" color="fg">
+						{order.customerNotes}
+					</Text>
+				</Box>
 			)}
 
 			{/* Next button - move to next column */}
 			{showNextButton && (
-				<div className="border-t p-2">
+				<Box borderTopWidth="1px" p="2">
 					<Button
-						variant="secondary"
+						variant="subtle"
 						size="sm"
-						className="pointer-coarse:h-11 w-full pointer-coarse:text-base"
+						width="100%"
+						className="pointer-coarse:h-11 pointer-coarse:text-base"
 						onClick={(e) => {
 							e.stopPropagation();
 							onNext();
 						}}
 						onPointerDown={(e) => e.stopPropagation()}
 					>
-						{t("actions.next")}
-						<ChevronRight className="ms-1 pointer-coarse:size-5 size-4" />
+						<HStack gap="1">
+							<Text>{t("actions.next")}</Text>
+							<Box className="pointer-coarse:size-5">
+								<ChevronRight size={16} />
+							</Box>
+						</HStack>
 					</Button>
-				</div>
+				</Box>
 			)}
-		</div>
+		</Box>
 	);
 }

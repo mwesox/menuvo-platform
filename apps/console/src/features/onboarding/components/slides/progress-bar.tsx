@@ -1,3 +1,4 @@
+import { Box } from "@chakra-ui/react";
 import { AnimatePresence, motion } from "motion/react";
 
 interface ProgressBarProps {
@@ -18,21 +19,30 @@ export function ProgressBar({
 		<AnimatePresence>
 			{isVisible && (
 				<motion.div
-					className="fixed top-0 right-0 left-0 z-50"
 					initial={{ opacity: 1 }}
 					exit={{ opacity: 0 }}
 					transition={{ duration: 0.1 }}
+					style={{
+						position: "fixed",
+						top: 0,
+						right: 0,
+						left: 0,
+						zIndex: 50,
+					}}
 				>
 					{/* Track */}
-					<div className="h-1 w-full bg-border/50">
+					<Box h="1" w="full" bg="border.muted">
 						{/* Fill */}
 						<motion.div
-							className="h-full bg-accent"
 							initial={{ width: 0 }}
 							animate={{ width: `${progress}%` }}
 							transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+							style={{
+								height: "100%",
+								backgroundColor: "var(--chakra-colors-primary)",
+							}}
 						/>
-					</div>
+					</Box>
 				</motion.div>
 			)}
 		</AnimatePresence>

@@ -1,13 +1,5 @@
+import { Badge, Box, Link as ChakraLink, Table, Text } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
-import {
-	Badge,
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@menuvo/ui";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
 import { EyeOff } from "lucide-react";
@@ -55,36 +47,42 @@ export function OptionGroupsTable({
 
 	const getTypeBadgeVariant = (
 		type: OptionGroupType,
-	): "default" | "secondary" | "outline" => {
+	): "solid" | "subtle" | "outline" => {
 		switch (type) {
 			case "single_select":
-				return "default";
+				return "solid";
 			case "multi_select":
-				return "secondary";
+				return "subtle";
 			case "quantity_select":
 				return "outline";
 			default:
-				return "default";
+				return "solid";
 		}
 	};
 
 	return (
-		<Table>
-			<TableHeader>
-				<TableRow>
-					<TableHead className="w-[50%]">{t("table.name")}</TableHead>
-					<TableHead className="text-center">{t("table.type")}</TableHead>
-					<TableHead className="text-center">{t("table.choices")}</TableHead>
-					<TableHead className="text-center">{t("table.status")}</TableHead>
-				</TableRow>
-			</TableHeader>
-			<TableBody>
+		<Table.Root size="sm">
+			<Table.Header>
+				<Table.Row>
+					<Table.ColumnHeader w="50%">{t("table.name")}</Table.ColumnHeader>
+					<Table.ColumnHeader textAlign="center">
+						{t("table.type")}
+					</Table.ColumnHeader>
+					<Table.ColumnHeader textAlign="center">
+						{t("table.choices")}
+					</Table.ColumnHeader>
+					<Table.ColumnHeader textAlign="center">
+						{t("table.status")}
+					</Table.ColumnHeader>
+				</Table.Row>
+			</Table.Header>
+			<Table.Body>
 				{optionGroups.length === 0 ? (
-					<TableRow>
-						<TableCell colSpan={4} className="h-24 text-center">
+					<Table.Row>
+						<Table.Cell colSpan={4} h="24" textAlign="center">
 							{t("emptyStates.noOptionGroups")}
-						</TableCell>
-					</TableRow>
+						</Table.Cell>
+					</Table.Row>
 				) : (
 					optionGroups.map((group) => {
 						const name = getDisplayName(group.translations, language);
@@ -92,43 +90,54 @@ export function OptionGroupsTable({
 						const groupType = group.type as OptionGroupType;
 
 						return (
-							<TableRow
+							<Table.Row
 								key={group.id}
-								className="cursor-pointer"
+								cursor="pointer"
 								onClick={() => handleRowClick(group.id)}
 							>
-								<TableCell>
-									<Link
-										to="/stores/$storeId/menu/options/$optionGroupId"
-										params={{ storeId, optionGroupId: group.id }}
-										className="font-medium text-primary hover:underline"
-										onClick={(e) => e.stopPropagation()}
+								<Table.Cell>
+									<ChakraLink
+										variant="underline"
+										colorPalette="primary"
+										fontWeight="medium"
+										asChild
 									>
-										{name || t("emptyStates.unnamed")}
-									</Link>
-								</TableCell>
-								<TableCell className="text-center">
+										<Link
+											to="/stores/$storeId/menu/options/$optionGroupId"
+											params={{ storeId, optionGroupId: group.id }}
+											onClick={(e) => e.stopPropagation()}
+										>
+											{name || t("emptyStates.unnamed")}
+										</Link>
+									</ChakraLink>
+								</Table.Cell>
+								<Table.Cell textAlign="center">
 									<Badge variant={getTypeBadgeVariant(groupType)}>
 										{getTypeLabel(groupType)}
 									</Badge>
-								</TableCell>
-								<TableCell className="text-center">
+								</Table.Cell>
+								<Table.Cell textAlign="center">
 									{choiceCount > 0 ? (
 										choiceCount
 									) : (
-										<span className="text-muted-foreground">—</span>
+										<Text color="fg.muted">—</Text>
 									)}
-								</TableCell>
-								<TableCell className="text-center">
+								</Table.Cell>
+								<Table.Cell textAlign="center">
 									{!group.isActive && (
-										<EyeOff className="mx-auto h-4 w-4 text-muted-foreground" />
+										<Box display="flex" justifyContent="center">
+											<EyeOff
+												style={{ height: "1rem", width: "1rem" }}
+												color="fg.muted"
+											/>
+										</Box>
 									)}
-								</TableCell>
-							</TableRow>
+								</Table.Cell>
+							</Table.Row>
 						);
 					})
 				)}
-			</TableBody>
-		</Table>
+			</Table.Body>
+		</Table.Root>
 	);
 }

@@ -1,89 +1,112 @@
-import { Button } from "@menuvo/ui";
+import {
+	Box,
+	Button,
+	Container,
+	Heading,
+	Icon,
+	Link,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { ArrowLeft } from "lucide-react";
 import company from "../data/company.json";
 
 export function ImpressumPage() {
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="mx-auto max-w-3xl px-4 py-8 md:px-6">
+		<Box minH="screen" bg="background">
+			<Container maxW="3xl" px={{ base: "4", md: "6" }} py="8">
 				<Button
 					variant="ghost"
 					size="sm"
-					className="mb-4"
+					mb="4"
 					onClick={() => window.history.back()}
 				>
-					<ArrowLeft className="mr-2 size-4" />
+					<Icon w="4" h="4" me="2">
+						<ArrowLeft />
+					</Icon>
 					Zurück
 				</Button>
 
-				<h1 className="mb-8 font-semibold text-2xl">Impressum</h1>
+				<Heading as="h1" mb="8" fontWeight="semibold" textStyle="2xl">
+					Impressum
+				</Heading>
 
-				<div className="space-y-6 text-sm leading-relaxed">
-					<section>
-						<h2 className="mb-2 font-medium text-base">
+				<VStack gap="6" align="stretch" textStyle="sm" lineHeight="relaxed">
+					<Box as="section">
+						<Heading as="h2" mb="2" fontWeight="medium" textStyle="base">
 							Angaben gemäß § 5 TMG
-						</h2>
-						<p>{company.name}</p>
-						<p>{company.address}</p>
-					</section>
+						</Heading>
+						<Text>{company.name}</Text>
+						<Text>{company.address}</Text>
+					</Box>
 
-					<section>
-						<h2 className="mb-2 font-medium text-base">Kontakt</h2>
-						<p>
+					<Box as="section">
+						<Heading as="h2" mb="2" fontWeight="medium" textStyle="base">
+							Kontakt
+						</Heading>
+						<Text>
 							Telefon:{" "}
-							<a href={`tel:${company.phone}`} className="underline">
+							<Link href={`tel:${company.phone}`} textDecoration="underline">
 								{company.phone}
-							</a>
-						</p>
-						<p>
+							</Link>
+						</Text>
+						<Text>
 							E-Mail:{" "}
-							<a href={`mailto:${company.email}`} className="underline">
+							<Link href={`mailto:${company.email}`} textDecoration="underline">
 								{company.email}
-							</a>
-						</p>
-					</section>
+							</Link>
+						</Text>
+					</Box>
 
-					<section>
-						<h2 className="mb-2 font-medium text-base">Handelsregister</h2>
-						<p>{company.register}</p>
-					</section>
+					<Box as="section">
+						<Heading as="h2" mb="2" fontWeight="medium" textStyle="base">
+							Handelsregister
+						</Heading>
+						<Text>{company.register}</Text>
+					</Box>
 
-					<section>
-						<h2 className="mb-2 font-medium text-base">Vertreten durch</h2>
-						<p>Geschäftsführer: {company.managingDirector}</p>
-					</section>
+					<Box as="section">
+						<Heading as="h2" mb="2" fontWeight="medium" textStyle="base">
+							Vertreten durch
+						</Heading>
+						<Text>Geschäftsführer: {company.managingDirector}</Text>
+					</Box>
 
-					<section>
-						<h2 className="mb-2 font-medium text-base">EU-Streitschlichtung</h2>
-						<p>
+					<Box as="section">
+						<Heading as="h2" mb="2" fontWeight="medium" textStyle="base">
+							EU-Streitschlichtung
+						</Heading>
+						<Text>
 							Die Europäische Kommission stellt eine Plattform zur
 							Online-Streitbeilegung (OS) bereit:{" "}
-							<a
+							<Link
 								href="https://ec.europa.eu/consumers/odr/"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="break-all text-primary underline"
+								wordBreak="break-all"
+								color="primary"
+								textDecoration="underline"
 							>
 								https://ec.europa.eu/consumers/odr/
-							</a>
-						</p>
-						<p className="mt-2">
+							</Link>
+						</Text>
+						<Text mt="2">
 							Unsere E-Mail-Adresse finden Sie oben im Impressum.
-						</p>
-					</section>
+						</Text>
+					</Box>
 
-					<section>
-						<h2 className="mb-2 font-medium text-base">
+					<Box as="section">
+						<Heading as="h2" mb="2" fontWeight="medium" textStyle="base">
 							Verbraucherstreitbeilegung
-						</h2>
-						<p>
+						</Heading>
+						<Text>
 							Wir sind nicht bereit oder verpflichtet, an
 							Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle
 							teilzunehmen.
-						</p>
-					</section>
-				</div>
-			</div>
-		</div>
+						</Text>
+					</Box>
+				</VStack>
+			</Container>
+		</Box>
 	);
 }

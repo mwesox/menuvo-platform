@@ -1,26 +1,20 @@
-import type { AppRouter } from "@menuvo/api/trpc";
 import {
+	Box,
 	Button,
 	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-	Field,
-	FieldDescription,
-	FieldError,
-	FieldGroup,
-	FieldLabel,
+	HStack,
 	Input,
-	LoadingButton,
 	Textarea,
-} from "@menuvo/ui";
+	VStack,
+} from "@chakra-ui/react";
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { FormField } from "@/components/ui/form-field";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import {
 	basisPointsToPercentage,
@@ -127,149 +121,124 @@ export function VatGroupForm({ storeId, vatGroup }: VatGroupFormProps) {
 	});
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>
 					{isEditing
 						? t("vat.titles.editVatGroup")
 						: t("vat.titles.addVatGroup")}
-				</CardTitle>
-				<CardDescription>
+				</Card.Title>
+				<Card.Description>
 					{isEditing
 						? t("vat.dialogs.updateVatGroupDescription")
 						: t("vat.dialogs.createVatGroupDescription")}
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
+				</Card.Description>
+			</Card.Header>
+			<Card.Body>
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
 						form.handleSubmit();
 					}}
 				>
-					<FieldGroup>
+					<VStack gap="6" align="stretch">
 						<form.Field name="code">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="vat-code">
-											{t("vat.labels.code")} *
-										</FieldLabel>
-										<Input
-											id="vat-code"
-											name={field.name}
-											placeholder={t("vat.placeholders.code")}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) =>
-												field.handleChange(e.target.value.toLowerCase())
-											}
-											aria-invalid={isInvalid}
-											disabled={isEditing}
-										/>
-										<FieldDescription>{t("vat.hints.code")}</FieldDescription>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
+							{(field) => (
+								<FormField
+									field={field}
+									label={`${t("vat.labels.code")} *`}
+									description={t("vat.hints.code")}
+									required
+								>
+									<Input
+										id="vat-code"
+										name={field.name}
+										placeholder={t("vat.placeholders.code")}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) =>
+											field.handleChange(e.target.value.toLowerCase())
+										}
+										disabled={isEditing}
+									/>
+								</FormField>
+							)}
 						</form.Field>
 
 						<form.Field name="name">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="vat-name">
-											{tForms("fields.name")} *
-										</FieldLabel>
-										<Input
-											id="vat-name"
-											name={field.name}
-											placeholder={t("vat.placeholders.name")}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
+							{(field) => (
+								<FormField
+									field={field}
+									label={`${tForms("fields.name")} *`}
+									required
+								>
+									<Input
+										id="vat-name"
+										name={field.name}
+										placeholder={t("vat.placeholders.name")}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</FormField>
+							)}
 						</form.Field>
 
 						<form.Field name="rate">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="vat-rate">
-											{t("vat.labels.rate")} *
-										</FieldLabel>
-										<div className="relative">
-											<Input
-												id="vat-rate"
-												name={field.name}
-												type="number"
-												step="0.01"
-												min="0"
-												max="100"
-												placeholder={t("vat.placeholders.rate")}
-												value={field.state.value}
-												onBlur={field.handleBlur}
-												onChange={(e) => field.handleChange(e.target.value)}
-												aria-invalid={isInvalid}
-												className="pr-8"
-											/>
-											<span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground">
-												%
-											</span>
-										</div>
-										<FieldDescription>{t("vat.hints.rate")}</FieldDescription>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
-						</form.Field>
-
-						<form.Field name="description">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="vat-description">
-											{tForms("fields.description")}
-										</FieldLabel>
-										<Textarea
-											id="vat-description"
+							{(field) => (
+								<FormField
+									field={field}
+									label={`${t("vat.labels.rate")} *`}
+									description={t("vat.hints.rate")}
+									required
+								>
+									<Box position="relative">
+										<Input
+											id="vat-rate"
 											name={field.name}
-											placeholder={t("vat.placeholders.description")}
+											type="number"
+											step="0.01"
+											min="0"
+											max="100"
+											placeholder={t("vat.placeholders.rate")}
 											value={field.state.value}
 											onBlur={field.handleBlur}
 											onChange={(e) => field.handleChange(e.target.value)}
-											rows={3}
-											aria-invalid={isInvalid}
+											pr="8"
 										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
+										<Box
+											position="absolute"
+											top="50%"
+											right="3"
+											transform="translateY(-50%)"
+											pointerEvents="none"
+											color="fg.muted"
+										>
+											%
+										</Box>
+									</Box>
+								</FormField>
+							)}
 						</form.Field>
-					</FieldGroup>
 
-					<div className="mt-6 flex justify-end gap-3">
+						<form.Field name="description">
+							{(field) => (
+								<FormField field={field} label={tForms("fields.description")}>
+									<Textarea
+										id="vat-description"
+										name={field.name}
+										placeholder={t("vat.placeholders.description")}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										rows={3}
+									/>
+								</FormField>
+							)}
+						</form.Field>
+					</VStack>
+
+					<HStack mt="6" justify="flex-end" gap="3">
 						<Button type="button" variant="outline" asChild>
 							<Link to="/stores/$storeId/menu/vat" params={{ storeId }}>
 								{tCommon("buttons.cancel")}
@@ -282,10 +251,10 @@ export function VatGroupForm({ storeId, vatGroup }: VatGroupFormProps) {
 							})}
 						>
 							{({ isSubmitting, canSubmit }) => (
-								<LoadingButton
+								<Button
 									type="submit"
 									disabled={!canSubmit}
-									isLoading={isSubmitting}
+									loading={isSubmitting}
 									loadingText={
 										isEditing
 											? tCommon("states.saving")
@@ -295,12 +264,12 @@ export function VatGroupForm({ storeId, vatGroup }: VatGroupFormProps) {
 									{isEditing
 										? tCommon("buttons.saveChanges")
 										: t("vat.buttons.createVatGroup")}
-								</LoadingButton>
+								</Button>
 							)}
 						</form.Subscribe>
-					</div>
+					</HStack>
 				</form>
-			</CardContent>
-		</Card>
+			</Card.Body>
+		</Card.Root>
 	);
 }

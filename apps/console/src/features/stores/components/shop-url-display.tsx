@@ -1,11 +1,15 @@
-import { Button, Input, Label } from "@menuvo/ui";
 import {
-	AlertTriangle,
-	Check,
-	Copy,
-	ExternalLink,
-	Loader2,
-} from "lucide-react";
+	Box,
+	HStack,
+	Icon,
+	IconButton,
+	Input,
+	Spinner,
+	Text,
+	VisuallyHidden,
+	VStack,
+} from "@chakra-ui/react";
+import { AlertTriangle, Check, Copy, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -55,72 +59,96 @@ export function ShopUrlDisplay({
 	};
 
 	return (
-		<div className="space-y-3 rounded-lg border p-4">
-			<div className="space-y-0.5">
-				<Label>{t("labels.shopUrl")}</Label>
-				<p className="text-muted-foreground text-sm">
+		<VStack gap="3" align="stretch" rounded="lg" borderWidth="1px" p="4">
+			<VStack gap="0.5" align="stretch">
+				<Text fontWeight="medium" textStyle="sm">
+					{t("labels.shopUrl")}
+				</Text>
+				<Text color="fg.muted" textStyle="sm">
 					{t("descriptions.shopUrl")}
-				</p>
-			</div>
+				</Text>
+			</VStack>
 
-			<div className="flex items-center gap-2">
-				<div className="relative flex-1">
-					<Input value={shopUrl} readOnly className="pr-10" />
+			<HStack gap="2" align="center">
+				<Box position="relative" flex="1">
+					<Input
+						value={shopUrl}
+						readOnly
+						pr={isInteractive ? "10" : undefined}
+					/>
 					{isInteractive && (
-						<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+						<Box
+							position="absolute"
+							insetY="0"
+							right="0"
+							display="flex"
+							alignItems="center"
+							pr="3"
+							pointerEvents="none"
+						>
 							{isChecking ? (
 								<>
-									<Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-									<span className="sr-only">Checking availability...</span>
+									<Spinner size="xs" color="fg.muted" />
+									<VisuallyHidden>Checking availability...</VisuallyHidden>
 								</>
 							) : isAvailable ? (
 								<>
-									<Check className="h-4 w-4 text-success" />
-									<span className="sr-only">Available</span>
+									<Icon w="4" h="4" color="success">
+										<Check />
+									</Icon>
+									<VisuallyHidden>Available</VisuallyHidden>
 								</>
 							) : (
 								<>
-									<AlertTriangle className="h-4 w-4 text-warning" />
-									<span className="sr-only">Not available</span>
+									<Icon w="4" h="4" color="warning">
+										<AlertTriangle />
+									</Icon>
+									<VisuallyHidden>Not available</VisuallyHidden>
 								</>
 							)}
-						</div>
+						</Box>
 					)}
-				</div>
-				<Button
+				</Box>
+				<IconButton
 					variant="outline"
-					size="icon"
+					size="sm"
 					onClick={handleCopy}
-					title={t("actions.copyUrl")}
+					aria-label={t("actions.copyUrl")}
 				>
 					{copied ? (
-						<Check className="h-4 w-4 text-success" />
+						<Icon w="4" h="4" color="success">
+							<Check />
+						</Icon>
 					) : (
-						<Copy className="h-4 w-4" />
+						<Icon w="4" h="4">
+							<Copy />
+						</Icon>
 					)}
-				</Button>
-				<Button variant="outline" size="icon" asChild>
-					<a
-						href={shopUrl}
-						target="_blank"
-						rel="noopener noreferrer"
-						title={t("actions.openShop")}
-					>
-						<ExternalLink className="h-4 w-4" />
+				</IconButton>
+				<IconButton
+					variant="outline"
+					size="sm"
+					asChild
+					aria-label={t("actions.openShop")}
+				>
+					<a href={shopUrl} target="_blank" rel="noopener noreferrer">
+						<Icon w="4" h="4">
+							<ExternalLink />
+						</Icon>
 					</a>
-				</Button>
-			</div>
+				</IconButton>
+			</HStack>
 
 			{/* Show message when using alternative slug */}
 			{willUseAlternative && (
-				<p className="text-sm text-warning">
+				<Text textStyle="sm" color="warning">
 					{t("slugTaken", {
 						original: slug,
 						alternative: nextAvailable,
 						defaultValue: `"${slug}" is taken. Will be saved as "${nextAvailable}".`,
 					})}
-				</p>
+				</Text>
 			)}
-		</div>
+		</VStack>
 	);
 }

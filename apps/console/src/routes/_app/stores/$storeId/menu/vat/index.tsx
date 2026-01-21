@@ -1,11 +1,18 @@
-import { Button } from "@menuvo/ui";
+import {
+	Box,
+	Button,
+	Heading,
+	HStack,
+	Skeleton,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useStore } from "@/contexts/store-context";
 import { ConsoleError } from "@/features/components/console-error";
-import { MenuTabs } from "@/features/menu/components/menu-tabs";
 import { VatGroupsTable } from "@/features/menu/components/vat-groups-table";
 import { trpcUtils, useTRPC } from "@/lib/trpc";
 
@@ -20,14 +27,14 @@ export const Route = createFileRoute("/_app/stores/$storeId/menu/vat/")({
 
 function VatPageSkeleton() {
 	return (
-		<div className="space-y-6">
-			<div className="h-6 w-48 animate-pulse rounded bg-muted" />
-			<div className="space-y-2">
+		<VStack gap="6" align="stretch">
+			<Skeleton h="6" w="48" />
+			<VStack gap="2" align="stretch">
 				{Array.from({ length: 5 }).map((_, i) => (
-					<div key={i} className="h-12 animate-pulse rounded bg-muted" />
+					<Skeleton key={i} h="12" rounded="md" />
 				))}
-			</div>
-		</div>
+			</VStack>
+		</VStack>
 	);
 }
 
@@ -39,30 +46,35 @@ function VatPage() {
 	const { data: vatGroups = [] } = useQuery(trpc.menu.vat.list.queryOptions());
 
 	return (
-		<div className="space-y-6">
-			<MenuTabs />
-
-			<div className="flex items-center justify-between">
-				<div>
-					<h1 className="font-semibold text-2xl tracking-tight">
+		<>
+			<HStack justify="space-between" align="center">
+				<Box>
+					<Heading
+						as="h1"
+						fontWeight="semibold"
+						textStyle="2xl"
+						letterSpacing="tight"
+					>
 						{t("vat.titles.vatGroups")}
-					</h1>
-					<p className="text-muted-foreground">
+					</Heading>
+					<Text color="fg.muted">
 						{t("vat.pageHeaders.vatGroupsDescription")}
-					</p>
-				</div>
+					</Text>
+				</Box>
 				<Button asChild>
 					<Link
 						to="/stores/$storeId/menu/vat/new"
 						params={{ storeId: store.id }}
 					>
-						<Plus className="mr-2 h-4 w-4" />
+						<Plus
+							style={{ marginRight: "0.5rem", height: "1rem", width: "1rem" }}
+						/>
 						{t("vat.titles.addVatGroup")}
 					</Link>
 				</Button>
-			</div>
+			</HStack>
 
 			<VatGroupsTable vatGroups={vatGroups} storeId={store.id} />
-		</div>
+		</>
 	);
 }

@@ -1,12 +1,12 @@
 import {
 	Button,
+	HStack,
+	Icon,
 	Input,
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@menuvo/ui";
+	NativeSelect,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -67,27 +67,27 @@ export function AttributesEditor({ value, onChange }: AttributesEditorProps) {
 	};
 
 	return (
-		<div className="space-y-3">
+		<VStack gap="3" align="stretch">
 			{entries.length > 0 && (
-				<div className="space-y-2">
+				<VStack gap="2" align="stretch">
 					{entries.map(([key, val]) => {
 						const type = getValueType(val);
 						return (
-							<div key={key} className="flex items-center gap-2">
-								<Input value={key} disabled className="w-1/3 bg-muted" />
+							<HStack key={key} gap="2" align="center">
+								<Input value={key} disabled w="1/3" bg="bg.muted" />
 								{type === "boolean" ? (
-									<Select
-										value={String(val)}
-										onValueChange={(v) => handleUpdateValue(key, v, "boolean")}
-									>
-										<SelectTrigger className="w-1/3">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="true">true</SelectItem>
-											<SelectItem value="false">false</SelectItem>
-										</SelectContent>
-									</Select>
+									<NativeSelect.Root w="1/3">
+										<NativeSelect.Field
+											value={String(val)}
+											onChange={(e) =>
+												handleUpdateValue(key, e.target.value, "boolean")
+											}
+										>
+											<option value="true">true</option>
+											<option value="false">false</option>
+										</NativeSelect.Field>
+										<NativeSelect.Indicator />
+									</NativeSelect.Root>
 								) : (
 									<Input
 										type={type === "number" ? "number" : "text"}
@@ -95,85 +95,88 @@ export function AttributesEditor({ value, onChange }: AttributesEditorProps) {
 										onChange={(e) =>
 											handleUpdateValue(key, e.target.value, type)
 										}
-										className="w-1/3"
+										w="1/3"
 									/>
 								)}
-								<span className="w-20 text-muted-foreground text-xs">
+								<Text w="20" color="fg.muted" textStyle="xs">
 									{type}
-								</span>
+								</Text>
 								<Button
 									type="button"
 									variant="ghost"
-									size="icon"
-									className="shrink-0 text-destructive hover:bg-destructive/10"
+									size="sm"
+									flexShrink={0}
+									colorPalette="red"
 									onClick={() => handleRemoveAttribute(key)}
 								>
-									<Trash2 className="size-4" />
+									<Icon w="4" h="4">
+										<Trash2 />
+									</Icon>
 								</Button>
-							</div>
+							</HStack>
 						);
 					})}
-				</div>
+				</VStack>
 			)}
 
-			<div className="flex items-center gap-2 border-t pt-3">
+			<HStack gap="2" align="center" borderTopWidth="1px" pt="3">
 				<Input
 					placeholder={t("placeholders.key")}
 					value={newKey}
 					onChange={(e) => setNewKey(e.target.value)}
-					className="w-1/3"
+					w="1/3"
 				/>
 				{newType === "boolean" ? (
-					<Select value={newValue} onValueChange={setNewValue}>
-						<SelectTrigger className="w-1/3">
-							<SelectValue placeholder={t("placeholders.value")} />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="true">true</SelectItem>
-							<SelectItem value="false">false</SelectItem>
-						</SelectContent>
-					</Select>
+					<NativeSelect.Root w="1/3">
+						<NativeSelect.Field
+							value={newValue}
+							onChange={(e) => setNewValue(e.target.value)}
+						>
+							<option value="">{t("placeholders.value")}</option>
+							<option value="true">true</option>
+							<option value="false">false</option>
+						</NativeSelect.Field>
+						<NativeSelect.Indicator />
+					</NativeSelect.Root>
 				) : (
 					<Input
 						type={newType === "number" ? "number" : "text"}
 						placeholder={t("placeholders.value")}
 						value={newValue}
 						onChange={(e) => setNewValue(e.target.value)}
-						className="w-1/3"
+						w="1/3"
 					/>
 				)}
-				<Select
-					value={newType}
-					onValueChange={(v) => setNewType(v as ValueType)}
-				>
-					<SelectTrigger className="w-20">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="string">{t("attributeTypes.text")}</SelectItem>
-						<SelectItem value="number">{t("attributeTypes.number")}</SelectItem>
-						<SelectItem value="boolean">
-							{t("attributeTypes.boolean")}
-						</SelectItem>
-					</SelectContent>
-				</Select>
+				<NativeSelect.Root w="20">
+					<NativeSelect.Field
+						value={newType}
+						onChange={(e) => setNewType(e.target.value as ValueType)}
+					>
+						<option value="string">{t("attributeTypes.text")}</option>
+						<option value="number">{t("attributeTypes.number")}</option>
+						<option value="boolean">{t("attributeTypes.boolean")}</option>
+					</NativeSelect.Field>
+					<NativeSelect.Indicator />
+				</NativeSelect.Root>
 				<Button
 					type="button"
 					variant="outline"
-					size="icon"
-					className="shrink-0"
+					size="sm"
+					flexShrink={0}
 					onClick={handleAddAttribute}
 					disabled={!newKey.trim()}
 				>
-					<Plus className="size-4" />
+					<Icon w="4" h="4">
+						<Plus />
+					</Icon>
 				</Button>
-			</div>
+			</HStack>
 
 			{entries.length === 0 && (
-				<p className="text-muted-foreground text-sm">
+				<Text color="fg.muted" textStyle="sm">
 					{t("emptyStates.noAttributes")}
-				</p>
+				</Text>
 			)}
-		</div>
+		</VStack>
 	);
 }

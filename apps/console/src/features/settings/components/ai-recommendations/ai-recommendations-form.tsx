@@ -1,13 +1,15 @@
-import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Button,
-	cn,
 	Field,
-	FieldGroup,
-	FieldLabel,
+	HStack,
+	Icon,
 	Input,
+	SimpleGrid,
 	Switch,
-} from "@menuvo/ui";
+	Text,
+	VStack,
+} from "@chakra-ui/react";
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useForm } from "@tanstack/react-form";
 import {
 	useMutation,
@@ -26,7 +28,8 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ContentSection } from "@/components/ui/content-section";
+import { SettingsFormFooter } from "@/components/layout/settings-form-footer";
+import { FormSection } from "@/components/ui/form-section";
 import {
 	AI_RECOMMENDATIONS_LIMITS,
 	aiRecommendationsFormSchema,
@@ -111,178 +114,222 @@ export function AiRecommendationsForm({ storeId }: AiRecommendationsFormProps) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="space-y-8"
 		>
-			<ContentSection
-				title={t("aiRecommendations.title")}
-				description={t("aiRecommendations.description")}
-			>
-				<FieldGroup className="space-y-6">
-					{/* Enable/Disable Toggle */}
-					<form.Field name="enabled">
-						{(field) => (
-							<div className="flex items-center gap-3">
-								<Switch
-									id="ai-enabled"
-									checked={field.state.value}
-									onCheckedChange={field.handleChange}
-								/>
-								<FieldLabel htmlFor="ai-enabled" className="cursor-pointer">
-									{t("aiRecommendations.enableToggle")}
-								</FieldLabel>
-							</div>
-						)}
-					</form.Field>
-
-					{/* Tone Selector */}
-					<form.Field name="tone">
-						{(field) => (
-							<Field>
-								<FieldLabel>{t("aiRecommendations.toneLabel")}</FieldLabel>
-								<p className="mb-3 text-muted-foreground text-sm">
-									{t("aiRecommendations.toneHint")}
-								</p>
-								<div className="grid grid-cols-3 gap-3">
-									{recommendationTones.map((toneKey) => {
-										const Icon = TONE_ICONS[toneKey];
-										const isSelected = field.state.value === toneKey;
-										return (
-											<button
-												key={toneKey}
-												type="button"
-												onClick={() =>
-													field.handleChange(toneKey as RecommendationTone)
-												}
-												className={cn(
-													"relative flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all",
-													isSelected
-														? "border-primary bg-primary/5"
-														: "border-border hover:border-primary/50",
-												)}
-											>
-												{isSelected && (
-													<div className="absolute top-2 right-2">
-														<Check className="size-4 text-primary" />
-													</div>
-												)}
-												<Icon
-													className={cn(
-														"size-6",
-														isSelected
-															? "text-primary"
-															: "text-muted-foreground",
-													)}
-												/>
-												<span className="font-medium text-sm">
-													{t(`aiRecommendations.tones.${toneKey}.label`)}
-												</span>
-												<span className="text-center text-muted-foreground text-xs">
-													{t(`aiRecommendations.tones.${toneKey}.subtitle`)}
-												</span>
-											</button>
-										);
-									})}
-								</div>
-
-								{/* Preview Section */}
-								<div className="mt-4 rounded-lg border border-dashed bg-muted/30 p-4">
-									<p className="mb-2 font-medium text-muted-foreground text-xs uppercase tracking-wide">
-										{t("aiRecommendations.previewLabel")}
-									</p>
-									<div className="flex items-center gap-2">
-										<Sparkles className="size-4 text-primary" />
-										<span className="font-medium text-sm">
-											{t(
-												`aiRecommendations.tones.${field.state.value}.exampleTitle`,
-											)}
-										</span>
-									</div>
-									<p className="mt-1 ml-6 text-muted-foreground text-xs">
-										{t(
-											`aiRecommendations.tones.${field.state.value}.exampleReason`,
-										)}
-									</p>
-								</div>
-							</Field>
-						)}
-					</form.Field>
-
-					{/* Pairing Rules List */}
-					<form.Field name="pairingRules" mode="array">
-						{(field) => (
-							<Field>
-								<FieldLabel>
-									{t("aiRecommendations.pairingRulesLabel")}
-								</FieldLabel>
-								<div className="space-y-2">
-									{field.state.value.map((_, index) => (
-										<form.Field key={index} name={`pairingRules[${index}]`}>
-											{(ruleField) => (
-												<div className="flex items-center gap-2">
-													<Input
-														value={ruleField.state.value}
-														onChange={(e) =>
-															ruleField.handleChange(e.target.value)
-														}
-														placeholder={t("aiRecommendations.rulePlaceholder")}
-														maxLength={
-															AI_RECOMMENDATIONS_LIMITS.MAX_RULE_LENGTH
-														}
-														className="flex-1"
-													/>
-													<Button
-														type="button"
-														variant="ghost"
-														size="icon"
-														onClick={() => field.removeValue(index)}
-														aria-label={tCommon("buttons.delete")}
-													>
-														<X className="size-4" />
-													</Button>
-												</div>
-											)}
-										</form.Field>
-									))}
-
-									{field.state.value.length <
-										AI_RECOMMENDATIONS_LIMITS.MAX_RULES && (
-										<Button
-											type="button"
-											variant="outline"
-											size="sm"
-											onClick={() => field.pushValue("")}
-											className="mt-2"
+			<VStack layerStyle="settingsContent">
+				<FormSection
+					title={t("aiRecommendations.title")}
+					description={t("aiRecommendations.description")}
+				>
+					<VStack gap="6" align="stretch">
+						{/* Enable/Disable Toggle */}
+						<form.Field name="enabled">
+							{(field) => (
+								<Field.Root>
+									<HStack gap="3" align="center">
+										<Switch.Root
+											id="ai-enabled"
+											checked={field.state.value}
+											onCheckedChange={(e) => field.handleChange(e.checked)}
+											colorPalette="red"
 										>
-											<Plus className="mr-2 size-4" />
-											{t("aiRecommendations.addRule")}
-										</Button>
-									)}
-								</div>
-								<p className="mt-2 text-muted-foreground text-sm">
-									{t("aiRecommendations.pairingRulesHint")}
-								</p>
-								<div className="text-right text-muted-foreground text-xs">
-									{field.state.value.length}/
-									{AI_RECOMMENDATIONS_LIMITS.MAX_RULES}{" "}
-									{tCommon("labels.rules")}
-								</div>
-							</Field>
-						)}
-					</form.Field>
-				</FieldGroup>
-			</ContentSection>
+											<Switch.HiddenInput />
+											<Switch.Control />
+										</Switch.Root>
+										<Field.Label htmlFor="ai-enabled" cursor="pointer">
+											{t("aiRecommendations.enableToggle")}
+										</Field.Label>
+									</HStack>
+								</Field.Root>
+							)}
+						</form.Field>
 
-			<div className="flex justify-end">
+						{/* Tone Selector */}
+						<form.Field name="tone">
+							{(field) => (
+								<Field.Root>
+									<Field.Label>{t("aiRecommendations.toneLabel")}</Field.Label>
+									<Field.HelperText mb="3" textStyle="sm">
+										{t("aiRecommendations.toneHint")}
+									</Field.HelperText>
+									<SimpleGrid columns={3} gap="3">
+										{recommendationTones.map((toneKey) => {
+											const ToneIcon = TONE_ICONS[toneKey];
+											const isSelected = field.state.value === toneKey;
+											return (
+												<Button
+													key={toneKey}
+													type="button"
+													variant="outline"
+													onClick={() =>
+														field.handleChange(toneKey as RecommendationTone)
+													}
+													position="relative"
+													flexDirection="column"
+													alignItems="center"
+													gap="2"
+													p="4"
+													borderWidth="2px"
+													borderColor={
+														isSelected ? "colorPalette.500" : "border"
+													}
+													bg={isSelected ? "colorPalette.subtle" : undefined}
+													colorPalette="blue"
+													_hover={{
+														borderColor: isSelected
+															? "colorPalette.500"
+															: "colorPalette.300",
+													}}
+												>
+													{isSelected && (
+														<Icon
+															as={Check}
+															position="absolute"
+															top="2"
+															right="2"
+															fontSize="md"
+															color="colorPalette.500"
+														/>
+													)}
+													<Icon
+														as={ToneIcon}
+														fontSize="lg"
+														color={isSelected ? "colorPalette.500" : "fg.muted"}
+													/>
+													<VStack gap="0">
+														<Text fontWeight="medium" textStyle="sm">
+															{t(`aiRecommendations.tones.${toneKey}.label`)}
+														</Text>
+														<Text
+															textAlign="center"
+															textStyle="xs"
+															color="fg.muted"
+														>
+															{t(`aiRecommendations.tones.${toneKey}.subtitle`)}
+														</Text>
+													</VStack>
+												</Button>
+											);
+										})}
+									</SimpleGrid>
+
+									{/* Preview Section */}
+									<VStack
+										mt="4"
+										rounded="lg"
+										borderWidth="1px"
+										borderStyle="dashed"
+										bg="bg.muted"
+										p="4"
+										align="stretch"
+									>
+										<Text
+											mb="2"
+											fontWeight="medium"
+											textStyle="xs"
+											textTransform="uppercase"
+											letterSpacing="wide"
+											color="fg.muted"
+										>
+											{t("aiRecommendations.previewLabel")}
+										</Text>
+										<HStack gap="2">
+											<Icon
+												as={Sparkles}
+												fontSize="md"
+												color="colorPalette.500"
+											/>
+											<Text fontWeight="medium" textStyle="sm">
+												{t(
+													`aiRecommendations.tones.${field.state.value}.exampleTitle`,
+												)}
+											</Text>
+										</HStack>
+										<Text mt="1" ml="6" textStyle="xs" color="fg.muted">
+											{t(
+												`aiRecommendations.tones.${field.state.value}.exampleReason`,
+											)}
+										</Text>
+									</VStack>
+								</Field.Root>
+							)}
+						</form.Field>
+
+						{/* Pairing Rules List */}
+						<form.Field name="pairingRules" mode="array">
+							{(field) => (
+								<Field.Root>
+									<Field.Label>
+										{t("aiRecommendations.pairingRulesLabel")}
+									</Field.Label>
+									<VStack gap="2" align="stretch">
+										{field.state.value.map((_, index) => (
+											<form.Field key={index} name={`pairingRules[${index}]`}>
+												{(ruleField) => (
+													<HStack gap="2">
+														<Input
+															value={ruleField.state.value}
+															onChange={(e) =>
+																ruleField.handleChange(e.target.value)
+															}
+															placeholder={t(
+																"aiRecommendations.rulePlaceholder",
+															)}
+															maxLength={
+																AI_RECOMMENDATIONS_LIMITS.MAX_RULE_LENGTH
+															}
+															flex="1"
+														/>
+														<Button
+															type="button"
+															variant="ghost"
+															size="sm"
+															w="10"
+															h="10"
+															p="0"
+															onClick={() => field.removeValue(index)}
+															aria-label={tCommon("buttons.delete")}
+														>
+															<Icon as={X} fontSize="md" />
+														</Button>
+													</HStack>
+												)}
+											</form.Field>
+										))}
+
+										{field.state.value.length <
+											AI_RECOMMENDATIONS_LIMITS.MAX_RULES && (
+											<Button
+												type="button"
+												variant="outline"
+												size="sm"
+												onClick={() => field.pushValue("")}
+												mt="2"
+											>
+												<Icon as={Plus} me="2" fontSize="md" />
+												{t("aiRecommendations.addRule")}
+											</Button>
+										)}
+									</VStack>
+									<Field.HelperText mt="2" textStyle="sm">
+										{t("aiRecommendations.pairingRulesHint")}
+									</Field.HelperText>
+									<HStack justify="flex-end">
+										<Field.HelperText textStyle="xs">
+											{field.state.value.length}/
+											{AI_RECOMMENDATIONS_LIMITS.MAX_RULES}{" "}
+											{tCommon("labels.rules")}
+										</Field.HelperText>
+									</HStack>
+								</Field.Root>
+							)}
+						</form.Field>
+					</VStack>
+				</FormSection>
+
 				<form.Subscribe selector={(state) => state.isSubmitting}>
-					{(isSubmitting) => (
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting
-								? tCommon("states.saving")
-								: tCommon("buttons.saveChanges")}
-						</Button>
-					)}
+					{(isSubmitting) => <SettingsFormFooter isSubmitting={isSubmitting} />}
 				</form.Subscribe>
-			</div>
+			</VStack>
 		</form>
 	);
 }

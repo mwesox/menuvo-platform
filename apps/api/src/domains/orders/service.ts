@@ -47,6 +47,7 @@ import {
 } from "./schemas.js";
 import type {
 	CalculatedOrderItem,
+	DailyOrderStats,
 	DateRange,
 	DbItem,
 	ExportOrder,
@@ -582,6 +583,73 @@ export class OrderService implements IOrderService {
 			ordersByStatus,
 			ordersByType,
 		};
+	}
+
+	async getDailyOrderStats(
+		storeId: string,
+		merchantId: string,
+		startDate: Date,
+		endDate?: Date,
+	): Promise<DailyOrderStats[]> {
+		// Verify the store belongs to the merchant
+		const store = await this.db.query.stores.findFirst({
+			where: and(eq(stores.id, storeId), eq(stores.merchantId, merchantId)),
+			columns: { id: true },
+		});
+
+		if (!store) {
+			throw new ForbiddenError("You do not have access to this store");
+		}
+
+		// Default end date to now
+		const effectiveEndDate = endDate ?? new Date();
+
+		// Query orders grouped by date
+		const dailyStats = await this.db
+			.select({
+				date: sql<string>`DATE(${orders.createdAt})`.as("date"),
+				orders: count(),
+				revenue: sum(orders.totalAmount),
+			})
+			.from(orders)
+			.where(
+				and(
+					eq(orders.storeId, storeId),
+					gte(orders.createdAt, startDate),
+					lte(orders.createdAt, effectiveEndDate),
+				),
+			)
+			.groupBy(sql`DATE(${orders.createdAt})`)
+			.orderBy(asc(sql`DATE(${orders.createdAt})`));
+
+		// Create a map of existing data
+		const statsMap = new Map<string, { orders: number; revenue: number }>();
+		for (const stat of dailyStats) {
+			statsMap.set(stat.date, {
+				orders: stat.orders,
+				revenue: Number(stat.revenue ?? 0),
+			});
+		}
+
+		// Generate all dates in range and fill in missing days with zeros
+		const result: DailyOrderStats[] = [];
+		const currentDate = new Date(startDate);
+		currentDate.setHours(0, 0, 0, 0);
+
+		while (currentDate <= effectiveEndDate) {
+			const dateStr = currentDate.toISOString().split("T")[0] as string;
+			const existing = statsMap.get(dateStr);
+
+			result.push({
+				date: dateStr,
+				orders: existing?.orders ?? 0,
+				revenue: existing?.revenue ?? 0,
+			});
+
+			currentDate.setDate(currentDate.getDate() + 1);
+		}
+
+		return result;
 	}
 
 	async getOrdersForExport(params: ExportParams): Promise<ExportOrder[]> {

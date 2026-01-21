@@ -1,4 +1,4 @@
-import { Button } from "@menuvo/ui";
+import { Box, Button, Flex, HStack, VStack } from "@chakra-ui/react";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
@@ -26,45 +26,71 @@ export function SidebarPageLayout({
 	const showBackButton = backHref && backLabel;
 
 	return (
-		<div className="flex min-h-[calc(100vh-4rem)] flex-col">
+		<Flex direction="column" minH="calc(100vh - 4rem)">
 			{/* Back button header - only show if backHref provided */}
 			{showBackButton && (
-				<div className="border-b px-6 py-4">
+				<Box borderBottomWidth="1px" px="6" py="4">
 					<Button variant="ghost" size="sm" asChild>
 						<Link to={backHref}>
-							<ArrowLeft className="me-2 h-4 w-4" />
+							<ArrowLeft
+								style={{ marginRight: "0.5rem", height: "1rem", width: "1rem" }}
+							/>
 							{backLabel}
 						</Link>
 					</Button>
-				</div>
+				</Box>
 			)}
 
 			{/* Two-column layout */}
-			<div className="flex flex-1 flex-col lg:flex-row">
+			<Flex flex="1" direction={{ base: "column", lg: "row" }}>
 				{/* Navigation sidebar - desktop */}
-				<aside className="hidden w-60 shrink-0 border-e bg-muted/30 lg:block">
-					<div className="sticky top-0 p-4">{nav}</div>
-				</aside>
+				<Box
+					as="aside"
+					display={{ base: "none", lg: "block" }}
+					w="60"
+					flexShrink="0"
+					borderEndWidth="1px"
+					bg="bg.muted"
+					position="sticky"
+					top="0"
+					p="4"
+				>
+					{nav}
+				</Box>
 
 				{/* Mobile navigation - horizontal scroll */}
-				<div className="w-full border-b px-3 py-2 lg:hidden">
-					<div className="-mx-3 overflow-x-auto px-3 scrollbar-hide">{nav}</div>
-				</div>
+				<Box
+					display={{ base: "block", lg: "none" }}
+					w="full"
+					borderBottomWidth="1px"
+					px="3"
+					py="2"
+					overflowX="auto"
+					className="scrollbar-hide"
+				>
+					<Box mx="-3" px="3">
+						{nav}
+					</Box>
+				</Box>
 
 				{/* Main content */}
-				<main className="flex-1">
-					<div className="px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-						<div className="space-y-8">{children}</div>
+				<Box as="main" flex="1">
+					<Box px={{ base: "4", sm: "6", lg: "8" }} py={{ base: "4", sm: "6" }}>
+						<VStack gap="6" align="stretch">
+							{children}
+						</VStack>
 
 						{/* Footer - inside content area */}
 						{footer && (
-							<div className="mt-8 border-t pt-6">
-								<div className="flex justify-end gap-3">{footer}</div>
-							</div>
+							<Box mt="6" borderTopWidth="1px" pt="6">
+								<HStack justify="flex-end" gap="3">
+									{footer}
+								</HStack>
+							</Box>
 						)}
-					</div>
-				</main>
-			</div>
-		</div>
+					</Box>
+				</Box>
+			</Flex>
+		</Flex>
 	);
 }

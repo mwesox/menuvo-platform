@@ -5,9 +5,52 @@
  */
 
 import type { Database } from "@menuvo/db";
+import type { StoreClosuresConfig, StoreHoursConfig } from "@menuvo/db/schema";
 import { stores } from "@menuvo/db/schema";
 import slugify from "@sindresorhus/slugify";
 import { and, eq, ne } from "drizzle-orm";
+
+// ============================================================================
+// Hours & Closures Sorting
+// ============================================================================
+
+/**
+ * Day order for sorting hours (Monday to Sunday)
+ */
+export const DAY_ORDER = [
+	"monday",
+	"tuesday",
+	"wednesday",
+	"thursday",
+	"friday",
+	"saturday",
+	"sunday",
+] as const;
+
+/**
+ * Sort hours by day of week and display order
+ */
+export function sortHours<T extends StoreHoursConfig[number]>(hours: T[]): T[] {
+	return [...hours].sort((a, b) => {
+		const dayDiff =
+			DAY_ORDER.indexOf(a.dayOfWeek) - DAY_ORDER.indexOf(b.dayOfWeek);
+		if (dayDiff !== 0) return dayDiff;
+		return a.displayOrder - b.displayOrder;
+	});
+}
+
+/**
+ * Sort closures by start date
+ */
+export function sortClosures<T extends StoreClosuresConfig[number]>(
+	closures: T[],
+): T[] {
+	return [...closures].sort((a, b) => a.startDate.localeCompare(b.startDate));
+}
+
+// ============================================================================
+// Slug Utilities
+// ============================================================================
 
 /**
  * Generate a URL-safe slug from a store name.

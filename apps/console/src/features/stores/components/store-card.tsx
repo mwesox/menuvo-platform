@@ -1,11 +1,5 @@
+import { Box, Card, HStack, SimpleGrid, Text, VStack } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@menuvo/ui";
 import { Link } from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
 import { Mail, MapPin, Phone, Store as StoreIcon } from "lucide-react";
@@ -27,56 +21,91 @@ export function StoreCard({ store }: StoreCardProps) {
 
 	const addressDescription =
 		addressLine1 || addressLine2 ? (
-			<div className="flex items-start gap-1.5">
-				<MapPin className="mt-0.5 size-4 shrink-0" />
-				<div>
-					{addressLine1 && <div>{addressLine1}</div>}
-					{addressLine2 && <div>{addressLine2}</div>}
-				</div>
-			</div>
+			<HStack align="flex-start" gap="1.5">
+				<MapPin
+					style={{
+						marginTop: "0.125rem",
+						height: "1rem",
+						width: "1rem",
+						flexShrink: 0,
+					}}
+				/>
+				<VStack align="flex-start" gap="0">
+					{addressLine1 && <Text>{addressLine1}</Text>}
+					{addressLine2 && <Text>{addressLine2}</Text>}
+				</VStack>
+			</HStack>
 		) : (
-			<span>{t("labels.noAddressConfigured")}</span>
+			<Text>{t("labels.noAddressConfigured")}</Text>
 		);
 
 	return (
 		<Link
 			to="/stores/$storeId/settings"
 			params={{ storeId: store.id }}
-			className="block"
+			style={{ display: "block" }}
 		>
-			<Card className="group h-full cursor-pointer overflow-hidden transition-all hover:bg-muted/30 hover:shadow-md">
-				<CardHeader className="flex-row items-start gap-4 pb-4">
-					<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-						<StoreIcon className="h-6 w-6 text-primary" />
-					</div>
-					<div className="min-w-0 flex-1 space-y-1">
-						<CardTitle className="flex items-center gap-2 font-semibold text-xl tracking-tight">
-							{store.name}
-						</CardTitle>
-						<CardDescription className="text-sm">
-							{addressDescription}
-						</CardDescription>
-					</div>
-				</CardHeader>
+			<Card.Root
+				h="full"
+				cursor="pointer"
+				overflow="hidden"
+				transition="all"
+				_hover={{ bg: "bg.muted", shadow: "md" }}
+			>
+				<Card.Header>
+					<HStack align="flex-start" gap="4" pb="4">
+						<Box
+							flexShrink="0"
+							h="12"
+							w="12"
+							display="flex"
+							alignItems="center"
+							justifyContent="center"
+							rounded="lg"
+							bg="primary/10"
+						>
+							<StoreIcon
+								style={{ height: "1.5rem", width: "1.5rem" }}
+								color="var(--chakra-colors-primary)"
+							/>
+						</Box>
+						<VStack align="flex-start" gap="1" flex="1" minW="0">
+							<Card.Title
+								fontWeight="semibold"
+								textStyle="xl"
+								letterSpacing="tight"
+							>
+								{store.name}
+							</Card.Title>
+							<Box textStyle="sm" color="fg.muted">
+								{addressDescription}
+							</Box>
+						</VStack>
+					</HStack>
+				</Card.Header>
 				{(store.phone || store.email) && (
-					<CardContent className="pt-0">
-						<div className="grid grid-cols-2 gap-4 text-sm">
+					<Card.Body pt="0">
+						<SimpleGrid columns={2} gap="4">
 							{store.phone && (
-								<div className="flex items-center gap-2 text-muted-foreground">
-									<Phone className="size-4 shrink-0" />
-									<span className="truncate">{store.phone}</span>
-								</div>
+								<HStack gap="2" color="fg.muted" textStyle="sm">
+									<Phone
+										style={{ height: "1rem", width: "1rem", flexShrink: 0 }}
+									/>
+									<Text truncate>{store.phone}</Text>
+								</HStack>
 							)}
 							{store.email && (
-								<div className="flex items-center gap-2 text-muted-foreground">
-									<Mail className="size-4 shrink-0" />
-									<span className="truncate">{store.email}</span>
-								</div>
+								<HStack gap="2" color="fg.muted" textStyle="sm">
+									<Mail
+										style={{ height: "1rem", width: "1rem", flexShrink: 0 }}
+									/>
+									<Text truncate>{store.email}</Text>
+								</HStack>
 							)}
-						</div>
-					</CardContent>
+						</SimpleGrid>
+					</Card.Body>
 				)}
-			</Card>
+			</Card.Root>
 		</Link>
 	);
 }

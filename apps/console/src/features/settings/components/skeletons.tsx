@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, Skeleton } from "@menuvo/ui";
+import { Card, HStack, SimpleGrid, Skeleton, VStack } from "@chakra-ui/react";
 import {
 	CardFormSkeleton,
 	PageActionBarSkeleton,
@@ -9,29 +9,29 @@ import {
  */
 function StatusCardSkeleton() {
 	return (
-		<Card>
-			<CardHeader>
-				<div className="flex items-center justify-between">
-					<div className="space-y-2">
-						<Skeleton className="h-5 w-24" />
-						<Skeleton className="size-40" />
-					</div>
-					<Skeleton className="h-6 w-20 rounded-full" />
-				</div>
-			</CardHeader>
-			<CardContent>
-				<div className="space-y-3">
-					<div className="flex items-center justify-between">
-						<Skeleton className="h-4 w-32" />
-						<Skeleton className="h-4 w-24" />
-					</div>
-					<div className="flex items-center justify-between">
-						<Skeleton className="h-4 w-28" />
-						<Skeleton className="h-4 w-20" />
-					</div>
-				</div>
-			</CardContent>
-		</Card>
+		<Card.Root>
+			<Card.Header>
+				<HStack justify="space-between" align="center">
+					<VStack gap="2" align="stretch">
+						<Skeleton h="5" w="24" />
+						<Skeleton h="4" w="40" />
+					</VStack>
+					<Skeleton h="6" w="20" rounded="full" />
+				</HStack>
+			</Card.Header>
+			<Card.Body>
+				<VStack gap="3" align="stretch">
+					<HStack justify="space-between" align="center">
+						<Skeleton h="4" w="32" />
+						<Skeleton h="4" w="24" />
+					</HStack>
+					<HStack justify="space-between" align="center">
+						<Skeleton h="4" w="28" />
+						<Skeleton h="4" w="20" />
+					</HStack>
+				</VStack>
+			</Card.Body>
+		</Card.Root>
 	);
 }
 
@@ -41,19 +41,19 @@ function StatusCardSkeleton() {
  */
 export function PaymentsPageSkeleton() {
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBarSkeleton />
 
-			<div className="space-y-6">
+			<VStack gap="6" align="stretch">
 				<StatusCardSkeleton />
 
 				{/* Action buttons */}
-				<div className="flex gap-3">
-					<Skeleton className="h-10 w-40" />
-					<Skeleton className="h-10 w-32" />
-				</div>
-			</div>
-		</div>
+				<HStack gap="3">
+					<Skeleton h="10" w="40" />
+					<Skeleton h="10" w="32" />
+				</HStack>
+			</VStack>
+		</VStack>
 	);
 }
 
@@ -63,14 +63,14 @@ export function PaymentsPageSkeleton() {
  */
 export function MerchantSettingsPageSkeleton() {
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBarSkeleton withTabs />
 
-			<div className="mt-6 space-y-6">
+			<VStack gap="6" align="stretch" mt="6">
 				<CardFormSkeleton rows={4} />
 				<CardFormSkeleton rows={3} />
-			</div>
-		</div>
+			</VStack>
+		</VStack>
 	);
 }
 
@@ -80,16 +80,16 @@ export function MerchantSettingsPageSkeleton() {
  */
 export function SettingsHubPageSkeleton() {
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBarSkeleton />
 
-			<div className="grid gap-4 md:grid-cols-2">
+			<SimpleGrid columns={{ base: 1, md: 2 }} gap="4">
 				<SettingsNavCardSkeleton />
 				<SettingsNavCardSkeleton />
 				<SettingsNavCardSkeleton />
 				<SettingsNavCardSkeleton />
-			</div>
-		</div>
+			</SimpleGrid>
+		</VStack>
 	);
 }
 
@@ -99,16 +99,16 @@ export function SettingsHubPageSkeleton() {
  */
 function SettingsNavCardSkeleton() {
 	return (
-		<Card>
-			<CardContent className="p-6">
-				<div className="flex items-start gap-4">
-					<Skeleton className="size-10 rounded-lg" />
-					<div className="flex-1 space-y-2">
-						<Skeleton className="h-5 w-32" />
-						<Skeleton className="size-48" />
-					</div>
-				</div>
-			</CardContent>
-		</Card>
+		<Card.Root>
+			<Card.Body p="6">
+				<HStack align="flex-start" gap="4">
+					<Skeleton h="10" w="10" rounded="lg" />
+					<VStack flex="1" gap="2" align="stretch">
+						<Skeleton h="5" w="32" />
+						<Skeleton h="4" w="48" />
+					</VStack>
+				</HStack>
+			</Card.Body>
+		</Card.Root>
 	);
 }

@@ -11,17 +11,18 @@ import type { CropperRef } from "react-advanced-cropper";
 // CSS is loaded only when the cropper is used
 import "react-advanced-cropper/dist/style.css";
 import {
+	Box,
 	Button,
 	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
+	HStack,
+	Icon,
+	Portal,
 	Slider,
-} from "@menuvo/ui";
+	Spinner,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
 import type { ImageType } from "../constants.ts";
 import {
 	type CropPreset,
@@ -122,104 +123,151 @@ export function ImageCropper({
 	}, [onCropComplete, onOpenChange]);
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-2xl">
-				<DialogHeader>
-					<DialogTitle>{t("images.cropTitle")}</DialogTitle>
-					<DialogDescription>{t("images.cropDescription")}</DialogDescription>
-				</DialogHeader>
+		<Dialog.Root open={open} onOpenChange={(e) => onOpenChange(e.open)}>
+			<Portal>
+				<Dialog.Backdrop />
+				<Dialog.Positioner>
+					<Dialog.Content maxW="2xl">
+						<Dialog.Header>
+							<Dialog.Title>{t("images.cropTitle")}</Dialog.Title>
+							<Dialog.Description>
+								{t("images.cropDescription")}
+							</Dialog.Description>
+						</Dialog.Header>
 
-				{/* Preset selector */}
-				<div className="flex flex-wrap gap-2">
-					{presets.map((preset) => (
-						<button
-							key={preset.id}
-							type="button"
-							onClick={() => handlePresetSelect(preset)}
-							className={cn(
-								"rounded-lg border px-3 py-2 font-medium text-sm transition-colors",
-								"flex flex-col items-start gap-0.5",
-								selectedPreset.id === preset.id
-									? "border-primary bg-primary text-primary-foreground"
-									: "border-border bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
-							)}
-						>
-							<span>{t(`images.presets.${preset.labelKey}`)}</span>
-							<span
-								className={cn(
-									"text-xs",
-									selectedPreset.id === preset.id
-										? "text-primary-foreground/70"
-										: "text-muted-foreground/70",
+						<Dialog.Body>
+							<VStack gap="4" align="stretch">
+								{/* Preset selector */}
+								<HStack gap="2" wrap="wrap">
+									{presets.map((preset) => (
+										<Button
+											key={preset.id}
+											type="button"
+											variant={
+												selectedPreset.id === preset.id ? "solid" : "outline"
+											}
+											colorPalette={
+												selectedPreset.id === preset.id ? "primary" : undefined
+											}
+											size="sm"
+											onClick={() => handlePresetSelect(preset)}
+											flexDirection="column"
+											alignItems="flex-start"
+											gap="0.5"
+											h="auto"
+											py="2"
+											px="3"
+										>
+											<Text fontWeight="medium" textStyle="sm">
+												{t(`images.presets.${preset.labelKey}`)}
+											</Text>
+											<Text
+												textStyle="xs"
+												color={
+													selectedPreset.id === preset.id
+														? "primary-foreground/70"
+														: "fg.muted"
+												}
+											>
+												{t(`images.presets.${preset.descriptionKey}`)}
+											</Text>
+										</Button>
+									))}
+								</HStack>
+
+								{/* Cropper */}
+								<Box
+									position="relative"
+									h="400px"
+									w="full"
+									overflow="hidden"
+									rounded="lg"
+									bg="bg.muted"
+								>
+									<Suspense
+										fallback={
+											<Box
+												display="flex"
+												h="full"
+												w="full"
+												alignItems="center"
+												justifyContent="center"
+											>
+												<Spinner size="lg" />
+											</Box>
+										}
+									>
+										<Cropper
+											key={selectedPreset.id} // Force re-render when preset changes
+											ref={cropperRef}
+											src={imageSrc}
+											stencilProps={{
+												aspectRatio:
+													selectedPreset.id === "free"
+														? undefined
+														: effectiveAspectRatio,
+											}}
+											style={{ height: "100%", width: "100%" }}
+										/>
+									</Suspense>
+								</Box>
+
+								{/* Zoom slider */}
+								<HStack gap="3" align="center" px="1">
+									<Icon w="4" h="4" flexShrink={0} color="fg.muted">
+										<MinusIcon />
+									</Icon>
+									<Slider.Root
+										value={[zoom]}
+										onValueChange={(e) => handleZoomChange(e.value)}
+										min={-50}
+										max={50}
+										step={1}
+										flex="1"
+									>
+										<Slider.Control>
+											<Slider.Track>
+												<Slider.Range />
+											</Slider.Track>
+											<Slider.Thumbs />
+										</Slider.Control>
+									</Slider.Root>
+									<Icon w="4" h="4" flexShrink={0} color="fg.muted">
+										<PlusIcon />
+									</Icon>
+								</HStack>
+
+								{/* Dimension hint */}
+								{selectedPreset.minWidth > 0 && (
+									<Text textAlign="center" color="fg.muted" textStyle="xs">
+										{t("images.recommendedMinimum", {
+											width: selectedPreset.minWidth,
+											height: selectedPreset.minHeight,
+										})}
+									</Text>
 								)}
+							</VStack>
+						</Dialog.Body>
+
+						<Dialog.Footer>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => onOpenChange(false)}
 							>
-								{t(`images.presets.${preset.descriptionKey}`)}
-							</span>
-						</button>
-					))}
-				</div>
-
-				{/* Cropper */}
-				<div className="relative h-[400px] w-full overflow-hidden rounded-lg bg-muted">
-					<Suspense
-						fallback={
-							<div className="flex h-full w-full items-center justify-center">
-								<div className="size-8 animate-spin rounded-full border-4 border-muted-foreground/20 border-t-primary" />
-							</div>
-						}
-					>
-						<Cropper
-							key={selectedPreset.id} // Force re-render when preset changes
-							ref={cropperRef}
-							src={imageSrc}
-							stencilProps={{
-								aspectRatio:
-									selectedPreset.id === "free"
-										? undefined
-										: effectiveAspectRatio,
-							}}
-							className="h-full w-full"
-						/>
-					</Suspense>
-				</div>
-
-				{/* Zoom slider */}
-				<div className="flex items-center gap-3 px-1">
-					<MinusIcon className="size-4 shrink-0 text-muted-foreground" />
-					<Slider
-						value={[zoom]}
-						onValueChange={handleZoomChange}
-						min={-50}
-						max={50}
-						step={1}
-						className="flex-1"
-					/>
-					<PlusIcon className="size-4 shrink-0 text-muted-foreground" />
-				</div>
-
-				{/* Dimension hint */}
-				{selectedPreset.minWidth > 0 && (
-					<p className="text-center text-muted-foreground text-xs">
-						{t("images.recommendedMinimum", {
-							width: selectedPreset.minWidth,
-							height: selectedPreset.minHeight,
-						})}
-					</p>
-				)}
-
-				<DialogFooter>
-					<Button
-						type="button"
-						variant="outline"
-						onClick={() => onOpenChange(false)}
-					>
-						{t("buttons.cancel")}
-					</Button>
-					<Button type="button" onClick={handleCrop} disabled={isProcessing}>
-						{isProcessing ? t("images.processing") : t("images.applyCrop")}
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+								{t("buttons.cancel")}
+							</Button>
+							<Button
+								type="button"
+								onClick={handleCrop}
+								disabled={isProcessing}
+							>
+								{isProcessing ? t("images.processing") : t("images.applyCrop")}
+							</Button>
+						</Dialog.Footer>
+					</Dialog.Content>
+				</Dialog.Positioner>
+			</Portal>
+		</Dialog.Root>
 	);
 }

@@ -1,23 +1,17 @@
-import {
-	Button,
-	Field,
-	FieldError,
-	FieldGroup,
-	FieldLabel,
-	Input,
-} from "@menuvo/ui";
+import { Field, Input, SimpleGrid, VStack } from "@chakra-ui/react";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ContentSection } from "@/components/ui/content-section";
+import { SettingsFormFooter } from "@/components/layout/settings-form-footer";
+import { FieldError } from "@/components/ui/field-error";
+import { FormSection } from "@/components/ui/form-section";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { merchantGeneralSchema } from "../../schemas";
 
 export function MerchantGeneralForm() {
 	const { t } = useTranslation("settings");
 	const { t: tForms } = useTranslation("forms");
-	const { t: tCommon } = useTranslation("common");
 	const { t: tToasts } = useTranslation("toasts");
 	const trpc = useTRPC();
 	const trpcClient = useTRPCClient();
@@ -67,52 +61,26 @@ export function MerchantGeneralForm() {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="space-y-8"
 		>
-			<ContentSection
-				title={t("sections.businessInformation")}
-				description={t("descriptions.businessInformation")}
-			>
-				<FieldGroup>
-					<form.Field name="name">
-						{(field) => {
-							const isInvalid =
-								field.state.meta.isTouched && !field.state.meta.isValid;
-							return (
-								<Field data-invalid={isInvalid}>
-									<FieldLabel htmlFor={field.name}>
-										{tForms("fields.businessName")} *
-									</FieldLabel>
-									<Input
-										id={field.name}
-										name={field.name}
-										placeholder={tForms("placeholders.enterBusinessName")}
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										aria-invalid={isInvalid}
-									/>
-									{isInvalid && <FieldError errors={field.state.meta.errors} />}
-								</Field>
-							);
-						}}
-					</form.Field>
-
-					<div className="grid gap-4 sm:grid-cols-2">
-						<form.Field name="email">
+			<VStack layerStyle="settingsContent">
+				<FormSection
+					title={t("sections.businessInformation")}
+					description={t("descriptions.businessInformation")}
+				>
+					<VStack gap="4" align="stretch">
+						<form.Field name="name">
 							{(field) => {
 								const isInvalid =
 									field.state.meta.isTouched && !field.state.meta.isValid;
 								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor={field.name}>
-											{tForms("fields.email")} *
-										</FieldLabel>
+									<Field.Root invalid={isInvalid} required>
+										<Field.Label htmlFor={field.name}>
+											{tForms("fields.businessName")}
+										</Field.Label>
 										<Input
 											id={field.name}
 											name={field.name}
-											type="email"
-											placeholder={tForms("placeholders.enterEmail")}
+											placeholder={tForms("placeholders.enterBusinessName")}
 											value={field.state.value}
 											onBlur={field.handleBlur}
 											onChange={(e) => field.handleChange(e.target.value)}
@@ -121,51 +89,72 @@ export function MerchantGeneralForm() {
 										{isInvalid && (
 											<FieldError errors={field.state.meta.errors} />
 										)}
-									</Field>
+									</Field.Root>
 								);
 							}}
 						</form.Field>
 
-						<form.Field name="phone">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor={field.name}>
-											{tForms("fields.phone")}
-										</FieldLabel>
-										<Input
-											id={field.name}
-											name={field.name}
-											placeholder={tForms("placeholders.enterPhone")}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
-						</form.Field>
-					</div>
-				</FieldGroup>
-			</ContentSection>
+						<SimpleGrid columns={{ base: 1, sm: 2 }} gap="4">
+							<form.Field name="email">
+								{(field) => {
+									const isInvalid =
+										field.state.meta.isTouched && !field.state.meta.isValid;
+									return (
+										<Field.Root invalid={isInvalid} required>
+											<Field.Label htmlFor={field.name}>
+												{tForms("fields.email")}
+											</Field.Label>
+											<Input
+												id={field.name}
+												name={field.name}
+												type="email"
+												placeholder={tForms("placeholders.enterEmail")}
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												aria-invalid={isInvalid}
+											/>
+											{isInvalid && (
+												<FieldError errors={field.state.meta.errors} />
+											)}
+										</Field.Root>
+									);
+								}}
+							</form.Field>
 
-			<div className="flex justify-end">
+							<form.Field name="phone">
+								{(field) => {
+									const isInvalid =
+										field.state.meta.isTouched && !field.state.meta.isValid;
+									return (
+										<Field.Root invalid={isInvalid}>
+											<Field.Label htmlFor={field.name}>
+												{tForms("fields.phone")}
+											</Field.Label>
+											<Input
+												id={field.name}
+												name={field.name}
+												placeholder={tForms("placeholders.enterPhone")}
+												value={field.state.value}
+												onBlur={field.handleBlur}
+												onChange={(e) => field.handleChange(e.target.value)}
+												aria-invalid={isInvalid}
+											/>
+											{isInvalid && (
+												<FieldError errors={field.state.meta.errors} />
+											)}
+										</Field.Root>
+									);
+								}}
+							</form.Field>
+						</SimpleGrid>
+					</VStack>
+				</FormSection>
+
 				<form.Subscribe selector={(state) => state.isSubmitting}>
-					{(isSubmitting) => (
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting
-								? tCommon("states.saving")
-								: tCommon("buttons.saveChanges")}
-						</Button>
-					)}
+					{(isSubmitting) => <SettingsFormFooter isSubmitting={isSubmitting} />}
 				</form.Subscribe>
-			</div>
+			</VStack>
 		</form>
 	);
 }

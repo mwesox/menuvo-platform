@@ -2,10 +2,15 @@
  * Store Status Service
  *
  * Service facade for store status operations.
+ * Uses JSONB columns from store_settings table.
  */
 
 import type { Database } from "@menuvo/db";
-import { type storeClosures, type storeHours, stores } from "@menuvo/db/schema";
+import {
+	type StoreClosuresConfig,
+	type StoreHoursConfig,
+	stores,
+} from "@menuvo/db/schema";
 import { addDays, addMinutes, parse } from "date-fns";
 import { eq } from "drizzle-orm";
 import { NotFoundError } from "../../errors.js";
@@ -40,8 +45,9 @@ export class StoreStatusService implements IStoreStatusService {
 		const store = await this.db.query.stores.findFirst({
 			where: eq(stores.slug, slug),
 			with: {
-				hours: true,
-				closures: true,
+				settings: {
+					columns: { hours: true, closures: true },
+				},
 			},
 		});
 
@@ -49,7 +55,10 @@ export class StoreStatusService implements IStoreStatusService {
 			throw new NotFoundError("Store not found");
 		}
 
-		return this.computeStatus(store, store.hours, store.closures);
+		const hours = store.settings?.hours ?? [];
+		const closures = store.settings?.closures ?? [];
+
+		return this.computeStatus(store, hours, closures);
 	}
 
 	async getAvailablePickupSlots(
@@ -60,8 +69,9 @@ export class StoreStatusService implements IStoreStatusService {
 		const store = await this.db.query.stores.findFirst({
 			where: eq(stores.slug, slug),
 			with: {
-				hours: true,
-				closures: true,
+				settings: {
+					columns: { hours: true, closures: true },
+				},
 			},
 		});
 
@@ -69,10 +79,13 @@ export class StoreStatusService implements IStoreStatusService {
 			throw new NotFoundError("Store not found");
 		}
 
+		const hours = store.settings?.hours ?? [];
+		const closures = store.settings?.closures ?? [];
+
 		const slots = this.generateTimeSlots(
 			store,
-			store.hours,
-			store.closures,
+			hours,
+			closures,
 			30, // minimum 30 minutes advance
 			7, // 7 days ahead
 			date,
@@ -80,7 +93,7 @@ export class StoreStatusService implements IStoreStatusService {
 		);
 
 		// Get store status to check if shop is closed
-		const storeStatus = this.computeStatus(store, store.hours, store.closures);
+		const storeStatus = this.computeStatus(store, hours, closures);
 		let filteredSlots = slots;
 
 		// If shop is closed, filter out slots that are before or equal to nextOpenTime
@@ -102,8 +115,8 @@ export class StoreStatusService implements IStoreStatusService {
 	 */
 	private computeStatus(
 		store: typeof stores.$inferSelect,
-		hours: (typeof storeHours.$inferSelect)[],
-		closures: (typeof storeClosures.$inferSelect)[],
+		hours: StoreHoursConfig,
+		closures: StoreClosuresConfig,
 	): StoreStatus {
 		const now = new Date();
 		const timezone = store.timezone || "UTC";
@@ -146,8 +159,8 @@ export class StoreStatusService implements IStoreStatusService {
 	private isStoreOpen(
 		now: Date,
 		store: typeof stores.$inferSelect,
-		hours: (typeof storeHours.$inferSelect)[],
-		closures: (typeof storeClosures.$inferSelect)[],
+		hours: StoreHoursConfig,
+		closures: StoreClosuresConfig,
 	): boolean {
 		// Check closures first
 		if (this.isInClosurePeriod(now, closures, store.timezone || "UTC")) {
@@ -192,8 +205,8 @@ export class StoreStatusService implements IStoreStatusService {
 	private getNextOpenTime(
 		now: Date,
 		store: typeof stores.$inferSelect,
-		hours: (typeof storeHours.$inferSelect)[],
-		closures: (typeof storeClosures.$inferSelect)[],
+		hours: StoreHoursConfig,
+		closures: StoreClosuresConfig,
 	): Date | null {
 		const timezone = store.timezone || "UTC";
 		// Get current date in store timezone
@@ -262,8 +275,8 @@ export class StoreStatusService implements IStoreStatusService {
 	private getNextOpenTimeAfterClosure(
 		now: Date,
 		store: typeof stores.$inferSelect,
-		hours: (typeof storeHours.$inferSelect)[],
-		closures: (typeof storeClosures.$inferSelect)[],
+		hours: StoreHoursConfig,
+		closures: StoreClosuresConfig,
 	): Date | null {
 		// Find the closure that contains now
 		const activeClosure = closures.find((closure) => {
@@ -286,7 +299,7 @@ export class StoreStatusService implements IStoreStatusService {
 	 */
 	private isInClosurePeriod(
 		date: Date,
-		closures: (typeof storeClosures.$inferSelect)[],
+		closures: StoreClosuresConfig,
 		timezone: string,
 	): boolean {
 		const dateStr = new Intl.DateTimeFormat("en-CA", {
@@ -310,8 +323,8 @@ export class StoreStatusService implements IStoreStatusService {
 	 */
 	private generateTimeSlots(
 		store: typeof stores.$inferSelect,
-		hours: (typeof storeHours.$inferSelect)[],
-		closures: (typeof storeClosures.$inferSelect)[],
+		hours: StoreHoursConfig,
+		closures: StoreClosuresConfig,
 		minAdvanceMinutes: number,
 		daysAhead: number,
 		startDate?: string,

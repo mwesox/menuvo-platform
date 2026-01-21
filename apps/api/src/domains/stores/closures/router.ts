@@ -9,9 +9,7 @@
  * - delete: Delete a closure (storeOwner)
  */
 
-import { stores } from "@menuvo/db/schema";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
 import {
 	protectedProcedure,
 	router,
@@ -24,7 +22,6 @@ import {
 	listClosuresSchema,
 	updateClosureSchema,
 } from "./schemas.js";
-import type { CreateClosureInput, UpdateClosureInput } from "./types.js";
 
 export const closuresRouter = router({
 	/**
@@ -57,7 +54,7 @@ export const closuresRouter = router({
 		.query(async ({ ctx, input }) => {
 			try {
 				return await ctx.services.closures.getById(
-					input.id,
+					{ storeId: input.storeId, closureId: input.id },
 					ctx.session.merchantId,
 				);
 			} catch (error) {
@@ -85,33 +82,27 @@ export const closuresRouter = router({
 	create: storeOwnerProcedure
 		.input(createClosureSchema)
 		.mutation(async ({ ctx, input }) => {
-			// Verify store ownership
-			const store = await ctx.db.query.stores.findFirst({
-				where: eq(stores.id, input.storeId),
-				columns: { id: true, merchantId: true },
-			});
-
-			if (!store || store.merchantId !== ctx.session.merchantId) {
-				throw new TRPCError({
-					code: "FORBIDDEN",
-					message: "You do not have access to this store",
-				});
-			}
-
-			const closureInput: CreateClosureInput = {
-				storeId: input.storeId,
-				startDate: input.startDate,
-				endDate: input.endDate,
-				reason: input.reason,
-			};
-
 			try {
-				return await ctx.services.closures.create(closureInput);
+				return await ctx.services.closures.create(
+					{
+						storeId: input.storeId,
+						startDate: input.startDate,
+						endDate: input.endDate,
+						reason: input.reason,
+					},
+					ctx.session.merchantId,
+				);
 			} catch (error) {
 				if (error instanceof Error) {
 					if (error.message.includes("overlaps")) {
 						throw new TRPCError({
 							code: "BAD_REQUEST",
+							message: error.message,
+						});
+					}
+					if (error.message.includes("access")) {
+						throw new TRPCError({
+							code: "FORBIDDEN",
 							message: error.message,
 						});
 					}
@@ -126,17 +117,16 @@ export const closuresRouter = router({
 	update: storeOwnerProcedure
 		.input(updateClosureSchema)
 		.mutation(async ({ ctx, input }) => {
-			const updateInput: UpdateClosureInput = {
-				startDate: input.startDate,
-				endDate: input.endDate,
-				reason: input.reason,
-			};
-
 			try {
 				return await ctx.services.closures.update(
-					input.id,
+					{
+						storeId: input.storeId,
+						closureId: input.id,
+						startDate: input.startDate,
+						endDate: input.endDate,
+						reason: input.reason,
+					},
 					ctx.session.merchantId,
-					updateInput,
 				);
 			} catch (error) {
 				if (error instanceof Error) {
@@ -173,7 +163,10 @@ export const closuresRouter = router({
 		.input(deleteClosureSchema)
 		.mutation(async ({ ctx, input }) => {
 			try {
-				await ctx.services.closures.delete(input.id, ctx.session.merchantId);
+				await ctx.services.closures.delete(
+					{ storeId: input.storeId, closureId: input.id },
+					ctx.session.merchantId,
+				);
 				return { success: true };
 			} catch (error) {
 				if (error instanceof Error) {

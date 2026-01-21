@@ -1,27 +1,26 @@
-import type { AppRouter } from "@menuvo/api/trpc";
 import {
 	Badge,
 	Button,
+	createListCollection,
+	EmptyState,
+	HStack,
+	Icon,
 	Input,
+	InputGroup,
+	Portal,
 	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
 	Skeleton,
 	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@menuvo/ui";
+	Text,
+	VStack,
+} from "@chakra-ui/react";
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
 import { formatDistanceToNow } from "date-fns";
 import { de, enUS } from "date-fns/locale";
-import { Search } from "lucide-react";
+import { Calendar, Filter, Search } from "lucide-react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -63,25 +62,34 @@ function getFromDate(days: DateRangePreset): string | undefined {
 
 const PAGE_SIZE = 50;
 
-const statusVariants: Record<
-	OrderStatus,
-	"default" | "secondary" | "destructive" | "outline"
-> = {
+const statusVariants: Record<OrderStatus, "outline" | "solid" | "subtle"> = {
 	awaiting_payment: "outline",
-	confirmed: "default",
-	preparing: "secondary",
-	ready: "default",
-	completed: "secondary",
-	cancelled: "destructive",
+	confirmed: "solid",
+	preparing: "subtle",
+	ready: "solid",
+	completed: "subtle",
+	cancelled: "solid",
 };
 
-const orderTypeVariants: Record<
-	OrderType,
-	"default" | "secondary" | "outline"
-> = {
+const statusColorPalettes: Record<OrderStatus, string> = {
+	awaiting_payment: "gray",
+	confirmed: "blue",
+	preparing: "blue",
+	ready: "green",
+	completed: "gray",
+	cancelled: "red",
+};
+
+const orderTypeVariants: Record<OrderType, "outline" | "solid" | "subtle"> = {
 	dine_in: "outline",
-	takeaway: "secondary",
-	delivery: "default",
+	takeaway: "subtle",
+	delivery: "solid",
+};
+
+const orderTypeColorPalettes: Record<OrderType, string> = {
+	dine_in: "gray",
+	takeaway: "blue",
+	delivery: "green",
 };
 
 export function OrdersTable({
@@ -173,26 +181,44 @@ export function OrdersTable({
 
 	if (isLoading) {
 		return (
-			<div className="space-y-3">
-				<Skeleton className="h-10 w-full" />
-				<div className="flex gap-2">
-					<Skeleton className="h-10 w-[140px]" />
-					<Skeleton className="h-10 flex-1" />
-				</div>
-				<div className="space-y-2">
+			<VStack gap="3" align="stretch">
+				<Skeleton h="10" w="full" />
+				<HStack gap="2">
+					<Skeleton h="10" w="140px" />
+					<Skeleton h="10" flex="1" />
+				</HStack>
+				<VStack gap="2" align="stretch">
 					{Array.from({ length: 5 }).map((_, i) => (
-						<Skeleton key={i} className="h-12" />
+						<Skeleton key={i} h="12" />
 					))}
-				</div>
-			</div>
+				</VStack>
+			</VStack>
 		);
 	}
 
+	const daysCollection = createListCollection({
+		items: dateRangePresets.map((preset) => ({
+			value: preset,
+			label: t(`dateRange.${preset}`),
+		})),
+	});
+
+	const statusCollection = createListCollection({
+		items: [
+			{ value: "all", label: t("allStatuses") },
+			...orderStatuses.map((status) => ({
+				value: status,
+				label: t(`status.${status}`),
+			})),
+		],
+	});
+
 	return (
-		<div className="flex flex-col gap-3">
+		<VStack gap="3" align="stretch">
 			{/* Search */}
-			<div className="relative">
-				<Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+			<InputGroup
+				startElement={<Search style={{ height: "1rem", width: "1rem" }} />}
+			>
 				<Input
 					type="search"
 					placeholder={t("searchPlaceholder")}
@@ -200,79 +226,132 @@ export function OrdersTable({
 					onChange={(e) => {
 						setLocalSearch(e.target.value);
 					}}
-					className="ps-9"
 				/>
-			</div>
+			</InputGroup>
 
 			{/* Filters row */}
-			<div className="flex gap-2">
-				<Select value={daysFilter} onValueChange={handleDaysFilterChange}>
-					<SelectTrigger className="w-[140px]">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{dateRangePresets.map((preset) => (
-							<SelectItem key={preset} value={preset}>
-								{t(`dateRange.${preset}`)}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				<Select
-					value={statusFilter ?? "all"}
-					onValueChange={handleStatusFilterChange}
+			<HStack gap="2" justify="space-between">
+				<Select.Root
+					collection={daysCollection}
+					value={[daysFilter]}
+					onValueChange={(e) =>
+						handleDaysFilterChange(e.value[0] ?? daysFilter)
+					}
+					variant="outline"
+					size="sm"
 				>
-					<SelectTrigger className="flex-1">
-						<SelectValue placeholder={t("filterByStatus")} />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="all">{t("allStatuses")}</SelectItem>
-						{orderStatuses.map((status) => (
-							<SelectItem key={status} value={status}>
-								{t(`status.${status}`)}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				<ExportOrdersButton
-					storeId={storeId}
-					statusFilter={statusFilter}
-					fromDate={fromDate}
-				/>
-			</div>
+					<Select.HiddenSelect />
+					<Select.Control>
+						<Select.Trigger minW="40" maxW="48" gap="2">
+							<HStack gap="2" flex="1" overflow="hidden" minW="0">
+								<Icon w="4" h="4" color="fg.muted" flexShrink={0}>
+									<Calendar />
+								</Icon>
+								<Select.ValueText />
+							</HStack>
+						</Select.Trigger>
+						<Select.IndicatorGroup>
+							<Select.Indicator />
+						</Select.IndicatorGroup>
+					</Select.Control>
+					<Portal>
+						<Select.Positioner>
+							<Select.Content>
+								{daysCollection.items.map((item) => (
+									<Select.Item key={item.value} item={item}>
+										{item.label}
+										<Select.ItemIndicator />
+									</Select.Item>
+								))}
+							</Select.Content>
+						</Select.Positioner>
+					</Portal>
+				</Select.Root>
+				<HStack gap="2">
+					<Select.Root
+						collection={statusCollection}
+						value={statusFilter ? [statusFilter] : ["all"]}
+						onValueChange={(e) => handleStatusFilterChange(e.value[0] ?? "all")}
+						variant="outline"
+						size="sm"
+					>
+						<Select.HiddenSelect />
+						<Select.Control>
+							<Select.Trigger minW="40" maxW="48" gap="2">
+								<HStack gap="2" flex="1" minW="0">
+									<Icon w="4" h="4" color="fg.muted" flexShrink={0}>
+										<Filter />
+									</Icon>
+									<Select.ValueText placeholder={t("filterByStatus")} />
+								</HStack>
+							</Select.Trigger>
+							<Select.IndicatorGroup>
+								<Select.Indicator />
+							</Select.IndicatorGroup>
+						</Select.Control>
+						<Portal>
+							<Select.Positioner>
+								<Select.Content>
+									{statusCollection.items.map((item) => (
+										<Select.Item key={item.value} item={item}>
+											{item.label}
+											<Select.ItemIndicator />
+										</Select.Item>
+									))}
+								</Select.Content>
+							</Select.Positioner>
+						</Portal>
+					</Select.Root>
+					<ExportOrdersButton
+						storeId={storeId}
+						statusFilter={statusFilter}
+						fromDate={fromDate}
+					/>
+				</HStack>
+			</HStack>
 
 			{/* Orders Table */}
 			{isEmpty ? (
-				<div className="flex flex-col items-center justify-center py-12 text-center">
-					<p className="font-medium text-lg">
-						{isFiltered ? t("emptyFiltered.title") : t("empty.title")}
-					</p>
-					<p className="text-muted-foreground text-sm">
-						{isFiltered
-							? t("emptyFiltered.description")
-							: t("empty.description")}
-					</p>
-				</div>
+				<EmptyState.Root>
+					<EmptyState.Content>
+						<VStack textAlign="center">
+							<EmptyState.Title>
+								{isFiltered ? t("emptyFiltered.title") : t("empty.title")}
+							</EmptyState.Title>
+							<EmptyState.Description>
+								{isFiltered
+									? t("emptyFiltered.description")
+									: t("empty.description")}
+							</EmptyState.Description>
+						</VStack>
+					</EmptyState.Content>
+				</EmptyState.Root>
 			) : (
-				<>
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead className="w-[80px]">
+				<VStack gap="3" align="stretch">
+					<Table.Root size="sm">
+						<Table.Header>
+							<Table.Row>
+								<Table.ColumnHeader w="80px">
 									{t("table.orderNumber")}
-								</TableHead>
-								<TableHead className="w-[200px]">
+								</Table.ColumnHeader>
+								<Table.ColumnHeader w="200px">
 									{t("table.customer")}
-								</TableHead>
-								<TableHead className="w-[120px]">{t("table.type")}</TableHead>
-								<TableHead className="w-[120px]">{t("table.status")}</TableHead>
-								<TableHead className="w-[100px] text-right">
+								</Table.ColumnHeader>
+								<Table.ColumnHeader w="120px">
+									{t("table.type")}
+								</Table.ColumnHeader>
+								<Table.ColumnHeader w="120px">
+									{t("table.status")}
+								</Table.ColumnHeader>
+								<Table.ColumnHeader w="100px" textAlign="end">
 									{t("table.total")}
-								</TableHead>
-								<TableHead className="w-[150px]">{t("table.date")}</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
+								</Table.ColumnHeader>
+								<Table.ColumnHeader w="150px">
+									{t("table.date")}
+								</Table.ColumnHeader>
+							</Table.Row>
+						</Table.Header>
+						<Table.Body>
 							{orders.map((order) => {
 								const timeAgo = formatDistanceToNow(new Date(order.createdAt), {
 									addSuffix: true,
@@ -280,65 +359,72 @@ export function OrdersTable({
 								});
 
 								return (
-									<TableRow
+									<Table.Row
 										key={order.id}
-										className="cursor-pointer"
+										cursor="pointer"
 										onClick={() => handleRowClick(order.id)}
 									>
-										<TableCell>
+										<Table.Cell>
 											<Link
 												to="/stores/$storeId/orders/$orderId"
 												params={{ storeId, orderId: order.id }}
-												className="font-medium text-primary hover:underline"
 												onClick={(e) => e.stopPropagation()}
 											>
-												#{String(order.pickupNumber).padStart(3, "0")}
+												<Text
+													fontWeight="medium"
+													color="primary"
+													_hover={{ textDecoration: "underline" }}
+												>
+													#{String(order.pickupNumber).padStart(3, "0")}
+												</Text>
 											</Link>
-										</TableCell>
-										<TableCell>
-											<span className="truncate">
-												{order.customerName || "Guest"}
-											</span>
-										</TableCell>
-										<TableCell>
+										</Table.Cell>
+										<Table.Cell>
+											<Text truncate>{order.customerName || "Guest"}</Text>
+										</Table.Cell>
+										<Table.Cell>
 											<Badge
 												variant={orderTypeVariants[order.orderType]}
-												className="text-xs"
+												colorPalette={orderTypeColorPalettes[order.orderType]}
+												size="xs"
 											>
 												{t(`orderType.${order.orderType}`)}
 											</Badge>
-										</TableCell>
-										<TableCell>
+										</Table.Cell>
+										<Table.Cell>
 											<Badge
-												variant={statusVariants[order.status] ?? "default"}
-												className="text-xs"
+												variant={statusVariants[order.status] ?? "solid"}
+												colorPalette={
+													statusColorPalettes[order.status] ?? "gray"
+												}
+												size="xs"
 											>
 												{t(`status.${order.status}`)}
 											</Badge>
-										</TableCell>
-										<TableCell className="text-right font-medium">
-											{formatPrice(order.totalAmount)}
-										</TableCell>
-										<TableCell className="text-muted-foreground text-sm">
-											{timeAgo}
-										</TableCell>
-									</TableRow>
+										</Table.Cell>
+										<Table.Cell textAlign="end">
+											<Text fontWeight="medium">
+												{formatPrice(order.totalAmount)}
+											</Text>
+										</Table.Cell>
+										<Table.Cell>
+											<Text color="fg.muted" textStyle="sm">
+												{timeAgo}
+											</Text>
+										</Table.Cell>
+									</Table.Row>
 								);
 							})}
-						</TableBody>
-					</Table>
+						</Table.Body>
+					</Table.Root>
 
 					{hasMore && (
-						<Button
-							variant="outline"
-							onClick={handleLoadMore}
-							className="w-full"
-						>
+						<Button variant="outline" onClick={handleLoadMore} w="full">
 							{t("loadMore")}
 						</Button>
 					)}
-				</>
+				</VStack>
 			)}
-		</div>
+		</VStack>
 	);
 }

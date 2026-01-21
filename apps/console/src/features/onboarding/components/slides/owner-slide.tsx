@@ -1,7 +1,8 @@
-import { Field, FieldError, Input } from "@menuvo/ui";
+import { Box, Field, Flex, Heading, Input, Text } from "@chakra-ui/react";
 import { useForm } from "@tanstack/react-form";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { FieldError } from "@/components/ui/field-error";
 import { type OwnerSlideInput, ownerSlideSchema } from "../../schemas";
 import { SlideFooter } from "./slide-footer";
 import { StepIndicator } from "./step-indicator";
@@ -61,76 +62,101 @@ export function OwnerSlide({
 				y: { type: "spring", stiffness: 300, damping: 30 },
 				opacity: { duration: 0.25 },
 			}}
-			className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6"
 		>
-			<form
-				className="mx-auto w-full max-w-xl"
-				onSubmit={(e) => {
-					e.preventDefault();
-					form.handleSubmit();
-				}}
-			>
-				<StepIndicator current={questionNumber} total={totalQuestions} />
-
-				{/* Question title */}
-				<motion.h2
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.1 }}
-					className="font-body font-semibold text-2xl text-foreground leading-tight tracking-tight sm:text-3xl md:text-4xl"
+			<Flex flex="1" direction="column" justify="center" p="3rem 1rem">
+				<form
+					style={{ margin: "0 auto", width: "100%", maxWidth: "36rem" }}
+					onSubmit={(e) => {
+						e.preventDefault();
+						form.handleSubmit();
+					}}
 				>
-					{t("slides.owner.title")}
-				</motion.h2>
+					<StepIndicator current={questionNumber} total={totalQuestions} />
 
-				{/* Why */}
-				<motion.p
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					transition={{ delay: 0.25 }}
-					className="mt-4 font-body text-base text-muted-foreground leading-relaxed sm:text-lg"
-				>
-					{t("slides.owner.why")}
-				</motion.p>
+					{/* Question title */}
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.1 }}
+					>
+						<Heading
+							as="h2"
+							fontWeight="semibold"
+							textStyle={{ base: "2xl", sm: "3xl", md: "4xl" }}
+							lineHeight="tight"
+							letterSpacing="tight"
+						>
+							{t("slides.owner.title")}
+						</Heading>
+					</motion.div>
 
-				{/* Input */}
-				<motion.div
-					initial={{ opacity: 0, y: 10 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.35 }}
-					className="mt-10"
-				>
-					<form.Field name="ownerName">
-						{(field) => {
-							const hasError =
-								field.state.meta.isTouched &&
-								field.state.meta.errors.length > 0;
-							return (
-								<Field data-invalid={hasError}>
-									<Input
-										id="owner-name"
-										className="h-12 text-lg"
-										type="text"
-										placeholder={t("placeholders.ownerName")}
-										value={field.state.value}
-										onChange={(e) => field.handleChange(e.target.value)}
-										onBlur={field.handleBlur}
-										autoFocus
-										autoComplete="name"
-										aria-invalid={hasError}
-									/>
-									<FieldError errors={field.state.meta.errors} />
-								</Field>
-							);
-						}}
-					</form.Field>
+					{/* Why */}
+					<motion.div
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						transition={{ delay: 0.25 }}
+					>
+						<Text
+							mt="4"
+							textStyle={{ base: "base", sm: "lg" }}
+							color="fg.muted"
+							lineHeight="relaxed"
+						>
+							{t("slides.owner.why")}
+						</Text>
+					</motion.div>
 
-					<form.Subscribe selector={(state) => state.canSubmit}>
-						{(canSubmit) => (
-							<SlideFooter onBack={onBack} canGoNext={canSubmit} />
-						)}
-					</form.Subscribe>
-				</motion.div>
-			</form>
+					{/* Input */}
+					<motion.div
+						initial={{ opacity: 0, y: 10 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.35 }}
+					>
+						<Box mt="10">
+							<form.Field name="ownerName">
+								{(field) => {
+									const hasError =
+										field.state.meta.isTouched &&
+										field.state.meta.errors.length > 0;
+									return (
+										<Field.Root invalid={hasError}>
+											<Field.Label
+												htmlFor="owner-name"
+												mb="2"
+												fontWeight="medium"
+												color="fg.muted"
+											>
+												{t("fields.ownerName")}
+											</Field.Label>
+											<Input
+												id="owner-name"
+												h="12"
+												textStyle="lg"
+												type="text"
+												placeholder={t("placeholders.ownerName")}
+												value={field.state.value}
+												onChange={(e) => field.handleChange(e.target.value)}
+												onBlur={field.handleBlur}
+												autoFocus
+												autoComplete="name"
+												aria-invalid={hasError}
+											/>
+											{hasError && (
+												<FieldError errors={field.state.meta.errors} />
+											)}
+										</Field.Root>
+									);
+								}}
+							</form.Field>
+							<form.Subscribe selector={(state) => state.canSubmit}>
+								{(canSubmit) => (
+									<SlideFooter onBack={onBack} canGoNext={canSubmit} />
+								)}
+							</form.Subscribe>
+						</Box>
+					</motion.div>
+				</form>
+			</Flex>
 		</motion.div>
 	);
 }

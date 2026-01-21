@@ -5,7 +5,11 @@
  */
 
 import type { Transaction } from "@menuvo/db";
-import type { storeClosures, storeHours, stores } from "@menuvo/db/schema";
+import type {
+	StoreClosuresConfig,
+	StoreHoursConfig,
+	stores,
+} from "@menuvo/db/schema";
 import type {
 	CreateStoreInput,
 	GetFeaturedStoresParams,
@@ -29,14 +33,14 @@ export interface IStoreService {
 		merchantId: string,
 	) => Promise<typeof stores.$inferSelect>;
 
-	/** Get store with hours and closures */
+	/** Get store with hours and closures from JSONB settings */
 	getWithDetails: (
 		storeId: string,
 		merchantId: string,
 	) => Promise<
 		typeof stores.$inferSelect & {
-			hours: (typeof storeHours.$inferSelect)[];
-			closures: (typeof storeClosures.$inferSelect)[];
+			hours: StoreHoursConfig;
+			closures: StoreClosuresConfig;
 		}
 	>;
 

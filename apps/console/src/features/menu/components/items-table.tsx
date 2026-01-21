@@ -1,22 +1,17 @@
 import {
-	formatPrice,
+	Box,
+	Link as ChakraLink,
+	Image,
 	Switch,
 	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@menuvo/ui";
+} from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ImageOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { formatPrice } from "@/components/ui/price-input";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { getDisplayName } from "../logic/display";
 import type { EntityTranslations } from "../options.schemas";
@@ -95,108 +90,134 @@ export function ItemsTable({
 	};
 
 	return (
-		<TooltipProvider>
-			<Table>
-				<TableHeader>
-					<TableRow>
-						<TableHead className="w-[45%]">{t("table.name")}</TableHead>
-						<TableHead className="text-center">{t("table.image")}</TableHead>
-						<TableHead className="text-right">{t("table.price")}</TableHead>
-						<TableHead className="w-[60px] text-center">
-							{t("table.validation")}
-						</TableHead>
-						<TableHead className="text-center">{t("table.status")}</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{items.length === 0 ? (
-						<TableRow>
-							<TableCell colSpan={5} className="h-24 text-center">
-								{t("emptyStates.noItemsInCategory")}
-							</TableCell>
-						</TableRow>
-					) : (
-						items.map((item) => {
-							const name = getDisplayName(item.translations, language);
+		<Table.Root size="sm">
+			<Table.Header>
+				<Table.Row>
+					<Table.ColumnHeader w="45%">{t("table.name")}</Table.ColumnHeader>
+					<Table.ColumnHeader textAlign="center">
+						{t("table.image")}
+					</Table.ColumnHeader>
+					<Table.ColumnHeader textAlign="right">
+						{t("table.price")}
+					</Table.ColumnHeader>
+					<Table.ColumnHeader w="60px" textAlign="center">
+						{t("table.validation")}
+					</Table.ColumnHeader>
+					<Table.ColumnHeader textAlign="center">
+						{t("table.status")}
+					</Table.ColumnHeader>
+				</Table.Row>
+			</Table.Header>
+			<Table.Body>
+				{items.length === 0 ? (
+					<Table.Row>
+						<Table.Cell colSpan={5} h="24" textAlign="center">
+							{t("emptyStates.noItemsInCategory")}
+						</Table.Cell>
+					</Table.Row>
+				) : (
+					items.map((item) => {
+						const name = getDisplayName(item.translations, language);
 
-							return (
-								<TableRow
-									key={item.id}
-									className="cursor-pointer"
-									onClick={() => handleRowClick(item.id)}
-								>
-									<TableCell>
+						return (
+							<Table.Row
+								key={item.id}
+								cursor="pointer"
+								onClick={() => handleRowClick(item.id)}
+							>
+								<Table.Cell>
+									<ChakraLink
+										variant="underline"
+										colorPalette="primary"
+										fontWeight="medium"
+										asChild
+									>
 										<Link
 											to="/stores/$storeId/menu/categories/$categoryId/items/$itemId"
 											params={{ storeId, categoryId, itemId: item.id }}
-											className="font-medium text-primary hover:underline"
 											onClick={(e) => e.stopPropagation()}
 										>
 											{name || t("emptyStates.unnamed")}
 										</Link>
-									</TableCell>
-									<TableCell className="text-center">
-										{item.imageUrl ? (
-											<img
-												src={item.imageUrl}
-												alt=""
-												className="mx-auto h-8 w-8 rounded object-cover"
+									</ChakraLink>
+								</Table.Cell>
+								<Table.Cell textAlign="center">
+									{item.imageUrl ? (
+										<Image
+											src={item.imageUrl}
+											alt=""
+											mx="auto"
+											h="8"
+											w="8"
+											rounded="md"
+											objectFit="cover"
+										/>
+									) : (
+										<Box
+											mx="auto"
+											display="flex"
+											alignItems="center"
+											justifyContent="center"
+											h="8"
+											w="8"
+											rounded="md"
+											bg="bg.muted"
+										>
+											<ImageOff
+												style={{ height: "1rem", width: "1rem" }}
+												color="var(--chakra-colors-fg-muted)"
 											/>
-										) : (
-											<div className="mx-auto flex h-8 w-8 items-center justify-center rounded bg-muted">
-												<ImageOff className="h-4 w-4 text-muted-foreground" />
-											</div>
-										)}
-									</TableCell>
-									<TableCell className="text-right">
-										{formatPrice(item.price)}
-									</TableCell>
-									<TableCell className="text-center">
-										{item.validation && (
-											<ItemValidationBadge
-												validation={item.validation}
-												compact
-											/>
-										)}
-									</TableCell>
-									<TableCell className="text-center">
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<div className="inline-flex">
-													<Switch
-														checked={item.isActive}
-														disabled={
-															toggleActiveMutation.isPending ||
-															(!item.isActive &&
-																item.validation &&
-																!item.validation.isPublishable)
-														}
-														onClick={(e) =>
-															handleToggleActive(
-																e,
-																item.id,
-																item.isActive,
-																item.validation?.isPublishable ?? true,
-															)
-														}
-													/>
-												</div>
-											</TooltipTrigger>
-											<TooltipContent>
-												{item.isActive
-													? t("tooltips.deactivateItem")
-													: item.validation && !item.validation.isPublishable
-														? t("tooltips.cannotActivateWithIssues")
-														: t("tooltips.activateItem")}
-											</TooltipContent>
-										</Tooltip>
-									</TableCell>
-								</TableRow>
-							);
-						})
-					)}
-				</TableBody>
-			</Table>
-		</TooltipProvider>
+										</Box>
+									)}
+								</Table.Cell>
+								<Table.Cell textAlign="right">
+									{formatPrice(item.price)}
+								</Table.Cell>
+								<Table.Cell textAlign="center">
+									{item.validation && (
+										<ItemValidationBadge validation={item.validation} compact />
+									)}
+								</Table.Cell>
+								<Table.Cell textAlign="center">
+									<Tooltip
+										content={
+											item.isActive
+												? t("tooltips.deactivateItem")
+												: item.validation && !item.validation.isPublishable
+													? t("tooltips.cannotActivateWithIssues")
+													: t("tooltips.activateItem")
+										}
+									>
+										<Box display="inline-flex">
+											<Switch.Root
+												checked={item.isActive}
+												disabled={
+													toggleActiveMutation.isPending ||
+													(!item.isActive &&
+														item.validation &&
+														!item.validation.isPublishable)
+												}
+												onCheckedChange={() =>
+													handleToggleActive(
+														{} as React.MouseEvent,
+														item.id,
+														item.isActive,
+														item.validation?.isPublishable ?? true,
+													)
+												}
+												colorPalette="red"
+											>
+												<Switch.HiddenInput />
+												<Switch.Control />
+											</Switch.Root>
+										</Box>
+									</Tooltip>
+								</Table.Cell>
+							</Table.Row>
+						);
+					})
+				)}
+			</Table.Body>
+		</Table.Root>
 	);
 }

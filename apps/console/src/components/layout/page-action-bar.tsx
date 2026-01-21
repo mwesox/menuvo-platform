@@ -1,15 +1,12 @@
 import {
 	Breadcrumb,
-	BreadcrumbItem,
-	BreadcrumbLink,
-	BreadcrumbList,
-	BreadcrumbPage,
-	BreadcrumbSeparator,
-	Button,
+	Heading,
+	HStack,
+	IconButton,
 	Tabs,
-	TabsList,
-	TabsTrigger,
-} from "@menuvo/ui";
+	VisuallyHidden,
+	VStack,
+} from "@chakra-ui/react";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { Fragment } from "react";
@@ -22,6 +19,7 @@ interface TabItem {
 interface BreadcrumbItemData {
 	label: string;
 	href?: string;
+	params?: Record<string, string>;
 	search?: Record<string, string>;
 }
 
@@ -51,58 +49,81 @@ export function PageActionBar({
 	const displayTitle = !breadcrumbs ? (title ?? backLabel) : undefined;
 
 	return (
-		<div className="flex flex-col gap-4">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-3">
+		<VStack gap="4" align="stretch">
+			<HStack justify="space-between" align="center">
+				<HStack gap="3" align="center">
 					{showBackButton && (
-						<Button variant="ghost" size="icon" asChild>
+						<IconButton
+							variant="ghost"
+							size="sm"
+							asChild
+							aria-label={backLabel ?? "Back"}
+						>
 							<Link to={backHref}>
-								<ArrowLeft className="h-4 w-4" />
-								<span className="sr-only">{backLabel ?? "Back"}</span>
+								<ArrowLeft style={{ height: "1rem", width: "1rem" }} />
+								<VisuallyHidden>{backLabel ?? "Back"}</VisuallyHidden>
 							</Link>
-						</Button>
+						</IconButton>
 					)}
 					{breadcrumbs && breadcrumbs.length > 0 && (
-						<Breadcrumb>
-							<BreadcrumbList>
+						<Breadcrumb.Root>
+							<Breadcrumb.List>
 								{breadcrumbs.map((item, index) => (
 									<Fragment key={item.href ?? item.label}>
-										<BreadcrumbItem>
+										<Breadcrumb.Item>
 											{item.href ? (
-												<BreadcrumbLink asChild>
-													<Link to={item.href} search={item.search}>
+												<Breadcrumb.Link asChild>
+													<Link
+														to={item.href}
+														params={item.params}
+														search={item.search}
+													>
 														{item.label}
 													</Link>
-												</BreadcrumbLink>
+												</Breadcrumb.Link>
 											) : (
-												<BreadcrumbPage>{item.label}</BreadcrumbPage>
+												<Breadcrumb.CurrentLink>
+													{item.label}
+												</Breadcrumb.CurrentLink>
 											)}
-										</BreadcrumbItem>
-										{index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+										</Breadcrumb.Item>
+										{index < breadcrumbs.length - 1 && <Breadcrumb.Separator />}
 									</Fragment>
 								))}
-							</BreadcrumbList>
-						</Breadcrumb>
+							</Breadcrumb.List>
+						</Breadcrumb.Root>
 					)}
 					{displayTitle && (
-						<h1 className="font-semibold text-2xl tracking-tight">
+						<Heading
+							as="h1"
+							fontWeight="semibold"
+							textStyle="2xl"
+							letterSpacing="tight"
+						>
 							{displayTitle}
-						</h1>
+						</Heading>
 					)}
-				</div>
-				{actions && <div className="flex items-center gap-2">{actions}</div>}
-			</div>
+				</HStack>
+				{actions && (
+					<HStack gap="2" align="center">
+						{actions}
+					</HStack>
+				)}
+			</HStack>
 			{tabs && (
-				<Tabs value={tabs.value} onValueChange={tabs.onChange}>
-					<TabsList>
+				<Tabs.Root
+					value={tabs.value}
+					onValueChange={(e) => tabs.onChange(e.value)}
+				>
+					<Tabs.List>
 						{tabs.items.map((item) => (
-							<TabsTrigger key={item.value} value={item.value}>
+							<Tabs.Trigger key={item.value} value={item.value}>
 								{item.label}
-							</TabsTrigger>
+							</Tabs.Trigger>
 						))}
-					</TabsList>
-				</Tabs>
+					</Tabs.List>
+				</Tabs.Root>
 			)}
-		</div>
+		</VStack>
 	);
 }

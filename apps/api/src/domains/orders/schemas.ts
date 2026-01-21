@@ -180,6 +180,18 @@ export const getOrderStatsSchema = z.object({
 export type GetOrderStatsInput = z.infer<typeof getOrderStatsSchema>;
 
 /**
+ * Get daily order statistics - API schema
+ * For charts showing order trends over time
+ */
+export const getDailyStatsSchema = z.object({
+	storeId: z.string().uuid(),
+	startDate: z.coerce.date(),
+	endDate: z.coerce.date().optional(),
+});
+
+export type GetDailyStatsInput = z.infer<typeof getDailyStatsSchema>;
+
+/**
  * Order statistics response
  */
 export const orderStatsResponseSchema = z.object({

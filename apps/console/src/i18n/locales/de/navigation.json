@@ -5,6 +5,7 @@
 	"menu": "Speisekarte",
 	"orders": "Bestellungen",
 	"kitchen": "Küche",
+	"servicePoints": "Servicepunkte",
 	"settings": "Einstellungen",
 	"storeSettings": "Filial-Einstellungen",
 	"toggleMenu": "Menü umschalten",
@@ -15,5 +16,6 @@
 	"selectStore": "Filiale wählen",
 	"noStores": "Keine Filialen",
 	"profile": "Profil",
-	"logout": "Abmelden"
+	"logout": "Abmelden",
+	"support": "Support"
 }

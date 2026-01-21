@@ -1,4 +1,12 @@
-import { Button } from "@menuvo/ui";
+import {
+	Box,
+	Button,
+	Heading,
+	SimpleGrid,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -6,12 +14,11 @@ import { PageActionBar } from "@/components/layout/page-action-bar";
 import { ConsoleError } from "@/features/components/console-error";
 import { StoresPageSkeleton } from "@/features/stores/components/skeletons";
 import { StoreCard } from "@/features/stores/components/store-card";
-import { trpcUtils } from "@/lib/trpc";
+import { trpcUtils, useTRPC } from "@/lib/trpc";
 
 export const Route = createFileRoute("/_app/stores/")({
 	loader: async () => {
-		const stores = await trpcUtils.store.list.ensureData();
-		return stores;
+		await trpcUtils.store.list.ensureData();
 	},
 	component: StoresPage,
 	pendingComponent: StoresPageSkeleton,
@@ -20,16 +27,19 @@ export const Route = createFileRoute("/_app/stores/")({
 
 function StoresPage() {
 	const { t } = useTranslation("stores");
-	const stores = Route.useLoaderData();
+	const trpc = useTRPC();
+	const { data: stores } = useSuspenseQuery(trpc.store.list.queryOptions());
 
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBar
 				title={t("titles.stores")}
 				actions={
 					<Button asChild>
 						<Link to="/stores/new">
-							<Plus className="me-2 h-4 w-4" />
+							<Plus
+								style={{ marginRight: "0.5rem", height: "1rem", width: "1rem" }}
+							/>
 							{t("labels.addStore")}
 						</Link>
 					</Button>
@@ -37,19 +47,27 @@ function StoresPage() {
 			/>
 
 			{stores.length === 0 ? (
-				<div className="rounded-lg border border-dashed p-12 text-center">
-					<h3 className="font-semibold text-lg">{t("emptyStates.noStores")}</h3>
-					<p className="mt-1 text-muted-foreground text-sm">
+				<Box
+					rounded="lg"
+					borderWidth="1px"
+					borderStyle="dashed"
+					p="12"
+					textAlign="center"
+				>
+					<Heading as="h3" fontWeight="semibold" textStyle="lg">
+						{t("emptyStates.noStores")}
+					</Heading>
+					<Text mt="1" color="fg.muted" textStyle="sm">
 						{t("emptyStates.noStoresDescription")}
-					</p>
-				</div>
+					</Text>
+				</Box>
 			) : (
-				<div className="grid gap-6 lg:grid-cols-2">
+				<SimpleGrid columns={{ base: 1, lg: 2 }} gap="6">
 					{stores.map((store) => (
 						<StoreCard key={store.id} store={store} />
 					))}
-				</div>
+				</SimpleGrid>
 			)}
-		</div>
+		</VStack>
 	);
 }

@@ -1,20 +1,63 @@
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@menuvo/ui";
+import { Box, Drawer, Flex, Portal, Skeleton } from "@chakra-ui/react";
 import { Outlet } from "@tanstack/react-router";
 import { Suspense } from "react";
+import { SidebarProvider, useSidebar } from "@/contexts/sidebar-context";
 import { StoreSelectionProvider } from "@/contexts/store-selection-context";
-import { ConsoleHeader } from "./console-header";
 import { Footer } from "./footer";
 import { AppSidebar } from "./sidebar";
+import { TopBar } from "./top-bar";
 
-function ConsoleContent() {
+function ConsoleLayoutInner() {
+	const { openMobile, setOpenMobile } = useSidebar();
+
 	return (
-		<>
-			<ConsoleHeader />
-			<main className="flex-1 p-4 md:p-6 md:pt-4">
-				<Outlet />
-			</main>
+		<Flex direction="column" h="100vh">
+			{/* Full-width top bar */}
+			<TopBar />
+
+			{/* Middle section: sidebar + content */}
+			<Flex flex="1" overflow="hidden">
+				{/* Desktop sidebar */}
+				<Box display={{ base: "none", xl: "block" }}>
+					<AppSidebar />
+				</Box>
+
+				{/* Mobile drawer */}
+				<Drawer.Root
+					open={openMobile}
+					onOpenChange={(e) => setOpenMobile(e.open)}
+					placement="start"
+				>
+					<Portal>
+						<Drawer.Backdrop />
+						<Drawer.Positioner>
+							<Drawer.Content>
+								<Drawer.Body p="0">
+									<AppSidebar />
+								</Drawer.Body>
+							</Drawer.Content>
+						</Drawer.Positioner>
+					</Portal>
+				</Drawer.Root>
+
+				{/* Content area */}
+				<Box
+					as="main"
+					flex="1"
+					overflow="auto"
+					p={{ base: "4", md: "6" }}
+					pt={{ base: "4", md: "4" }}
+					minW="0"
+				>
+					<Suspense fallback={<Skeleton h="12" rounded="md" />}>
+						<Outlet />
+					</Suspense>
+				</Box>
+			</Flex>
+
+			{/* Full-width footer */}
 			<Footer />
-		</>
+		</Flex>
 	);
 }
 
@@ -22,25 +65,7 @@ export function ConsoleLayout() {
 	return (
 		<StoreSelectionProvider>
 			<SidebarProvider>
-				<AppSidebar />
-				<SidebarInset>
-					{/* Mobile header with hamburger */}
-					<header className="flex h-14 items-center gap-4 border-border border-b bg-card px-4 lg:hidden">
-						<SidebarTrigger />
-						<div className="flex-1" />
-					</header>
-
-					{/* Main content with global header */}
-					<Suspense
-						fallback={
-							<div className="flex-1 p-4 md:p-6 md:pt-4">
-								<div className="h-12 animate-pulse rounded bg-muted" />
-							</div>
-						}
-					>
-						<ConsoleContent />
-					</Suspense>
-				</SidebarInset>
+				<ConsoleLayoutInner />
 			</SidebarProvider>
 		</StoreSelectionProvider>
 	);

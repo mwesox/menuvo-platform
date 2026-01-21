@@ -1,3 +1,4 @@
+import { Card, Skeleton, VStack } from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -20,14 +21,18 @@ export const Route = createFileRoute(
 
 function VatGroupEditSkeleton() {
 	return (
-		<div className="space-y-6">
-			<div className="h-6 w-48 animate-pulse rounded bg-muted" />
-			<div className="space-y-4 rounded-lg border p-6">
-				{Array.from({ length: 4 }).map((_, i) => (
-					<div key={i} className="h-12 animate-pulse rounded bg-muted" />
-				))}
-			</div>
-		</div>
+		<VStack gap="6" align="stretch">
+			<Skeleton h="6" w="12rem" />
+			<Card.Root>
+				<Card.Body>
+					<VStack gap="4" align="stretch">
+						{Array.from({ length: 4 }).map((_, i) => (
+							<Skeleton key={i} h="12" rounded="md" />
+						))}
+					</VStack>
+				</Card.Body>
+			</Card.Root>
+		</VStack>
 	);
 }
 
@@ -42,7 +47,7 @@ function EditVatGroupPage() {
 	);
 
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBar
 				breadcrumbs={[
 					{
@@ -53,6 +58,6 @@ function EditVatGroupPage() {
 				]}
 			/>
 			<VatGroupForm storeId={store.id} vatGroup={vatGroup} />
-		</div>
+		</VStack>
 	);
 }

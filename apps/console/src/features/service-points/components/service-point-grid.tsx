@@ -1,3 +1,4 @@
+import { SimpleGrid } from "@chakra-ui/react";
 import type { ServicePoint } from "../types";
 import { ServicePointCard } from "./service-point-card";
 
@@ -17,7 +18,7 @@ export function ServicePointGrid({
 	onDelete,
 }: ServicePointGridProps) {
 	return (
-		<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+		<SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} gap="2">
 			{servicePoints.map((sp) => (
 				<ServicePointCard
 					key={sp.id}
@@ -28,6 +29,6 @@ export function ServicePointGrid({
 					onDelete={onDelete}
 				/>
 			))}
-		</div>
+		</SimpleGrid>
 	);
 }

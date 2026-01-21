@@ -1,4 +1,15 @@
-import { Badge, Button, Checkbox, ScrollArea } from "@menuvo/ui";
+import {
+	Badge,
+	Box,
+	Button,
+	Checkbox,
+	HStack,
+	Icon,
+	ScrollArea,
+	SimpleGrid,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import {
 	ChevronDown,
 	ChevronRight,
@@ -32,20 +43,35 @@ function ActionBadge({ action, t }: ActionBadgeProps) {
 	switch (action) {
 		case "create":
 			return (
-				<Badge variant="default" className="gap-1">
-					<Plus className="size-3" /> {t("import.badges.new")}
+				<Badge variant="solid" colorPalette="blue">
+					<HStack gap="1">
+						<Icon w="3" h="3">
+							<Plus />
+						</Icon>
+						<Text>{t("import.badges.new")}</Text>
+					</HStack>
 				</Badge>
 			);
 		case "update":
 			return (
-				<Badge variant="secondary" className="gap-1">
-					<RefreshCw className="size-3" /> {t("import.badges.update")}
+				<Badge variant="subtle" colorPalette="gray">
+					<HStack gap="1">
+						<Icon w="3" h="3">
+							<RefreshCw />
+						</Icon>
+						<Text>{t("import.badges.update")}</Text>
+					</HStack>
 				</Badge>
 			);
 		case "skip":
 			return (
-				<Badge variant="outline" className="gap-1">
-					<Minus className="size-3" /> {t("import.badges.skip")}
+				<Badge variant="outline">
+					<HStack gap="1">
+						<Icon w="3" h="3">
+							<Minus />
+						</Icon>
+						<Text>{t("import.badges.skip")}</Text>
+					</HStack>
 				</Badge>
 			);
 	}
@@ -88,127 +114,155 @@ export function ComparisonPanel({
 		comparison.summary.updatedCategories + comparison.summary.updatedItems;
 
 	return (
-		<div className="space-y-4">
+		<VStack gap="4" align="stretch">
 			{/* Toolbar */}
-			<div className="flex items-center justify-between rounded-lg bg-muted p-3">
-				<div className="flex items-center gap-4">
-					<Checkbox
+			<HStack
+				justify="space-between"
+				align="center"
+				rounded="lg"
+				bg="bg.muted"
+				p="3"
+			>
+				<HStack gap="4" align="center">
+					<Checkbox.Root
 						checked={selectedItems.size === totalSelectable}
-						onCheckedChange={(checked) => {
-							if (checked) onSelectAll();
+						onCheckedChange={(details) => {
+							if (details.checked) onSelectAll();
 							else onClearSelection();
 						}}
-					/>
-					<span className="text-sm">
+					>
+						<Checkbox.HiddenInput />
+						<Checkbox.Control>
+							<Checkbox.Indicator />
+						</Checkbox.Control>
+					</Checkbox.Root>
+					<Text textStyle="sm">
 						{t("import.comparison.selectedCount", {
 							selected: selectedItems.size,
 							total: totalSelectable,
 						})}
-					</span>
-				</div>
-				<div className="flex gap-2 text-muted-foreground text-xs">
-					<span>{t("import.comparison.newCount", { count: totalNew })}</span>
-					<span>•</span>
-					<span>
+					</Text>
+				</HStack>
+				<HStack gap="2" color="fg.muted" textStyle="xs">
+					<Text>{t("import.comparison.newCount", { count: totalNew })}</Text>
+					<Text>•</Text>
+					<Text>
 						{totalUpdates} {t("import.comparison.updates")}
-					</span>
-				</div>
-			</div>
+					</Text>
+				</HStack>
+			</HStack>
 
 			{/* Categories and Items */}
-			<ScrollArea className="h-[400px] pe-4">
-				<div className="space-y-3">
-					{comparison.categories.map((category) => (
-						<CategoryCard
-							key={category.extracted.name}
-							category={category}
-							isExpanded={expandedCategories.has(category.extracted.name)}
-							onToggleExpand={() => toggleExpanded(category.extracted.name)}
-							selectedItems={selectedItems}
-							onToggleSelection={onToggleSelection}
-							t={t}
-						/>
-					))}
+			<ScrollArea.Root h="400px">
+				<ScrollArea.Viewport pe="4">
+					<ScrollArea.Content>
+						<VStack gap="3" align="stretch">
+							{comparison.categories.map((category) => (
+								<CategoryCard
+									key={category.extracted.name}
+									category={category}
+									isExpanded={expandedCategories.has(category.extracted.name)}
+									onToggleExpand={() => toggleExpanded(category.extracted.name)}
+									selectedItems={selectedItems}
+									onToggleSelection={onToggleSelection}
+									t={t}
+								/>
+							))}
 
-					{comparison.optionGroups.length > 0 && (
-						<div className="mt-6">
-							<h3 className="mb-3 font-medium text-sm">
-								{t("import.comparison.optionGroups")}
-							</h3>
-							<div className="space-y-2">
-								{comparison.optionGroups.map((og) => (
-									<div
-										key={og.extracted.name}
-										className="flex items-center gap-3 rounded-lg border p-3"
-									>
-										<Checkbox
-											checked={selectedItems.has(
-												`optionGroup:${og.extracted.name}`,
-											)}
-											onCheckedChange={() =>
-												onToggleSelection(`optionGroup:${og.extracted.name}`)
-											}
-										/>
-										<div className="flex-1">
-											<span className="font-medium text-sm">
-												{og.extracted.name}
-											</span>
-											<span className="ms-2 text-muted-foreground text-xs">
-												(
-												{t("import.comparison.choicesCount", {
-													count: og.extracted.choices.length,
-												})}
-												)
-											</span>
-										</div>
-										<ActionBadge action={og.action} t={t} />
-									</div>
-								))}
-							</div>
-						</div>
-					)}
-				</div>
-			</ScrollArea>
+							{comparison.optionGroups.length > 0 && (
+								<Box mt="6">
+									<Text mb="3" fontWeight="medium" textStyle="sm">
+										{t("import.comparison.optionGroups")}
+									</Text>
+									<VStack gap="2" align="stretch">
+										{comparison.optionGroups.map((og) => (
+											<HStack
+												key={og.extracted.name}
+												gap="3"
+												align="center"
+												rounded="lg"
+												borderWidth="1px"
+												p="3"
+											>
+												<Checkbox.Root
+													checked={selectedItems.has(
+														`optionGroup:${og.extracted.name}`,
+													)}
+													onCheckedChange={() =>
+														onToggleSelection(
+															`optionGroup:${og.extracted.name}`,
+														)
+													}
+												>
+													<Checkbox.HiddenInput />
+													<Checkbox.Control>
+														<Checkbox.Indicator />
+													</Checkbox.Control>
+												</Checkbox.Root>
+												<Box flex="1">
+													<Text fontWeight="medium" textStyle="sm">
+														{og.extracted.name}
+													</Text>
+													<Text
+														ms="2"
+														color="fg.muted"
+														textStyle="xs"
+														as="span"
+													>
+														(
+														{t("import.comparison.choicesCount", {
+															count: og.extracted.choices.length,
+														})}
+														)
+													</Text>
+												</Box>
+												<ActionBadge action={og.action} t={t} />
+											</HStack>
+										))}
+									</VStack>
+								</Box>
+							)}
+						</VStack>
+					</ScrollArea.Content>
+				</ScrollArea.Viewport>
+				<ScrollArea.Scrollbar>
+					<ScrollArea.Thumb />
+				</ScrollArea.Scrollbar>
+			</ScrollArea.Root>
 
 			{/* Summary */}
-			<div className="border-t pt-4">
-				<div className="grid grid-cols-3 gap-4 text-sm">
-					<div>
-						<p className="text-muted-foreground">
-							{t("import.comparison.categories")}
-						</p>
-						<p className="font-medium">
+			<Box borderTopWidth="1px" pt="4">
+				<SimpleGrid columns={3} gap="4" textStyle="sm">
+					<Box>
+						<Text color="fg.muted">{t("import.comparison.categories")}</Text>
+						<Text fontWeight="medium">
 							{t("import.comparison.summary", {
 								newCount: comparison.summary.newCategories,
 								updateCount: comparison.summary.updatedCategories,
 							})}
-						</p>
-					</div>
-					<div>
-						<p className="text-muted-foreground">
-							{t("import.comparison.items")}
-						</p>
-						<p className="font-medium">
+						</Text>
+					</Box>
+					<Box>
+						<Text color="fg.muted">{t("import.comparison.items")}</Text>
+						<Text fontWeight="medium">
 							{t("import.comparison.summary", {
 								newCount: comparison.summary.newItems,
 								updateCount: comparison.summary.updatedItems,
 							})}
-						</p>
-					</div>
-					<div>
-						<p className="text-muted-foreground">
-							{t("import.comparison.optionGroups")}
-						</p>
-						<p className="font-medium">
+						</Text>
+					</Box>
+					<Box>
+						<Text color="fg.muted">{t("import.comparison.optionGroups")}</Text>
+						<Text fontWeight="medium">
 							{t("import.comparison.summary", {
 								newCount: comparison.summary.newOptionGroups,
 								updateCount: comparison.summary.updatedOptionGroups,
 							})}
-						</p>
-					</div>
-				</div>
-			</div>
-		</div>
+						</Text>
+					</Box>
+				</SimpleGrid>
+			</Box>
+		</VStack>
 	);
 }
 
@@ -233,40 +287,58 @@ function CategoryCard({
 	const isCategorySelected = selectedItems.has(categoryKey);
 
 	return (
-		<div className="rounded-lg border">
-			<div className="flex items-center gap-3 p-3">
-				<Checkbox
+		<Box rounded="lg" borderWidth="1px">
+			<HStack gap="3" align="center" p="3">
+				<Checkbox.Root
 					checked={isCategorySelected}
 					onCheckedChange={() => onToggleSelection(categoryKey)}
-				/>
+				>
+					<Checkbox.HiddenInput />
+					<Checkbox.Control>
+						<Checkbox.Indicator />
+					</Checkbox.Control>
+				</Checkbox.Root>
 				<Button
 					variant="ghost"
-					size="icon"
-					className="size-6"
+					size="sm"
+					w="6"
+					h="6"
+					p="0"
 					onClick={onToggleExpand}
 				>
 					{isExpanded ? (
-						<ChevronDown className="size-4" />
+						<Icon w="4" h="4">
+							<ChevronDown />
+						</Icon>
 					) : (
-						<ChevronRight className="size-4" />
+						<Icon w="4" h="4">
+							<ChevronRight />
+						</Icon>
 					)}
 				</Button>
-				<div className="flex-1">
-					<span className="font-medium">{category.extracted.name}</span>
+				<Box flex="1">
+					<Text fontWeight="medium">{category.extracted.name}</Text>
 					{category.extracted.description && (
-						<p className="line-clamp-1 text-muted-foreground text-xs">
+						<Text lineClamp={1} color="fg.muted" textStyle="xs">
 							{category.extracted.description}
-						</p>
+						</Text>
 					)}
-				</div>
-				<span className="text-muted-foreground text-xs">
+				</Box>
+				<Text color="fg.muted" textStyle="xs">
 					{t("import.comparison.itemsCount", { count: category.items.length })}
-				</span>
+				</Text>
 				<ActionBadge action={category.action} t={t} />
-			</div>
+			</HStack>
 
 			{isExpanded && category.items.length > 0 && (
-				<div className="space-y-2 border-t bg-muted/30 px-3 py-2">
+				<VStack
+					gap="2"
+					align="stretch"
+					borderTopWidth="1px"
+					bg="bg.muted/30"
+					px="3"
+					py="2"
+				>
 					{category.items.map((item) => (
 						<ItemRow
 							key={item.extracted.name}
@@ -276,9 +348,9 @@ function CategoryCard({
 							t={t}
 						/>
 					))}
-				</div>
+				</VStack>
 			)}
-		</div>
+		</Box>
 	);
 }
 
@@ -291,24 +363,31 @@ interface ItemRowProps {
 
 function ItemRow({ item, isSelected, onToggle, t }: ItemRowProps) {
 	return (
-		<div className="flex items-center gap-3 py-1 ps-8">
-			<Checkbox checked={isSelected} onCheckedChange={onToggle} />
-			<div className="min-w-0 flex-1">
-				<span className="text-sm">{item.extracted.name}</span>
+		<HStack gap="3" align="center" py="1" ps="8">
+			<Checkbox.Root checked={isSelected} onCheckedChange={onToggle}>
+				<Checkbox.HiddenInput />
+				<Checkbox.Control>
+					<Checkbox.Indicator />
+				</Checkbox.Control>
+			</Checkbox.Root>
+			<Box minW="0" flex="1">
+				<Text textStyle="sm" as="span">
+					{item.extracted.name}
+				</Text>
 				{item.changes && item.changes.length > 0 && (
-					<span className="ms-2 text-muted-foreground text-xs">
+					<Text ms="2" color="fg.muted" textStyle="xs" as="span">
 						(
 						{t("import.changes.fieldChanged", {
 							fields: item.changes.map((c) => c.field).join(", "),
 						})}
 						)
-					</span>
+					</Text>
 				)}
-			</div>
-			<span className="font-medium text-sm">
+			</Box>
+			<Text fontWeight="medium" textStyle="sm">
 				{formatPrice(item.extracted.price)}
-			</span>
+			</Text>
 			<ActionBadge action={item.action} t={t} />
-		</div>
+		</HStack>
 	);
 }

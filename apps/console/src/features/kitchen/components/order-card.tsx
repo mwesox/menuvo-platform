@@ -6,20 +6,13 @@
  *
  * Note: drag-and-drop library is dynamically imported to reduce initial bundle size
  */
-import {
-	Button,
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@menuvo/ui";
+import { Box, HStack, IconButton, Menu, Portal, Text } from "@chakra-ui/react";
 import { MoreVertical, XCircle } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import invariant from "tiny-invariant";
 import type { OrderWithItems } from "@/features/orders/types";
-import { cn } from "@/lib/utils";
 import type { KanbanColumnId } from "../constants";
 import { CancelOrderDialog } from "./cancel-order-dialog";
 import { OrderCardKitchen } from "./order-card-kitchen";
@@ -89,38 +82,58 @@ export function OrderCard({
 				ref={cardRef}
 				layoutId={`order-card-${order.id}`}
 				data-order-id={order.id}
-				className={cn(
-					"group relative cursor-grab rounded-lg active:cursor-grabbing",
-					isDragging && "opacity-50",
-					className,
-				)}
+				className={`group ${className || ""}`}
+				style={{
+					position: "relative",
+					cursor: "grab",
+					opacity: isDragging ? 0.5 : 1,
+				}}
 				transition={{
 					layout: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] },
 				}}
 			>
 				{/* Actions menu - hidden until hover */}
-				<div className="absolute end-2 top-2 z-10 opacity-0 transition-opacity group-hover:opacity-100">
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
+				<Box
+					position="absolute"
+					insetEnd="2"
+					top="2"
+					zIndex="10"
+					opacity="0"
+					transition="opacity"
+					className="menu-button"
+				>
+					<Menu.Root>
+						<Menu.Trigger asChild>
+							<IconButton
 								variant="ghost"
-								size="icon"
-								className="size-7 bg-background/80 backdrop-blur-sm"
+								size="sm"
+								w="7"
+								h="7"
+								bg="bg"
+								opacity={0.8}
+								backdropFilter="blur-sm"
 							>
-								<MoreVertical className="size-4" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuItem
-								onClick={() => setCancelDialogOpen(true)}
-								className="text-destructive"
-							>
-								<XCircle className="me-2 size-4" />
-								{t("actions.cancel")}
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
+								<MoreVertical size={16} />
+							</IconButton>
+						</Menu.Trigger>
+						<Portal>
+							<Menu.Positioner>
+								<Menu.Content>
+									<Menu.Item
+										value="cancel"
+										onClick={() => setCancelDialogOpen(true)}
+										color="fg.error"
+									>
+										<HStack gap="2">
+											<XCircle size={16} />
+											<Text>{t("actions.cancel")}</Text>
+										</HStack>
+									</Menu.Item>
+								</Menu.Content>
+							</Menu.Positioner>
+						</Portal>
+					</Menu.Root>
+				</Box>
 
 				{/* Card content */}
 				<OrderCardKitchen

@@ -2,17 +2,23 @@
  * Hours Service
  *
  * Service facade for store hours operations.
+ * Uses JSONB column in store_settings table.
  */
 
 import type { Database } from "@menuvo/db";
-import { storeHours, stores } from "@menuvo/db/schema";
+import {
+	type StoreHoursConfig,
+	storeSettings,
+	stores,
+} from "@menuvo/db/schema";
 import { eq } from "drizzle-orm";
-import { ForbiddenError, NotFoundError } from "../../errors.js";
+import { ForbiddenError } from "../../errors.js";
+import { sortHours } from "../utils.js";
 import type { IHoursService } from "./interface.js";
-import type { SaveHoursInput } from "./types.js";
+import type { SaveHoursInput, StoreHourOutput } from "./types.js";
 
 /**
- * Hours service implementation
+ * Hours service implementation using JSONB storage
  */
 export class HoursService implements IHoursService {
 	private readonly db: Database;
@@ -21,7 +27,7 @@ export class HoursService implements IHoursService {
 		this.db = db;
 	}
 
-	async get(storeId: string, merchantId: string) {
+	async get(storeId: string, merchantId: string): Promise<StoreHourOutput[]> {
 		// SECURITY: Verify the store belongs to the authenticated merchant
 		const store = await this.db.query.stores.findFirst({
 			where: eq(stores.id, storeId),
@@ -32,15 +38,20 @@ export class HoursService implements IHoursService {
 			throw new ForbiddenError("Store not found or access denied");
 		}
 
-		const hours = await this.db.query.storeHours.findMany({
-			where: eq(storeHours.storeId, storeId),
-			orderBy: (h, { asc }) => [asc(h.dayOfWeek), asc(h.displayOrder)],
+		// Get hours from storeSettings JSONB
+		const settings = await this.db.query.storeSettings.findFirst({
+			where: eq(storeSettings.storeId, storeId),
+			columns: { hours: true },
 		});
 
-		return hours;
+		const hours = settings?.hours ?? [];
+		return sortHours(hours);
 	}
 
-	async save(input: SaveHoursInput, merchantId: string) {
+	async save(
+		input: SaveHoursInput,
+		merchantId: string,
+	): Promise<StoreHourOutput[]> {
 		// Verify the store belongs to the authenticated user's merchant
 		const store = await this.db.query.stores.findFirst({
 			where: eq(stores.id, input.storeId),
@@ -51,52 +62,30 @@ export class HoursService implements IHoursService {
 			throw new ForbiddenError("You can only modify hours for your own store");
 		}
 
+		// Convert input to StoreHoursConfig
+		const hoursConfig: StoreHoursConfig = input.hours.map((h) => ({
+			dayOfWeek: h.dayOfWeek,
+			openTime: h.openTime,
+			closeTime: h.closeTime,
+			displayOrder: h.displayOrder,
+		}));
+
+		// Use transaction for atomicity
 		await this.db.transaction(async (tx) => {
-			// Delete existing hours for this store
-			await tx.delete(storeHours).where(eq(storeHours.storeId, input.storeId));
-
-			// Insert new hours if any
-			if (input.hours.length > 0) {
-				await tx.insert(storeHours).values(
-					input.hours.map((h) => ({
-						storeId: input.storeId,
-						dayOfWeek: h.dayOfWeek,
-						openTime: h.openTime,
-						closeTime: h.closeTime,
-						displayOrder: h.displayOrder,
-					})),
-				);
-			}
+			// Upsert storeSettings with new hours
+			await tx
+				.insert(storeSettings)
+				.values({
+					storeId: input.storeId,
+					hours: hoursConfig,
+				})
+				.onConflictDoUpdate({
+					target: storeSettings.storeId,
+					set: { hours: hoursConfig },
+				});
 		});
 
-		// Return updated hours
-		const updatedHours = await this.db.query.storeHours.findMany({
-			where: eq(storeHours.storeId, input.storeId),
-			orderBy: (h, { asc }) => [asc(h.dayOfWeek), asc(h.displayOrder)],
-		});
-
-		return updatedHours;
-	}
-
-	async delete(hourId: string, merchantId: string): Promise<void> {
-		// Find the hour entry and verify ownership
-		const hourEntry = await this.db.query.storeHours.findFirst({
-			where: eq(storeHours.id, hourId),
-			with: {
-				store: {
-					columns: { merchantId: true },
-				},
-			},
-		});
-
-		if (!hourEntry) {
-			throw new NotFoundError("Store hour entry not found");
-		}
-
-		if (hourEntry.store.merchantId !== merchantId) {
-			throw new ForbiddenError("You can only delete hours for your own store");
-		}
-
-		await this.db.delete(storeHours).where(eq(storeHours.id, hourId));
+		// Return sorted hours
+		return sortHours(hoursConfig);
 	}
 }

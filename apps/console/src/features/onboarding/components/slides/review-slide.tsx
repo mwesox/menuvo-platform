@@ -1,5 +1,14 @@
-import { Button } from "@menuvo/ui";
-import { ArrowRight, Loader2, Pencil } from "lucide-react";
+import {
+	Box,
+	Button,
+	Card,
+	Flex,
+	Heading,
+	HStack,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
+import { ArrowRight, Pencil } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import type {
@@ -127,82 +136,111 @@ export function ReviewSlide({
 				y: { type: "spring", stiffness: 300, damping: 30 },
 				opacity: { duration: 0.25 },
 			}}
-			className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6"
 		>
-			<div className="mx-auto w-full max-w-xl">
-				<h2 className="text-center font-body font-bold text-2xl text-foreground sm:text-3xl md:text-4xl">
-					{t("slides.review.title")}
-				</h2>
-				<p className="mt-3 text-center font-body text-lg text-muted-foreground">
-					{t("slides.review.subtitle")}
-				</p>
-
-				{/* Data summary */}
-				<div className="mt-10 space-y-4">
-					{sections.map((section, i) => (
-						<motion.div
-							key={section.title}
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							transition={{ delay: 0.3 + i * 0.1 }}
-							className="rounded-xl border border-border bg-card p-5"
-						>
-							<div className="flex items-center justify-between">
-								<h3 className="font-body font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-									{section.title}
-								</h3>
-								<button
-									type="button"
-									onClick={() => onEdit(section.editSlide)}
-									className="flex items-center gap-1 font-body font-medium text-accent text-xs hover:underline"
-								>
-									<Pencil className="h-3 w-3" />
-									{t("slides.review.edit")}
-								</button>
-							</div>
-							<dl className="mt-3 space-y-2">
-								{section.items.map((item) => (
-									<div key={item.label} className="flex justify-between gap-4">
-										<dt className="font-body text-muted-foreground text-sm">
-											{item.label}
-										</dt>
-										<dd className="text-right font-body font-medium text-foreground text-sm">
-											{item.value || "—"}
-										</dd>
-									</div>
-								))}
-							</dl>
-						</motion.div>
-					))}
-				</div>
-
-				{/* Submit */}
-				<motion.div
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					transition={{ delay: 0.7 }}
-					className="mt-10"
-				>
-					<Button
-						onClick={onSubmit}
-						disabled={isSubmitting}
-						size="lg"
-						className="h-14 w-full gap-2 text-base"
+			<Flex flex="1" direction="column" justify="center" p="3rem 1rem">
+				<Box mx="auto" w="full" maxW="xl">
+					<Heading
+						as="h2"
+						textAlign="center"
+						fontWeight="bold"
+						textStyle={{ base: "2xl", sm: "3xl", md: "4xl" }}
 					>
-						{isSubmitting ? (
-							<>
-								<Loader2 className="h-5 w-5 animate-spin" />
-								{t("slides.review.creating")}
-							</>
-						) : (
-							<>
-								{t("slides.review.createAccount")}
-								<ArrowRight className="h-5 w-5" />
-							</>
-						)}
-					</Button>
-				</motion.div>
-			</div>
+						{t("slides.review.title")}
+					</Heading>
+					<Text mt="3" textAlign="center" textStyle="lg" color="fg.muted">
+						{t("slides.review.subtitle")}
+					</Text>
+
+					{/* Data summary */}
+					<VStack gap="4" mt="10">
+						{sections.map((section, i) => (
+							<motion.div
+								key={section.title}
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ delay: 0.3 + i * 0.1 }}
+							>
+								<Card.Root rounded="xl" borderWidth="1px" p="5">
+									<Card.Body>
+										<HStack justify="space-between" align="center" mb="3">
+											<Text
+												fontWeight="semibold"
+												color="fg.muted"
+												textStyle="xs"
+												textTransform="uppercase"
+												letterSpacing="wider"
+											>
+												{section.title}
+											</Text>
+											<Button
+												variant="ghost"
+												size="xs"
+												onClick={() => onEdit(section.editSlide)}
+												colorPalette="accent"
+											>
+												<Pencil
+													style={{ height: "0.75rem", width: "0.75rem" }}
+												/>
+												{t("slides.review.edit")}
+											</Button>
+										</HStack>
+										<VStack gap="2" align="stretch">
+											{section.items.map((item) => (
+												<HStack
+													key={item.label}
+													justify="space-between"
+													gap="4"
+												>
+													<Text as="dt" color="fg.muted" textStyle="sm">
+														{item.label}
+													</Text>
+													<Text
+														as="dd"
+														textAlign="right"
+														fontWeight="medium"
+														textStyle="sm"
+													>
+														{item.value || "—"}
+													</Text>
+												</HStack>
+											))}
+										</VStack>
+									</Card.Body>
+								</Card.Root>
+							</motion.div>
+						))}
+					</VStack>
+
+					{/* Submit */}
+					<motion.div
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						transition={{ delay: 0.7 }}
+					>
+						<Box mt="10">
+							<Button
+								onClick={onSubmit}
+								disabled={isSubmitting}
+								size="lg"
+								w="full"
+								h="14"
+								gap="2"
+								loading={isSubmitting}
+								loadingText={t("slides.review.creating")}
+							>
+								{!isSubmitting && (
+									<>
+										{t("slides.review.createAccount")}
+										<ArrowRight
+											style={{ height: "1.25rem", width: "1.25rem" }}
+										/>
+									</>
+								)}
+							</Button>
+						</Box>
+					</motion.div>
+				</Box>
+			</Flex>
 		</motion.div>
 	);
 }

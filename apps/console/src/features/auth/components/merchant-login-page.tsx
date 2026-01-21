@@ -1,16 +1,22 @@
-import type { AppRouter } from "@menuvo/api/trpc";
 import {
+	Box,
 	Button,
 	Card,
-	CardDescription,
-	CardHeader,
-	LinkCard,
-	Logo,
-} from "@menuvo/ui";
+	Link as ChakraLink,
+	Container,
+	EmptyState,
+	Heading,
+	HStack,
+	Icon,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
-import { Building2, Mail, Plus, User } from "lucide-react";
+import { Building2, ChevronRight, Mail, Plus, User } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 import { useTRPC } from "@/lib/trpc";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
@@ -35,75 +41,160 @@ export function MerchantLoginPage() {
 	});
 
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="mx-auto max-w-3xl px-4 py-12">
-				<div className="mb-8 text-center">
-					<h1 className="flex items-center justify-center gap-2 font-bold text-3xl tracking-tight">
-						Developer Login
-						<Logo height={66} />
-					</h1>
-					<p className="mt-2 text-muted-foreground">
-						Select a merchant account to continue
-					</p>
-				</div>
+		<Box minH="100vh" bg="bg" py={{ base: "8", md: "12" }}>
+			<Container maxW="3xl" px={{ base: "4", sm: "6" }}>
+				<VStack gap="8" align="stretch">
+					{/* Header */}
+					<VStack gap="2" textAlign="center">
+						<HStack gap="2" justify="center" align="center">
+							<Heading
+								as="h1"
+								fontWeight="bold"
+								textStyle="3xl"
+								letterSpacing="tight"
+							>
+								Developer Login
+							</Heading>
+							<Logo height={66} />
+						</HStack>
+						<Text color="fg.muted" textStyle="md">
+							Select a merchant account to continue
+						</Text>
+					</VStack>
 
-				{merchants.length === 0 ? (
-					<Card>
-						<CardHeader className="text-center">
-							<CardDescription>
-								No merchants found.{" "}
-								<Link to="/" className="text-primary hover:underline">
-									Create one first
-								</Link>
-							</CardDescription>
-						</CardHeader>
-					</Card>
-				) : (
-					<div className="grid gap-4">
-						{merchants.map((merchant) => (
-							<LinkCard
-								key={merchant.id}
-								icon={Building2}
-								title={merchant.name}
-								onClick={() =>
-									loginMutation.mutate({ merchantId: merchant.id })
-								}
-								disabled={loginMutation.isPending}
-								showChevron
-								description={
-									<span className="flex flex-wrap items-center gap-4">
-										<span className="flex items-center gap-1">
-											<User className="size-4" />
-											{merchant.ownerName}
-										</span>
-										<span className="flex items-center gap-1">
-											<Mail className="size-4" />
-											{merchant.email}
-										</span>
-										{merchant.stores[0] && (
-											<span className="flex items-center gap-1">
-												<Building2 className="size-4" />
-												{merchant.stores[0].name}
-											</span>
-										)}
-									</span>
-								}
-							/>
-						))}
+					{merchants.length === 0 ? (
+						<Card.Root>
+							<Card.Body>
+								<EmptyState.Root>
+									<EmptyState.Content>
+										<EmptyState.Indicator>
+											<Icon fontSize="2xl" color="fg.muted">
+												<Building2 style={{ height: "2rem", width: "2rem" }} />
+											</Icon>
+										</EmptyState.Indicator>
+										<VStack textAlign="center" gap="2">
+											<EmptyState.Title>No merchants found</EmptyState.Title>
+											<EmptyState.Description>
+												<Text>
+													No merchants found.{" "}
+													<ChakraLink
+														asChild
+														color="primary"
+														textDecoration="underline"
+														_hover={{ textDecoration: "none" }}
+													>
+														<Link to="/">Create one first</Link>
+													</ChakraLink>
+												</Text>
+											</EmptyState.Description>
+										</VStack>
+									</EmptyState.Content>
+								</EmptyState.Root>
+							</Card.Body>
+						</Card.Root>
+					) : (
+						<VStack gap="4" align="stretch">
+							{merchants.map((merchant) => (
+								<Button
+									key={merchant.id}
+									variant="ghost"
+									w="full"
+									h="auto"
+									p="0"
+									onClick={() =>
+										loginMutation.mutate({ merchantId: merchant.id })
+									}
+									disabled={loginMutation.isPending}
+									opacity={loginMutation.isPending ? 0.6 : 1}
+									cursor={loginMutation.isPending ? "not-allowed" : "pointer"}
+									_hover={{
+										transform: loginMutation.isPending
+											? undefined
+											: "translateY(-2px)",
+										bg: "transparent",
+									}}
+									transition="all 0.2s"
+									textAlign="left"
+									justifyContent="flex-start"
+								>
+									<Card.Root
+										w="full"
+										_hover={{ shadow: "md" }}
+										transition="all 0.2s"
+									>
+										<Card.Body>
+											<HStack
+												justify="space-between"
+												align="flex-start"
+												gap="4"
+											>
+												<HStack gap="4" flex="1" align="flex-start">
+													<Icon fontSize="xl" color="primary">
+														<Building2
+															style={{ height: "1.5rem", width: "1.5rem" }}
+														/>
+													</Icon>
+													<VStack align="flex-start" gap="2" flex="1">
+														<Card.Title>{merchant.name}</Card.Title>
+														<HStack gap="4" flexWrap="wrap">
+															<HStack gap="1" color="fg.muted">
+																<Icon fontSize="sm">
+																	<User
+																		style={{ height: "1rem", width: "1rem" }}
+																	/>
+																</Icon>
+																<Text textStyle="sm">{merchant.ownerName}</Text>
+															</HStack>
+															<HStack gap="1" color="fg.muted">
+																<Icon fontSize="sm">
+																	<Mail
+																		style={{ height: "1rem", width: "1rem" }}
+																	/>
+																</Icon>
+																<Text textStyle="sm">{merchant.email}</Text>
+															</HStack>
+															{merchant.stores[0] && (
+																<HStack gap="1" color="fg.muted">
+																	<Icon fontSize="sm">
+																		<Building2
+																			style={{ height: "1rem", width: "1rem" }}
+																		/>
+																	</Icon>
+																	<Text textStyle="sm">
+																		{merchant.stores[0].name}
+																	</Text>
+																</HStack>
+															)}
+														</HStack>
+													</VStack>
+												</HStack>
+												<Icon fontSize="lg" color="fg.muted">
+													<ChevronRight
+														style={{ height: "1.25rem", width: "1.25rem" }}
+													/>
+												</Icon>
+											</HStack>
+										</Card.Body>
+									</Card.Root>
+								</Button>
+							))}
 
-						<Card className="border-dashed">
-							<CardHeader className="text-center">
-								<Link to="/">
-									<Button variant="ghost" className="gap-2">
-										<Plus className="size-4" />
-										Create new merchant
-									</Button>
-								</Link>
-							</CardHeader>
-						</Card>
-					</div>
-				)}
-			</div>
-		</div>
+							<Card.Root borderStyle="dashed">
+								<Card.Body>
+									<Box textAlign="center">
+										<Button asChild variant="ghost" gap="2">
+											<Link to="/">
+												<Plus style={{ height: "1rem", width: "1rem" }} />
+												Create new merchant
+											</Link>
+										</Button>
+									</Box>
+								</Card.Body>
+							</Card.Root>
+						</VStack>
+					)}
+				</VStack>
+			</Container>
+		</Box>
 	);
 }

@@ -1,31 +1,28 @@
 import {
-	LanguageSwitcher,
-	Logo,
-	Sidebar,
-	SidebarContent,
-	SidebarFooter,
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarGroupLabel,
-	SidebarHeader,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
-	SidebarSeparator,
-	useSidebar,
-} from "@menuvo/ui";
+	Box,
+	Button,
+	HStack,
+	Icon,
+	Separator,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
 	ChefHat,
 	HelpCircle,
 	Home,
+	QrCode,
 	Receipt,
 	Settings,
 	Store as StoreIcon,
 	UtensilsCrossed,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Logo } from "@/components/ui/logo";
+import { useSidebar } from "@/contexts/sidebar-context";
 import { useStoreSelection } from "@/contexts/store-selection-context";
+import { LanguageSwitcher } from "./language-switcher";
 
 type NavItem = {
 	href: string;
@@ -62,6 +59,12 @@ const storeNavItems: NavItem[] = [
 		requiresStore: true,
 	},
 	{
+		href: "/service-points",
+		labelKey: "servicePoints",
+		icon: QrCode,
+		requiresStore: true,
+	},
+	{
 		href: "/settings",
 		labelKey: "storeSettings",
 		icon: Settings,
@@ -84,7 +87,7 @@ const helpItem: NavItem = {
 function NavLink({
 	href,
 	label,
-	icon: Icon,
+	icon: IconComponent,
 	isActive,
 	disabled,
 }: {
@@ -98,28 +101,41 @@ function NavLink({
 
 	if (disabled) {
 		return (
-			<SidebarMenuItem>
-				<SidebarMenuButton disabled className="cursor-not-allowed opacity-50">
-					<Icon className="size-4" />
-					<span>{label}</span>
-				</SidebarMenuButton>
-			</SidebarMenuItem>
+			<Button
+				variant="ghost"
+				w="full"
+				justifyContent="flex-start"
+				disabled
+				cursor="not-allowed"
+				opacity={0.5}
+			>
+				<Icon w="4" h="4">
+					<IconComponent />
+				</Icon>
+				<Text textStyle="sm">{label}</Text>
+			</Button>
 		);
 	}
 
 	return (
-		<SidebarMenuItem>
-			<SidebarMenuButton asChild isActive={isActive}>
-				<Link
-					to={href}
-					preload={false}
-					onClick={() => isMobile && setOpenMobile(false)}
+		<Box asChild w="full">
+			<Link
+				to={href}
+				preload={false}
+				onClick={() => isMobile && setOpenMobile(false)}
+			>
+				<Button
+					variant={isActive ? "subtle" : "ghost"}
+					w="full"
+					justifyContent="flex-start"
 				>
-					<Icon className="size-4" />
-					<span>{label}</span>
-				</Link>
-			</SidebarMenuButton>
-		</SidebarMenuItem>
+					<Icon w="4" h="4">
+						<IconComponent />
+					</Icon>
+					<Text textStyle="sm">{label}</Text>
+				</Button>
+			</Link>
+		</Box>
 	);
 }
 
@@ -139,6 +155,8 @@ export function AppSidebar() {
 					return `/stores/${selectedStoreId}/orders`;
 				case "/kitchen":
 					return `/stores/${selectedStoreId}/kitchen`;
+				case "/service-points":
+					return `/stores/${selectedStoreId}/service-points`;
 				case "/settings":
 					return `/stores/${selectedStoreId}/settings`;
 				default:
@@ -181,84 +199,114 @@ export function AppSidebar() {
 	const hasStoreSelected = !!selectedStoreId;
 
 	return (
-		<Sidebar>
-			<SidebarHeader className="flex-row items-center justify-between border-b px-4 py-3">
+		<Box
+			as="aside"
+			display="flex"
+			h="full"
+			w="64"
+			flexDirection="column"
+			bg="sidebar"
+			color="sidebar-foreground"
+		>
+			<HStack
+				justify="space-between"
+				align="center"
+				borderBottomWidth="1px"
+				px="4"
+				py="3"
+			>
 				<Link to="/">
 					<Logo height={28} />
 				</Link>
 				<LanguageSwitcher />
-			</SidebarHeader>
+			</HStack>
 
-			<SidebarContent>
+			<VStack flex="1" align="stretch" overflowY="auto">
 				{/* Dashboard - ungrouped at top */}
-				<SidebarGroup>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							<NavLink
-								href={dashboardItem.href}
-								label={t(dashboardItem.labelKey)}
-								icon={dashboardItem.icon}
-								isActive={isItemActive(dashboardItem)}
-							/>
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
+				<VStack gap="0" align="stretch" p="2">
+					<NavLink
+						href={dashboardItem.href}
+						label={t(dashboardItem.labelKey)}
+						icon={dashboardItem.icon}
+						isActive={isItemActive(dashboardItem)}
+					/>
+				</VStack>
 
-				<SidebarSeparator />
+				<Separator />
 
 				{/* Store section */}
-				<SidebarGroup>
-					<SidebarGroupLabel className="uppercase tracking-wider">
+				<VStack gap="2" align="stretch" p="2">
+					<Text
+						px="2"
+						textStyle="xs"
+						fontWeight="semibold"
+						textTransform="uppercase"
+						letterSpacing="wider"
+						color="fg.muted"
+					>
 						{t("store", "Store")}
-					</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{storeNavItems.map((item) => (
-								<NavLink
-									key={item.href}
-									href={getHref(item)}
-									label={t(item.labelKey)}
-									icon={item.icon}
-									isActive={isItemActive(item)}
-									disabled={!hasStoreSelected}
-								/>
-							))}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
+					</Text>
+					<VStack gap="0" align="stretch">
+						{storeNavItems.map((item) => (
+							<NavLink
+								key={item.href}
+								href={getHref(item)}
+								label={t(item.labelKey)}
+								icon={item.icon}
+								isActive={isItemActive(item)}
+								disabled={!hasStoreSelected}
+							/>
+						))}
+					</VStack>
+				</VStack>
 
 				{/* Account section */}
-				<SidebarGroup>
-					<SidebarGroupLabel className="uppercase tracking-wider">
+				<VStack gap="2" align="stretch" p="2">
+					<Text
+						px="2"
+						textStyle="xs"
+						fontWeight="semibold"
+						textTransform="uppercase"
+						letterSpacing="wider"
+						color="fg.muted"
+					>
 						{t("account", "Account")}
-					</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{accountNavItems.map((item) => (
-								<NavLink
-									key={item.href}
-									href={getHref(item)}
-									label={t(item.labelKey)}
-									icon={item.icon}
-									isActive={isItemActive(item)}
-								/>
-							))}
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
-			</SidebarContent>
+					</Text>
+					<VStack gap="0" align="stretch">
+						{accountNavItems.map((item) => (
+							<NavLink
+								key={item.href}
+								href={getHref(item)}
+								label={t(item.labelKey)}
+								icon={item.icon}
+								isActive={isItemActive(item)}
+							/>
+						))}
+					</VStack>
+				</VStack>
+			</VStack>
 
-			<SidebarFooter>
-				<SidebarSeparator />
-				<SidebarMenu>
+			{/* Support section */}
+			<VStack gap="2" align="stretch" p="2">
+				<Text
+					px="2"
+					textStyle="xs"
+					fontWeight="semibold"
+					textTransform="uppercase"
+					letterSpacing="wider"
+					color="fg.muted"
+				>
+					{t("support", "Support")}
+				</Text>
+				<VStack gap="0" align="stretch">
 					<NavLink
 						href={helpItem.href}
 						label={t(helpItem.labelKey)}
 						icon={helpItem.icon}
 						isActive={currentPath.startsWith(helpItem.href)}
 					/>
-				</SidebarMenu>
-			</SidebarFooter>
-		</Sidebar>
+				</VStack>
+			</VStack>
+		</Box>
 	);
 }

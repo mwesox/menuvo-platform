@@ -1,3 +1,4 @@
+import { VStack } from "@chakra-ui/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
@@ -33,7 +34,7 @@ function EditOptionGroupPage() {
 	const optionGroupName = getDisplayName(optionGroup.translations, language);
 
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBar
 				breadcrumbs={[
 					{
@@ -45,6 +46,6 @@ function EditOptionGroupPage() {
 			/>
 
 			<OptionGroupForm storeId={store.id} optionGroup={optionGroup} />
-		</div>
+		</VStack>
 	);
 }

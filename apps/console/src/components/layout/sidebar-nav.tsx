@@ -1,4 +1,4 @@
-import { cn } from "@menuvo/ui/lib/utils";
+import { Box, Button, HStack, Separator, Text, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 
 export interface SidebarNavItem {
@@ -36,82 +36,88 @@ export function SidebarNav({
 }: SidebarNavProps) {
 	if (layout === "horizontal") {
 		return (
-			<div className="flex w-max gap-1">
+			<HStack gap="1" w="max-content">
 				{items.map((item) => (
-					<button
+					<Button
 						key={item.value}
-						type="button"
+						variant={value === item.value ? "solid" : "ghost"}
+						colorPalette={value === item.value ? "primary" : undefined}
+						size="sm"
 						onClick={() => !item.disabled && onChange(item.value)}
 						disabled={item.disabled}
-						className={cn(
-							"flex items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm transition-colors",
-							item.disabled
-								? "cursor-not-allowed text-muted-foreground/50"
-								: value === item.value
-									? "bg-primary text-primary-foreground"
-									: "text-muted-foreground hover:bg-muted hover:text-foreground",
-						)}
+						gap="2"
+						whiteSpace="nowrap"
+						px="3"
+						py="2"
 					>
-						{item.icon && <span className="shrink-0">{item.icon}</span>}
+						{item.icon && <Box flexShrink="0">{item.icon}</Box>}
 						{item.label}
 						{item.badge}
-					</button>
+					</Button>
 				))}
-			</div>
+			</HStack>
 		);
 	}
 
 	return (
-		<nav className="space-y-1">
-			{items.map((item) => (
-				<button
-					key={item.value}
-					type="button"
-					onClick={() => !item.disabled && onChange(item.value)}
-					disabled={item.disabled}
-					className={cn(
-						"flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-						item.disabled
-							? "cursor-not-allowed text-muted-foreground/50"
-							: value === item.value
-								? "bg-primary/10 font-medium text-primary"
-								: "text-muted-foreground hover:bg-muted hover:text-foreground",
-					)}
-				>
-					{item.icon && (
-						<span
-							className={cn(
-								"shrink-0",
-								item.disabled
-									? "text-muted-foreground/50"
-									: value === item.value
-										? "text-primary"
-										: "text-muted-foreground",
-							)}
-						>
-							{item.icon}
-						</span>
-					)}
-					<span className="flex-1 text-start">{item.label}</span>
-					{item.badge}
-				</button>
-			))}
-
-			{dangerItem && (
-				<>
-					<div className="my-3 border-t" />
-					<button
-						type="button"
-						onClick={dangerItem.onClick}
-						className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-destructive text-sm transition-colors hover:bg-destructive/10"
+		<Box as="nav">
+			<VStack gap="1" align="stretch">
+				{items.map((item) => (
+					<Button
+						key={item.value}
+						variant={value === item.value ? "subtle" : "ghost"}
+						colorPalette={value === item.value ? "primary" : undefined}
+						size="sm"
+						w="full"
+						justifyContent="flex-start"
+						onClick={() => !item.disabled && onChange(item.value)}
+						disabled={item.disabled}
+						gap="3"
+						px="3"
+						py="2"
+						fontWeight={value === item.value ? "medium" : "normal"}
 					>
-						{dangerItem.icon && (
-							<span className="shrink-0">{dangerItem.icon}</span>
+						{item.icon && (
+							<Box
+								flexShrink="0"
+								color={
+									item.disabled
+										? "fg.muted"
+										: value === item.value
+											? "primary"
+											: "fg.muted"
+								}
+							>
+								{item.icon}
+							</Box>
 						)}
-						{dangerItem.label}
-					</button>
-				</>
-			)}
-		</nav>
+						<Text flex="1" textAlign="start" textStyle="sm">
+							{item.label}
+						</Text>
+						{item.badge}
+					</Button>
+				))}
+
+				{dangerItem && (
+					<>
+						<Separator my="3" />
+						<Button
+							variant="ghost"
+							size="sm"
+							w="full"
+							justifyContent="flex-start"
+							colorPalette="red"
+							onClick={dangerItem.onClick}
+							gap="3"
+							px="3"
+							py="2"
+						>
+							{dangerItem.icon && <Box flexShrink="0">{dangerItem.icon}</Box>}
+							{dangerItem.label}
+						</Button>
+					</>
+				)}
+			</VStack>
+		</Box>
 	);
 }

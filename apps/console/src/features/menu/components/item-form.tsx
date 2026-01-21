@@ -1,38 +1,25 @@
-import type { AppRouter } from "@menuvo/api/trpc";
 import {
+	Box,
 	Button,
 	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
 	Checkbox,
-	cn,
+	createListCollection,
 	Field,
-	FieldError,
-	FieldGroup,
-	FieldLabel,
-	FieldLegend,
-	FieldSet,
+	Fieldset,
+	HStack,
 	Input,
-	LoadingButton,
-	PriceInput,
+	Portal,
 	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
+	SimpleGrid,
 	Skeleton,
 	Switch,
 	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger,
+	Text,
 	Textarea,
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@menuvo/ui";
+	VisuallyHidden,
+	VStack,
+} from "@chakra-ui/react";
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -41,6 +28,10 @@ import { InfoIcon } from "lucide-react";
 import { Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { FieldError } from "@/components/ui/field-error";
+import { FormField } from "@/components/ui/form-field";
+import { PriceInput } from "@/components/ui/price-input";
+import { Tooltip } from "@/components/ui/tooltip";
 import { ImageUploadField } from "@/features/images/components/image-upload-field.tsx";
 import { useDisplayLanguage } from "@/features/menu/contexts/display-language-context";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
@@ -269,42 +260,44 @@ export function ItemForm({
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="space-y-6"
 		>
-			{/* Validation Panel - only shown when editing */}
-			{isEditing && item.validation && (
-				<ItemValidationPanel validation={item.validation} />
-			)}
+			<VStack gap="6" align="stretch">
+				{/* Validation Panel - only shown when editing */}
+				{isEditing && item.validation && (
+					<ItemValidationPanel validation={item.validation} />
+				)}
 
-			<Tabs defaultValue="details">
-				<TabsList>
-					<TabsTrigger value="details">{t("titles.itemDetails")}</TabsTrigger>
-					<TabsTrigger value="media">{t("labels.itemImage")}</TabsTrigger>
-					<TabsTrigger value="allergens">{t("titles.allergens")}</TabsTrigger>
-					<TabsTrigger value="options">{t("titles.options")}</TabsTrigger>
-				</TabsList>
+				<Tabs.Root defaultValue="details">
+					<Tabs.List>
+						<Tabs.Trigger value="details">
+							{t("titles.itemDetails")}
+						</Tabs.Trigger>
+						<Tabs.Trigger value="media">{t("labels.itemImage")}</Tabs.Trigger>
+						<Tabs.Trigger value="allergens">
+							{t("titles.allergens")}
+						</Tabs.Trigger>
+						<Tabs.Trigger value="options">{t("titles.options")}</Tabs.Trigger>
+					</Tabs.List>
 
-				<TabsContent value="details">
-					<Card>
-						<CardHeader>
-							<CardTitle>{t("titles.itemDetails")}</CardTitle>
-							<CardDescription>
-								{t("descriptions.itemDetailsCard")}
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<FieldGroup>
-								{/* Row: Name + Kitchen Name */}
-								<div className="grid gap-6 md:grid-cols-2">
-									<form.Field name="name">
-										{(field) => {
-											const isInvalid =
-												field.state.meta.isTouched && !field.state.meta.isValid;
-											return (
-												<Field data-invalid={isInvalid}>
-													<FieldLabel htmlFor={field.name} required>
-														{tForms("fields.name")}
-													</FieldLabel>
+					<Tabs.Content value="details">
+						<Card.Root>
+							<Card.Header>
+								<Card.Title>{t("titles.itemDetails")}</Card.Title>
+								<Card.Description>
+									{t("descriptions.itemDetailsCard")}
+								</Card.Description>
+							</Card.Header>
+							<Card.Body>
+								<VStack gap="6" align="stretch">
+									{/* Row: Name + Kitchen Name */}
+									<SimpleGrid columns={{ base: 1, md: 2 }} gap="6">
+										<form.Field name="name">
+											{(field) => (
+												<FormField
+													field={field}
+													label={tForms("fields.name")}
+													required
+												>
 													<Input
 														id={field.name}
 														name={field.name}
@@ -312,37 +305,33 @@ export function ItemForm({
 														value={field.state.value}
 														onBlur={field.handleBlur}
 														onChange={(e) => field.handleChange(e.target.value)}
-														aria-invalid={isInvalid}
 														required
 													/>
-													{isInvalid && (
-														<FieldError errors={field.state.meta.errors} />
-													)}
-												</Field>
-											);
-										}}
-									</form.Field>
+												</FormField>
+											)}
+										</form.Field>
 
-									<form.Field name="kitchenName">
-										{(field) => {
-											const isInvalid =
-												field.state.meta.isTouched && !field.state.meta.isValid;
-											return (
-												<Field data-invalid={isInvalid}>
-													<FieldLabel
-														htmlFor={field.name}
-														className="inline-flex items-center gap-1"
-													>
-														{t("labels.kitchenName")}
-														<Tooltip>
-															<TooltipTrigger asChild>
-																<InfoIcon className="size-3.5 text-muted-foreground" />
-															</TooltipTrigger>
-															<TooltipContent>
-																{t("hints.kitchenName")}
-															</TooltipContent>
-														</Tooltip>
-													</FieldLabel>
+										<form.Field name="kitchenName">
+											{(field) => (
+												<FormField
+													field={field}
+													label={
+														<HStack gap="1" alignItems="center">
+															<Text>{t("labels.kitchenName")}</Text>
+															<Tooltip content={t("hints.kitchenName")}>
+																<Box>
+																	<InfoIcon
+																		style={{
+																			height: "0.875rem",
+																			width: "0.875rem",
+																		}}
+																		color="var(--chakra-colors-fg-muted)"
+																	/>
+																</Box>
+															</Tooltip>
+														</HStack>
+													}
+												>
 													<Input
 														id={field.name}
 														name={field.name}
@@ -351,165 +340,167 @@ export function ItemForm({
 														onBlur={field.handleBlur}
 														onChange={(e) => field.handleChange(e.target.value)}
 														maxLength={50}
-														aria-invalid={isInvalid}
 													/>
-													{isInvalid && (
-														<FieldError errors={field.state.meta.errors} />
-													)}
-												</Field>
-											);
-										}}
-									</form.Field>
-								</div>
+												</FormField>
+											)}
+										</form.Field>
+									</SimpleGrid>
 
-								{/* Row: Price + Status (when editing) */}
-								<div className="flex items-end gap-6">
-									<form.Field name="price">
-										{(field) => {
-											const isInvalid =
-												field.state.meta.isTouched && !field.state.meta.isValid;
-											return (
-												<Field data-invalid={isInvalid} className="w-40">
-													<FieldLabel htmlFor={field.name} required>
-														{tForms("fields.price")}
-													</FieldLabel>
-													<PriceInput
-														id={field.name}
-														name={field.name}
-														value={Number.parseInt(field.state.value, 10) || 0}
-														onChange={(cents) =>
-															field.handleChange(String(cents))
-														}
-														onBlur={field.handleBlur}
-													/>
-													{isInvalid && (
-														<FieldError errors={field.state.meta.errors} />
-													)}
-												</Field>
-											);
-										}}
-									</form.Field>
-
-									{/* Status toggle - only shown when editing */}
-									{isEditing && item && (
-										<div className="flex h-10 items-center gap-2">
-											<Switch
-												id="item-active-toggle"
-												checked={item.isActive}
-												disabled={
-													toggleActiveMutation.isPending ||
-													(!item.isActive &&
-														item.validation &&
-														!item.validation.isPublishable)
-												}
-												onCheckedChange={() => {
-													const isPublishable =
-														item.validation?.isPublishable ?? true;
-													if (!item.isActive && !isPublishable) {
-														toast.error(
-															tToasts("error.cannotActivateWithIssues"),
-														);
-														return;
-													}
-													toggleActiveMutation.mutate({
-														id: item.id,
-														isActive: !item.isActive,
-													});
-												}}
-											/>
-											<span
-												className={cn(
-													"whitespace-nowrap font-medium text-sm",
-													item.isActive
-														? "text-green-600 dark:text-green-500"
-														: "text-muted-foreground",
-												)}
-											>
-												{item.isActive
-													? t("labels.active")
-													: t("labels.hidden")}
-											</span>
-										</div>
-									)}
-								</div>
-
-								{/* Row: Category + VAT Group */}
-								<div className="grid gap-6 md:grid-cols-2">
-									<form.Field name="categoryId">
-										{(field) => {
-											const isInvalid =
-												field.state.meta.isTouched && !field.state.meta.isValid;
-											return (
-												<Field data-invalid={isInvalid}>
-													<FieldLabel htmlFor={field.name} required>
-														{tForms("fields.category")}
-													</FieldLabel>
-													<Select
-														value={field.state.value}
-														onValueChange={field.handleChange}
-													>
-														<SelectTrigger
-															id={field.name}
-															aria-invalid={isInvalid}
-														>
-															<SelectValue
-																placeholder={t("placeholders.selectCategory")}
-															/>
-														</SelectTrigger>
-														<SelectContent>
-															{categories.map((category) => (
-																<SelectItem
-																	key={category.id}
-																	value={category.id}
-																>
-																	{getDisplayName(
-																		category.translations,
-																		language,
-																	)}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
-													{isInvalid && (
-														<FieldError errors={field.state.meta.errors} />
-													)}
-												</Field>
-											);
-										}}
-									</form.Field>
-
-									<form.Field name="vatGroupId">
-										{(field) => (
-											<Field>
-												<FieldLabel htmlFor="item-vat-group">
-													{t("vat.labels.vatGroup")}
-												</FieldLabel>
-												<Suspense
-													fallback={
-														<div className="h-10 animate-pulse rounded-md bg-muted" />
-													}
+									{/* Row: Price + Status (when editing) */}
+									<HStack gap="6" alignItems="flex-end">
+										<form.Field name="price">
+											{(field) => (
+												<FormField
+													field={field}
+													label={tForms("fields.price")}
+													required
 												>
-													<VatGroupSelector
-														value={field.state.value}
-														onChange={(value) => field.handleChange(value)}
-														showInheritOption
-													/>
-												</Suspense>
-											</Field>
-										)}
-									</form.Field>
-								</div>
+													<Box w="40">
+														<PriceInput
+															id={field.name}
+															name={field.name}
+															value={
+																Number.parseInt(field.state.value, 10) || 0
+															}
+															onChange={(cents) =>
+																field.handleChange(String(cents))
+															}
+															onBlur={field.handleBlur}
+														/>
+													</Box>
+												</FormField>
+											)}
+										</form.Field>
 
-								{/* Description - full width */}
-								<form.Field name="description">
-									{(field) => {
-										const isInvalid =
-											field.state.meta.isTouched && !field.state.meta.isValid;
-										return (
-											<Field data-invalid={isInvalid}>
-												<FieldLabel htmlFor={field.name}>
-													{tForms("fields.description")}
-												</FieldLabel>
+										{/* Status toggle - only shown when editing */}
+										{isEditing && item && (
+											<HStack h="10" gap="2" alignItems="center">
+												<Switch.Root
+													id="item-active-toggle"
+													checked={item.isActive}
+													disabled={
+														toggleActiveMutation.isPending ||
+														(!item.isActive &&
+															item.validation &&
+															!item.validation.isPublishable)
+													}
+													onCheckedChange={() => {
+														const isPublishable =
+															item.validation?.isPublishable ?? true;
+														if (!item.isActive && !isPublishable) {
+															toast.error(
+																tToasts("error.cannotActivateWithIssues"),
+															);
+															return;
+														}
+														toggleActiveMutation.mutate({
+															id: item.id,
+															isActive: !item.isActive,
+														});
+													}}
+													colorPalette="red"
+												>
+													<Switch.HiddenInput />
+													<Switch.Control />
+												</Switch.Root>
+												<Text
+													whiteSpace="nowrap"
+													fontWeight="medium"
+													textStyle="sm"
+													color={item.isActive ? "fg.success" : "fg.muted"}
+												>
+													{item.isActive
+														? t("labels.active")
+														: t("labels.hidden")}
+												</Text>
+											</HStack>
+										)}
+									</HStack>
+
+									{/* Row: Category + VAT Group */}
+									<SimpleGrid columns={{ base: 1, md: 2 }} gap="6">
+										<form.Field name="categoryId">
+											{(field) => {
+												const categoryCollection = createListCollection({
+													items: categories.map((category) => ({
+														value: category.id,
+														label: getDisplayName(
+															category.translations,
+															language,
+														),
+													})),
+												});
+												return (
+													<FormField
+														field={field}
+														label={tForms("fields.category")}
+														required
+													>
+														<Select.Root
+															collection={categoryCollection}
+															value={
+																field.state.value ? [field.state.value] : []
+															}
+															onValueChange={(e) =>
+																field.handleChange(e.value[0] ?? "")
+															}
+														>
+															<Select.HiddenSelect />
+															<Select.Control>
+																<Select.Trigger id={field.name}>
+																	<Select.ValueText
+																		placeholder={t(
+																			"placeholders.selectCategory",
+																		)}
+																	/>
+																	<Select.IndicatorGroup>
+																		<Select.Indicator />
+																	</Select.IndicatorGroup>
+																</Select.Trigger>
+															</Select.Control>
+															<Portal>
+																<Select.Positioner>
+																	<Select.Content>
+																		{categoryCollection.items.map((item) => (
+																			<Select.Item key={item.value} item={item}>
+																				{item.label}
+																				<Select.ItemIndicator />
+																			</Select.Item>
+																		))}
+																	</Select.Content>
+																</Select.Positioner>
+															</Portal>
+														</Select.Root>
+													</FormField>
+												);
+											}}
+										</form.Field>
+
+										<form.Field name="vatGroupId">
+											{(field) => (
+												<Field.Root>
+													<Field.Label htmlFor="item-vat-group">
+														{t("vat.labels.vatGroup")}
+													</Field.Label>
+													<Suspense fallback={<Skeleton h="10" rounded="md" />}>
+														<VatGroupSelector
+															value={field.state.value}
+															onChange={(value) => field.handleChange(value)}
+															showInheritOption
+														/>
+													</Suspense>
+												</Field.Root>
+											)}
+										</form.Field>
+									</SimpleGrid>
+
+									{/* Description - full width */}
+									<form.Field name="description">
+										{(field) => (
+											<FormField
+												field={field}
+												label={tForms("fields.description")}
+											>
 												<Textarea
 													id={field.name}
 													name={field.name}
@@ -518,161 +509,149 @@ export function ItemForm({
 													onBlur={field.handleBlur}
 													onChange={(e) => field.handleChange(e.target.value)}
 													rows={2}
-													aria-invalid={isInvalid}
 												/>
-												{isInvalid && (
-													<FieldError errors={field.state.meta.errors} />
-												)}
-											</Field>
+											</FormField>
+										)}
+									</form.Field>
+								</VStack>
+							</Card.Body>
+						</Card.Root>
+					</Tabs.Content>
+
+					<Tabs.Content value="media">
+						<Card.Root>
+							<Card.Header>
+								<Card.Title>{t("labels.itemImage")}</Card.Title>
+								<Card.Description>
+									{t("descriptions.itemDetailsCard")}
+								</Card.Description>
+							</Card.Header>
+							<Card.Body>
+								<form.Field name="imageUrl">
+									{(field) => {
+										return (
+											<ImageUploadField
+												value={field.state.value || undefined}
+												onChange={(url) => field.handleChange(url || "")}
+												merchantId={merchantId}
+												imageType="item_image"
+											/>
 										);
 									}}
 								</form.Field>
-							</FieldGroup>
-						</CardContent>
-					</Card>
-				</TabsContent>
+							</Card.Body>
+						</Card.Root>
+					</Tabs.Content>
 
-				<TabsContent value="media">
-					<Card>
-						<CardHeader>
-							<CardTitle>{t("labels.itemImage")}</CardTitle>
-							<CardDescription>
-								{t("descriptions.itemDetailsCard")}
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<form.Field name="imageUrl">
-								{(field) => {
-									return (
-										<ImageUploadField
-											value={field.state.value || undefined}
-											onChange={(url) => field.handleChange(url || "")}
-											merchantId={merchantId}
-											imageType="item_image"
-										/>
-									);
-								}}
-							</form.Field>
-						</CardContent>
-					</Card>
-				</TabsContent>
+					<Tabs.Content value="allergens">
+						<Card.Root>
+							<Card.Header>
+								<Card.Title>{t("titles.allergens")}</Card.Title>
+								<Card.Description>
+									{t("descriptions.allergensCard")}
+								</Card.Description>
+							</Card.Header>
+							<Card.Body>
+								<form.Field name="allergens" mode="array">
+									{(field) => (
+										<Fieldset.Root>
+											<VisuallyHidden asChild>
+												<Fieldset.Legend>Allergens</Fieldset.Legend>
+											</VisuallyHidden>
+											<SimpleGrid columns={{ base: 1, sm: 3, md: 4 }} gap="3">
+												{ALLERGEN_KEYS.map((allergenKey) => (
+													<Checkbox.Root
+														key={allergenKey}
+														id={`allergen-${allergenKey}`}
+														checked={field.state.value.includes(allergenKey)}
+														onCheckedChange={(e) => {
+															if (e.checked) {
+																field.pushValue(allergenKey);
+															} else {
+																const index =
+																	field.state.value.indexOf(allergenKey);
+																if (index > -1) {
+																	field.removeValue(index);
+																}
+															}
+														}}
+													>
+														<Checkbox.HiddenInput />
+														<Checkbox.Control />
+														<Checkbox.Label>
+															{t(`allergens.${allergenKey}`)}
+														</Checkbox.Label>
+													</Checkbox.Root>
+												))}
+											</SimpleGrid>
+											{field.state.meta.isTouched &&
+												!field.state.meta.isValid && (
+													<FieldError errors={field.state.meta.errors} />
+												)}
+										</Fieldset.Root>
+									)}
+								</form.Field>
+							</Card.Body>
+						</Card.Root>
+					</Tabs.Content>
 
-				<TabsContent value="allergens">
-					<Card>
-						<CardHeader>
-							<CardTitle>{t("titles.allergens")}</CardTitle>
-							<CardDescription>
-								{t("descriptions.allergensCard")}
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<form.Field name="allergens" mode="array">
-								{(field) => {
-									const isInvalid =
-										field.state.meta.isTouched && !field.state.meta.isValid;
-									return (
-										<FieldSet>
-											<FieldLegend className="sr-only">Allergens</FieldLegend>
-											<FieldGroup data-slot="checkbox-group">
-												<div className="grid gap-3 sm:grid-cols-3 md:grid-cols-4">
-													{ALLERGEN_KEYS.map((allergenKey) => (
-														<Field
-															key={allergenKey}
-															orientation="horizontal"
-															data-invalid={isInvalid}
-														>
-															<Checkbox
-																id={`allergen-${allergenKey}`}
-																checked={field.state.value.includes(
-																	allergenKey,
-																)}
-																onCheckedChange={(checked) => {
-																	if (checked) {
-																		field.pushValue(allergenKey);
-																	} else {
-																		const index =
-																			field.state.value.indexOf(allergenKey);
-																		if (index > -1) {
-																			field.removeValue(index);
-																		}
-																	}
-																}}
-															/>
-															<FieldLabel
-																htmlFor={`allergen-${allergenKey}`}
-																className="font-normal"
-															>
-																{t(`allergens.${allergenKey}`)}
-															</FieldLabel>
-														</Field>
-													))}
-												</div>
-											</FieldGroup>
-											{isInvalid && (
-												<FieldError errors={field.state.meta.errors} />
-											)}
-										</FieldSet>
-									);
-								}}
-							</form.Field>
-						</CardContent>
-					</Card>
-				</TabsContent>
+					<Tabs.Content value="options">
+						<Card.Root>
+							<Card.Header>
+								<Card.Title>{t("titles.options")}</Card.Title>
+								<Card.Description>
+									{t("descriptions.optionsCard")}
+								</Card.Description>
+							</Card.Header>
+							<Card.Body>
+								<Suspense
+									fallback={
+										<VStack gap="2">
+											<Skeleton h="16" w="full" />
+											<Skeleton h="16" w="full" />
+										</VStack>
+									}
+								>
+									<ItemOptionsSelector
+										storeId={storeId}
+										selectedOptionGroupIds={selectedOptionGroupIds}
+										onSelectionChange={setSelectedOptionGroupIds}
+									/>
+								</Suspense>
+							</Card.Body>
+						</Card.Root>
+					</Tabs.Content>
+				</Tabs.Root>
 
-				<TabsContent value="options">
-					<Card>
-						<CardHeader>
-							<CardTitle>{t("titles.options")}</CardTitle>
-							<CardDescription>{t("descriptions.optionsCard")}</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<Suspense
-								fallback={
-									<div className="space-y-2">
-										<Skeleton className="h-16 w-full" />
-										<Skeleton className="h-16 w-full" />
-									</div>
+				<form.Subscribe selector={(state) => state.isSubmitting}>
+					{(isSubmitting) => (
+						<HStack justify="flex-end" gap="3">
+							<Button type="button" variant="outline" asChild>
+								<Link
+									to="/stores/$storeId/menu/categories/$categoryId"
+									params={{
+										storeId,
+										categoryId: initialCategoryId ?? categoryId ?? "",
+									}}
+								>
+									{tCommon("buttons.cancel")}
+								</Link>
+							</Button>
+							<Button
+								type="submit"
+								loading={isSubmitting}
+								loadingText={
+									isEditing
+										? tCommon("states.updating")
+										: tCommon("states.creating")
 								}
 							>
-								<ItemOptionsSelector
-									storeId={storeId}
-									selectedOptionGroupIds={selectedOptionGroupIds}
-									onSelectionChange={setSelectedOptionGroupIds}
-								/>
-							</Suspense>
-						</CardContent>
-					</Card>
-				</TabsContent>
-			</Tabs>
-
-			<form.Subscribe selector={(state) => state.isSubmitting}>
-				{(isSubmitting) => (
-					<div className="flex justify-end gap-3">
-						<Button type="button" variant="outline" asChild>
-							<Link
-								to="/stores/$storeId/menu/categories/$categoryId"
-								params={{
-									storeId,
-									categoryId: initialCategoryId ?? categoryId ?? "",
-								}}
-							>
-								{tCommon("buttons.cancel")}
-							</Link>
-						</Button>
-						<LoadingButton
-							type="submit"
-							isLoading={isSubmitting}
-							loadingText={
-								isEditing
-									? tCommon("states.updating")
-									: tCommon("states.creating")
-							}
-						>
-							{isEditing ? t("buttons.updateItem") : t("buttons.createItem")}
-						</LoadingButton>
-					</div>
-				)}
-			</form.Subscribe>
+								{isEditing ? t("buttons.updateItem") : t("buttons.createItem")}
+							</Button>
+						</HStack>
+					)}
+				</form.Subscribe>
+			</VStack>
 		</form>
 	);
 }

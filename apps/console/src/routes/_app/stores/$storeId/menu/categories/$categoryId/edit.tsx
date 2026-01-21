@@ -1,3 +1,4 @@
+import { VStack } from "@chakra-ui/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
@@ -37,21 +38,23 @@ function EditCategoryPage() {
 	const categoryName = getDisplayName(category.translations, "de");
 
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBar
 				breadcrumbs={[
 					{
 						label: t("titles.categories"),
-						href: `/stores/${store.id}/menu`,
+						href: "/stores/$storeId/menu",
+						params: { storeId: store.id },
 					},
 					{
 						label: categoryName || t("emptyStates.unnamed"),
-						href: `/stores/${store.id}/menu/categories/${categoryId}`,
+						href: "/stores/$storeId/menu/categories/$categoryId",
+						params: { storeId: store.id, categoryId },
 					},
 					{ label: t("titles.editCategory") },
 				]}
 			/>
 			<CategoryForm storeId={store.id} category={category} />
-		</div>
+		</VStack>
 	);
 }

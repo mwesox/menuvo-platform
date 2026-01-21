@@ -1,10 +1,4 @@
-import {
-	Empty,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from "@menuvo/ui";
+import { EmptyState, VStack } from "@chakra-ui/react";
 import type { LucideIcon } from "lucide-react";
 import { Store } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -19,16 +13,18 @@ export function StoreSelectionRequired({
 	const { t } = useTranslation("common");
 
 	return (
-		<Empty>
-			<EmptyHeader>
-				<EmptyMedia variant="icon">
+		<EmptyState.Root>
+			<EmptyState.Content>
+				<EmptyState.Indicator>
 					<Icon />
-				</EmptyMedia>
-				<EmptyTitle>{t("storeSelection.required")}</EmptyTitle>
-				<EmptyDescription>
-					{t("storeSelection.useHeaderSelector")}
-				</EmptyDescription>
-			</EmptyHeader>
-		</Empty>
+				</EmptyState.Indicator>
+				<VStack textAlign="center">
+					<EmptyState.Title>{t("storeSelection.required")}</EmptyState.Title>
+					<EmptyState.Description>
+						{t("storeSelection.useHeaderSelector")}
+					</EmptyState.Description>
+				</VStack>
+			</EmptyState.Content>
+		</EmptyState.Root>
 	);
 }
