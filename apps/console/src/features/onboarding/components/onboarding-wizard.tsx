@@ -7,11 +7,10 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { useOnboardingWizard } from "../hooks/use-onboarding-wizard";
-import type { OnboardingFormInput } from "../schemas";
 import {
 	AddressSlide,
-	BusinessSlide,
 	ContactSlide,
+	LegalEntitySlide,
 	OwnerSlide,
 	ProgressBar,
 	ReviewSlide,
@@ -31,7 +30,7 @@ export function OnboardingWizard() {
 	const onboardMutation = useMutation({
 		...trpc.auth.onboard.mutationOptions(),
 		// Transform form input to API schema (add defaults for timezone/currency)
-		mutationFn: async (input: OnboardingFormInput) => {
+		mutationFn: async (input: typeof wizard.data) => {
 			return trpcClient.auth.onboard.mutate({
 				merchant: input.merchant,
 				store: {
@@ -39,6 +38,7 @@ export function OnboardingWizard() {
 					timezone: "Europe/Berlin",
 					currency: "EUR",
 				},
+				legalEntity: input.legalEntity,
 			});
 		},
 		onSuccess: async () => {
@@ -67,10 +67,10 @@ export function OnboardingWizard() {
 		console.log("[onboarding-wizard] Starting submission...");
 
 		try {
-			const result = (await onboardMutation.mutateAsync({
-				merchant: wizard.data.merchant,
-				store: wizard.data.store,
-			})) as { merchant: { id: string }; store: { id: string } };
+			const result = (await onboardMutation.mutateAsync(wizard.data)) as {
+				merchant: { id: string };
+				store: { id: string };
+			};
 			console.log("[onboarding-wizard] Mutation succeeded:", {
 				merchantId: result.merchant.id,
 				storeId: result.store.id,
@@ -126,15 +126,16 @@ export function OnboardingWizard() {
 						<WelcomeSlide key="welcome" onContinue={wizard.goToNext} />
 					)}
 
-					{/* Slide 1: Business Name */}
+					{/* Slide 1: Legal Entity (merged with business) */}
 					{wizard.currentSlide === 1 && (
-						<BusinessSlide
-							key="business"
+						<LegalEntitySlide
+							key="legal-entity"
 							questionNumber={1}
 							totalQuestions={wizard.totalQuestions}
 							direction={wizard.direction}
-							defaultValue={wizard.data.merchant.name}
-							onComplete={wizard.completeBusinessSlide}
+							defaultValues={wizard.data.legalEntity}
+							onComplete={wizard.completeLegalEntitySlide}
+							onBack={wizard.goToPrevious}
 						/>
 					)}
 

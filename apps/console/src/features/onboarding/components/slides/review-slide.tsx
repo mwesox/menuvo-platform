@@ -6,6 +6,7 @@ import type {
 	OnboardingData,
 	SlideIndex,
 } from "../../hooks/use-onboarding-wizard";
+import { LEGAL_FORMS_REQUIRING_REGISTER } from "../../schemas";
 
 interface ReviewSlideProps {
 	direction: number;
@@ -39,14 +40,60 @@ export function ReviewSlide({
 }: ReviewSlideProps) {
 	const { t } = useTranslation("onboarding");
 
+	// Check if legal entity requires register info
+	const requiresRegister = LEGAL_FORMS_REQUIRING_REGISTER.includes(
+		data.legalEntity.legalForm,
+	);
+
+	// Build legal entity items based on what's filled
+	const legalEntityItems = [
+		{
+			label: t("fields.legalForm"),
+			value:
+				data.legalEntity.legalForm === "other"
+					? data.legalEntity.legalFormOther
+					: t(`legalForms.${data.legalEntity.legalForm}`),
+		},
+		{ label: t("fields.companyName"), value: data.legalEntity.companyName },
+		{
+			label: t("fields.representativeName"),
+			value: data.legalEntity.representativeName,
+		},
+	];
+
+	// Add register info if required
+	if (requiresRegister) {
+		legalEntityItems.push({
+			label: t("fields.registerCourt"),
+			value: data.legalEntity.registerCourt,
+		});
+		legalEntityItems.push({
+			label: t("fields.registerNumber"),
+			value: data.legalEntity.registerNumber,
+		});
+	}
+
+	// Add VAT ID if provided
+	if (data.legalEntity.vatId) {
+		legalEntityItems.push({
+			label: t("fields.vatId"),
+			value: data.legalEntity.vatId,
+		});
+	}
+
 	const sections = [
 		{
 			title: t("slides.review.sections.business"),
-			editSlide: 1 as SlideIndex, // Business name slide
+			editSlide: 1 as SlideIndex, // Legal entity slide (now includes company name)
 			items: [
-				{ label: t("fields.businessName"), value: data.merchant.name },
+				{ label: t("fields.companyName"), value: data.merchant.name },
 				{ label: t("fields.ownerName"), value: data.merchant.ownerName },
 			],
+		},
+		{
+			title: t("slides.review.sections.legalEntity"),
+			editSlide: 1 as SlideIndex, // Legal entity slide
+			items: legalEntityItems,
 		},
 		{
 			title: t("slides.review.sections.contact"),

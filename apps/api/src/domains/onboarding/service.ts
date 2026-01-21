@@ -51,6 +51,14 @@ export class OnboardingService implements IOnboardingService {
 			const merchant = await this.merchantsService.create(
 				{
 					...input.merchant,
+					// Legal entity fields
+					legalForm: input.legalEntity.legalForm,
+					legalFormOther: input.legalEntity.legalFormOther,
+					companyName: input.legalEntity.companyName,
+					representativeName: input.legalEntity.representativeName,
+					registerCourt: input.legalEntity.registerCourt,
+					registerNumber: input.legalEntity.registerNumber,
+					vatId: input.legalEntity.vatId || null,
 					supportedLanguages: ["de"],
 					subscriptionStatus: "trialing",
 					subscriptionTrialEndsAt: trialEndsAt,

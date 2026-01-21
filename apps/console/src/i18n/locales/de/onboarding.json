@@ -1,7 +1,7 @@
 {
 	"page": {
 		"title": "Willkommen bei",
-		"subtitle": "Richten Sie Ihr Restaurant-Verwaltungskonto ein"
+		"subtitle": "Richte dein Restaurant-Verwaltungskonto ein"
 	},
 	"slides": {
 		"stepOf": "von {{total}}",
@@ -21,9 +21,9 @@
 			},
 			"cta": "Los geht's"
 		},
-		"business": {
-			"title": "Wie heißt dein Unternehmen?",
-			"why": "Erscheint auf Rechnungen und rechtlichen Dokumenten."
+		"legalEntity": {
+			"title": "Dein Unternehmen",
+			"why": "Diese Infos brauchen wir für Rechnungen und dein Impressum."
 		},
 		"owner": {
 			"title": "Wer ist der Geschäftsinhaber?",
@@ -48,6 +48,7 @@
 			"edit": "Bearbeiten",
 			"sections": {
 				"business": "Dein Geschäft",
+				"legalEntity": "Rechtliches",
 				"contact": "Kontakt",
 				"store": "Deine erste Filiale"
 			},
@@ -55,22 +56,33 @@
 			"creating": "Account wird erstellt..."
 		}
 	},
+	"legalForms": {
+		"einzelunternehmen": "Einzelunternehmen",
+		"gbr": "GbR (Gesellschaft bürgerlichen Rechts)",
+		"ug": "UG (haftungsbeschränkt)",
+		"gmbh": "GmbH",
+		"ohg": "OHG (Offene Handelsgesellschaft)",
+		"kg": "KG (Kommanditgesellschaft)",
+		"ag": "AG (Aktiengesellschaft)",
+		"freiberufler": "Freiberufler",
+		"other": "Andere"
+	},
 	"titles": {
 		"welcome": "Willkommen",
 		"letsGetStarted": "Los geht's",
-		"tellUsAboutBusiness": "Erzählen Sie uns von Ihrem Unternehmen",
-		"setupFirstStore": "Richten Sie Ihre erste Filiale ein",
+		"tellUsAboutBusiness": "Erzähl uns von deinem Unternehmen",
+		"setupFirstStore": "Richte deine erste Filiale ein",
 		"reviewAndConfirm": "Überprüfen und bestätigen",
 		"businessDetails": "Geschäftsdetails",
 		"firstStore": "Erste Filiale"
 	},
 	"descriptions": {
-		"welcome": "Wir freuen uns, Ihnen beim Erstellen Ihrer digitalen Speisekarte zu helfen",
-		"businessInfo": "Helfen Sie uns, Ihr Unternehmen besser zu verstehen",
-		"storeInfo": "Lassen Sie uns Ihren ersten Standort einrichten",
-		"almostDone": "Überprüfen Sie Ihre Angaben und legen Sie los",
-		"businessDetailsInfo": "Erzählen Sie uns von Ihrem Unternehmen. Diese Informationen werden für Ihr Händlerkonto verwendet.",
-		"firstStoreInfo": "Richten Sie Ihren ersten Filialstandort ein. Sie können später weitere Filialen hinzufügen."
+		"welcome": "Wir freuen uns, dir beim Erstellen deiner digitalen Speisekarte zu helfen",
+		"businessInfo": "Hilf uns, dein Unternehmen besser zu verstehen",
+		"storeInfo": "Lass uns deinen ersten Standort einrichten",
+		"almostDone": "Überprüfe deine Angaben und leg los",
+		"businessDetailsInfo": "Erzähl uns von deinem Unternehmen. Diese Infos werden für dein Händlerkonto verwendet.",
+		"firstStoreInfo": "Richte deinen ersten Filialstandort ein. Du kannst später weitere Filialen hinzufügen."
 	},
 	"steps": {
 		"businessInfo": "Geschäftsinformationen",
@@ -85,7 +97,7 @@
 		"creatingAccount": "Konto wird erstellt..."
 	},
 	"fields": {
-		"businessName": "Firmenname",
+		"businessName": "Eingetragener Name",
 		"ownerName": "Name des Geschäftsinhabers",
 		"contactEmail": "E-Mail",
 		"phone": "Telefon",
@@ -97,10 +109,18 @@
 		"postalCode": "PLZ",
 		"country": "Land",
 		"timezone": "Zeitzone",
-		"currency": "Währung"
+		"currency": "Währung",
+		"legalForm": "Rechtsform",
+		"legalFormOther": "Andere Rechtsform",
+		"companyName": "Offizieller Firmenname",
+		"representativeName": "Geschäftsführer / Inhaber",
+		"registerCourt": "Registergericht",
+		"registerNumber": "Registernummer",
+		"vatId": "USt-IdNr",
+		"optional": "optional"
 	},
 	"placeholders": {
-		"businessName": "Dein Restaurantname",
+		"businessName": "z.B. Muster Restaurant GmbH",
 		"ownerName": "Vor- und Nachname",
 		"contactEmail": "Deine E-Mail-Adresse",
 		"phone": "Deine Telefonnummer",
@@ -112,7 +132,14 @@
 		"postalCode": "Deine Postleitzahl",
 		"country": "Dein Land",
 		"selectTimezone": "Zeitzone auswählen",
-		"selectCurrency": "Währung auswählen"
+		"selectCurrency": "Währung auswählen",
+		"legalForm": "Rechtsform auswählen",
+		"legalFormOther": "z.B. Genossenschaft, Stiftung...",
+		"companyName": "z.B. Muster Restaurant GmbH",
+		"representativeName": "Vor- und Nachname",
+		"registerCourt": "z.B. Amtsgericht München",
+		"registerNumber": "z.B. HRB 229467",
+		"vatId": "z.B. DE123456789"
 	},
 	"toast": {
 		"successTitle": "Willkommen bei Menuvo!",

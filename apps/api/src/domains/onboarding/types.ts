@@ -6,6 +6,20 @@
  */
 
 import type { merchants, stores } from "@menuvo/db/schema";
+import type { LegalForm } from "../auth/schemas.js";
+
+/**
+ * Legal entity input for German business registration
+ */
+export interface LegalEntityInput {
+	legalForm: LegalForm;
+	legalFormOther?: string;
+	companyName: string;
+	representativeName: string;
+	registerCourt?: string;
+	registerNumber?: string;
+	vatId?: string;
+}
 
 /**
  * Input for the onboarding flow
@@ -28,6 +42,7 @@ export interface OnboardInput {
 		timezone?: string;
 		currency?: string;
 	};
+	legalEntity: LegalEntityInput;
 }
 
 /**

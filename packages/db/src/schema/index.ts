@@ -113,6 +113,21 @@ export const merchants = pgTable("merchants", {
 	ownerName: varchar("owner_name", { length: 255 }).notNull(),
 	email: varchar({ length: 255 }).notNull().unique(),
 	phone: varchar({ length: 50 }),
+	// Legal entity fields (for Impressum and invoices)
+	/** Legal form (e.g., 'gmbh', 'ug', 'einzelunternehmen', 'other') */
+	legalForm: varchar("legal_form", { length: 50 }),
+	/** Free text if legal_form='other' */
+	legalFormOther: varchar("legal_form_other", { length: 100 }),
+	/** Official registered company name (e.g., "Muster GmbH") */
+	companyName: varchar("company_name", { length: 255 }),
+	/** Managing director / Geschäftsführer / legally responsible representative */
+	representativeName: varchar("representative_name", { length: 255 }),
+	/** Register court (e.g., "Amtsgericht München") */
+	registerCourt: varchar("register_court", { length: 100 }),
+	/** Commercial register number (e.g., "HRB 229467" or "HRA 12345") */
+	registerNumber: varchar("register_number", { length: 50 }),
+	/** VAT ID / USt-IdNr (e.g., "DE123456789") */
+	vatId: varchar("vat_id", { length: 30 }),
 	// Supported languages for menu translations (first is used as fallback)
 	supportedLanguages: text("supported_languages")
 		.array()
