@@ -5,17 +5,15 @@
  * - Session management
  * - User profile
  * - Merchant access
- * - Merchant onboarding (initial merchant + store creation)
  */
 
 import { TRPCError } from "@trpc/server";
-import { mapDomainErrorToTRPC } from "../../trpc/error-mapper.js";
 import {
 	protectedProcedure,
 	publicProcedure,
 	router,
 } from "../../trpc/trpc.js";
-import { devLoginSchema, onboardInputSchema } from "./schemas.js";
+import { devLoginSchema } from "./schemas.js";
 
 export const authRouter = router({
 	/**
@@ -145,41 +143,6 @@ export const authRouter = router({
 			ctx.resHeaders.set("Set-Cookie", cookieValue);
 
 			return { success: true };
-		}),
-
-	/**
-	 * Onboard a new merchant and create their first store
-	 * Public procedure - no authentication required
-	 * Sets authentication cookie after successful creation
-	 */
-	onboard: publicProcedure
-		.input(onboardInputSchema)
-		.mutation(async ({ ctx, input }) => {
-			try {
-				// Delegate to onboarding service
-				const result = await ctx.services.onboarding.onboard(input);
-
-				// Set authentication cookie via resHeaders (tRPC fetch adapter)
-				if (!ctx.resHeaders) {
-					throw new TRPCError({
-						code: "INTERNAL_SERVER_ERROR",
-						message:
-							"Cannot set authentication cookie - resHeaders not available",
-					});
-				}
-
-				const cookieDomain = process.env.COOKIE_DOMAIN;
-				const cookieValue = ctx.services.auth.createAuthCookie({
-					merchantId: result.merchant.id,
-					cookieDomain,
-				});
-
-				ctx.resHeaders.set("Set-Cookie", cookieValue);
-
-				return result;
-			} catch (error) {
-				mapDomainErrorToTRPC(error);
-			}
 		}),
 });
 

@@ -10,6 +10,7 @@ import { authRouter } from "./auth/router.js";
 import { imageRouter } from "./images/router.js";
 import { menuRouter } from "./menu/router.js";
 import { merchantRouter } from "./merchants/router.js";
+import { onboardingRouter } from "./onboarding/router.js";
 import { orderRouter } from "./orders/router.js";
 import { paymentRouter } from "./payments/router.js";
 import { storeRouter } from "./stores/router.js";
@@ -18,8 +19,11 @@ import { storeRouter } from "./stores/router.js";
  * Main application router
  */
 export const appRouter = router({
-	/** Authentication domains (includes onboarding) */
+	/** Authentication: session, login, logout */
 	auth: authRouter,
+
+	/** Onboarding: merchant signup */
+	onboarding: onboardingRouter,
 
 	/** Menu domains: categories, items, options, translations, import */
 	menu: menuRouter,

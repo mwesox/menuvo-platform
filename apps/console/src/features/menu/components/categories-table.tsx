@@ -118,164 +118,180 @@ export function CategoriesTable({
 	};
 
 	return (
-		<Table.Root size="sm">
-			<Table.Header>
-				<Table.Row>
-					<Table.ColumnHeader w="35%">{t("table.category")}</Table.ColumnHeader>
-					<Table.ColumnHeader textAlign="center">
-						{t("table.vatGroup")}
-					</Table.ColumnHeader>
-					<Table.ColumnHeader textAlign="center">
-						{t("table.image")}
-					</Table.ColumnHeader>
-					<Table.ColumnHeader textAlign="center">
-						{t("table.items")}
-					</Table.ColumnHeader>
-					<Table.ColumnHeader textAlign="center">
-						{t("table.active")}
-					</Table.ColumnHeader>
-					<Table.ColumnHeader textAlign="center">
-						{t("table.action")}
-					</Table.ColumnHeader>
-				</Table.Row>
-			</Table.Header>
-			<Table.Body>
-				{categories.length === 0 ? (
+		<Table.ScrollArea borderWidth="1px" rounded="md">
+			<Table.Root
+				size="sm"
+				css={{
+					"& [data-sticky]": {
+						position: "sticky",
+						left: 0,
+						zIndex: 1,
+						bg: "bg",
+					},
+				}}
+			>
+				<Table.Header>
 					<Table.Row>
-						<Table.Cell colSpan={6} h="24" textAlign="center">
-							{t("emptyStates.noCategories")}
-						</Table.Cell>
+						<Table.ColumnHeader data-sticky minW="150px">
+							{t("table.category")}
+						</Table.ColumnHeader>
+						<Table.ColumnHeader textAlign="center" minW="100px">
+							{t("table.vatGroup")}
+						</Table.ColumnHeader>
+						<Table.ColumnHeader textAlign="center" minW="60px">
+							{t("table.image")}
+						</Table.ColumnHeader>
+						<Table.ColumnHeader textAlign="center" minW="80px">
+							{t("table.items")}
+						</Table.ColumnHeader>
+						<Table.ColumnHeader textAlign="center" minW="70px">
+							{t("table.active")}
+						</Table.ColumnHeader>
+						<Table.ColumnHeader textAlign="center" minW="70px">
+							{t("table.action")}
+						</Table.ColumnHeader>
 					</Table.Row>
-				) : (
-					categories.map((category) => {
-						const name = getDisplayName(category.translations, language);
-						const hasImage = category.items.some((item) => item.imageUrl);
-						const itemCount = category.items.length;
-						const activeCount = category.items.filter(
-							(item) => item.isActive,
-						).length;
+				</Table.Header>
+				<Table.Body>
+					{categories.length === 0 ? (
+						<Table.Row>
+							<Table.Cell colSpan={6} h="24" textAlign="center">
+								{t("emptyStates.noCategories")}
+							</Table.Cell>
+						</Table.Row>
+					) : (
+						categories.map((category) => {
+							const name = getDisplayName(category.translations, language);
+							const hasImage = category.items.some((item) => item.imageUrl);
+							const itemCount = category.items.length;
+							const activeCount = category.items.filter(
+								(item) => item.isActive,
+							).length;
 
-						return (
-							<Table.Row
-								key={category.id}
-								cursor="pointer"
-								onClick={() => handleRowClick(category.id)}
-							>
-								<Table.Cell>
-									<HStack gap="2" align="center">
-										<ChakraLink
-											variant="underline"
-											colorPalette="primary"
-											fontWeight="medium"
-											asChild
-										>
-											<Link
-												to="/stores/$storeId/menu/categories/$categoryId"
-												params={{ storeId, categoryId: category.id }}
-												onClick={(e) => e.stopPropagation()}
+							return (
+								<Table.Row
+									key={category.id}
+									cursor="pointer"
+									onClick={() => handleRowClick(category.id)}
+								>
+									<Table.Cell data-sticky>
+										<HStack gap="2" align="center">
+											<ChakraLink
+												variant="underline"
+												colorPalette="primary"
+												fontWeight="medium"
+												asChild
 											>
-												{name || t("emptyStates.unnamed")}
-											</Link>
-										</ChakraLink>
-										{category.availabilitySchedule?.enabled && (
-											<Tooltip
-												content={getAvailabilityTooltipContent(
-													category.availabilitySchedule,
-												)}
-											>
-												<Badge variant="outline" gap="1">
-													<Clock
-														style={{ height: "0.75rem", width: "0.75rem" }}
-													/>
-													{t("availability.badge", "Scheduled")}
-												</Badge>
-											</Tooltip>
-										)}
-									</HStack>
-								</Table.Cell>
-								<Table.Cell textAlign="center">
-									{category.defaultVatGroup ? (
-										<Text textStyle="sm">{category.defaultVatGroup.name}</Text>
-									) : (
-										<Text color="fg.muted">—</Text>
-									)}
-								</Table.Cell>
-								<Table.Cell textAlign="center">
-									{hasImage ? (
-										<Check
-											style={{
-												margin: "0 auto",
-												height: "1rem",
-												width: "1rem",
-											}}
-											color="fg.muted"
-										/>
-									) : (
-										<Text color="fg.muted">—</Text>
-									)}
-								</Table.Cell>
-								<Table.Cell textAlign="center">
-									{itemCount > 0 ? (
-										activeCount < itemCount ? (
-											<Text>
-												{activeCount}{" "}
-												<Text as="span" color="fg.muted">
-													({itemCount})
-												</Text>
+												<Link
+													to="/stores/$storeId/menu/categories/$categoryId"
+													params={{ storeId, categoryId: category.id }}
+													onClick={(e) => e.stopPropagation()}
+												>
+													{name || t("emptyStates.unnamed")}
+												</Link>
+											</ChakraLink>
+											{category.availabilitySchedule?.enabled && (
+												<Tooltip
+													content={getAvailabilityTooltipContent(
+														category.availabilitySchedule,
+													)}
+												>
+													<Badge variant="outline" gap="1">
+														<Clock
+															style={{ height: "0.75rem", width: "0.75rem" }}
+														/>
+														{t("availability.badge", "Scheduled")}
+													</Badge>
+												</Tooltip>
+											)}
+										</HStack>
+									</Table.Cell>
+									<Table.Cell textAlign="center">
+										{category.defaultVatGroup ? (
+											<Text textStyle="sm">
+												{category.defaultVatGroup.name}
 											</Text>
 										) : (
-											itemCount
-										)
-									) : (
-										<Text color="fg.muted">—</Text>
-									)}
-								</Table.Cell>
-								<Table.Cell textAlign="center">
-									<Tooltip
-										content={
-											category.isActive
-												? t("tooltips.deactivateCategory")
-												: t("tooltips.activateCategory")
-										}
-									>
-										<Box
-											display="inline-flex"
-											onClick={(e) => e.stopPropagation()}
+											<Text color="fg.muted">—</Text>
+										)}
+									</Table.Cell>
+									<Table.Cell textAlign="center">
+										{hasImage ? (
+											<Check
+												style={{
+													margin: "0 auto",
+													height: "1rem",
+													width: "1rem",
+												}}
+												color="fg.muted"
+											/>
+										) : (
+											<Text color="fg.muted">—</Text>
+										)}
+									</Table.Cell>
+									<Table.Cell textAlign="center">
+										{itemCount > 0 ? (
+											activeCount < itemCount ? (
+												<Text>
+													{activeCount}{" "}
+													<Text as="span" color="fg.muted">
+														({itemCount})
+													</Text>
+												</Text>
+											) : (
+												itemCount
+											)
+										) : (
+											<Text color="fg.muted">—</Text>
+										)}
+									</Table.Cell>
+									<Table.Cell textAlign="center">
+										<Tooltip
+											content={
+												category.isActive
+													? t("tooltips.deactivateCategory")
+													: t("tooltips.activateCategory")
+											}
 										>
-											<Switch.Root
-												checked={category.isActive}
-												disabled={toggleActiveMutation.isPending}
-												onCheckedChange={() =>
-													handleToggleActive(category.id, category.isActive)
-												}
-												colorPalette="red"
+											<Box
+												display="inline-flex"
+												onClick={(e) => e.stopPropagation()}
 											>
-												<Switch.HiddenInput />
-												<Switch.Control />
-											</Switch.Root>
-										</Box>
-									</Tooltip>
-								</Table.Cell>
-								<Table.Cell textAlign="center">
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={(e) => {
-											e.stopPropagation();
-											navigate({
-												to: "/stores/$storeId/menu/categories/$categoryId/edit",
-												params: { storeId, categoryId: category.id },
-											});
-										}}
-									>
-										<Pencil style={{ height: "1rem", width: "1rem" }} />
-									</Button>
-								</Table.Cell>
-							</Table.Row>
-						);
-					})
-				)}
-			</Table.Body>
-		</Table.Root>
+												<Switch.Root
+													checked={category.isActive}
+													disabled={toggleActiveMutation.isPending}
+													onCheckedChange={() =>
+														handleToggleActive(category.id, category.isActive)
+													}
+													colorPalette="red"
+												>
+													<Switch.HiddenInput />
+													<Switch.Control />
+												</Switch.Root>
+											</Box>
+										</Tooltip>
+									</Table.Cell>
+									<Table.Cell textAlign="center">
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={(e) => {
+												e.stopPropagation();
+												navigate({
+													to: "/stores/$storeId/menu/categories/$categoryId/edit",
+													params: { storeId, categoryId: category.id },
+												});
+											}}
+										>
+											<Pencil style={{ height: "1rem", width: "1rem" }} />
+										</Button>
+									</Table.Cell>
+								</Table.Row>
+							);
+						})
+					)}
+				</Table.Body>
+			</Table.Root>
+		</Table.ScrollArea>
 	);
 }

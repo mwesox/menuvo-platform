@@ -12,7 +12,6 @@ import {
 	AddressSlide,
 	ContactSlide,
 	LegalEntitySlide,
-	OwnerSlide,
 	ProgressBar,
 	ReviewSlide,
 	StoreNameSlide,
@@ -28,11 +27,11 @@ export function OnboardingWizard() {
 	const { t } = useTranslation("onboarding");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const onboardMutation = useMutation({
-		...trpc.auth.onboard.mutationOptions(),
+	const signupMutation = useMutation({
+		...trpc.onboarding.signup.mutationOptions(),
 		// Transform form input to API schema (add defaults for timezone/currency)
 		mutationFn: async (input: typeof wizard.data) => {
-			return trpcClient.auth.onboard.mutate({
+			return trpcClient.onboarding.signup.mutate({
 				merchant: input.merchant,
 				store: {
 					...input.store,
@@ -68,7 +67,7 @@ export function OnboardingWizard() {
 		console.log("[onboarding-wizard] Starting submission...");
 
 		try {
-			const result = (await onboardMutation.mutateAsync(wizard.data)) as {
+			const result = (await signupMutation.mutateAsync(wizard.data)) as {
 				merchant: { id: string };
 				store: { id: string };
 			};
@@ -151,24 +150,11 @@ export function OnboardingWizard() {
 						/>
 					)}
 
-					{/* Slide 2: Owner Name */}
+					{/* Slide 2: Contact (Email + Phone) */}
 					{wizard.currentSlide === 2 && (
-						<OwnerSlide
-							key="owner"
-							questionNumber={2}
-							totalQuestions={wizard.totalQuestions}
-							direction={wizard.direction}
-							defaultValue={wizard.data.merchant.ownerName}
-							onComplete={wizard.completeOwnerSlide}
-							onBack={wizard.goToPrevious}
-						/>
-					)}
-
-					{/* Slide 3: Contact (Email + Phone) */}
-					{wizard.currentSlide === 3 && (
 						<ContactSlide
 							key="contact"
-							questionNumber={3}
+							questionNumber={2}
 							totalQuestions={wizard.totalQuestions}
 							direction={wizard.direction}
 							defaultValues={{
@@ -180,11 +166,11 @@ export function OnboardingWizard() {
 						/>
 					)}
 
-					{/* Slide 4: Store Name */}
-					{wizard.currentSlide === 4 && (
+					{/* Slide 3: Store Name */}
+					{wizard.currentSlide === 3 && (
 						<StoreNameSlide
 							key="store"
-							questionNumber={4}
+							questionNumber={3}
 							totalQuestions={wizard.totalQuestions}
 							direction={wizard.direction}
 							defaultValue={wizard.data.store.name}
@@ -193,11 +179,11 @@ export function OnboardingWizard() {
 						/>
 					)}
 
-					{/* Slide 5: Address */}
-					{wizard.currentSlide === 5 && (
+					{/* Slide 4: Address */}
+					{wizard.currentSlide === 4 && (
 						<AddressSlide
 							key="address"
-							questionNumber={5}
+							questionNumber={4}
 							totalQuestions={wizard.totalQuestions}
 							direction={wizard.direction}
 							defaultValues={{
@@ -210,8 +196,8 @@ export function OnboardingWizard() {
 						/>
 					)}
 
-					{/* Slide 6: Review */}
-					{wizard.currentSlide === 6 && (
+					{/* Slide 5: Review */}
+					{wizard.currentSlide === 5 && (
 						<ReviewSlide
 							key="review"
 							direction={wizard.direction}

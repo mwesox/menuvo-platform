@@ -25,10 +25,6 @@
 			"title": "Dein Unternehmen",
 			"why": "Diese Infos brauchen wir für Rechnungen und dein Impressum."
 		},
-		"owner": {
-			"title": "Wer ist der Geschäftsinhaber?",
-			"why": "Diese Person wird als rechtlich Verantwortlicher eingetragen."
-		},
 		"contact": {
 			"title": "Wie können wir dich erreichen?",
 			"why": "Für wichtige Updates und deine Login-Daten."

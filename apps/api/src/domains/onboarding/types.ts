@@ -6,7 +6,7 @@
  */
 
 import type { merchants, stores } from "@menuvo/db/schema";
-import type { LegalForm } from "../auth/schemas.js";
+import type { LegalForm } from "./schemas.js";
 
 /**
  * Legal entity input for German business registration

@@ -4,7 +4,6 @@ import type {
 	ContactSlideInput,
 	LegalEntitySlideInput,
 	LegalForm,
-	OwnerSlideInput,
 	StoreNameSlideInput,
 } from "../schemas";
 import { LEGAL_FORMS_REQUIRING_REGISTER } from "../schemas";
@@ -12,15 +11,14 @@ import { LEGAL_FORMS_REQUIRING_REGISTER } from "../schemas";
 // Slide indices:
 // 0 = Welcome
 // 1 = Legal entity (legal form, company name, representative, register, VAT)
-// 2 = Owner name
-// 3 = Contact (email + phone)
-// 4 = Store name
-// 5 = Address
-// 6 = Review
-export type SlideIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+// 2 = Contact (email + phone)
+// 3 = Store name
+// 4 = Address
+// 5 = Review
+export type SlideIndex = 0 | 1 | 2 | 3 | 4 | 5;
 
-const TOTAL_SLIDES = 7;
-const TOTAL_QUESTIONS = 5; // Excluding welcome and review
+const TOTAL_SLIDES = 6;
+const TOTAL_QUESTIONS = 4; // Excluding welcome and review
 
 // Legal entity data
 export interface LegalEntityData {
@@ -106,8 +104,12 @@ export function useOnboardingWizard() {
 		(slideData: LegalEntitySlideInput) => {
 			setData((prev) => ({
 				...prev,
-				// Set merchant name from company name (merged slide)
-				merchant: { ...prev.merchant, name: slideData.companyName },
+				// Set merchant name and owner from company name and representative
+				merchant: {
+					...prev.merchant,
+					name: slideData.companyName,
+					ownerName: slideData.representativeName,
+				},
 				legalEntity: {
 					...prev.legalEntity,
 					legalForm: slideData.legalForm,
@@ -117,23 +119,6 @@ export function useOnboardingWizard() {
 					registerCourt: slideData.registerCourt || "",
 					registerNumber: slideData.registerNumber || "",
 					vatId: slideData.vatId || "",
-				},
-			}));
-			goToNext();
-		},
-		[goToNext],
-	);
-
-	const completeOwnerSlide = useCallback(
-		(slideData: OwnerSlideInput) => {
-			setData((prev) => ({
-				...prev,
-				merchant: { ...prev.merchant, ownerName: slideData.ownerName },
-				// Auto-fill representative name if not already set
-				legalEntity: {
-					...prev.legalEntity,
-					representativeName:
-						prev.legalEntity.representativeName || slideData.ownerName,
 				},
 			}));
 			goToNext();
@@ -217,7 +202,6 @@ export function useOnboardingWizard() {
 
 		// Slide completion handlers
 		completeLegalEntitySlide,
-		completeOwnerSlide,
 		completeContactSlide,
 		completeStoreNameSlide,
 		completeAddressSlide,

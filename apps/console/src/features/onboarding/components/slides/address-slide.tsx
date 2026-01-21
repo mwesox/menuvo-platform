@@ -164,44 +164,8 @@ export function AddressSlide({
 								}}
 							</form.Field>
 
-							{/* City & Postal - side by side on larger screens */}
+							{/* Postal & City - side by side on larger screens (German format: PLZ first) */}
 							<SimpleGrid columns={{ base: 1, sm: 2 }} gap="6">
-								{/* City */}
-								<form.Field name="city">
-									{(field) => {
-										const hasError =
-											field.state.meta.isTouched &&
-											field.state.meta.errors.length > 0;
-										return (
-											<Field.Root invalid={hasError}>
-												<Field.Label
-													htmlFor="city"
-													mb="2"
-													fontWeight="medium"
-													color="fg.muted"
-												>
-													{t("fields.city")}
-												</Field.Label>
-												<Input
-													id="city"
-													h="12"
-													textStyle="lg"
-													type="text"
-													placeholder={t("placeholders.city")}
-													value={field.state.value}
-													onChange={(e) => field.handleChange(e.target.value)}
-													onBlur={field.handleBlur}
-													autoComplete="address-level2"
-													aria-invalid={hasError}
-												/>
-												{hasError && (
-													<FieldError errors={field.state.meta.errors} />
-												)}
-											</Field.Root>
-										);
-									}}
-								</form.Field>
-
 								{/* Postal Code */}
 								<form.Field name="postalCode">
 									{(field) => {
@@ -234,6 +198,42 @@ export function AddressSlide({
 													}}
 													onBlur={field.handleBlur}
 													autoComplete="postal-code"
+													aria-invalid={hasError}
+												/>
+												{hasError && (
+													<FieldError errors={field.state.meta.errors} />
+												)}
+											</Field.Root>
+										);
+									}}
+								</form.Field>
+
+								{/* City */}
+								<form.Field name="city">
+									{(field) => {
+										const hasError =
+											field.state.meta.isTouched &&
+											field.state.meta.errors.length > 0;
+										return (
+											<Field.Root invalid={hasError}>
+												<Field.Label
+													htmlFor="city"
+													mb="2"
+													fontWeight="medium"
+													color="fg.muted"
+												>
+													{t("fields.city")}
+												</Field.Label>
+												<Input
+													id="city"
+													h="12"
+													textStyle="lg"
+													type="text"
+													placeholder={t("placeholders.city")}
+													value={field.state.value}
+													onChange={(e) => field.handleChange(e.target.value)}
+													onBlur={field.handleBlur}
+													autoComplete="address-level2"
 													aria-invalid={hasError}
 												/>
 												{hasError && (

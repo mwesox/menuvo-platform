@@ -25,10 +25,6 @@
 			"title": "Your Business",
 			"why": "We need this for invoices and legal documents."
 		},
-		"owner": {
-			"title": "Who is the business owner?",
-			"why": "This person will be registered as the legally responsible party."
-		},
 		"contact": {
 			"title": "How can we reach you?",
 			"why": "For important updates and your login details."

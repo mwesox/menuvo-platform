@@ -1,7 +1,6 @@
 export { AddressSlide } from "./address-slide";
 export { ContactSlide } from "./contact-slide";
 export { LegalEntitySlide } from "./legal-entity-slide";
-export { OwnerSlide } from "./owner-slide";
 export { ProgressBar } from "./progress-bar";
 export { ReviewSlide } from "./review-slide";
 export { SlideFooter } from "./slide-footer";

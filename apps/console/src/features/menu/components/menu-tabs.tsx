@@ -1,4 +1,4 @@
-import { Tabs } from "@chakra-ui/react";
+import { Box, Tabs } from "@chakra-ui/react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useStore } from "@/contexts/store-context";
@@ -50,12 +50,21 @@ export function MenuTabs() {
 			variant="line"
 			onValueChange={handleTabChange}
 		>
-			<Tabs.List>
-				<Tabs.Trigger value="categories">{t("titles.categories")}</Tabs.Trigger>
-				<Tabs.Trigger value="options">{t("titles.optionGroups")}</Tabs.Trigger>
-				<Tabs.Trigger value="vat">{t("vat.titles.vatGroups")}</Tabs.Trigger>
-				<Tabs.Trigger value="import">{t("titles.aiDataImport")}</Tabs.Trigger>
-			</Tabs.List>
+			<Box
+				overflowX="auto"
+				css={{ "&::-webkit-scrollbar": { display: "none" } }}
+			>
+				<Tabs.List flexWrap="nowrap" minW="max-content">
+					<Tabs.Trigger value="categories">
+						{t("titles.categories")}
+					</Tabs.Trigger>
+					<Tabs.Trigger value="options">
+						{t("titles.optionGroups")}
+					</Tabs.Trigger>
+					<Tabs.Trigger value="vat">{t("vat.titles.vatGroups")}</Tabs.Trigger>
+					<Tabs.Trigger value="import">{t("titles.aiDataImport")}</Tabs.Trigger>
+				</Tabs.List>
+			</Box>
 		</Tabs.Root>
 	);
 }

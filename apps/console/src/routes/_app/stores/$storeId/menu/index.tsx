@@ -1,8 +1,8 @@
 import {
 	Box,
 	Button,
+	Flex,
 	Heading,
-	HStack,
 	Skeleton,
 	Text,
 	VStack,
@@ -61,7 +61,12 @@ function CategoriesPage() {
 
 	return (
 		<>
-			<HStack justify="space-between" align="center">
+			<Flex
+				direction={{ base: "column", md: "row" }}
+				gap={{ base: "3", md: "4" }}
+				align={{ base: "stretch", md: "center" }}
+				justify="space-between"
+			>
 				<Box>
 					<Heading
 						as="h1"
@@ -73,7 +78,7 @@ function CategoriesPage() {
 					</Heading>
 					<Text color="fg.muted">{t("pageHeaders.categoriesDescription")}</Text>
 				</Box>
-				<Button asChild>
+				<Button asChild w={{ base: "full", md: "auto" }}>
 					<Link
 						to="/stores/$storeId/menu/categories/new"
 						params={{ storeId: store.id }}
@@ -84,7 +89,7 @@ function CategoriesPage() {
 						{t("titles.addCategory")}
 					</Link>
 				</Button>
-			</HStack>
+			</Flex>
 
 			<CategoriesTable
 				categories={categories}

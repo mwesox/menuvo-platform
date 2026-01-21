@@ -5,13 +5,17 @@ import {
 	Flex,
 	Heading,
 	HStack,
-	Text,
 	VStack,
 } from "@chakra-ui/react";
 import { ArrowRight, Pencil } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { Caption, Label, Muted } from "@/components/ui/typography";
+import {
+	Caption,
+	Label,
+	Muted,
+	SectionTitle,
+} from "@/components/ui/typography";
 import type {
 	OnboardingData,
 	SlideIndex,
@@ -107,7 +111,7 @@ export function ReviewSlide({
 		},
 		{
 			title: t("slides.review.sections.contact"),
-			editSlide: 3 as SlideIndex, // Contact slide
+			editSlide: 2 as SlideIndex, // Contact slide
 			items: [
 				{ label: t("fields.contactEmail"), value: data.merchant.email },
 				{ label: t("fields.phone"), value: data.merchant.phone },
@@ -115,7 +119,7 @@ export function ReviewSlide({
 		},
 		{
 			title: t("slides.review.sections.store"),
-			editSlide: 4 as SlideIndex, // Store name slide
+			editSlide: 3 as SlideIndex, // Store name slide
 			items: [
 				{ label: t("fields.storeName"), value: data.store.name },
 				{
@@ -153,54 +157,53 @@ export function ReviewSlide({
 					</Muted>
 
 					{/* Data summary */}
-					<VStack gap="4" mt="10">
+					<VStack gap="4" mt="10" w="full">
 						{sections.map((section, i) => (
 							<motion.div
 								key={section.title}
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: 0.3 + i * 0.1 }}
+								style={{ width: "100%" }}
 							>
-								<Card.Root rounded="xl" borderWidth="1px" p="5">
-									<Card.Body>
-										<HStack justify="space-between" align="center" mb="3">
-											<Text
-												fontWeight="semibold"
-												color="fg.muted"
-												textStyle="xs"
-												textTransform="uppercase"
-												letterSpacing="wider"
-											>
-												{section.title}
-											</Text>
-											<Button
-												variant="ghost"
-												size="xs"
-												onClick={() => onEdit(section.editSlide)}
-												colorPalette="accent"
-											>
-												<Pencil
-													style={{ height: "0.75rem", width: "0.75rem" }}
-												/>
-												{t("slides.review.edit")}
-											</Button>
-										</HStack>
-										<VStack gap="2" align="stretch">
+								<Box>
+									{/* Title row - OUTSIDE the card */}
+									<HStack justify="space-between" align="center" mb="1.5">
+										<SectionTitle>{section.title}</SectionTitle>
+										<Button
+											variant="ghost"
+											size="xs"
+											onClick={() => onEdit(section.editSlide)}
+											colorPalette="accent"
+										>
+											<Pencil style={{ height: "0.75rem", width: "0.75rem" }} />
+											{t("slides.review.edit")}
+										</Button>
+									</HStack>
+
+									{/* Card with rows */}
+									<Card.Root variant="outline" rounded="xl">
+										<VStack align="stretch" gap="0" divideY="1px">
 											{section.items.map((item) => (
 												<HStack
 													key={item.label}
+													px="4"
+													py="3"
 													justify="space-between"
+													align="center"
 													gap="4"
 												>
-													<Caption as="dt">{item.label}</Caption>
-													<Label as="dd" textAlign="right">
+													<Caption as="dt" minW="0">
+														{item.label}
+													</Caption>
+													<Label as="dd" textAlign="right" minW="0">
 														{item.value || "—"}
 													</Label>
 												</HStack>
 											))}
 										</VStack>
-									</Card.Body>
-								</Card.Root>
+									</Card.Root>
+								</Box>
 							</motion.div>
 						))}
 					</VStack>
