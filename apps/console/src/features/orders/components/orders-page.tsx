@@ -1,3 +1,4 @@
+import { Box, Flex, Text, VStack } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
 import { useNavigate } from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
@@ -57,23 +58,23 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 	// No stores available
 	if (loaderData.stores.length === 0) {
 		return (
-			<div className="flex h-full flex-col">
+			<Flex direction="column" h="full">
 				<PageActionBar title={t("title")} />
-				<div className="flex flex-1 items-center justify-center">
-					<div className="flex flex-col items-center gap-2 text-muted-foreground">
-						<Store className="size-12" />
-						<p>No stores available</p>
-					</div>
-				</div>
-			</div>
+				<Flex flex="1" align="center" justify="center">
+					<VStack gap="2" color="fg.muted">
+						<Store style={{ height: "3rem", width: "3rem" }} />
+						<Text>No stores available</Text>
+					</VStack>
+				</Flex>
+			</Flex>
 		);
 	}
 
 	return (
-		<div className="flex h-full flex-col">
+		<Flex direction="column" h="full">
 			<PageActionBar title={t("title")} />
 
-			<div className="mt-4 min-h-0 flex-1">
+			<Box mt="4" minH="0" flex="1">
 				<OrdersTable
 					storeId={storeId}
 					statusFilter={search.status}
@@ -83,7 +84,7 @@ export function OrdersPage({ search, loaderData }: OrdersPageProps) {
 					onSearchChange={handleSearchChange}
 					onDaysChange={handleDaysChange}
 				/>
-			</div>
-		</div>
+			</Box>
+		</Flex>
 	);
 }

@@ -6,14 +6,12 @@
 import {
 	Button,
 	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	Label,
+	Field,
+	Portal,
+	Text,
 	Textarea,
-} from "@menuvo/ui";
+	VStack,
+} from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useActionState } from "react";
 import { useTranslation } from "react-i18next";
@@ -94,50 +92,67 @@ export function CancelOrderDialog({
 	);
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>{t("cancelDialog.title")}</DialogTitle>
-					<DialogDescription>
-						{t("cancelDialog.description", { orderId: `#${orderId}` })}
-					</DialogDescription>
-				</DialogHeader>
+		<Dialog.Root open={open} onOpenChange={(e) => onOpenChange(e.open)}>
+			<Portal>
+				<Dialog.Backdrop />
+				<Dialog.Positioner>
+					<Dialog.Content>
+						<Dialog.Header>
+							<Dialog.Title>{t("cancelDialog.title")}</Dialog.Title>
+							<Dialog.Description>
+								{t("cancelDialog.description", { orderId: `#${orderId}` })}
+							</Dialog.Description>
+						</Dialog.Header>
 
-				<form action={formAction}>
-					<div className="space-y-4 py-4">
-						<div className="space-y-2">
-							<Label htmlFor="reason">{t("cancelDialog.reasonLabel")}</Label>
-							<Textarea
-								id="reason"
-								name="reason"
-								placeholder={t("cancelDialog.reasonPlaceholder")}
-								className="min-h-[100px]"
-							/>
-							<p className="text-muted-foreground text-xs">
-								{t("cancelDialog.reasonHint")}
-							</p>
-						</div>
+						<form action={formAction}>
+							<Dialog.Body>
+								<VStack gap="4" py="4">
+									<Field.Root>
+										<Field.Label htmlFor="reason">
+											{t("cancelDialog.reasonLabel")}
+										</Field.Label>
+										<Textarea
+											id="reason"
+											name="reason"
+											placeholder={t("cancelDialog.reasonPlaceholder")}
+											minH="100px"
+										/>
+										<Text color="fg.muted" textStyle="xs">
+											{t("cancelDialog.reasonHint")}
+										</Text>
+									</Field.Root>
 
-						{state.error && (
-							<p className="text-destructive text-sm">{state.error}</p>
-						)}
-					</div>
+									{state.error && (
+										<Text color="fg.error" textStyle="sm">
+											{state.error}
+										</Text>
+									)}
+								</VStack>
+							</Dialog.Body>
 
-					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={() => onOpenChange(false)}
-							disabled={isPending}
-						>
-							{t("actions.keep")}
-						</Button>
-						<Button type="submit" variant="destructive" disabled={isPending}>
-							{isPending ? t("actions.cancelling") : t("actions.confirmCancel")}
-						</Button>
-					</DialogFooter>
-				</form>
-			</DialogContent>
-		</Dialog>
+							<Dialog.Footer>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => onOpenChange(false)}
+									disabled={isPending}
+								>
+									{t("actions.keep")}
+								</Button>
+								<Button
+									type="submit"
+									colorPalette="red"
+									disabled={isPending}
+									loading={isPending}
+									loadingText={t("actions.cancelling")}
+								>
+									{t("actions.confirmCancel")}
+								</Button>
+							</Dialog.Footer>
+						</form>
+					</Dialog.Content>
+				</Dialog.Positioner>
+			</Portal>
+		</Dialog.Root>
 	);
 }

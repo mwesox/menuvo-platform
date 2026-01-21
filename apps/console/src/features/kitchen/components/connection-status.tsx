@@ -2,10 +2,10 @@
  * Connection status indicator showing online/offline state.
  */
 
-import { Tooltip, TooltipContent, TooltipTrigger } from "@menuvo/ui";
+import { Box, Icon, Text } from "@chakra-ui/react";
 import { Wifi, WifiOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useConnectionStatus } from "../hooks/use-connection-status";
 
 interface ConnectionStatusProps {
@@ -13,38 +13,37 @@ interface ConnectionStatusProps {
 	className?: string;
 }
 
-export function ConnectionStatus({ className }: ConnectionStatusProps) {
+export function ConnectionStatus(_props: ConnectionStatusProps) {
 	const { t } = useTranslation("console-kitchen");
 	const { isOnline, justReconnected } = useConnectionStatus();
 
 	return (
-		<Tooltip>
-			<TooltipTrigger asChild>
-				<div
-					className={cn(
-						"flex items-center gap-2 rounded-md px-2 py-1 text-sm",
-						isOnline
-							? "bg-green-100 text-green-700"
-							: "bg-red-100 text-red-700",
-						justReconnected && "animate-pulse",
-						className,
-					)}
-				>
-					{isOnline ? (
-						<Wifi className="size-4" />
-					) : (
-						<WifiOff className="size-4" />
-					)}
-					<span className="hidden sm:inline">
-						{isOnline ? t("connection.online") : t("connection.offline")}
-					</span>
-				</div>
-			</TooltipTrigger>
-			<TooltipContent>
-				{isOnline
+		<Tooltip
+			content={
+				isOnline
 					? t("connection.onlineTooltip")
-					: t("connection.offlineTooltip")}
-			</TooltipContent>
+					: t("connection.offlineTooltip")
+			}
+		>
+			<Box
+				display="flex"
+				alignItems="center"
+				gap="2"
+				rounded="md"
+				px="2"
+				py="1"
+				textStyle="sm"
+				bg={isOnline ? "green.100" : "red.100"}
+				color={isOnline ? "green.700" : "red.700"}
+				animation={justReconnected ? "pulse" : undefined}
+			>
+				<Icon w="4" h="4">
+					{isOnline ? <Wifi /> : <WifiOff />}
+				</Icon>
+				<Text display={{ base: "none", sm: "inline" }}>
+					{isOnline ? t("connection.online") : t("connection.offline")}
+				</Text>
+			</Box>
 		</Tooltip>
 	);
 }

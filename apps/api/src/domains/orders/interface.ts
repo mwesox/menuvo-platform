@@ -7,6 +7,7 @@
 import type { orders } from "@menuvo/db/schema";
 import type { CreateOrderInput, OrderStatusType } from "./schemas.js";
 import type {
+	DailyOrderStats,
 	DateRange,
 	ExportOrder,
 	ExportParams,
@@ -39,6 +40,13 @@ export interface IOrderService {
 		merchantId: string,
 		dateRange?: DateRange,
 	): Promise<OrderStats>;
+
+	getDailyOrderStats(
+		storeId: string,
+		merchantId: string,
+		startDate: Date,
+		endDate?: Date,
+	): Promise<DailyOrderStats[]>;
 
 	getOrdersForExport(params: ExportParams): Promise<ExportOrder[]>;
 }

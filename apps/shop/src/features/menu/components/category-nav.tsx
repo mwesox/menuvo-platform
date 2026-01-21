@@ -1,4 +1,5 @@
-import { cn } from "@menuvo/ui/lib/utils";
+import { Box, HStack } from "@chakra-ui/react";
+import { focusRingProps, ShopPillButton } from "../../shared/components/ui";
 
 interface CategoryNavProps {
 	categories: {
@@ -19,34 +20,46 @@ export function CategoryNav({
 	}
 
 	return (
-		<nav
-			className="z-40 border-border border-b bg-background"
+		<Box
+			as="nav"
+			zIndex="40"
+			borderBottomWidth="1px"
+			borderColor="border"
+			bg="bg"
 			aria-label="Menu categories"
 		>
 			{/* Category tabs */}
-			<div className="scrollbar-hide flex gap-1.5 overflow-x-auto scroll-smooth px-4 py-2">
+			<HStack
+				gap="1.5"
+				overflowX="auto"
+				scrollBehavior="smooth"
+				px="4"
+				py="2"
+				css={{
+					/* Hide scrollbar */
+					scrollbarWidth: "none",
+					"&::-webkit-scrollbar": {
+						display: "none",
+					},
+				}}
+			>
 				{categories.map((category) => {
 					const isActive = activeCategoryId === category.id;
 
 					return (
-						<button
+						<ShopPillButton
 							key={category.id}
-							type="button"
+							active={isActive}
 							onClick={() => onCategoryClick(category.id)}
-							className={cn(
-								"relative whitespace-nowrap rounded-lg px-3 py-1.5 font-medium text-sm transition-all duration-200",
-								"focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-								isActive
-									? "bg-primary text-primary-foreground shadow-sm"
-									: "text-muted-foreground hover:bg-muted hover:text-foreground",
-							)}
+							whiteSpace="nowrap"
 							aria-current={isActive ? "true" : undefined}
+							{...focusRingProps}
 						>
 							{category.name}
-						</button>
+						</ShopPillButton>
 					);
 				})}
-			</div>
-		</nav>
+			</HStack>
+		</Box>
 	);
 }

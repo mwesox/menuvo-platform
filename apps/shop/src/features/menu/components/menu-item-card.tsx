@@ -1,9 +1,24 @@
-import { cn } from "@menuvo/ui/lib/utils";
+import {
+	Box,
+	type BoxProps,
+	Center,
+	chakra,
+	Flex,
+	HStack,
+	Image,
+	Wrap,
+} from "@chakra-ui/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Plus, UtensilsCrossed } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { LuPlus, LuUtensilsCrossed } from "react-icons/lu";
 import { useTRPC } from "../../../lib/trpc";
-import { focusRing, ShopPrice } from "../../shared/components/ui";
+import {
+	focusRingProps,
+	ShopBadge,
+	ShopHeading,
+	ShopMutedText,
+	ShopPrice,
+} from "../../shared/components/ui";
 import { menuQueryDefaults, resolveMenuLanguageCode } from "../queries";
 import type { MenuItemLight } from "../types";
 
@@ -11,6 +26,9 @@ interface MenuItemCardProps {
 	item: MenuItemLight;
 	onSelect: (item: MenuItemLight) => void;
 }
+
+// Chakra-styled button element for proper type inference
+const CardButton = chakra("button");
 
 export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 	const { t, i18n } = useTranslation(["shop", "menu"]);
@@ -37,77 +55,141 @@ export function MenuItemCard({ item, onSelect }: MenuItemCardProps) {
 		}
 	};
 
+	// Responsive image sizes using CSS container queries via style prop
+	const imageStyles: BoxProps = {
+		position: "relative",
+		flexShrink: 0,
+		overflow: "hidden",
+		rounded: "lg",
+		bg: "bg.muted",
+		// Base size (mobile)
+		h: "72px",
+		w: "96px",
+		// CSS container query styles applied via css prop
+		css: {
+			"@container (min-width: 320px)": {
+				height: "84px",
+				width: "112px",
+			},
+			"@container (min-width: 448px)": {
+				height: "96px",
+				width: "128px",
+			},
+		},
+	};
+
 	return (
-		<button
+		<CardButton
 			type="button"
 			onClick={handleCardClick}
 			onPointerEnter={handlePointerEnter}
-			className={cn(
-				"group @container flex w-full @xs:gap-4 gap-3 rounded-xl bg-card @xs:p-4 p-3 text-start",
-				"border border-border shadow-sm",
-				"transition-all duration-200 ease-out",
-				"hover:-translate-y-0.5 hover:shadow-md",
-				focusRing,
-			)}
+			display="flex"
+			w="full"
+			gap={{ base: "3", sm: "4" }}
+			rounded="xl"
+			bg="bg.panel"
+			p={{ base: "3", sm: "4" }}
+			textAlign="start"
+			borderWidth="1px"
+			borderColor="border"
+			shadow="sm"
+			transition="all"
+			transitionDuration="200ms"
+			transitionTimingFunction="ease-out"
+			cursor="pointer"
+			containerType="inline-size"
+			_hover={{
+				transform: "translateY(-2px)",
+				shadow: "md",
+			}}
+			{...focusRingProps}
 		>
-			{/* Image - 4:3 ratio for better food photography, responsive via container queries */}
-			<div className="relative @md:h-24 @xs:h-[5.25rem] h-[4.5rem] @md:w-32 @xs:w-28 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
+			{/* Image - 4:3 ratio for better food photography */}
+			<Box {...imageStyles}>
 				{item.imageUrl ? (
-					<img
+					<Image
 						src={item.imageUrl}
 						alt={item.name}
-						className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+						h="full"
+						w="full"
+						objectFit="cover"
+						transition="transform"
+						transitionDuration="300ms"
+						css={{
+							"button:hover &": {
+								transform: "scale(1.05)",
+							},
+						}}
 					/>
 				) : (
-					<div className="absolute inset-0 flex items-center justify-center">
-						<UtensilsCrossed className="size-7 text-muted-foreground/20" />
-					</div>
+					<Center position="absolute" inset="0">
+						<Box as={LuUtensilsCrossed} boxSize="7" color="fg.subtle" />
+					</Center>
 				)}
-			</div>
+			</Box>
 
 			{/* Content - clear hierarchy */}
-			<div className="flex min-w-0 flex-1 flex-col">
+			<Flex minW="0" flex="1" direction="column">
 				{/* Row 1: Name (MOST PROMINENT - larger and bolder) */}
-				<h3 className="font-semibold @md:text-xl text-foreground text-lg leading-snug">
+				<ShopHeading
+					as="h3"
+					size="md"
+					lineHeight="snug"
+					css={{
+						"@container (min-width: 448px)": {
+							fontSize: "var(--font-sizes-xl)",
+						},
+					}}
+				>
 					{item.name}
-				</h3>
+				</ShopHeading>
 
 				{/* Row 2: Description (if exists) */}
 				{item.description && (
-					<p className="mt-1 line-clamp-2 text-muted-foreground text-sm">
+					<ShopMutedText mt="1" lineClamp={2} textStyle="sm">
 						{item.description}
-					</p>
+					</ShopMutedText>
 				)}
 
 				{/* Row 3: Allergens (subtle badges) */}
 				{item.allergens && item.allergens.length > 0 && (
-					<div className="mt-2 flex flex-wrap gap-1">
+					<Wrap mt="2" gap="1">
 						{item.allergens.map((allergen: string) => (
-							<span
-								key={allergen}
-								className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground text-xs"
-							>
+							<ShopBadge key={allergen} variant="allergen" size="sm">
 								{String(t(`menu:allergens.${allergen}`, allergen))}
-							</span>
+							</ShopBadge>
 						))}
-					</div>
+					</Wrap>
 				)}
 
 				{/* Spacer */}
-				<div className="flex-1" />
+				<Box flex="1" />
 
 				{/* Row 4: Price + Action */}
-				<div className="mt-3 flex items-center justify-between">
-					<ShopPrice cents={item.price} size="lg" className="text-foreground" />
+				<HStack mt="3" justify="space-between">
+					<ShopPrice cents={item.price} size="lg" />
 
-					<span
+					<Center
 						aria-hidden="true"
-						className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all duration-150 group-hover:scale-105 group-active:scale-95"
+						boxSize="10"
+						rounded="full"
+						bg="teal.solid"
+						color="teal.contrast"
+						transition="transform"
+						transitionDuration="150ms"
+						css={{
+							"button:hover &": {
+								transform: "scale(1.05)",
+							},
+							"button:active &": {
+								transform: "scale(0.95)",
+							},
+						}}
 					>
-						<Plus className="size-5" strokeWidth={2.5} />
-					</span>
-				</div>
-			</div>
-		</button>
+						<Box as={LuPlus} boxSize="5" strokeWidth={2.5} />
+					</Center>
+				</HStack>
+			</Flex>
+		</CardButton>
 	);
 }

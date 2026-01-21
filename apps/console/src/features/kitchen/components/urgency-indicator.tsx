@@ -2,8 +2,8 @@
  * Urgency indicator badge showing elapsed time with color coding.
  */
 
+import { Badge, Box, Text } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
 import { useUrgency } from "../hooks/use-urgency";
 import { getUrgencyBgColor, getUrgencyTextColor } from "../logic/urgency";
 
@@ -18,10 +18,16 @@ interface UrgencyIndicatorProps {
 	className?: string;
 }
 
-const sizeClasses = {
-	sm: "text-xs px-1.5 py-0.5",
-	md: "text-sm px-2 py-1",
-	lg: "text-base px-3 py-1.5 font-medium",
+const sizeProps = {
+	sm: { textStyle: "xs", px: "1.5", py: "0.5" },
+	md: { textStyle: "sm", px: "2", py: "1" },
+	lg: { textStyle: "base", px: "3", py: "1.5", fontWeight: "medium" },
+};
+
+const levelColors = {
+	critical: { bg: "red.100", color: "red.700" },
+	warning: { bg: "yellow.100", color: "yellow.700" },
+	normal: { bg: "green.100", color: "green.700" },
 };
 
 export function UrgencyIndicator({
@@ -40,30 +46,29 @@ export function UrgencyIndicator({
 			: t(`time.${timeData.type}`, { count: timeData.count });
 
 	if (variant === "text") {
+		const textColor = getUrgencyTextColor(level);
 		return (
-			<span
-				className={cn(getUrgencyTextColor(level), "font-medium", className)}
-			>
+			<Text fontWeight="medium" className={className} color={textColor}>
 				{elapsed}
-			</span>
+			</Text>
 		);
 	}
 
+	const sizeStyle = sizeProps[size];
+	const colors = levelColors[level];
+
 	return (
-		<span
-			className={cn(
-				"inline-flex items-center rounded-md font-mono",
-				sizeClasses[size],
-				level === "critical" && "bg-red-100 text-red-700",
-				level === "warning" && "bg-yellow-100 text-yellow-700",
-				level === "normal" && "bg-green-100 text-green-700",
-				className,
-			)}
+		<Badge
+			display="inline-flex"
+			alignItems="center"
+			rounded="md"
+			fontFamily="mono"
+			{...sizeStyle}
+			{...colors}
+			className={className}
 		>
-			<span
-				className={cn("me-1.5 size-2 rounded-full", getUrgencyBgColor(level))}
-			/>
+			<Box w="2" h="2" me="1.5" rounded="full" bg={getUrgencyBgColor(level)} />
 			{elapsed}
-		</span>
+		</Badge>
 	);
 }

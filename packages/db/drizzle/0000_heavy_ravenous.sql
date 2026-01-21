@@ -69,6 +69,13 @@ CREATE TABLE "merchants" (
 	"owner_name" varchar(255) NOT NULL,
 	"email" varchar(255) NOT NULL,
 	"phone" varchar(50),
+	"legal_form" varchar(50),
+	"legal_form_other" varchar(100),
+	"company_name" varchar(255),
+	"representative_name" varchar(255),
+	"register_court" varchar(100),
+	"register_number" varchar(50),
+	"vat_id" varchar(30),
 	"supported_languages" text[] DEFAULT ARRAY
         ['de']::text[] NOT NULL,
 	"payment_account_id" text,
@@ -238,30 +245,9 @@ CREATE TABLE "service_points" (
 	CONSTRAINT "unq_service_points_store_code" UNIQUE("store_id","code")
 );
 --> statement-breakpoint
-CREATE TABLE "store_closures" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"store_id" uuid NOT NULL,
-	"start_date" varchar(10) NOT NULL,
-	"end_date" varchar(10) NOT NULL,
-	"reason" varchar(255),
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "store_counters" (
 	"store_id" uuid PRIMARY KEY NOT NULL,
 	"pickup_number" integer DEFAULT 0 NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "store_hours" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"store_id" uuid NOT NULL,
-	"day_of_week" text NOT NULL,
-	"open_time" varchar(5) NOT NULL,
-	"close_time" varchar(5) NOT NULL,
-	"display_order" integer DEFAULT 0 NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -269,6 +255,8 @@ CREATE TABLE "store_settings" (
 	"store_id" uuid PRIMARY KEY NOT NULL,
 	"order_types" jsonb,
 	"ai_recommendations" jsonb,
+	"hours" jsonb,
+	"closures" jsonb,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -345,9 +333,7 @@ ALTER TABLE "orders" ADD CONSTRAINT "orders_store_id_stores_id_fk" FOREIGN KEY (
 ALTER TABLE "orders" ADD CONSTRAINT "orders_merchant_id_merchants_id_fk" FOREIGN KEY ("merchant_id") REFERENCES "public"."merchants"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "orders_service_point_id_service_points_id_fk" FOREIGN KEY ("service_point_id") REFERENCES "public"."service_points"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "service_points" ADD CONSTRAINT "service_points_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "store_closures" ADD CONSTRAINT "store_closures_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "store_counters" ADD CONSTRAINT "store_counters_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "store_hours" ADD CONSTRAINT "store_hours_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "store_settings" ADD CONSTRAINT "store_settings_store_id_stores_id_fk" FOREIGN KEY ("store_id") REFERENCES "public"."stores"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "stores" ADD CONSTRAINT "stores_merchant_id_merchants_id_fk" FOREIGN KEY ("merchant_id") REFERENCES "public"."merchants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "vat_groups" ADD CONSTRAINT "vat_groups_merchant_id_merchants_id_fk" FOREIGN KEY ("merchant_id") REFERENCES "public"."merchants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -377,8 +363,6 @@ CREATE INDEX "idx_orders_store_status_created" ON "orders" USING btree ("store_i
 CREATE INDEX "idx_orders_store_created_at" ON "orders" USING btree ("store_id","created_at");--> statement-breakpoint
 CREATE INDEX "idx_service_points_store" ON "service_points" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "idx_service_points_zone" ON "service_points" USING btree ("store_id","zone");--> statement-breakpoint
-CREATE INDEX "idx_store_closures_store" ON "store_closures" USING btree ("store_id");--> statement-breakpoint
-CREATE INDEX "idx_store_hours_store" ON "store_hours" USING btree ("store_id");--> statement-breakpoint
 CREATE INDEX "idx_stripe_events_type" ON "stripe_events" USING btree ("event_type");--> statement-breakpoint
 CREATE INDEX "idx_stripe_events_status" ON "stripe_events" USING btree ("processing_status");--> statement-breakpoint
 CREATE INDEX "idx_stripe_events_account" ON "stripe_events" USING btree ("stripe_account_id");--> statement-breakpoint

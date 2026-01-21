@@ -1,10 +1,17 @@
-import { Button } from "@menuvo/ui";
+import {
+	Box,
+	Button,
+	FileUpload,
+	Icon,
+	Image,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { CropIcon, ImageIcon, Trash2Icon, UploadIcon } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useTRPCClient } from "@/lib/trpc";
-import { cn } from "@/lib/utils.ts";
 import type { ImageType } from "../constants.ts";
 import { getAspectRatioClassForImageType } from "../utils/crop-presets.ts";
 import { resizeCroppedImage } from "../utils/resize-image.ts";
@@ -29,31 +36,35 @@ export function ImageUploadField({
 	disabled = false,
 }: ImageUploadFieldProps) {
 	const { t } = useTranslation("common");
-	const inputRef = useRef<HTMLInputElement>(null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [cropperOpen, setCropperOpen] = useState(false);
 	const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 	const [currentImageId, setCurrentImageId] = useState<string | null>(null);
 	const trpcClient = useTRPCClient();
 
-	const handleFileSelect = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			const file = e.target.files?.[0];
-			if (!file) return;
+	const handleFileChange = useCallback(
+		(
+			details: Parameters<
+				NonNullable<
+					React.ComponentProps<typeof FileUpload.Root>["onFileChange"]
+				>
+			>[0],
+		) => {
+			if (details.acceptedFiles.length > 0) {
+				const file = details.acceptedFiles[0];
+				if (!file) return;
 
-			// Validate file type
-			if (!file.type.startsWith("image/")) {
-				toast.error(t("toasts.pleaseSelectImage"));
-				return;
+				// Validate file type (FileUpload should handle this, but double-check)
+				if (!file.type.startsWith("image/")) {
+					toast.error(t("toasts.pleaseSelectImage"));
+					return;
+				}
+
+				// Create preview URL and open cropper
+				const url = URL.createObjectURL(file);
+				setPreviewSrc(url);
+				setCropperOpen(true);
 			}
-
-			// Create preview URL and open cropper
-			const url = URL.createObjectURL(file);
-			setPreviewSrc(url);
-			setCropperOpen(true);
-
-			// Reset input so same file can be selected again
-			e.target.value = "";
 		},
 		[t],
 	);
@@ -91,6 +102,7 @@ export function ImageUploadField({
 					URL.revokeObjectURL(previewSrc);
 					setPreviewSrc(null);
 				}
+				setCropperOpen(false);
 			}
 		},
 		[merchantId, imageType, onChange, previewSrc, t, trpcClient],
@@ -119,87 +131,124 @@ export function ImageUploadField({
 	const aspectClass = getAspectRatioClassForImageType(imageType);
 
 	return (
-		<div className={cn("space-y-2", className)}>
-			<input
-				ref={inputRef}
-				type="file"
-				accept="image/*"
-				onChange={handleFileSelect}
-				className="sr-only"
-				disabled={disabled || isUploading}
-			/>
+		<FileUpload.Root
+			maxFiles={1}
+			accept="image/*"
+			onFileChange={handleFileChange}
+			disabled={disabled || isUploading}
+		>
+			<FileUpload.HiddenInput />
+			<VStack gap="2" align="stretch" className={className}>
+				{value ? (
+					<Box position="relative" maxW="xs" role="group">
+						<Image
+							src={value}
+							alt={t("images.preview")}
+							w="full"
+							maxW="xs"
+							rounded="lg"
+							borderWidth="1px"
+							objectFit="cover"
+							className={aspectClass}
+						/>
+						<Box
+							position="absolute"
+							inset="0"
+							display="flex"
+							alignItems="center"
+							justifyContent="center"
+							gap="2"
+							rounded="lg"
+							bg="black/50"
+							opacity="0"
+							transition="opacity"
+							_groupHover={{ opacity: 1 }}
+						>
+							<FileUpload.Trigger asChild>
+								<Button
+									type="button"
+									size="sm"
+									variant="subtle"
+									disabled={disabled || isUploading}
+								>
+									<Icon w="4" h="4">
+										<CropIcon />
+									</Icon>
+								</Button>
+							</FileUpload.Trigger>
+							<Button
+								type="button"
+								size="sm"
+								variant="subtle"
+								colorPalette="red"
+								onClick={handleRemove}
+								disabled={disabled || isUploading}
+							>
+								<Icon w="4" h="4">
+									<Trash2Icon />
+								</Icon>
+							</Button>
+						</Box>
+					</Box>
+				) : (
+					<FileUpload.Trigger asChild>
+						<Button
+							type="button"
+							disabled={disabled || isUploading}
+							display="flex"
+							w="full"
+							maxW="xs"
+							flexDirection="column"
+							alignItems="center"
+							justifyContent="center"
+							gap="2"
+							rounded="lg"
+							borderWidth="2px"
+							borderStyle="dashed"
+							color="fg.muted"
+							transition="colors"
+							_hover={{ borderColor: "primary", color: "primary" }}
+							_disabled={{ cursor: "not-allowed", opacity: 0.5 }}
+							className={aspectClass}
+							variant="ghost"
+							h="auto"
+							py="8"
+						>
+							{isUploading ? (
+								<>
+									<Icon w="8" h="8" animation="pulse">
+										<UploadIcon />
+									</Icon>
+									<Text textStyle="sm">{t("images.uploading")}</Text>
+								</>
+							) : (
+								<>
+									<Icon w="8" h="8">
+										<ImageIcon />
+									</Icon>
+									<Text textStyle="sm">{t("images.clickToUpload")}</Text>
+								</>
+							)}
+						</Button>
+					</FileUpload.Trigger>
+				)}
 
-			{value ? (
-				<div className="group relative max-w-xs">
-					<img
-						src={value}
-						alt={t("images.preview")}
-						className={cn(
-							"w-full max-w-xs rounded-lg border object-cover",
-							aspectClass,
-						)}
+				{previewSrc && (
+					<ImageCropper
+						open={cropperOpen}
+						onOpenChange={(open) => {
+							setCropperOpen(open);
+							if (!open && previewSrc) {
+								URL.revokeObjectURL(previewSrc);
+								setPreviewSrc(null);
+							}
+						}}
+						imageSrc={previewSrc}
+						imageType={imageType}
+						onCropComplete={handleCropComplete}
 					/>
-					<div className="absolute inset-0 flex items-center justify-center gap-2 rounded-lg bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-						<Button
-							type="button"
-							size="icon"
-							variant="secondary"
-							onClick={() => inputRef.current?.click()}
-							disabled={disabled || isUploading}
-						>
-							<CropIcon className="size-4" />
-						</Button>
-						<Button
-							type="button"
-							size="icon"
-							variant="destructive"
-							onClick={handleRemove}
-							disabled={disabled || isUploading}
-						>
-							<Trash2Icon className="size-4" />
-						</Button>
-					</div>
-				</div>
-			) : (
-				<button
-					type="button"
-					onClick={() => inputRef.current?.click()}
-					disabled={disabled || isUploading}
-					className={cn(
-						"flex w-full max-w-xs flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed text-muted-foreground transition-colors hover:border-primary hover:text-primary",
-						aspectClass,
-						(disabled || isUploading) && "cursor-not-allowed opacity-50",
-					)}
-				>
-					{isUploading ? (
-						<>
-							<UploadIcon className="size-8 animate-pulse" />
-							<span className="text-sm">{t("images.uploading")}</span>
-						</>
-					) : (
-						<>
-							<ImageIcon className="size-8" />
-							<span className="text-sm">{t("images.clickToUpload")}</span>
-						</>
-					)}
-				</button>
-			)}
-
-			{previewSrc && (
-				<ImageCropper
-					open={cropperOpen}
-					onOpenChange={(open) => {
-						setCropperOpen(open);
-						if (!open && previewSrc) {
-							URL.revokeObjectURL(previewSrc);
-							setPreviewSrc(null);
-						}
-					}}
-					imageSrc={previewSrc}
-					imageType={imageType}
-					onCropComplete={handleCropComplete}
-				/>
-			)}
-		</div>
+				)}
+			</VStack>
+		</FileUpload.Root>
 	);
 }

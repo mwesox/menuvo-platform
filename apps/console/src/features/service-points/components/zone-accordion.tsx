@@ -1,12 +1,15 @@
 import {
 	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
+	Box,
 	Button,
-} from "@menuvo/ui";
+	HStack,
+	Icon,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { CheckCircle, XCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Label } from "@/components/ui/typography";
 import type { ServicePoint } from "../types";
 import type { ZoneGroup } from "../utils/group-by-zone";
 import { getZoneDisplayName, isUnassignedZone } from "../utils/group-by-zone";
@@ -38,78 +41,101 @@ export function ZoneAccordion({
 	const defaultExpanded = zoneGroups.map((g) => g.zone);
 
 	return (
-		<Accordion
-			type="multiple"
-			defaultValue={defaultExpanded}
-			className="space-y-3"
-		>
-			{zoneGroups.map((group) => {
-				const displayName = getZoneDisplayName(
-					group.zone,
-					t("zones.unassigned"),
-				);
-				const isUnassigned = isUnassignedZone(group.zone);
+		<VStack gap="3" align="stretch">
+			<Accordion.Root multiple defaultValue={defaultExpanded}>
+				{zoneGroups.map((group) => {
+					const displayName = getZoneDisplayName(
+						group.zone,
+						t("zones.unassigned"),
+					);
+					const isUnassigned = isUnassignedZone(group.zone);
 
-				return (
-					<AccordionItem
-						key={group.zone}
-						value={group.zone}
-						className="rounded-lg border bg-card"
-					>
-						<div className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3">
-							<AccordionTrigger className="flex-1 hover:no-underline [&[data-state=open]>svg]:rotate-180">
-								<div className="flex items-center gap-2">
-									<span className="font-medium">{displayName}</span>
-									<span className="text-muted-foreground text-xs sm:text-sm">
-										{t("zones.activeCount", {
-											active: group.activeCount,
-											total: group.totalCount,
-										})}
-									</span>
-								</div>
-							</AccordionTrigger>
+					return (
+						<Accordion.Item key={group.zone} value={group.zone}>
+							<Box rounded="lg" borderWidth="1px" bg="card">
+								<HStack
+									gap="2"
+									align="center"
+									px={{ base: "3", sm: "4" }}
+									py={{ base: "2", sm: "3" }}
+								>
+									<Accordion.ItemTrigger
+										flex="1"
+										_hover={{ textDecoration: "none" }}
+									>
+										<HStack gap="2" align="center" flex="1">
+											<Label>{displayName}</Label>
+											<Text
+												color="fg.muted"
+												textStyle={{ base: "xs", sm: "sm" }}
+											>
+												{t("zones.activeCount", {
+													active: group.activeCount,
+													total: group.totalCount,
+												})}
+											</Text>
+										</HStack>
+										<Accordion.ItemIndicator />
+									</Accordion.ItemTrigger>
 
-							{/* Actions OUTSIDE trigger to avoid nested buttons */}
-							{!isUnassigned && (
-								<div className="flex items-center gap-1">
-									<Button
-										variant="ghost"
-										size="icon"
-										onClick={() => onActivateZone(group.zone)}
-										disabled={
-											isZoneTogglePending ||
-											group.activeCount === group.totalCount
-										}
-										className="size-7"
-										title={t("zones.activateAll")}
+									{/* Actions OUTSIDE trigger to avoid nested buttons */}
+									{!isUnassigned && (
+										<HStack gap="1" align="center">
+											<Button
+												variant="ghost"
+												size="sm"
+												w="7"
+												h="7"
+												p="0"
+												onClick={() => onActivateZone(group.zone)}
+												disabled={
+													isZoneTogglePending ||
+													group.activeCount === group.totalCount
+												}
+												title={t("zones.activateAll")}
+											>
+												<Icon w="4" h="4">
+													<CheckCircle />
+												</Icon>
+											</Button>
+											<Button
+												variant="ghost"
+												size="sm"
+												w="7"
+												h="7"
+												p="0"
+												onClick={() => onDeactivateZone(group.zone)}
+												disabled={
+													isZoneTogglePending || group.activeCount === 0
+												}
+												title={t("zones.deactivateAll")}
+											>
+												<Icon w="4" h="4">
+													<XCircle />
+												</Icon>
+											</Button>
+										</HStack>
+									)}
+								</HStack>
+								<Accordion.ItemContent>
+									<Accordion.ItemBody
+										px={{ base: "3", sm: "4" }}
+										pb={{ base: "3", sm: "4" }}
 									>
-										<CheckCircle className="size-4" />
-									</Button>
-									<Button
-										variant="ghost"
-										size="icon"
-										onClick={() => onDeactivateZone(group.zone)}
-										disabled={isZoneTogglePending || group.activeCount === 0}
-										className="size-7"
-										title={t("zones.deactivateAll")}
-									>
-										<XCircle className="size-4" />
-									</Button>
-								</div>
-							)}
-						</div>
-						<AccordionContent className="px-3 pb-3 sm:px-4 sm:pb-4">
-							<ServicePointGrid
-								servicePoints={group.servicePoints}
-								onEdit={onEdit}
-								onViewQR={onViewQR}
-								onToggleActive={onToggleActive}
-								onDelete={onDelete}
-							/>
-						</AccordionContent>
-					</AccordionItem>
-				);
-			})}
-		</Accordion>
+										<ServicePointGrid
+											servicePoints={group.servicePoints}
+											onEdit={onEdit}
+											onViewQR={onViewQR}
+											onToggleActive={onToggleActive}
+											onDelete={onDelete}
+										/>
+									</Accordion.ItemBody>
+								</Accordion.ItemContent>
+							</Box>
+						</Accordion.Item>
+					);
+				})}
+			</Accordion.Root>
+		</VStack>
 	);
 }

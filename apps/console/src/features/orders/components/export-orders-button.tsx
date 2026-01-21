@@ -1,4 +1,4 @@
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@menuvo/ui";
+import { IconButton, Portal, Tooltip } from "@chakra-ui/react";
 import { Download, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -81,24 +81,27 @@ export function ExportOrdersButton({
 	};
 
 	return (
-		<Tooltip>
-			<TooltipTrigger asChild>
-				<Button
+		<Tooltip.Root>
+			<Tooltip.Trigger asChild>
+				<IconButton
 					variant="outline"
-					size="icon"
+					size="sm"
 					onClick={handleExport}
 					disabled={isExporting}
+					aria-label={t("export.tooltip")}
 				>
 					{isExporting ? (
-						<Loader2 className="size-4 animate-spin" />
+						<Loader2 style={{ height: "1rem", width: "1rem" }} />
 					) : (
-						<Download className="size-4" />
+						<Download style={{ height: "1rem", width: "1rem" }} />
 					)}
-				</Button>
-			</TooltipTrigger>
-			<TooltipContent>
-				<p>{t("export.tooltip")}</p>
-			</TooltipContent>
-		</Tooltip>
+				</IconButton>
+			</Tooltip.Trigger>
+			<Portal>
+				<Tooltip.Positioner>
+					<Tooltip.Content>{t("export.tooltip")}</Tooltip.Content>
+				</Tooltip.Positioner>
+			</Portal>
+		</Tooltip.Root>
 	);
 }

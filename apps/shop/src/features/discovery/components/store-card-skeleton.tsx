@@ -1,35 +1,50 @@
-import { Skeleton } from "@menuvo/ui/components/skeleton";
+import {
+	Box,
+	HStack,
+	SimpleGrid,
+	Skeleton,
+	SkeletonCircle,
+} from "@chakra-ui/react";
 
 export function StoreCardSkeleton() {
 	return (
-		<div className="overflow-hidden rounded-xl bg-card ring-1 ring-border/50">
+		<Box
+			overflow="hidden"
+			rounded="xl"
+			bg="bg.panel"
+			borderWidth="1px"
+			borderColor="border.muted"
+		>
 			{/* Image skeleton - 16:10 aspect ratio to match card */}
-			<Skeleton className="aspect-[16/10] rounded-none bg-muted" />
+			<Skeleton aspectRatio="16 / 10" rounded="none" />
 
 			{/* Content */}
-			<div className="p-4 sm:p-5">
+			<Box p={{ base: "4", sm: "5" }}>
 				{/* Store name skeleton */}
-				<Skeleton className="h-6 w-3/4 bg-muted" />
+				<Skeleton height="6" width="75%" />
 
 				{/* Address skeleton */}
-				<div className="mt-2 flex items-center gap-1.5">
-					<Skeleton className="h-3.5 w-3.5 rounded-full bg-muted" />
-					<Skeleton className="size-40 bg-muted" />
-				</div>
-			</div>
-		</div>
+				<HStack mt="2" gap="1.5">
+					<SkeletonCircle size="3.5" />
+					<Skeleton height="4" width="40" />
+				</HStack>
+			</Box>
+		</Box>
 	);
 }
 
 export function StoreCardSkeletonGrid() {
 	return (
-		<div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-7">
+		<SimpleGrid
+			columns={{ base: 1, sm: 2, lg: 3 }}
+			gap={{ base: "5", sm: "6", lg: "7" }}
+		>
 			<StoreCardSkeleton />
 			<StoreCardSkeleton />
 			<StoreCardSkeleton />
 			<StoreCardSkeleton />
 			<StoreCardSkeleton />
 			<StoreCardSkeleton />
-		</div>
+		</SimpleGrid>
 	);
 }

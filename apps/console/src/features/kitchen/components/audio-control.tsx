@@ -2,10 +2,10 @@
  * Audio control button for muting/unmuting order notifications.
  */
 
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@menuvo/ui";
+import { Box, Button, HStack, Text } from "@chakra-ui/react";
 import { Volume2, VolumeX } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useKitchenPreferences } from "../stores/kitchen-preferences";
 
 interface AudioControlProps {
@@ -42,27 +42,28 @@ export function AudioControl({
 	};
 
 	return (
-		<Tooltip>
-			<TooltipTrigger asChild>
-				<Button
-					variant={audioMuted ? "outline" : "secondary"}
-					size="sm"
-					onClick={handleClick}
-					className={cn("gap-2", className)}
-				>
+		<Tooltip
+			content={audioMuted ? t("audio.clickToUnmute") : t("audio.clickToMute")}
+		>
+			<Button
+				variant={audioMuted ? "outline" : "subtle"}
+				size="sm"
+				onClick={handleClick}
+				className={className}
+			>
+				<HStack gap="2">
 					{audioMuted ? (
-						<VolumeX className="size-4 text-muted-foreground" />
+						<Box color="fg.muted">
+							<VolumeX size={16} />
+						</Box>
 					) : (
-						<Volume2 className="size-4" />
+						<Volume2 size={16} />
 					)}
-					<span className="hidden sm:inline">
+					<Text display={{ base: "none", sm: "inline" }}>
 						{audioMuted ? t("audio.muted") : t("audio.unmuted")}
-					</span>
-				</Button>
-			</TooltipTrigger>
-			<TooltipContent>
-				{audioMuted ? t("audio.clickToUnmute") : t("audio.clickToMute")}
-			</TooltipContent>
+					</Text>
+				</HStack>
+			</Button>
 		</Tooltip>
 	);
 }

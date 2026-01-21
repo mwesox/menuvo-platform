@@ -12,6 +12,15 @@ export interface CreateMerchantInput {
 	ownerName: string;
 	email: string;
 	phone?: string;
+	// Legal entity fields (for German businesses)
+	legalForm?: string;
+	legalFormOther?: string;
+	companyName?: string;
+	representativeName?: string;
+	registerCourt?: string;
+	registerNumber?: string;
+	vatId?: string | null;
+	// Other fields
 	supportedLanguages?: string[];
 	subscriptionStatus?: string;
 	subscriptionTrialEndsAt?: Date;

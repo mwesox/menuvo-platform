@@ -108,5 +108,31 @@
 		"codeRequired": "Code ist erforderlich",
 		"codeFormat": "Code darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten",
 		"nameRequired": "Name ist erforderlich"
+	},
+	"companyName": {
+		"min": "Firmenname muss mindestens 2 Zeichen lang sein",
+		"max": "Firmenname darf maximal 255 Zeichen lang sein"
+	},
+	"representativeName": {
+		"min": "Vertretername muss mindestens 2 Zeichen lang sein",
+		"max": "Vertretername darf maximal 255 Zeichen lang sein"
+	},
+	"legalFormOther": {
+		"min": "Rechtsform muss mindestens 2 Zeichen lang sein",
+		"max": "Rechtsform darf maximal 100 Zeichen lang sein",
+		"required": "Bitte geben Sie die Rechtsform an"
+	},
+	"registerCourt": {
+		"min": "Registergericht muss mindestens 2 Zeichen lang sein",
+		"max": "Registergericht darf maximal 100 Zeichen lang sein",
+		"required": "Registergericht ist erforderlich"
+	},
+	"registerNumber": {
+		"min": "Registernummer muss mindestens 2 Zeichen lang sein",
+		"max": "Registernummer darf maximal 50 Zeichen lang sein",
+		"required": "Registernummer ist erforderlich"
+	},
+	"vatId": {
+		"format": "Umsatzsteuer-ID muss im Format DE gefolgt von 9 Ziffern sein (z.B. DE123456789)"
 	}
 }

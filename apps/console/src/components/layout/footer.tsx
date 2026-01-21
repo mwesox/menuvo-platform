@@ -1,9 +1,10 @@
-import { Separator } from "@menuvo/ui";
+import { Link as ChakraLink, Stack, Text } from "@chakra-ui/react";
+import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
 const footerLinks = [
-	{ href: "/legal/impressum", labelKey: "impressum" },
-	{ href: "/legal/privacy", labelKey: "privacyPolicy" },
+	{ to: "/legal/impressum", labelKey: "impressum" },
+	{ to: "/legal/privacy", labelKey: "privacyPolicy" },
 ] as const;
 
 export function Footer() {
@@ -11,40 +12,42 @@ export function Footer() {
 	const currentYear = new Date().getFullYear();
 
 	return (
-		<footer className="mt-auto border-border border-t bg-background">
-			<div className="px-4 py-6 lg:px-6">
-				<nav
-					aria-label={t("footer.dataProtection")}
-					className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm"
-				>
-					{footerLinks.map((link) => (
-						<a
-							key={link.href}
-							href={link.href}
-							className="text-muted-foreground transition-colors hover:text-foreground"
-						>
-							{t(`footer.${link.labelKey}`)}
-						</a>
-					))}
-				</nav>
+		<Stack
+			as="footer"
+			gap="4"
+			align="center"
+			mt="auto"
+			borderTopWidth="1px"
+			bg="bg"
+			px={{ base: "4", lg: "6" }}
+			py="6"
+		>
+			<Stack
+				as="nav"
+				aria-label={t("footer.dataProtection")}
+				direction="row"
+				flexWrap="wrap"
+				align="center"
+				justify="center"
+				gapX="6"
+				gapY="2"
+				textStyle="sm"
+			>
+				{footerLinks.map((link) => (
+					<ChakraLink
+						key={link.to}
+						asChild
+						color="fg.muted"
+						_hover={{ color: "fg" }}
+					>
+						<Link to={link.to}>{t(`footer.${link.labelKey}`)}</Link>
+					</ChakraLink>
+				))}
+			</Stack>
 
-				<Separator className="my-4" />
-
-				<div className="flex flex-col items-center gap-2 text-center text-muted-foreground text-xs">
-					<p>
-						{t("footer.dpoContact")}:{" "}
-						<a
-							href={`mailto:${t("dpo.email")}`}
-							className="underline hover:text-foreground"
-						>
-							{t("dpo.email")}
-						</a>
-					</p>
-					<p>
-						&copy; {currentYear} Menuvo. {t("footer.allRightsReserved")}
-					</p>
-				</div>
-			</div>
-		</footer>
+			<Text color="fg.muted" textStyle="xs">
+				&copy; {currentYear} Menuvo. {t("footer.allRightsReserved")}
+			</Text>
+		</Stack>
 	);
 }

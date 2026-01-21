@@ -1,13 +1,7 @@
-import { Button } from "@menuvo/ui/components/button";
-import {
-	Card,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "@menuvo/ui/components/card";
+import { Box, Card, HStack } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { useCookieConsentOptional } from "../contexts/cookie-consent-context";
+import { ShopButton, ShopHeading, ShopMutedText } from "./ui";
 
 export function CookieBanner() {
 	const { t } = useTranslation("legal");
@@ -24,40 +18,38 @@ export function CookieBanner() {
 	}
 
 	return (
-		<div className="slide-in-from-bottom fixed bottom-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 animate-in duration-300">
-			<Card
-				className="gap-4 py-4"
-				style={{
-					backgroundColor: "var(--card)",
-					borderColor: "var(--border)",
-				}}
-			>
-				<CardHeader className="gap-1 pb-0">
-					<CardTitle className="font-semibold text-base">
-						{t("cookie.bannerTitle")}
-					</CardTitle>
-					<CardDescription>{t("cookie.bannerDescription")}</CardDescription>
-				</CardHeader>
-				<CardFooter className="flex gap-3 pt-0">
-					<Button
-						variant="outline"
-						className="flex-1"
-						onClick={rejectNonEssential}
-					>
-						{t("cookie.essentialOnly")}
-					</Button>
-					<Button
-						className="flex-1"
-						onClick={acceptAll}
-						style={{
-							backgroundColor: "var(--primary)",
-							color: "var(--primary-foreground)",
-						}}
-					>
-						{t("cookie.acceptAll")}
-					</Button>
-				</CardFooter>
-			</Card>
-		</div>
+		<Box
+			position="fixed"
+			bottom="4"
+			left="50%"
+			transform="translateX(-50%)"
+			zIndex="50"
+			w="calc(100% - 2rem)"
+			maxW="md"
+			animation="slide-from-bottom 0.3s ease-out"
+		>
+			<Card.Root bg="bg.panel" borderColor="border" borderWidth="1px" py="4">
+				<Card.Header gap="1" pb="0">
+					<ShopHeading size="sm">{t("cookie.bannerTitle")}</ShopHeading>
+					<ShopMutedText textStyle="sm">
+						{t("cookie.bannerDescription")}
+					</ShopMutedText>
+				</Card.Header>
+				<Card.Footer pt="4">
+					<HStack gap="3" w="full">
+						<ShopButton
+							variant="secondary"
+							flex="1"
+							onClick={rejectNonEssential}
+						>
+							{t("cookie.essentialOnly")}
+						</ShopButton>
+						<ShopButton variant="primary" flex="1" onClick={acceptAll}>
+							{t("cookie.acceptAll")}
+						</ShopButton>
+					</HStack>
+				</Card.Footer>
+			</Card.Root>
+		</Box>
 	);
 }

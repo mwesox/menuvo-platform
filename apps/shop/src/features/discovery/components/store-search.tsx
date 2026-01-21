@@ -1,6 +1,14 @@
-import { cn } from "@menuvo/ui/lib/utils";
-import { Search, X } from "lucide-react";
+import {
+	Box,
+	CloseButton,
+	Flex,
+	Input,
+	InputGroup,
+	VStack,
+} from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
+import { LuSearch } from "react-icons/lu";
+import { ShopPillButton } from "../../shared/components/ui";
 
 interface StoreSearchProps {
 	cities: string[];
@@ -21,63 +29,84 @@ export function StoreSearch({
 	const cityOptions = ["all", ...cities];
 
 	return (
-		<div className="space-y-4">
+		<VStack gap="4">
 			{/* Search input - elevated, prominent */}
-			<div className="relative">
-				<Search className="pointer-events-none absolute start-5 top-1/2 size-5 -translate-y-1/2 text-muted-foreground/60" />
-				<input
-					type="text"
+			<InputGroup
+				w="full"
+				startElement={
+					<Box as={LuSearch} boxSize="5" color="fg.muted" opacity={0.6} />
+				}
+				endElement={
+					searchQuery ? (
+						<CloseButton
+							size="sm"
+							onClick={() => onSearchChange("")}
+							aria-label={t("search.clearSearch")}
+							me="-1"
+						/>
+					) : undefined
+				}
+			>
+				<Input
+					h="14"
+					rounded="xl"
+					bg="bg.panel"
+					ps="14"
+					pe="12"
+					fontSize="md"
+					color="fg"
+					placeholder={t("search.placeholder")}
 					value={searchQuery}
 					onChange={(e) => onSearchChange(e.target.value)}
-					placeholder={t("search.placeholder")}
-					className={cn(
-						"h-14 w-full rounded-xl",
-						"bg-card ps-14 pe-12",
-						"text-base text-foreground",
-						"placeholder:text-muted-foreground/50",
-						"shadow-foreground/[0.03] shadow-lg",
-						"ring-1 ring-border/50",
-						"transition-all duration-300",
-						"hover:shadow-foreground/[0.05] hover:shadow-xl hover:ring-border/70",
-						"focus:shadow-primary/10 focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary/40",
-					)}
+					shadow="lg"
+					borderWidth="1px"
+					borderColor="border.muted"
+					transition="all 0.3s"
+					_hover={{
+						shadow: "xl",
+						borderColor: "border",
+					}}
+					_focus={{
+						shadow: "xl",
+						outline: "none",
+						borderColor: "teal.solid",
+						ring: "2px",
+						ringColor: "teal.muted",
+					}}
+					_placeholder={{ color: "fg.muted", opacity: 0.5 }}
 				/>
-				{searchQuery && (
-					<button
-						type="button"
-						onClick={() => onSearchChange("")}
-						className="absolute end-4 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-						aria-label={t("search.clearSearch")}
-					>
-						<X className="size-4" />
-					</button>
-				)}
-			</div>
+			</InputGroup>
 
 			{/* City filter pills - centered, refined */}
-			<div className="scrollbar-hide flex justify-center gap-2 overflow-x-auto pb-1">
+			<Flex
+				justify="center"
+				gap="2"
+				overflowX="auto"
+				pb="1"
+				w="full"
+				css={{
+					"&::-webkit-scrollbar": { display: "none" },
+					msOverflowStyle: "none",
+					scrollbarWidth: "none",
+				}}
+			>
 				{cityOptions.map((city) => {
 					const isSelected = city === selectedCity;
 					const label = city === "all" ? t("search.allCities") : city;
 
 					return (
-						<button
+						<ShopPillButton
 							key={city}
-							type="button"
+							active={isSelected}
 							onClick={() => onCityChange(city)}
-							className={cn(
-								"flex-shrink-0 whitespace-nowrap rounded-lg px-5 py-2",
-								"font-medium text-sm transition-all duration-200",
-								isSelected
-									? "bg-foreground text-background shadow-md"
-									: "bg-card/80 text-muted-foreground ring-1 ring-border/50 hover:bg-card hover:text-foreground hover:ring-border",
-							)}
+							flexShrink={0}
+							whiteSpace="nowrap"
 						>
 							{label}
-						</button>
+						</ShopPillButton>
 					);
 				})}
-			</div>
-		</div>
+			</Flex>
+		</VStack>
 	);
 }

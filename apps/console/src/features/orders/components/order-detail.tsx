@@ -1,8 +1,19 @@
-import { Badge, Skeleton } from "@menuvo/ui";
+import {
+	Badge,
+	Box,
+	Flex,
+	Heading,
+	HStack,
+	Separator,
+	Skeleton,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { de, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
+import { Caption } from "@/components/ui/typography";
 import type { OrderStatus, OrderType } from "@/features/orders";
 import { formatPrice } from "@/features/orders/logic/order-pricing";
 import type { OrderDetail as OrderDetailType } from "@/features/orders/types";
@@ -12,25 +23,34 @@ interface OrderDetailProps {
 	orderId: string;
 }
 
-const statusVariants: Record<
-	OrderStatus,
-	"default" | "secondary" | "destructive" | "outline"
-> = {
+const statusVariants: Record<OrderStatus, "outline" | "solid" | "subtle"> = {
 	awaiting_payment: "outline",
-	confirmed: "default",
-	preparing: "secondary",
-	ready: "default",
-	completed: "secondary",
-	cancelled: "destructive",
+	confirmed: "solid",
+	preparing: "subtle",
+	ready: "solid",
+	completed: "subtle",
+	cancelled: "solid",
 };
 
-const orderTypeVariants: Record<
-	OrderType,
-	"default" | "secondary" | "outline"
-> = {
+const statusColorPalettes: Record<OrderStatus, string> = {
+	awaiting_payment: "gray",
+	confirmed: "blue",
+	preparing: "blue",
+	ready: "green",
+	completed: "gray",
+	cancelled: "red",
+};
+
+const orderTypeVariants: Record<OrderType, "outline" | "solid" | "subtle"> = {
 	dine_in: "outline",
-	takeaway: "secondary",
-	delivery: "default",
+	takeaway: "subtle",
+	delivery: "solid",
+};
+
+const orderTypeColorPalettes: Record<OrderType, string> = {
+	dine_in: "gray",
+	takeaway: "blue",
+	delivery: "green",
 };
 
 export function OrderDetail({ orderId }: OrderDetailProps) {
@@ -49,17 +69,17 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 
 	if (error) {
 		return (
-			<div className="flex h-full items-center justify-center text-destructive">
-				Error loading order: {error.message}
-			</div>
+			<Flex h="full" align="center" justify="center">
+				<Text color="destructive">Error loading order: {error.message}</Text>
+			</Flex>
 		);
 	}
 
 	if (!order) {
 		return (
-			<div className="flex h-full items-center justify-center text-muted-foreground">
-				Order not found
-			</div>
+			<Flex h="full" align="center" justify="center">
+				<Text color="fg.muted">Order not found</Text>
+			</Flex>
 		);
 	}
 
@@ -69,174 +89,183 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 	};
 
 	return (
-		<div className="space-y-4">
+		<VStack gap="4" align="stretch">
 			{/* Header */}
-			<div className="flex items-center justify-between">
-				<h2 className="font-semibold text-lg">
+			<Flex align="center" justify="space-between">
+				<Heading size="lg" fontWeight="semibold">
 					{t("orderNumber", { id: order.id })}
-				</h2>
-				<div className="flex items-center gap-2">
+				</Heading>
+				<HStack gap="2">
 					<Badge
 						variant={orderTypeVariants[order.orderType]}
-						className="text-xs"
+						colorPalette={orderTypeColorPalettes[order.orderType]}
+						size="xs"
 					>
 						{t(`orderType.${order.orderType}`)}
 					</Badge>
-					<Badge variant={statusVariants[order.status]} className="text-xs">
+					<Badge
+						variant={statusVariants[order.status] ?? "solid"}
+						colorPalette={statusColorPalettes[order.status] ?? "gray"}
+						size="xs"
+					>
 						{t(`status.${order.status}`)}
 					</Badge>
-				</div>
-			</div>
+				</HStack>
+			</Flex>
 
 			{/* Customer Section */}
-			<div className="space-y-1 border-t pt-4 text-sm">
+			<VStack gap="1" align="stretch" borderTopWidth="1px" pt="4">
 				{order.customerName && (
-					<div className="flex justify-between">
-						<span className="text-muted-foreground">{t("fields.name")}</span>
-						<span>{order.customerName}</span>
-					</div>
+					<Flex justify="space-between" textStyle="sm">
+						<Caption>{t("fields.name")}</Caption>
+						<Text>{order.customerName}</Text>
+					</Flex>
 				)}
 				{order.customerEmail && (
-					<div className="flex justify-between">
-						<span className="text-muted-foreground">{t("fields.email")}</span>
-						<span className="ms-4 truncate">{order.customerEmail}</span>
-					</div>
+					<Flex justify="space-between" textStyle="sm">
+						<Caption>{t("fields.email")}</Caption>
+						<Text ms="4" truncate>
+							{order.customerEmail}
+						</Text>
+					</Flex>
 				)}
 				{order.customerPhone && (
-					<div className="flex justify-between">
-						<span className="text-muted-foreground">{t("fields.phone")}</span>
-						<span>{order.customerPhone}</span>
-					</div>
+					<Flex justify="space-between" textStyle="sm">
+						<Caption>{t("fields.phone")}</Caption>
+						<Text>{order.customerPhone}</Text>
+					</Flex>
 				)}
 				{order.servicePoint && (
-					<div className="flex justify-between">
-						<span className="text-muted-foreground">
-							{t("fields.servicePoint")}
-						</span>
-						<span>{order.servicePoint.name}</span>
-					</div>
+					<Flex justify="space-between" textStyle="sm">
+						<Caption>{t("fields.servicePoint")}</Caption>
+						<Text>{order.servicePoint.name}</Text>
+					</Flex>
 				)}
 				{order.customerNotes && (
-					<div className="pt-1">
-						<span className="text-muted-foreground text-xs">
+					<Box pt="1">
+						<Text color="fg.muted" textStyle="xs">
 							{t("fields.notes")}:
-						</span>
-						<p className="mt-0.5 text-sm">{order.customerNotes}</p>
-					</div>
+						</Text>
+						<Text mt="0.5" textStyle="sm">
+							{order.customerNotes}
+						</Text>
+					</Box>
 				)}
-			</div>
+			</VStack>
 
 			{/* Items Section */}
-			<div className="space-y-2 border-t pt-4">
+			<VStack gap="2" align="stretch" borderTopWidth="1px" pt="4">
 				{order.items.map((item) => (
-					<div key={item.id} className="space-y-0.5">
-						<div className="flex justify-between text-sm">
-							<span>
+					<VStack key={item.id} gap="0.5" align="stretch">
+						<Flex justify="space-between" textStyle="sm">
+							<Text>
 								{item.quantity}x {item.name}
-							</span>
-							<span className="font-medium">
-								{formatPrice(item.totalPrice)}
-							</span>
-						</div>
+							</Text>
+							<Text fontWeight="medium">{formatPrice(item.totalPrice)}</Text>
+						</Flex>
 						{item.options.length > 0 && (
-							<div className="space-y-0.5 ps-4">
+							<VStack gap="0.5" align="stretch" ps="4">
 								{item.options.map((option) => (
-									<div
+									<Flex
 										key={option.id}
-										className="flex justify-between text-muted-foreground text-xs"
+										justify="space-between"
+										color="fg.muted"
+										textStyle="xs"
 									>
-										<span>
+										<Text>
 											{option.quantity > 1 ? `${option.quantity}x ` : ""}
 											{option.choiceName}
-										</span>
+										</Text>
 										{option.priceModifier > 0 && (
-											<span>
+											<Text>
 												+{formatPrice(option.priceModifier * option.quantity)}
-											</span>
+											</Text>
 										)}
-									</div>
+									</Flex>
 								))}
-							</div>
+							</VStack>
 						)}
-					</div>
+					</VStack>
 				))}
-			</div>
+			</VStack>
 
 			{/* Payment Summary */}
-			<div className="space-y-3 border-t pt-4">
-				<div className="space-y-1 rounded-lg bg-muted/50 p-3">
-					<div className="flex justify-between text-sm">
-						<span className="text-muted-foreground">
-							{t("fields.subtotal")}
-						</span>
-						<span>{formatPrice(order.subtotal)}</span>
-					</div>
+			<VStack gap="3" align="stretch" borderTopWidth="1px" pt="4">
+				<VStack gap="1" align="stretch" rounded="lg" bg="bg.muted/50" p="3">
+					<Flex justify="space-between" textStyle="sm">
+						<Caption>{t("fields.subtotal")}</Caption>
+						<Text>{formatPrice(order.subtotal)}</Text>
+					</Flex>
 					{order.taxAmount > 0 && (
-						<div className="flex justify-between text-sm">
-							<span className="text-muted-foreground">{t("fields.tax")}</span>
-							<span>{formatPrice(order.taxAmount)}</span>
-						</div>
+						<Flex justify="space-between" textStyle="sm">
+							<Caption>{t("fields.tax")}</Caption>
+							<Text>{formatPrice(order.taxAmount)}</Text>
+						</Flex>
 					)}
 					{order.tipAmount > 0 && (
-						<div className="flex justify-between text-sm">
-							<span className="text-muted-foreground">{t("fields.tip")}</span>
-							<span>{formatPrice(order.tipAmount)}</span>
-						</div>
+						<Flex justify="space-between" textStyle="sm">
+							<Caption>{t("fields.tip")}</Caption>
+							<Text>{formatPrice(order.tipAmount)}</Text>
+						</Flex>
 					)}
-					<div className="flex justify-between border-border/50 border-t pt-1 font-medium">
-						<span>{t("fields.total")}</span>
-						<span>{formatPrice(order.totalAmount)}</span>
-					</div>
-				</div>
-				<div className="text-muted-foreground text-xs">
+					<Separator borderColor="border/50" />
+					<Flex justify="space-between" fontWeight="medium">
+						<Text>{t("fields.total")}</Text>
+						<Text>{formatPrice(order.totalAmount)}</Text>
+					</Flex>
+				</VStack>
+				<Text color="fg.muted" textStyle="xs">
 					{t(`paymentStatus.${order.paymentStatus}`)}
 					{order.paymentMethod && (
-						<span className="capitalize"> via {order.paymentMethod}</span>
+						<Text as="span" textTransform="capitalize">
+							{" "}
+							via {order.paymentMethod}
+						</Text>
 					)}
-				</div>
-			</div>
+				</Text>
+			</VStack>
 
 			{/* Timeline Footer */}
-			<div className="border-t pt-3 text-muted-foreground text-xs">
+			<Text borderTopWidth="1px" pt="3" color="fg.muted" textStyle="xs">
 				{t("fields.created")} {timeAgo(order.createdAt)}
 				{order.confirmedAt && (
-					<span>
+					<Text as="span">
 						{" "}
 						&bull; {t("fields.confirmed")} {timeAgo(order.confirmedAt)}
-					</span>
+					</Text>
 				)}
 				{order.completedAt && (
-					<span>
+					<Text as="span">
 						{" "}
 						&bull; {t("fields.completed")} {timeAgo(order.completedAt)}
-					</span>
+					</Text>
 				)}
-			</div>
-		</div>
+			</Text>
+		</VStack>
 	);
 }
 
 function OrderDetailSkeleton() {
 	return (
-		<div className="space-y-4">
-			<div className="flex items-center justify-between">
-				<Skeleton className="h-6 w-28" />
-				<div className="flex gap-2">
-					<Skeleton className="h-5 w-16" />
-					<Skeleton className="h-5 w-20" />
-				</div>
-			</div>
-			<div className="space-y-2 border-t pt-4">
-				<Skeleton className="h-4 w-full" />
-				<Skeleton className="h-4 w-3/4" />
-			</div>
-			<div className="space-y-2 border-t pt-4">
-				<Skeleton className="h-4 w-full" />
-				<Skeleton className="h-4 w-full" />
-			</div>
-			<div className="border-t pt-4">
-				<Skeleton className="h-24 w-full rounded-lg" />
-			</div>
-		</div>
+		<VStack gap="4" align="stretch">
+			<Flex align="center" justify="space-between">
+				<Skeleton h="6" w="28" />
+				<HStack gap="2">
+					<Skeleton h="5" w="16" />
+					<Skeleton h="5" w="20" />
+				</HStack>
+			</Flex>
+			<VStack gap="2" align="stretch" borderTopWidth="1px" pt="4">
+				<Skeleton h="4" w="full" />
+				<Skeleton h="4" w="3/4" />
+			</VStack>
+			<VStack gap="2" align="stretch" borderTopWidth="1px" pt="4">
+				<Skeleton h="4" w="full" />
+				<Skeleton h="4" w="full" />
+			</VStack>
+			<Box borderTopWidth="1px" pt="4">
+				<Skeleton h="24" w="full" rounded="lg" />
+			</Box>
+		</VStack>
 	);
 }

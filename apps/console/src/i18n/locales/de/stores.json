@@ -5,7 +5,11 @@
 		"editStore": "Filiale bearbeiten",
 		"storeDetails": "Filialdetails",
 		"contactSettings": "Kontakt & Einstellungen",
-		"storeImages": "Filialbilder"
+		"storeImages": "Filialbilder",
+		"general": "Allgemein",
+		"openingHours": "Öffnungszeiten",
+		"closures": "Schließungen",
+		"orderTypes": "Bestellarten"
 	},
 	"descriptions": {
 		"manageStores": "Verwalten Sie Ihre Filialstandorte",

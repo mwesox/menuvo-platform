@@ -9,6 +9,7 @@
  * Note: drag-and-drop libraries are dynamically imported to reduce initial bundle (~76ms savings)
  */
 
+import { Box } from "@chakra-ui/react";
 import { LayoutGroup } from "motion/react";
 import { useEffect } from "react";
 import type { OrderWithItems } from "@/features/orders/types";
@@ -91,7 +92,17 @@ export function KanbanBoard({
 
 	return (
 		<LayoutGroup>
-			<div className="grid h-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+			<Box
+				display="grid"
+				height="100%"
+				gridTemplateColumns={{
+					base: "1fr",
+					md: "repeat(2, 1fr)",
+					lg: "repeat(3, 1fr)",
+					xl: "repeat(4, 1fr)",
+				}}
+				gap="4"
+			>
 				{KANBAN_COLUMNS.map((column) => (
 					<KanbanColumn
 						key={column.id}
@@ -103,7 +114,7 @@ export function KanbanBoard({
 						lastMovedOrderId={lastMovedOrderId}
 					/>
 				))}
-			</div>
+			</Box>
 		</LayoutGroup>
 	);
 }

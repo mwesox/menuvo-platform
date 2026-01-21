@@ -1,7 +1,7 @@
-import { cn } from "@menuvo/ui/lib/utils";
-import { Minus, Plus } from "lucide-react";
+import { Box, HStack, IconButton } from "@chakra-ui/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { LuMinus, LuPlus } from "react-icons/lu";
 
 interface QuantityStepperProps {
 	value: number;
@@ -43,56 +43,62 @@ export function QuantityStepper({
 	const isSm = size === "sm";
 
 	return (
-		<div
-			className={cn(
-				"inline-flex items-center gap-1 rounded-xl bg-muted",
-				isSm ? "p-0.5" : "p-1",
-			)}
+		<HStack
+			gap="1"
+			rounded="xl"
+			bg="bg.muted"
+			p={isSm ? "0.5" : "1"}
+			display="inline-flex"
 		>
-			<button
-				type="button"
+			<IconButton
+				aria-label={t("quantity.decrease")}
 				onClick={handleDecrement}
 				disabled={isAtMin}
-				aria-label={t("quantity.decrease")}
-				className={cn(
-					"flex items-center justify-center rounded-full transition-colors",
-					"hover:bg-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-					"active:scale-95",
-					isAtMin && "cursor-not-allowed opacity-30 hover:bg-transparent",
-					isSm ? "size-8" : "size-10",
-				)}
+				variant="ghost"
+				rounded="full"
+				size={isSm ? "sm" : "md"}
+				h={isSm ? "8" : "10"}
+				w={isSm ? "8" : "10"}
+				opacity={isAtMin ? 0.3 : 1}
+				cursor={isAtMin ? "not-allowed" : "pointer"}
+				_hover={{ bg: isAtMin ? "transparent" : "border" }}
+				_active={{ transform: "scale(0.95)" }}
 			>
-				<Minus className={cn(isSm ? "size-4" : "size-5")} />
-			</button>
+				<LuMinus size={isSm ? 16 : 20} />
+			</IconButton>
 
-			<span
-				className={cn(
-					"min-w-[2rem] text-center font-medium text-foreground tabular-nums",
-					"transition-transform duration-150",
-					animating && "scale-110",
-					isSm ? "text-sm" : "text-base",
-				)}
+			<Box
+				as="span"
+				minW="8"
+				textAlign="center"
+				fontWeight="medium"
+				color="fg"
+				fontVariantNumeric="tabular-nums"
+				textStyle={isSm ? "sm" : "md"}
+				transition="transform 0.15s"
+				transform={animating ? "scale(1.1)" : "scale(1)"}
 				aria-live="polite"
 				aria-atomic="true"
 			>
 				{value}
-			</span>
+			</Box>
 
-			<button
-				type="button"
+			<IconButton
+				aria-label={t("quantity.increase")}
 				onClick={handleIncrement}
 				disabled={isAtMax}
-				aria-label={t("quantity.increase")}
-				className={cn(
-					"flex items-center justify-center rounded-full transition-colors",
-					"hover:bg-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-					"active:scale-95",
-					isAtMax && "cursor-not-allowed opacity-30 hover:bg-transparent",
-					isSm ? "size-8" : "size-10",
-				)}
+				variant="ghost"
+				rounded="full"
+				size={isSm ? "sm" : "md"}
+				h={isSm ? "8" : "10"}
+				w={isSm ? "8" : "10"}
+				opacity={isAtMax ? 0.3 : 1}
+				cursor={isAtMax ? "not-allowed" : "pointer"}
+				_hover={{ bg: isAtMax ? "transparent" : "border" }}
+				_active={{ transform: "scale(0.95)" }}
 			>
-				<Plus className={cn(isSm ? "size-4" : "size-5")} />
-			</button>
-		</div>
+				<LuPlus size={isSm ? 16 : 20} />
+			</IconButton>
+		</HStack>
 	);
 }

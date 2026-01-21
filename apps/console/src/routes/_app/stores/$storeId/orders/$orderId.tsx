@@ -1,3 +1,4 @@
+import { VStack } from "@chakra-ui/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
@@ -30,7 +31,7 @@ function OrderDetailPage() {
 	const orderNumber = `#${String(order.pickupNumber).padStart(3, "0")}`;
 
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBar
 				breadcrumbs={[
 					{
@@ -42,6 +43,6 @@ function OrderDetailPage() {
 			/>
 
 			<OrderDetail orderId={orderId} />
-		</div>
+		</VStack>
 	);
 }

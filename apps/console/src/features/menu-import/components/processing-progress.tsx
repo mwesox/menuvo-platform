@@ -1,6 +1,17 @@
-import { Check, FileText, Loader2, Search, Sparkles } from "lucide-react";
+import {
+	Box,
+	Circle,
+	HStack,
+	Icon,
+	Progress,
+	Spinner,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
+import { Check, FileText, Search, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Caption } from "@/components/ui/typography";
 
 interface ProcessingProgressProps {
 	/** Whether processing is complete */
@@ -65,83 +76,113 @@ export function ProcessingProgress({
 	}, [isComplete]);
 
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			{/* Main spinner */}
-			<div className="flex justify-center">
+			<Box display="flex" justifyContent="center">
 				{isComplete ? (
-					<div className="flex size-16 items-center justify-center rounded-full bg-primary/10">
-						<Check className="size-8 text-primary" />
-					</div>
+					<Circle
+						w="16"
+						h="16"
+						display="flex"
+						alignItems="center"
+						justifyContent="center"
+						rounded="full"
+						bg="primary/10"
+					>
+						<Icon w="8" h="8" color="primary">
+							<Check />
+						</Icon>
+					</Circle>
 				) : (
-					<Loader2 className="size-16 animate-spin text-primary" />
+					<Spinner size="xl" color="primary" />
 				)}
-			</div>
+			</Box>
 
 			{/* Current status text */}
-			<div className="text-center">
-				<p className="font-medium text-lg">
+			<Box textAlign="center">
+				<Text fontWeight="medium" textStyle="lg">
 					{isComplete
 						? t("import.progress.complete")
 						: t(`import.progress.${STAGES[currentStage]?.key ?? "analyzing"}`)}
-				</p>
-				<p className="mt-1 text-muted-foreground text-sm">
+				</Text>
+				<Caption mt="1">
 					{isComplete
 						? t("import.progress.reviewReady")
 						: t("import.status.pleaseWait")}
-				</p>
-			</div>
+				</Caption>
+			</Box>
 
 			{/* Stage indicators */}
-			<div className="flex justify-center gap-6 pt-4">
+			<HStack justify="center" gap="6" pt="4">
 				{STAGES.map((stage, index) => {
-					const Icon = stage.icon;
+					const StageIcon = stage.icon;
 					const isActive = index === currentStage && !isComplete;
 					const isDone = index < currentStage || isComplete;
 
 					return (
-						<div key={stage.key} className="flex flex-col items-center gap-2">
-							<div
-								className={`flex size-10 items-center justify-center rounded-full transition-colors ${
+						<VStack key={stage.key} gap="2" align="center">
+							<Circle
+								w="10"
+								h="10"
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+								rounded="full"
+								transition="colors"
+								bg={isDone ? "primary" : isActive ? "primary/20" : "bg.muted"}
+								color={
 									isDone
-										? "bg-primary text-primary-foreground"
+										? "primary-foreground"
 										: isActive
-											? "bg-primary/20 text-primary"
-											: "bg-muted text-muted-foreground"
-								}`}
+											? "primary"
+											: "fg.muted"
+								}
 							>
 								{isDone ? (
-									<Check className="size-5" />
+									<Icon w="5" h="5">
+										<Check />
+									</Icon>
 								) : isActive ? (
-									<Icon className="size-5 animate-pulse" />
+									<Icon w="5" h="5" animation="pulse">
+										<StageIcon />
+									</Icon>
 								) : (
-									<Icon className="size-5" />
+									<Icon w="5" h="5">
+										<StageIcon />
+									</Icon>
 								)}
-							</div>
-							<span
-								className={`text-xs ${
-									isDone || isActive
-										? "font-medium text-foreground"
-										: "text-muted-foreground"
-								}`}
+							</Circle>
+							<Text
+								textStyle="xs"
+								fontWeight={isDone || isActive ? "medium" : "normal"}
+								color={isDone || isActive ? "fg" : "fg.muted"}
 							>
 								{t(`import.progress.stages.${stage.key}`)}
-							</span>
-						</div>
+							</Text>
+						</VStack>
 					);
 				})}
-			</div>
+			</HStack>
 
 			{/* Progress bar for current stage */}
 			{!isComplete && !isFailed && (
-				<div className="mx-auto max-w-xs">
-					<div className="h-1 overflow-hidden rounded-full bg-muted">
-						<div
-							className="h-full bg-primary transition-all duration-100 ease-linear"
-							style={{ width: `${stageProgress}%` }}
-						/>
-					</div>
-				</div>
+				<Box mx="auto" maxW="xs">
+					<Progress.Root value={stageProgress} h="1">
+						<Progress.Track
+							h="1"
+							rounded="full"
+							bg="bg.muted"
+							overflow="hidden"
+						>
+							<Progress.Range
+								h="full"
+								bg="primary"
+								transition="all 0.1s ease-linear"
+							/>
+						</Progress.Track>
+					</Progress.Root>
+				</Box>
 			)}
-		</div>
+		</VStack>
 	);
 }

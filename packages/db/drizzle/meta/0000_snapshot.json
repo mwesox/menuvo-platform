@@ -1,5 +1,5 @@
 {
-  "id": "ee86dee6-cc5a-4eb9-b6c9-6e197a63f1b5",
+  "id": "ea5ce660-87d8-4149-b95e-670540a241ea",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -607,6 +607,48 @@
         "phone": {
           "name": "phone",
           "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "legal_form": {
+          "name": "legal_form",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "legal_form_other": {
+          "name": "legal_form_other",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "company_name": {
+          "name": "company_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "representative_name": {
+          "name": "representative_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "register_court": {
+          "name": "register_court",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "register_number": {
+          "name": "register_number",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vat_id": {
+          "name": "vat_id",
+          "type": "varchar(30)",
           "primaryKey": false,
           "notNull": false
         },
@@ -2199,94 +2241,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.store_closures": {
-      "name": "store_closures",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "store_id": {
-          "name": "store_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_date": {
-          "name": "end_date",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "reason": {
-          "name": "reason",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "idx_store_closures_store": {
-          "name": "idx_store_closures_store",
-          "columns": [
-            {
-              "expression": "store_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "store_closures_store_id_stores_id_fk": {
-          "name": "store_closures_store_id_stores_id_fk",
-          "tableFrom": "store_closures",
-          "tableTo": "stores",
-          "columnsFrom": [
-            "store_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.store_counters": {
       "name": "store_counters",
       "schema": "",
@@ -2334,101 +2288,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.store_hours": {
-      "name": "store_hours",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "store_id": {
-          "name": "store_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "day_of_week": {
-          "name": "day_of_week",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "open_time": {
-          "name": "open_time",
-          "type": "varchar(5)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "close_time": {
-          "name": "close_time",
-          "type": "varchar(5)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "display_order": {
-          "name": "display_order",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "idx_store_hours_store": {
-          "name": "idx_store_hours_store",
-          "columns": [
-            {
-              "expression": "store_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "store_hours_store_id_stores_id_fk": {
-          "name": "store_hours_store_id_stores_id_fk",
-          "tableFrom": "store_hours",
-          "tableTo": "stores",
-          "columnsFrom": [
-            "store_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.store_settings": {
       "name": "store_settings",
       "schema": "",
@@ -2447,6 +2306,18 @@
         },
         "ai_recommendations": {
           "name": "ai_recommendations",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hours": {
+          "name": "hours",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "closures": {
+          "name": "closures",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false

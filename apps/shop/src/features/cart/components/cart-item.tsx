@@ -1,5 +1,6 @@
-import { X } from "lucide-react";
+import { Box, Flex, HStack, IconButton, Image } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
+import { LuX } from "react-icons/lu";
 import {
 	QuantityStepper,
 	ShopHeading,
@@ -22,29 +23,44 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 		.join(", ");
 
 	return (
-		<div className="flex items-center gap-3 border-border/50 border-b py-4">
+		<HStack
+			gap="3"
+			borderBottomWidth="1px"
+			borderColor="border/50"
+			py="4"
+			align="center"
+		>
 			{/* Item image - centered vertically */}
-			<div className="size-14 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
+			<Box
+				w="14"
+				h="14"
+				flexShrink="0"
+				overflow="hidden"
+				rounded="lg"
+				bg="bg.muted"
+			>
 				{item.imageUrl && (
-					<img
+					<Image
 						src={item.imageUrl}
 						alt={item.name}
-						className="h-full w-full object-cover"
+						w="full"
+						h="full"
+						objectFit="cover"
 					/>
 				)}
-			</div>
+			</Box>
 
 			{/* Item details - name and quantity */}
-			<div className="min-w-0 flex-1">
-				<ShopHeading as="h3" size="sm" className="truncate font-normal">
+			<Box minW="0" flex="1">
+				<ShopHeading as="h3" size="sm" truncate fontWeight="normal">
 					{item.name}
 				</ShopHeading>
 				{optionsText && (
-					<ShopMutedText className="truncate text-sm">
+					<ShopMutedText truncate textStyle="sm">
 						{optionsText}
 					</ShopMutedText>
 				)}
-				<div className="mt-1.5">
+				<Box mt="1.5">
 					<QuantityStepper
 						value={item.quantity}
 						onChange={onQuantityChange}
@@ -52,21 +68,30 @@ export function CartItem({ item, onQuantityChange, onRemove }: CartItemProps) {
 						max={99}
 						size="sm"
 					/>
-				</div>
-			</div>
+				</Box>
+			</Box>
 
 			{/* Price and remove - right aligned */}
-			<div className="flex flex-col items-end justify-between self-stretch">
-				<button
-					type="button"
+			<Flex
+				flexDirection="column"
+				align="end"
+				justify="space-between"
+				alignSelf="stretch"
+			>
+				<IconButton
+					variant="ghost"
+					size="xs"
 					onClick={onRemove}
-					className="-m-1 p-1 text-muted-foreground transition-colors hover:text-foreground"
+					color="fg.muted"
+					m="-1"
+					p="1"
+					_hover={{ color: "fg" }}
 					aria-label={t("cart.removeItem", { name: item.name })}
 				>
-					<X className="size-4" />
-				</button>
-				<ShopPrice cents={item.totalPrice} className="font-medium" />
-			</div>
-		</div>
+					<LuX />
+				</IconButton>
+				<ShopPrice cents={item.totalPrice} fontWeight="medium" />
+			</Flex>
+		</HStack>
 	);
 }

@@ -1,43 +1,36 @@
-import type { AppRouter } from "@menuvo/api/trpc";
 import {
-	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
+	Box,
 	Button,
-	Calendar,
 	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
 	Checkbox,
 	Field,
-	FieldDescription,
-	FieldError,
-	FieldGroup,
-	FieldLabel,
+	HStack,
 	Input,
-	LoadingButton,
 	Popover,
-	PopoverContent,
-	PopoverTrigger,
+	Portal,
 	Separator,
+	SimpleGrid,
+	Skeleton,
 	Switch,
+	Text,
 	Textarea,
-	TimeInput,
-} from "@menuvo/ui";
+	VStack,
+} from "@chakra-ui/react";
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { format, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Calendar } from "@/components/ui/calendar";
+import { FormField } from "@/components/ui/form-field";
+import { TimeInput } from "@/components/ui/time-input";
+import { Caption, Label } from "@/components/ui/typography";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
-import { cn } from "@/lib/utils.ts";
 import { getLocalizedContent } from "../logic/localization";
 import { categoryFormSchema, formToTranslations } from "../schemas";
 import { VatGroupSelector } from "./vat-group-selector";
@@ -191,104 +184,86 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 	});
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>
+		<Card.Root>
+			<Card.Header>
+				<Card.Title>
 					{isEditing ? t("titles.editCategory") : t("titles.addCategory")}
-				</CardTitle>
-				<CardDescription>
+				</Card.Title>
+				<Card.Description>
 					{isEditing
 						? t("dialogs.updateCategoryDescription")
 						: t("dialogs.createCategoryDescription")}
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
+				</Card.Description>
+			</Card.Header>
+			<Card.Body>
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
 						form.handleSubmit();
 					}}
 				>
-					<FieldGroup>
+					<VStack gap="6" align="stretch">
 						<form.Field name="name">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="category-name">
-											{tForms("fields.name")} *
-										</FieldLabel>
-										<Input
-											id="category-name"
-											name={field.name}
-											placeholder={t("placeholders.categoryName")}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
+							{(field) => (
+								<FormField
+									field={field}
+									label={`${tForms("fields.name")} *`}
+									required
+								>
+									<Input
+										id="category-name"
+										name={field.name}
+										placeholder={t("placeholders.categoryName")}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+									/>
+								</FormField>
+							)}
 						</form.Field>
 
 						<form.Field name="description">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor="category-description">
-											{tForms("fields.description")}
-										</FieldLabel>
-										<Textarea
-											id="category-description"
-											name={field.name}
-											placeholder={t("placeholders.categoryDescription")}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											rows={3}
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
+							{(field) => (
+								<FormField field={field} label={tForms("fields.description")}>
+									<Textarea
+										id="category-description"
+										name={field.name}
+										placeholder={t("placeholders.categoryDescription")}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										rows={3}
+									/>
+								</FormField>
+							)}
 						</form.Field>
 
 						<form.Field name="defaultVatGroupId">
 							{(field) => (
-								<Field>
-									<FieldLabel htmlFor="category-vat-group">
-										{t("vat.labels.vatGroup")}
-									</FieldLabel>
-									<Suspense
-										fallback={
-											<div className="h-10 animate-pulse rounded-md bg-muted" />
-										}
+								<Field.Root>
+									<Field.Label
+										htmlFor="category-vat-group"
+										textStyle="sm"
+										fontWeight="medium"
 									>
+										{t("vat.labels.vatGroup")}
+									</Field.Label>
+									<Suspense fallback={<Skeleton h="10" rounded="md" />}>
 										<VatGroupSelector
 											value={field.state.value}
 											onChange={(value) => field.handleChange(value)}
 											showClearOption
 										/>
 									</Suspense>
-									<FieldDescription>
+									<Field.HelperText textStyle="sm" color="fg.muted">
 										{t("vat.hints.defaultVatGroup")}
-									</FieldDescription>
-								</Field>
+									</Field.HelperText>
+								</Field.Root>
 							)}
 						</form.Field>
-					</FieldGroup>
+					</VStack>
 
-					<Separator className="my-6" />
+					<Separator my="6" />
 
 					<form.Field name="availabilitySchedule">
 						{(field) => (
@@ -299,7 +274,7 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 						)}
 					</form.Field>
 
-					<div className="mt-6 flex justify-end gap-3">
+					<HStack mt="6" justify="flex-end" gap="3">
 						<Button type="button" variant="outline" asChild>
 							<Link to="/stores/$storeId/menu" params={{ storeId }}>
 								{tCommon("buttons.cancel")}
@@ -312,10 +287,10 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 							})}
 						>
 							{({ isSubmitting, canSubmit }) => (
-								<LoadingButton
+								<Button
 									type="submit"
 									disabled={!canSubmit}
-									isLoading={isSubmitting}
+									loading={isSubmitting}
 									loadingText={
 										isEditing
 											? tCommon("states.saving")
@@ -325,13 +300,13 @@ export function CategoryForm({ storeId, category }: CategoryFormProps) {
 									{isEditing
 										? tCommon("buttons.saveChanges")
 										: t("buttons.createCategory")}
-								</LoadingButton>
+								</Button>
 							)}
 						</form.Subscribe>
-					</div>
+					</HStack>
 				</form>
-			</CardContent>
-		</Card>
+			</Card.Body>
+		</Card.Root>
 	);
 }
 
@@ -384,21 +359,6 @@ function AvailabilityScheduleSection({
 		};
 		return dayMap[dayValue] || dayValue;
 	};
-	const [accordionValue, setAccordionValue] = useState<string>(
-		value.enabled ||
-			!!value.timeRange ||
-			!!value.daysOfWeek?.length ||
-			!!value.dateRange
-			? "schedule"
-			: "",
-	);
-
-	// Auto-expand when enabled
-	useEffect(() => {
-		if (value.enabled && accordionValue !== "schedule") {
-			setAccordionValue("schedule");
-		}
-	}, [value.enabled, accordionValue]);
 
 	const handleToggleEnabled = (enabled: boolean) => {
 		onChange({
@@ -469,218 +429,157 @@ function AvailabilityScheduleSection({
 			daysOfWeek: [],
 			dateRange: undefined,
 		});
-		setAccordionValue("");
-	};
-
-	// Generate summary text for collapsed state
-	const getSummary = (): string => {
-		if (!value.enabled) {
-			return t("availability.notConfigured", "Not configured");
-		}
-
-		const parts: string[] = [];
-
-		if (value.timeRange) {
-			parts.push(`${value.timeRange.startTime}-${value.timeRange.endTime}`);
-		}
-
-		if (value.daysOfWeek && value.daysOfWeek.length > 0) {
-			const dayLabels = value.daysOfWeek.map(
-				(day) => DAYS_OF_WEEK.find((d) => d.value === day)?.label ?? day,
-			);
-			if (dayLabels.length === 7) {
-				parts.push(tCommon("labels.allDays", "All days"));
-			} else if (dayLabels.length <= 3) {
-				parts.push(dayLabels.join(", "));
-			} else {
-				parts.push(
-					t("availability.daysCount", "{{count}} days", {
-						count: dayLabels.length,
-					}),
-				);
-			}
-		}
-
-		if (value.dateRange) {
-			const start = format(parseISO(value.dateRange.startDate), "MMM d");
-			const end = format(parseISO(value.dateRange.endDate), "MMM d");
-			parts.push(`${start} - ${end}`);
-		}
-
-		return parts.length > 0
-			? parts.join(" • ")
-			: t("availability.enabledNoRules", "Enabled (no rules set)");
 	};
 
 	return (
-		<Accordion
-			type="single"
-			collapsible
-			value={accordionValue}
-			onValueChange={(val) => setAccordionValue(val ?? "")}
-			className="w-full"
-		>
-			<AccordionItem value="schedule" className="border-none">
-				<div className="rounded-lg border">
-					<div className="flex items-center justify-between px-4 py-3">
-						<AccordionTrigger className="flex-1 p-0 hover:no-underline [&>svg]:hidden">
-							<div className="flex items-center gap-3">
-								<FieldLabel>
-									{t("availability.title", "Availability Schedule")}
-								</FieldLabel>
-								{accordionValue !== "schedule" && value.enabled && (
-									<span className="text-muted-foreground text-sm">
-										{getSummary()}
-									</span>
-								)}
-							</div>
-						</AccordionTrigger>
-						<div className="flex items-center gap-2">
-							<Switch
-								checked={value.enabled}
-								onCheckedChange={handleToggleEnabled}
-								id="availability-enabled"
-							/>
-							<FieldLabel htmlFor="availability-enabled">
-								{tCommon("labels.enabled")}
-							</FieldLabel>
-						</div>
-					</div>
-					<AccordionContent className="px-4 pb-4">
-						<div className="space-y-4 pt-2">
-							<FieldDescription>
+		<Box rounded="lg" borderWidth="1px">
+			<VStack gap="4" align="stretch" p="4">
+				<HStack justify="space-between" align="center">
+					<Label>{t("availability.title", "Availability Schedule")}</Label>
+					<HStack gap="2" align="center">
+						<Switch.Root
+							checked={value.enabled}
+							onCheckedChange={(e) => handleToggleEnabled(e.checked)}
+							id="availability-enabled"
+							colorPalette="red"
+						>
+							<Switch.HiddenInput />
+							<Switch.Control />
+						</Switch.Root>
+						<Text as="span" cursor="pointer" textStyle="sm">
+							{tCommon("labels.enabled")}
+						</Text>
+					</HStack>
+				</HStack>
+
+				<Caption>
+					{t(
+						"availability.description",
+						"Control when this category is visible to customers. All rules must be satisfied for the category to show.",
+					)}
+				</Caption>
+
+				{value.enabled && (
+					<>
+						{/* Time Range */}
+						<Field.Root>
+							<Field.Label textStyle="sm" fontWeight="medium">
+								{t("availability.timeRange", "Time Range")} (
+								{tCommon("labels.optional")})
+							</Field.Label>
+							<HStack gap="3" align="center">
+								<Box flex="1">
+									<TimeInput
+										value={value.timeRange?.startTime ?? "09:00"}
+										onChange={(time) =>
+											handleTimeRangeChange("startTime", time)
+										}
+										disabled={!value.enabled}
+									/>
+								</Box>
+								<Text color="fg.muted">{tCommon("labels.to")}</Text>
+								<Box flex="1">
+									<TimeInput
+										value={value.timeRange?.endTime ?? "17:00"}
+										onChange={(time) => handleTimeRangeChange("endTime", time)}
+										disabled={!value.enabled}
+									/>
+								</Box>
+							</HStack>
+							<Field.HelperText textStyle="sm" color="fg.muted">
 								{t(
-									"availability.description",
-									"Control when this category is visible to customers. All rules must be satisfied for the category to show.",
+									"availability.timeRangeHint",
+									"Leave empty to apply to all times. Supports midnight crossover (e.g., 22:00-02:00).",
 								)}
-							</FieldDescription>
+							</Field.HelperText>
+						</Field.Root>
 
-							{value.enabled && (
-								<>
-									{/* Time Range */}
-									<Field>
-										<FieldLabel>
-											{t("availability.timeRange", "Time Range")} (
-											{tCommon("labels.optional")})
-										</FieldLabel>
-										<div className="flex items-center gap-3">
-											<div className="flex-1">
-												<TimeInput
-													value={value.timeRange?.startTime ?? "09:00"}
-													onChange={(time) =>
-														handleTimeRangeChange("startTime", time)
-													}
-													disabled={!value.enabled}
-												/>
-											</div>
-											<span className="text-muted-foreground">
-												{tCommon("labels.to")}
-											</span>
-											<div className="flex-1">
-												<TimeInput
-													value={value.timeRange?.endTime ?? "17:00"}
-													onChange={(time) =>
-														handleTimeRangeChange("endTime", time)
-													}
-													disabled={!value.enabled}
-												/>
-											</div>
-										</div>
-										<FieldDescription>
-											{t(
-												"availability.timeRangeHint",
-												"Leave empty to apply to all times. Supports midnight crossover (e.g., 22:00-02:00).",
-											)}
-										</FieldDescription>
-									</Field>
+						{/* Days of Week */}
+						<Field.Root>
+							<Field.Label textStyle="sm" fontWeight="medium">
+								{t("availability.daysOfWeek", "Days of Week")} (
+								{tCommon("labels.optional")})
+							</Field.Label>
+							<HStack gap="3" wrap="wrap">
+								{DAYS_OF_WEEK.map((day) => (
+									<Checkbox.Root
+										key={day.value}
+										id={`day-${day.value}`}
+										checked={
+											value.daysOfWeek?.includes(day.value as DayOfWeek) ??
+											false
+										}
+										onCheckedChange={() =>
+											handleDayToggle(day.value as DayOfWeek)
+										}
+										disabled={!value.enabled}
+										display="flex"
+										alignItems="center"
+										gap="2"
+										rounded="md"
+										borderWidth="1px"
+										px="3"
+										py="2"
+										cursor="pointer"
+										_hover={{ bg: "bg.muted" }}
+									>
+										<Checkbox.HiddenInput />
+										<Checkbox.Control />
+										<Checkbox.Label textStyle="sm">
+											{getDayLabel(day.value)}
+										</Checkbox.Label>
+									</Checkbox.Root>
+								))}
+							</HStack>
+							<Field.HelperText textStyle="sm" color="fg.muted">
+								{t(
+									"availability.daysHint",
+									"Leave empty to apply to all days.",
+								)}
+							</Field.HelperText>
+						</Field.Root>
 
-									{/* Days of Week */}
-									<Field>
-										<FieldLabel>
-											{t("availability.daysOfWeek", "Days of Week")} (
-											{tCommon("labels.optional")})
-										</FieldLabel>
-										<div className="flex flex-wrap gap-3">
-											{DAYS_OF_WEEK.map((day) => (
-												<label
-													key={day.value}
-													htmlFor={`day-${day.value}`}
-													className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 hover:bg-muted"
-												>
-													<Checkbox
-														id={`day-${day.value}`}
-														checked={
-															value.daysOfWeek?.includes(
-																day.value as DayOfWeek,
-															) ?? false
-														}
-														onCheckedChange={() =>
-															handleDayToggle(day.value as DayOfWeek)
-														}
-														disabled={!value.enabled}
-													/>
-													<span className="text-sm">
-														{getDayLabel(day.value)}
-													</span>
-												</label>
-											))}
-										</div>
-										<FieldDescription>
-											{t(
-												"availability.daysHint",
-												"Leave empty to apply to all days.",
-											)}
-										</FieldDescription>
-									</Field>
+						{/* Date Range */}
+						<SimpleGrid columns={{ base: 1, sm: 2 }} gap="4">
+							<Field.Root>
+								<Field.Label textStyle="sm" fontWeight="medium">
+									{t("availability.startDate", "Start Date")} (
+									{tCommon("labels.optional")})
+								</Field.Label>
+								<DatePickerInput
+									value={value.dateRange?.startDate}
+									onChange={(date) => handleDateRangeChange("startDate", date)}
+									disabled={!value.enabled}
+								/>
+							</Field.Root>
+							<Field.Root>
+								<Field.Label textStyle="sm" fontWeight="medium">
+									{t("availability.endDate", "End Date")} (
+									{tCommon("labels.optional")})
+								</Field.Label>
+								<DatePickerInput
+									value={value.dateRange?.endDate}
+									onChange={(date) => handleDateRangeChange("endDate", date)}
+									disabled={!value.enabled}
+								/>
+							</Field.Root>
+						</SimpleGrid>
 
-									{/* Date Range */}
-									<div className="grid gap-4 sm:grid-cols-2">
-										<Field>
-											<FieldLabel>
-												{t("availability.startDate", "Start Date")} (
-												{tCommon("labels.optional")})
-											</FieldLabel>
-											<DatePickerInput
-												value={value.dateRange?.startDate}
-												onChange={(date) =>
-													handleDateRangeChange("startDate", date)
-												}
-												disabled={!value.enabled}
-											/>
-										</Field>
-										<Field>
-											<FieldLabel>
-												{t("availability.endDate", "End Date")} (
-												{tCommon("labels.optional")})
-											</FieldLabel>
-											<DatePickerInput
-												value={value.dateRange?.endDate}
-												onChange={(date) =>
-													handleDateRangeChange("endDate", date)
-												}
-												disabled={!value.enabled}
-											/>
-										</Field>
-									</div>
-
-									{/* Clear Button */}
-									<div className="flex justify-end">
-										<Button
-											type="button"
-											variant="outline"
-											size="sm"
-											onClick={handleClear}
-										>
-											{tCommon("buttons.clear")}
-										</Button>
-									</div>
-								</>
-							)}
-						</div>
-					</AccordionContent>
-				</div>
-			</AccordionItem>
-		</Accordion>
+						{/* Clear Button */}
+						<HStack justify="flex-end">
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={handleClear}
+							>
+								{tCommon("buttons.clear")}
+							</Button>
+						</HStack>
+					</>
+				)}
+			</VStack>
+		</Box>
 	);
 }
 
@@ -703,33 +602,42 @@ function DatePickerInput({ value, onChange, disabled }: DatePickerInputProps) {
 	};
 
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
+		<Popover.Root
+			open={open}
+			onOpenChange={(e) => setOpen(e.open)}
+			positioning={{ placement: "bottom-start" }}
+		>
+			<Popover.Trigger asChild>
 				<Button
 					type="button"
 					variant="outline"
-					className={cn(
-						"w-full justify-start text-start font-normal",
-						!date && "text-muted-foreground",
-					)}
+					w="full"
+					justifyContent="flex-start"
+					textAlign="start"
+					fontWeight="normal"
+					color={!date ? "fg.muted" : undefined}
 					disabled={disabled}
 				>
-					<CalendarIcon className="me-2 size-4" />
-					{date ? (
-						format(date, "PPP")
-					) : (
-						<span>{t("placeholders.pickDate", "Pick a date")}</span>
-					)}
+					<CalendarIcon
+						style={{ marginRight: "0.5rem", height: "1rem", width: "1rem" }}
+					/>
+					{date
+						? format(date, "PPP")
+						: t("placeholders.pickDate", "Pick a date")}
 				</Button>
-			</PopoverTrigger>
-			<PopoverContent className="w-auto p-0" align="start">
-				<Calendar
-					mode="single"
-					selected={date}
-					onSelect={handleSelect}
-					initialFocus
-				/>
-			</PopoverContent>
-		</Popover>
+			</Popover.Trigger>
+			<Portal>
+				<Popover.Positioner>
+					<Popover.Content w="auto" p="0">
+						<Calendar
+							mode="single"
+							selected={date}
+							onSelect={handleSelect}
+							initialFocus
+						/>
+					</Popover.Content>
+				</Popover.Positioner>
+			</Portal>
+		</Popover.Root>
 	);
 }

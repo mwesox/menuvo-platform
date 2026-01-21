@@ -4,30 +4,34 @@
  * Defines the contract for store closure operations.
  */
 
-import type { storeClosures } from "@menuvo/db/schema";
-import type { CreateClosureInput, UpdateClosureInput } from "./types.js";
+import type {
+	CreateClosureInput,
+	DeleteClosureInput,
+	GetClosureByIdInput,
+	StoreClosureOutput,
+	UpdateClosureInput,
+} from "./types.js";
 
 /**
  * Closures service interface
  */
 export interface IClosuresService {
-	list(
-		storeId: string,
-		merchantId: string,
-	): Promise<(typeof storeClosures.$inferSelect)[]>;
+	list(storeId: string, merchantId: string): Promise<StoreClosureOutput[]>;
 
 	getById(
-		closureId: string,
+		input: GetClosureByIdInput,
 		merchantId: string,
-	): Promise<typeof storeClosures.$inferSelect>;
+	): Promise<StoreClosureOutput>;
 
-	create(input: CreateClosureInput): Promise<typeof storeClosures.$inferSelect>;
+	create(
+		input: CreateClosureInput,
+		merchantId: string,
+	): Promise<StoreClosureOutput>;
 
 	update(
-		closureId: string,
-		merchantId: string,
 		input: UpdateClosureInput,
-	): Promise<typeof storeClosures.$inferSelect>;
+		merchantId: string,
+	): Promise<StoreClosureOutput>;
 
-	delete(closureId: string, merchantId: string): Promise<void>;
+	delete(input: DeleteClosureInput, merchantId: string): Promise<void>;
 }

@@ -1,14 +1,5 @@
+import { Field, Input, SimpleGrid, VStack } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
-import {
-	Button,
-	Field,
-	FieldError,
-	FieldGroup,
-	FieldLabel,
-	Input,
-	LoadingButton,
-	PhoneInput,
-} from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -16,7 +7,10 @@ import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ContentSection } from "@/components/ui/content-section";
+import { SettingsFormFooter } from "@/components/layout/settings-form-footer";
+import { FormField } from "@/components/ui/form-field";
+import { FormSection } from "@/components/ui/form-section";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { ImageUploadField } from "@/features/images/components/image-upload-field";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { useSlugAvailability } from "../hooks/use-slug-availability";
@@ -43,9 +37,15 @@ function SlugAvailabilityDisplay({ name }: { name: string }) {
 interface StoreDetailsFormProps {
 	store?: Store;
 	merchantId: string;
+	/** Skip the wrapper when parent already provides one (e.g., settings page) */
+	skipWrapper?: boolean;
 }
 
-export function StoreDetailsForm({ store, merchantId }: StoreDetailsFormProps) {
+export function StoreDetailsForm({
+	store,
+	merchantId,
+	skipWrapper,
+}: StoreDetailsFormProps) {
 	const navigate = useNavigate();
 	const { t } = useTranslation("stores");
 	const { t: tForms } = useTranslation("forms");
@@ -148,42 +148,28 @@ export function StoreDetailsForm({ store, merchantId }: StoreDetailsFormProps) {
 		[store, queryClient, trpc, trpcClient, t],
 	);
 
-	return (
-		<form
-			onSubmit={(e) => {
-				e.preventDefault();
-				form.handleSubmit();
-			}}
-			className="space-y-8"
-		>
+	const formContent = (
+		<>
 			{/* Store Details Section */}
-			<ContentSection
+			<FormSection
 				title={t("titles.storeDetails")}
 				description={t("descriptions.storeDetails")}
 			>
-				<FieldGroup>
+				<VStack gap="4" align="stretch">
 					<form.Field name="name">
-						{(field) => {
-							const isInvalid =
-								field.state.meta.isTouched && !field.state.meta.isValid;
-							return (
-								<Field data-invalid={isInvalid}>
-									<FieldLabel htmlFor={field.name}>
-										{tForms("fields.storeName")}
-									</FieldLabel>
-									<Input
-										id={field.name}
-										name={field.name}
-										placeholder={tForms("placeholders.downtownLocation")}
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(e) => field.handleChange(e.target.value)}
-										aria-invalid={isInvalid}
-									/>
-									{isInvalid && <FieldError errors={field.state.meta.errors} />}
-								</Field>
-							);
-						}}
+						{(field) => (
+							<FormField field={field} label={tForms("fields.storeName")}>
+								<Input
+									id={field.name}
+									name={field.name}
+									autoComplete="organization"
+									placeholder={tForms("placeholders.downtownLocation")}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+							</FormField>
+						)}
 					</form.Field>
 
 					{/* Shop URL display - slug is permanent once created */}
@@ -200,203 +186,174 @@ export function StoreDetailsForm({ store, merchantId }: StoreDetailsFormProps) {
 					)}
 
 					<form.Field name="street">
-						{(field) => {
-							const isInvalid =
-								field.state.meta.isTouched && !field.state.meta.isValid;
-							return (
-								<Field data-invalid={isInvalid}>
-									<FieldLabel htmlFor={field.name}>
-										{tForms("fields.streetAddress")}
-									</FieldLabel>
+						{(field) => (
+							<FormField field={field} label={tForms("fields.streetAddress")}>
+								<Input
+									id={field.name}
+									name={field.name}
+									autoComplete="street-address"
+									placeholder={tForms("placeholders.mainStreet")}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+							</FormField>
+						)}
+					</form.Field>
+
+					<SimpleGrid columns={{ base: 1, sm: 3 }} gap="4">
+						<form.Field name="city">
+							{(field) => (
+								<FormField field={field} label={tForms("fields.city")}>
 									<Input
 										id={field.name}
 										name={field.name}
-										placeholder={tForms("placeholders.mainStreet")}
+										autoComplete="address-level2"
+										placeholder={tForms("placeholders.berlin")}
 										value={field.state.value}
 										onBlur={field.handleBlur}
 										onChange={(e) => field.handleChange(e.target.value)}
-										aria-invalid={isInvalid}
 									/>
-									{isInvalid && <FieldError errors={field.state.meta.errors} />}
-								</Field>
-							);
-						}}
-					</form.Field>
-
-					<div className="grid gap-4 sm:grid-cols-3">
-						<form.Field name="city">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor={field.name}>
-											{tForms("fields.city")}
-										</FieldLabel>
-										<Input
-											id={field.name}
-											name={field.name}
-											placeholder={tForms("placeholders.berlin")}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
+								</FormField>
+							)}
 						</form.Field>
 						<form.Field name="postalCode">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor={field.name}>
-											{tForms("fields.postalCode")}
-										</FieldLabel>
-										<Input
-											id={field.name}
-											name={field.name}
-											placeholder={tForms("placeholders.postalCode10115")}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
-						</form.Field>
-						<form.Field name="country">
 							{(field) => (
-								<Field>
-									<FieldLabel htmlFor={field.name}>
-										{tForms("fields.country")}
-									</FieldLabel>
+								<FormField field={field} label={tForms("fields.postalCode")}>
 									<Input
 										id={field.name}
 										name={field.name}
+										autoComplete="postal-code"
+										placeholder={tForms("placeholders.postalCode10115")}
 										value={field.state.value}
-										readOnly
-										className="cursor-not-allowed bg-muted"
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
 									/>
-								</Field>
+								</FormField>
 							)}
 						</form.Field>
-					</div>
-				</FieldGroup>
-			</ContentSection>
+						<form.Field name="country">
+							{(field) => (
+								<Field.Root>
+									<Field.Label htmlFor={field.name}>
+										{tForms("fields.country")}
+									</Field.Label>
+									<Input
+										id={field.name}
+										name={field.name}
+										autoComplete="country-name"
+										value={field.state.value}
+										readOnly
+										cursor="not-allowed"
+										bg="bg.muted"
+									/>
+								</Field.Root>
+							)}
+						</form.Field>
+					</SimpleGrid>
+				</VStack>
+			</FormSection>
 
 			{/* Contact Settings Section */}
-			<ContentSection
+			<FormSection
 				title={t("titles.contactSettings")}
 				description={t("descriptions.contactSettings")}
 			>
-				<FieldGroup>
-					<div className="grid gap-4 sm:grid-cols-2">
-						<form.Field name="phone">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor={field.name}>
-											{tForms("fields.phone")}
-										</FieldLabel>
-										<PhoneInput
-											id={field.name}
-											international={false}
-											defaultCountry="DE"
-											placeholder={tForms("placeholders.phoneExample")}
-											value={field.state.value || undefined}
-											onBlur={field.handleBlur}
-											onChange={(value) => field.handleChange(value || "")}
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
-						</form.Field>
-						<form.Field name="email">
-							{(field) => {
-								const isInvalid =
-									field.state.meta.isTouched && !field.state.meta.isValid;
-								return (
-									<Field data-invalid={isInvalid}>
-										<FieldLabel htmlFor={field.name}>
-											{tForms("fields.email")}
-										</FieldLabel>
-										<Input
-											id={field.name}
-											name={field.name}
-											type="email"
-											placeholder={tForms("placeholders.storeEmail")}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(e) => field.handleChange(e.target.value)}
-											aria-invalid={isInvalid}
-										/>
-										{isInvalid && (
-											<FieldError errors={field.state.meta.errors} />
-										)}
-									</Field>
-								);
-							}}
-						</form.Field>
-					</div>
-				</FieldGroup>
-			</ContentSection>
+				<SimpleGrid columns={{ base: 1, sm: 2 }} gap="4">
+					<form.Field name="phone">
+						{(field) => (
+							<FormField field={field} label={tForms("fields.phone")}>
+								<PhoneInput
+									id={field.name}
+									defaultCountry="DE"
+									autoComplete="tel"
+									placeholder={tForms("placeholders.phoneExample")}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={field.handleChange}
+								/>
+							</FormField>
+						)}
+					</form.Field>
+					<form.Field name="email">
+						{(field) => (
+							<FormField field={field} label={tForms("fields.email")}>
+								<Input
+									id={field.name}
+									name={field.name}
+									type="email"
+									autoComplete="email"
+									placeholder={tForms("placeholders.storeEmail")}
+									value={field.state.value}
+									onBlur={field.handleBlur}
+									onChange={(e) => field.handleChange(e.target.value)}
+								/>
+							</FormField>
+						)}
+					</form.Field>
+				</SimpleGrid>
+			</FormSection>
 
 			{/* Store Images Section - only show in edit mode */}
 			{isEditing && (
-				<ContentSection
+				<FormSection
 					title={t("titles.storeImages")}
 					description={t("descriptions.storeImages")}
 				>
-					<Field>
-						<FieldLabel>{t("fields.storeLogo")}</FieldLabel>
-						<p className="mb-2 text-muted-foreground text-sm">
-							{t("hints.storeLogoHint")}
-						</p>
+					<Field.Root>
+						<Field.Label>{t("fields.storeLogo")}</Field.Label>
+						<Field.HelperText>{t("hints.storeLogoHint")}</Field.HelperText>
 						<ImageUploadField
 							value={store.logoUrl || undefined}
 							onChange={handleLogoChange}
 							merchantId={merchantId}
 							imageType="store_logo"
 						/>
-					</Field>
-				</ContentSection>
+					</Field.Root>
+				</FormSection>
 			)}
 
-			{/* Form Actions */}
-			<div className="flex justify-end gap-3 border-t pt-6">
-				<Button
-					type="button"
-					variant="outline"
-					onClick={() => navigate({ to: "/stores" })}
-				>
-					{tCommon("buttons.cancel")}
-				</Button>
-				<LoadingButton
-					type="submit"
-					isLoading={createStore.isPending || updateStore.isPending}
-					loadingText={
-						isEditing ? tCommon("states.updating") : tCommon("states.creating")
-					}
-				>
-					{isEditing ? tCommon("buttons.update") : tCommon("buttons.create")}
-				</LoadingButton>
-			</div>
+			<form.Subscribe
+				selector={(state) => ({
+					isSubmitting: state.isSubmitting,
+					canSubmit: state.canSubmit,
+				})}
+			>
+				{({ isSubmitting, canSubmit }) => (
+					<SettingsFormFooter
+						isSubmitting={
+							isSubmitting || createStore.isPending || updateStore.isPending
+						}
+						isDisabled={!canSubmit}
+						onCancel={() => navigate({ to: "/stores" })}
+						submitText={
+							isEditing ? tCommon("buttons.update") : tCommon("buttons.create")
+						}
+						submittingText={
+							isEditing
+								? tCommon("states.updating")
+								: tCommon("states.creating")
+						}
+					/>
+				)}
+			</form.Subscribe>
+		</>
+	);
+
+	return (
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				form.handleSubmit();
+			}}
+		>
+			{skipWrapper ? (
+				<VStack gap="8" align="stretch" w="full">
+					{formContent}
+				</VStack>
+			) : (
+				<VStack layerStyle="settingsContent">{formContent}</VStack>
+			)}
 		</form>
 	);
 }

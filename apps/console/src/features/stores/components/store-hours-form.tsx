@@ -1,13 +1,24 @@
+import {
+	Badge,
+	Button,
+	HStack,
+	Icon,
+	Separator,
+	Switch,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
-import { Button, Field, FieldLabel, Switch, TimeInput } from "@menuvo/ui";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { Plus, Trash2 } from "lucide-react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { ContentSection } from "@/components/ui/content-section";
+import { SettingsFormFooter } from "@/components/layout/settings-form-footer";
+import { FormSection } from "@/components/ui/form-section";
+import { TimeInput } from "@/components/ui/time-input";
 import {
 	type DayHoursInput,
 	daysOfWeek,
@@ -83,7 +94,6 @@ function transformToHoursArray(weekHours: DayHoursInput[]): Array<{
 
 export function StoreHoursForm({ storeId }: StoreHoursFormProps) {
 	const { t } = useTranslation("settings");
-	const { t: tCommon } = useTranslation("common");
 	const { t: tToasts } = useTranslation("toasts");
 	const trpc = useTRPC();
 	const trpcClient = useTRPCClient();
@@ -128,44 +138,46 @@ export function StoreHoursForm({ storeId }: StoreHoursFormProps) {
 		},
 	});
 
+	// Reset form when hours change
+	useEffect(() => {
+		form.reset({
+			weekHours: defaultValues,
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [defaultValues]);
+
 	return (
 		<form
 			onSubmit={(e) => {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="space-y-8"
 		>
-			<ContentSection
-				title={t("sections.openingHours")}
-				description={t("descriptions.openingHours")}
-			>
-				<div>
-					{daysOfWeek.map((day, dayIndex) => (
-						<form.Field key={day} name={`weekHours[${dayIndex}]`}>
-							{(field) => (
-								<DayRow
-									day={day}
-									value={field.state.value as DayHoursInput}
-									onChange={field.handleChange}
-								/>
-							)}
-						</form.Field>
-					))}
-				</div>
-			</ContentSection>
+			<VStack gap="6" align="stretch" w="full">
+				<FormSection
+					title={t("sections.openingHours")}
+					description={t("descriptions.openingHours")}
+				>
+					{/* Days list */}
+					<VStack align="stretch" gap="0" separator={<Separator />}>
+						{daysOfWeek.map((day, dayIndex) => (
+							<form.Field key={day} name={`weekHours[${dayIndex}]`}>
+								{(field) => (
+									<DayRow
+										day={day}
+										value={field.state.value as DayHoursInput}
+										onChange={field.handleChange}
+									/>
+								)}
+							</form.Field>
+						))}
+					</VStack>
+				</FormSection>
 
-			<div className="flex justify-end border-t pt-6">
 				<form.Subscribe selector={(state) => state.isSubmitting}>
-					{(isSubmitting) => (
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting
-								? tCommon("states.saving")
-								: tCommon("buttons.saveChanges")}
-						</Button>
-					)}
+					{(isSubmitting) => <SettingsFormFooter isSubmitting={isSubmitting} />}
 				</form.Subscribe>
-			</div>
+			</VStack>
 		</form>
 	);
 }
@@ -179,6 +191,7 @@ interface DayRowProps {
 function DayRow({ day, value, onChange }: DayRowProps) {
 	const { t } = useTranslation("settings");
 	const { t: tCommon } = useTranslation("common");
+
 	const handleToggle = useCallback(
 		(isOpen: boolean) => {
 			onChange({
@@ -229,80 +242,90 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 	);
 
 	const showDeleteButton = value.slots.length > 1;
+	const switchId = `${day}-toggle`;
 
 	return (
-		<div className="grid grid-cols-[auto_1fr_auto] items-start gap-4 border-b py-2.5 last:border-b-0">
-			<Field orientation="horizontal" className="pt-1.5">
-				<Switch
-					id={`${day}-toggle`}
+		<HStack
+			py="4"
+			gap={{ base: "4", md: "8" }}
+			align="flex-start"
+			flexWrap={{ base: "wrap", md: "nowrap" }}
+			opacity={value.isOpen ? 1 : 0.7}
+		>
+			{/* Day switch - fixed width for alignment */}
+			<HStack gap="3" w={{ base: "full", md: "160px" }} flexShrink={0}>
+				<Switch.Root
+					id={switchId}
 					checked={value.isOpen}
-					onCheckedChange={handleToggle}
-				/>
-				<FieldLabel htmlFor={`${day}-toggle`} className="w-24 font-medium">
-					{tCommon(`days.${day}`)}
-				</FieldLabel>
-			</Field>
+					onCheckedChange={(e) => handleToggle(e.checked)}
+					colorPalette="red"
+				>
+					<Switch.HiddenInput />
+					<Switch.Control>
+						<Switch.Thumb />
+					</Switch.Control>
+					<Switch.Label fontWeight="medium" cursor="pointer">
+						{tCommon(`days.${day}`)}
+					</Switch.Label>
+				</Switch.Root>
+			</HStack>
 
-			<div className="flex justify-center">
-				{value.isOpen ? (
-					<div className="space-y-1.5">
-						{value.slots.map((slot, slotIndex) => (
-							<div
-								key={`${slot.openTime}-${slot.closeTime}-${slotIndex}`}
-								className="flex items-center gap-2"
-							>
-								<TimeInput
-									value={slot.openTime}
-									onChange={(val) =>
-										handleSlotChange(slotIndex, "openTime", val)
-									}
-									className="w-32"
-								/>
-								<span className="text-muted-foreground text-sm">–</span>
-								<TimeInput
-									value={slot.closeTime}
-									onChange={(val) =>
-										handleSlotChange(slotIndex, "closeTime", val)
-									}
-									className="w-32"
-								/>
-								<div className="w-8">
-									{showDeleteButton && (
-										<Button
-											type="button"
-											variant="ghost"
-											size="icon"
-											className="size-8"
-											onClick={() => handleRemoveSlot(slotIndex)}
-										>
-											<Trash2 className="size-4" />
-										</Button>
-									)}
-								</div>
-							</div>
-						))}
-					</div>
-				) : (
-					<span className="block pt-1.5 text-muted-foreground text-sm">
-						{tCommon("labels.closed")}
-					</span>
-				)}
-			</div>
-
-			<div className="pt-1">
-				{value.isOpen && (
+			{/* Time slots or closed badge */}
+			{value.isOpen ? (
+				<VStack gap="2" align="stretch" flex="1">
+					{value.slots.map((slot, slotIndex) => (
+						<HStack
+							key={`${slot.openTime}-${slot.closeTime}-${slotIndex}`}
+							gap="2"
+							align="center"
+						>
+							<TimeInput
+								value={slot.openTime}
+								onChange={(val) => handleSlotChange(slotIndex, "openTime", val)}
+							/>
+							<Text color="fg.muted" textStyle="sm">
+								–
+							</Text>
+							<TimeInput
+								value={slot.closeTime}
+								onChange={(val) =>
+									handleSlotChange(slotIndex, "closeTime", val)
+								}
+							/>
+							{showDeleteButton && (
+								<Button
+									type="button"
+									variant="ghost"
+									size="xs"
+									aria-label={tCommon("buttons.delete")}
+									onClick={() => handleRemoveSlot(slotIndex)}
+								>
+									<Icon fontSize="sm">
+										<Trash2 />
+									</Icon>
+								</Button>
+							)}
+						</HStack>
+					))}
 					<Button
 						type="button"
 						variant="ghost"
-						size="icon"
-						className="size-8"
+						size="sm"
+						aria-label={t("actions.addTimeSlot")}
 						onClick={handleAddSlot}
-						title={t("actions.addTimeSlot")}
+						alignSelf="flex-start"
 					>
-						<Plus className="size-4" />
+						<Icon fontSize="sm">
+							<Plus />
+						</Icon>
+						<Text hideBelow="sm">{t("actions.addTimeSlot")}</Text>
 					</Button>
-				)}
-			</div>
-		</div>
+				</VStack>
+			) : (
+				<Badge variant="outline" colorPalette="gray" size="sm">
+					{tCommon("labels.closed")}
+				</Badge>
+			)}
+		</HStack>
 	);
 }

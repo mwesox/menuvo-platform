@@ -1,3 +1,4 @@
+import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
 import type React from "react";
@@ -5,6 +6,7 @@ import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { i18n } from "../../../i18n";
 import { TRPCProvider, trpcClient } from "../../../lib/trpc";
+import { system } from "../../../theme";
 import type { MenuItemLight } from "../types";
 import { ItemDrawer } from "./item-drawer";
 
@@ -18,39 +20,32 @@ vi.mock("../../cart", () => ({
 	useCartStore: vi.fn(() => vi.fn()),
 }));
 
-// Mock the shop shared components
-vi.mock("../../shared", () => ({
-	QuantityStepper: ({
-		value,
-		onChange,
-	}: {
-		value: number;
-		onChange: (n: number) => void;
-	}) => (
-		<div data-testid="quantity-stepper">
-			<button type="button" onClick={() => onChange(value - 1)}>
-				-
-			</button>
-			<span>{value}</span>
-			<button type="button" onClick={() => onChange(value + 1)}>
-				+
-			</button>
-		</div>
-	),
-	ShopButton: ({ children, ...props }: React.ComponentProps<"button">) => (
-		<button {...props}>{children}</button>
-	),
-	ShopHeading: ({
-		children,
-		as: Component = "h2",
-		...props
-	}: {
-		children: React.ReactNode;
-		as?: keyof JSX.IntrinsicElements;
-	}) => <Component {...props}>{children}</Component>,
-}));
+// Mock only QuantityStepper for simpler testing
+vi.mock("../../shared", async (importOriginal) => {
+	const actual = await importOriginal<typeof import("../../shared")>();
+	return {
+		...actual,
+		QuantityStepper: ({
+			value,
+			onChange,
+		}: {
+			value: number;
+			onChange: (n: number) => void;
+		}) => (
+			<div data-testid="quantity-stepper">
+				<button type="button" onClick={() => onChange(value - 1)}>
+					-
+				</button>
+				<span>{value}</span>
+				<button type="button" onClick={() => onChange(value + 1)}>
+					+
+				</button>
+			</div>
+		),
+	};
+});
 
-// Create a wrapper with QueryClient for tests
+// Create a wrapper with QueryClient and ChakraProvider for tests
 const createWrapper = () => {
 	const queryClient = new QueryClient({
 		defaultOptions: {
@@ -60,11 +55,13 @@ const createWrapper = () => {
 		},
 	});
 	return ({ children }: { children: React.ReactNode }) => (
-		<QueryClientProvider client={queryClient}>
-			<TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
-				<I18nextProvider i18n={i18n}>{children}</I18nextProvider>
-			</TRPCProvider>
-		</QueryClientProvider>
+		<ChakraProvider value={system}>
+			<QueryClientProvider client={queryClient}>
+				<TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
+					<I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+				</TRPCProvider>
+			</QueryClientProvider>
+		</ChakraProvider>
 	);
 };
 

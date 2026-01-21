@@ -1,73 +1,95 @@
-import { Skeleton } from "@menuvo/ui/components/skeleton";
+import { Box, Flex, HStack, Skeleton, Stack, VStack } from "@chakra-ui/react";
 
 export function MenuItemSkeleton() {
 	return (
-		<div className="flex gap-3 rounded-xl bg-card p-3">
+		<Flex gap="3" rounded="xl" bg="bg.panel" p="3">
 			{/* Image skeleton */}
-			<Skeleton className="h-20 w-20 flex-shrink-0 rounded-lg bg-muted" />
+			<Skeleton h="80px" w="80px" flexShrink={0} rounded="lg" />
 
 			{/* Content skeleton */}
-			<div className="flex min-w-0 flex-1 flex-col justify-between">
-				<div>
+			<Flex minW="0" flex="1" direction="column" justify="space-between">
+				<VStack align="stretch" gap="1.5">
 					{/* Title */}
-					<Skeleton className="h-5 w-2/3 bg-muted" />
+					<Skeleton h="5" w="66%" />
 					{/* Description */}
-					<Skeleton className="mt-1.5 h-4 w-full bg-muted" />
-					<Skeleton className="mt-1 h-4 w-3/4 bg-muted" />
-				</div>
+					<Skeleton h="4" w="full" />
+					<Skeleton h="4" w="75%" />
+				</VStack>
 
 				{/* Bottom row */}
-				<div className="mt-2 flex items-center justify-between">
-					<Skeleton className="h-5 w-16 bg-muted" />
-					<Skeleton className="h-8 w-20 rounded-lg bg-muted" />
-				</div>
-			</div>
-		</div>
+				<HStack mt="2" justify="space-between">
+					<Skeleton h="5" w="16" />
+					<Skeleton h="8" w="20" rounded="lg" />
+				</HStack>
+			</Flex>
+		</Flex>
 	);
 }
 
 export function CategorySkeleton() {
 	return (
-		<div className="mb-8">
+		<Box mb="8">
 			{/* Category header skeleton */}
-			<Skeleton className="mb-3 h-7 w-40 bg-muted" />
+			<Skeleton mb="3" h="7" w="40" />
 
 			{/* Items skeleton */}
-			<div className="space-y-3">
+			<Stack gap="3">
 				<MenuItemSkeleton />
 				<MenuItemSkeleton />
 				<MenuItemSkeleton />
-			</div>
-		</div>
+			</Stack>
+		</Box>
 	);
 }
 
 export function StorePageSkeleton() {
 	return (
-		<div className="min-h-screen pb-24">
+		<Box minH="100vh" pb="24">
 			{/* Hero skeleton */}
-			<div className="relative h-48 bg-gradient-to-br from-amber-100 to-orange-50">
-				<div className="absolute inset-x-0 bottom-0 p-4">
-					<Skeleton className="mb-2 h-8 w-48 bg-white/30" />
-					<Skeleton className="h-4 w-64 bg-white/20" />
-				</div>
-			</div>
+			<Box
+				position="relative"
+				h="48"
+				bgGradient="to-br"
+				gradientFrom="yellow.100"
+				gradientTo="orange.50"
+			>
+				<Box position="absolute" insetX="0" bottom="0" p="4">
+					<Skeleton
+						mb="2"
+						h="8"
+						w="48"
+						css={{ "--start-color": "rgba(255,255,255,0.3)" }}
+					/>
+					<Skeleton
+						h="4"
+						w="64"
+						css={{ "--start-color": "rgba(255,255,255,0.2)" }}
+					/>
+				</Box>
+			</Box>
 
 			{/* Category nav skeleton */}
-			<div className="sticky top-14 z-30 border-border border-b bg-background">
-				<div className="flex gap-2 px-4 py-3">
-					<Skeleton className="h-8 w-24 rounded-lg bg-muted" />
-					<Skeleton className="h-8 w-20 rounded-lg bg-muted" />
-					<Skeleton className="h-8 w-28 rounded-lg bg-muted" />
-					<Skeleton className="h-8 w-24 rounded-lg bg-muted" />
-				</div>
-			</div>
+			<Box
+				position="sticky"
+				top="14"
+				zIndex="30"
+				borderBottomWidth="1px"
+				borderColor="border"
+				bg="bg"
+			>
+				<HStack gap="2" px="4" py="3">
+					<Skeleton h="8" w="24" rounded="lg" />
+					<Skeleton h="8" w="20" rounded="lg" />
+					<Skeleton h="8" w="28" rounded="lg" />
+					<Skeleton h="8" w="24" rounded="lg" />
+				</HStack>
+			</Box>
 
 			{/* Menu sections skeleton */}
-			<div className="px-4 py-4">
+			<Box px="4" py="4">
 				<CategorySkeleton />
 				<CategorySkeleton />
-			</div>
-		</div>
+			</Box>
+		</Box>
 	);
 }

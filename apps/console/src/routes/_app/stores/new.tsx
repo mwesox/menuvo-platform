@@ -1,3 +1,4 @@
+import { VStack } from "@chakra-ui/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { PageActionBar } from "@/components/layout/page-action-bar";
@@ -13,9 +14,9 @@ function NewStorePage() {
 
 	// merchantId is guaranteed by _app beforeLoad - no null check needed
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBar backHref="/stores" backLabel={t("titles.createStore")} />
 			<StoreDetailsForm merchantId={merchantId} />
-		</div>
+		</VStack>
 	);
 }

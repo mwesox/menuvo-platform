@@ -20,6 +20,7 @@ import type {
 	StoreWithStatus,
 	UpdateStoreInput,
 } from "./types.js";
+import { sortClosures, sortHours } from "./utils.js";
 
 /**
  * Store service implementation
@@ -59,11 +60,8 @@ export class StoreService implements IStoreService {
 		const store = await this.db.query.stores.findFirst({
 			where: and(eq(stores.id, storeId), eq(stores.merchantId, merchantId)),
 			with: {
-				hours: {
-					orderBy: (h, { asc }) => [asc(h.dayOfWeek), asc(h.displayOrder)],
-				},
-				closures: {
-					orderBy: (c, { asc }) => [asc(c.startDate)],
+				settings: {
+					columns: { hours: true, closures: true },
 				},
 			},
 		});
@@ -72,7 +70,17 @@ export class StoreService implements IStoreService {
 			throw new NotFoundError("Store not found");
 		}
 
-		return store;
+		// Extract hours and closures from settings JSONB
+		const hours = store.settings?.hours ?? [];
+		const closures = store.settings?.closures ?? [];
+
+		// Return store with sorted hours and closures at top level for compatibility
+		const { settings: _, ...storeData } = store;
+		return {
+			...storeData,
+			hours: sortHours(hours),
+			closures: sortClosures(closures),
+		};
 	}
 
 	async getBySlug(slug: string): Promise<typeof stores.$inferSelect> {

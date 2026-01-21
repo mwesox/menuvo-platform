@@ -1,22 +1,21 @@
 import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-	AlertDialogTrigger,
 	Button,
+	Checkbox,
+	Dialog,
+	Field,
+	HStack,
+	IconButton,
 	Input,
-	Label,
-} from "@menuvo/ui";
+	Portal,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Caption, Label } from "@/components/ui/typography";
 import type { PaymentProvider } from "@/features/orders";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
@@ -140,102 +139,130 @@ export function RefundButton({
 	};
 
 	return (
-		<AlertDialog open={isOpen} onOpenChange={setIsOpen}>
-			<AlertDialogTrigger asChild>
+		<Dialog.Root
+			open={isOpen}
+			onOpenChange={(e) => setIsOpen(e.open)}
+			role="alertdialog"
+		>
+			<Dialog.Trigger asChild>
 				{compact ? (
-					<Button variant="outline" size="icon" title={t("actions.refund")}>
-						<RotateCcw className="size-4" />
-					</Button>
+					<IconButton
+						variant="outline"
+						size="sm"
+						title={t("actions.refund")}
+						aria-label={t("actions.refund")}
+					>
+						<RotateCcw style={{ height: "1rem", width: "1rem" }} />
+					</IconButton>
 				) : (
 					<Button variant="outline" size="sm">
-						<RotateCcw className="me-2 size-4" />
+						<RotateCcw
+							style={{ height: "1rem", width: "1rem", marginRight: "0.5rem" }}
+						/>
 						{t("actions.refund")}
 					</Button>
 				)}
-			</AlertDialogTrigger>
-			<AlertDialogContent>
-				<AlertDialogHeader>
-					<AlertDialogTitle>{t("refund.dialogTitle")}</AlertDialogTitle>
-					<AlertDialogDescription>
-						{t("refund.dialogDescription")}
-					</AlertDialogDescription>
-				</AlertDialogHeader>
+			</Dialog.Trigger>
+			<Portal>
+				<Dialog.Backdrop />
+				<Dialog.Positioner>
+					<Dialog.Content>
+						<Dialog.Header>
+							<Dialog.Title>{t("refund.dialogTitle")}</Dialog.Title>
+							<Dialog.Description>
+								{t("refund.dialogDescription")}
+							</Dialog.Description>
+						</Dialog.Header>
 
-				<div className="space-y-4 py-4">
-					{/* Order amount display */}
-					<div className="flex items-center justify-between rounded-md bg-muted px-3 py-2">
-						<span className="text-muted-foreground text-sm">
-							{t("refund.orderTotal")}
-						</span>
-						<span className="font-medium">{formatAmount(totalAmount)}</span>
-					</div>
+						<Dialog.Body>
+							<VStack gap="4" py="4">
+								{/* Order amount display */}
+								<HStack
+									justify="space-between"
+									rounded="md"
+									bg="bg.muted"
+									px="3"
+									py="2"
+									w="full"
+								>
+									<Caption>{t("refund.orderTotal")}</Caption>
+									<Label>{formatAmount(totalAmount)}</Label>
+								</HStack>
 
-					{/* Partial refund toggle */}
-					<div className="flex items-center space-x-2">
-						<input
-							type="checkbox"
-							id="partial-refund"
-							checked={isPartialRefund}
-							onChange={(e) => setIsPartialRefund(e.target.checked)}
-							className="size-4"
-						/>
-						<Label htmlFor="partial-refund" className="cursor-pointer text-sm">
-							{t("refund.partialRefund")}
-						</Label>
-					</div>
+								{/* Partial refund toggle */}
+								<Checkbox.Root
+									checked={isPartialRefund}
+									onCheckedChange={(e) =>
+										setIsPartialRefund(e.checked === true)
+									}
+								>
+									<Checkbox.HiddenInput />
+									<Checkbox.Control />
+									<Checkbox.Label cursor="pointer" textStyle="sm">
+										{t("refund.partialRefund")}
+									</Checkbox.Label>
+								</Checkbox.Root>
 
-					{/* Partial amount input */}
-					{isPartialRefund && (
-						<div className="space-y-2">
-							<Label htmlFor="refund-amount">
-								{t("refund.amount")} ({t("refund.inEuros")})
-							</Label>
-							<Input
-								id="refund-amount"
-								type="number"
-								step="0.01"
-								min="0.01"
-								max={(totalAmount / 100).toFixed(2)}
-								value={partialAmount}
-								onChange={(e) => setPartialAmount(e.target.value)}
-								placeholder={(totalAmount / 100).toFixed(2)}
-							/>
-							<p className="text-muted-foreground text-xs">
-								{t("refund.maxAmount")}: {formatAmount(totalAmount)}
-							</p>
-						</div>
-					)}
-				</div>
+								{/* Partial amount input */}
+								{isPartialRefund && (
+									<VStack gap="2" align="stretch" w="full">
+										<Field.Root>
+											<Field.Label>
+												{t("refund.amount")} ({t("refund.inEuros")})
+											</Field.Label>
+											<Input
+												type="number"
+												step="0.01"
+												min="0.01"
+												max={(totalAmount / 100).toFixed(2)}
+												value={partialAmount}
+												onChange={(e) => setPartialAmount(e.target.value)}
+												placeholder={(totalAmount / 100).toFixed(2)}
+											/>
+										</Field.Root>
+										<Text color="fg.muted" textStyle="xs">
+											{t("refund.maxAmount")}: {formatAmount(totalAmount)}
+										</Text>
+									</VStack>
+								)}
+							</VStack>
+						</Dialog.Body>
 
-				<AlertDialogFooter>
-					<AlertDialogCancel disabled={refundMutation.isPending}>
-						{t("actions.cancel")}
-					</AlertDialogCancel>
-					<AlertDialogAction
-						onClick={(e) => {
-							e.preventDefault();
-							handleRefund();
-						}}
-						disabled={refundMutation.isPending}
-						className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-					>
-						{refundMutation.isPending ? (
-							<>
-								<Loader2 className="me-2 size-4 animate-spin" />
-								{t("refund.processing")}
-							</>
-						) : isPartialRefund && partialAmount ? (
-							t("refund.confirmPartial", {
-								amount: formatAmount(
-									Math.round(Number.parseFloat(partialAmount) * 100),
-								),
-							})
-						) : (
-							t("refund.confirmFull")
-						)}
-					</AlertDialogAction>
-				</AlertDialogFooter>
-			</AlertDialogContent>
-		</AlertDialog>
+						<Dialog.Footer>
+							<Button
+								variant="outline"
+								onClick={() => setIsOpen(false)}
+								disabled={refundMutation.isPending}
+							>
+								{t("actions.cancel")}
+							</Button>
+							<Button
+								colorPalette="red"
+								onClick={(e) => {
+									e.preventDefault();
+									handleRefund();
+								}}
+								disabled={refundMutation.isPending}
+							>
+								{refundMutation.isPending ? (
+									<HStack gap="2">
+										<Loader2 style={{ height: "1rem", width: "1rem" }} />
+										<Text>{t("refund.processing")}</Text>
+									</HStack>
+								) : isPartialRefund && partialAmount ? (
+									t("refund.confirmPartial", {
+										amount: formatAmount(
+											Math.round(Number.parseFloat(partialAmount) * 100),
+										),
+									})
+								) : (
+									t("refund.confirmFull")
+								)}
+							</Button>
+						</Dialog.Footer>
+					</Dialog.Content>
+				</Dialog.Positioner>
+			</Portal>
+		</Dialog.Root>
 	);
 }

@@ -1,11 +1,18 @@
+import {
+	Box,
+	Center,
+	Field,
+	Flex,
+	Grid,
+	Input,
+	Spinner,
+	Stack,
+	Textarea,
+	VStack,
+} from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
-import { Input } from "@menuvo/ui/components/input";
-import { Label } from "@menuvo/ui/components/label";
-import { Textarea } from "@menuvo/ui/components/textarea";
-import { cn } from "@menuvo/ui/lib/utils";
 import type { inferRouterOutputs } from "@trpc/server";
 import i18n from "i18next";
-import { Loader2 } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -14,6 +21,8 @@ import type { TrpcClient } from "../../../lib/trpc";
 import { useCartStore } from "../../cart/stores/cart-store";
 import { StoreUnavailable } from "../../shared/components/store-unavailable";
 import {
+	CardSection,
+	PageContainer,
 	ShopButton,
 	ShopCard,
 	ShopHeading,
@@ -278,17 +287,19 @@ export function OrderingPage({
 	// Show payment redirect loading state
 	if (isPaymentRedirecting) {
 		return (
-			<div className="min-h-screen bg-background">
-				<div className="mx-auto max-w-2xl px-4 py-12">
-					<ShopCard padding="lg" className="space-y-4 text-center">
-						<Loader2 className="mx-auto size-12 animate-spin text-primary" />
-						<ShopHeading as="h1" size="lg">
-							{t("ordering.payment.redirecting")}
-						</ShopHeading>
-						<ShopMutedText>{t("ordering.payment.pleaseWait")}</ShopMutedText>
+			<Box minH="100vh" bg="bg">
+				<PageContainer size="md" py="12">
+					<ShopCard padding="lg">
+						<VStack gap="4" textAlign="center">
+							<Spinner size="xl" color="teal.solid" />
+							<ShopHeading as="h1" size="lg">
+								{t("ordering.payment.redirecting")}
+							</ShopHeading>
+							<ShopMutedText>{t("ordering.payment.pleaseWait")}</ShopMutedText>
+						</VStack>
 					</ShopCard>
-				</div>
-			</div>
+				</PageContainer>
+			</Box>
 		);
 	}
 
@@ -302,265 +313,270 @@ export function OrderingPage({
 		!(orderType === "delivery" && isClosed && scheduledPickupTime === null);
 
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="mx-auto max-w-2xl px-4 py-6">
+		<Box minH="100vh" bg="bg">
+			<PageContainer size="md">
 				{/* Header */}
-				<ShopHeading as="h1" size="xl" className="mb-6">
+				<ShopHeading as="h1" size="xl" mb="6">
 					{t("ordering.title")}
 				</ShopHeading>
 
-				<form onSubmit={handleSubmit} className="space-y-6">
-					{/* Closed Status Banner */}
-					{isClosed && (
-						<ShopCard
-							padding="md"
-							className="space-y-2 border-destructive bg-destructive/10"
-						>
-							<ShopHeading as="h2" size="md" className="text-destructive">
-								{t("ordering.shopClosed")}
-							</ShopHeading>
-							<ShopMutedText>{t("ordering.preOrderMessage")}</ShopMutedText>
-							{storeStatus?.nextOpenTime && (
-								<ShopMutedText className="text-sm">
-									{t("ordering.nextOpenTime", {
-										time: formatDateTime(storeStatus.nextOpenTime),
-									})}
-								</ShopMutedText>
-							)}
-						</ShopCard>
-					)}
+				<form onSubmit={handleSubmit}>
+					<Stack gap="6">
+						{/* Closed Status Banner */}
+						{isClosed && (
+							<ShopCard padding="md" borderColor="red.solid" bg="red.subtle">
+								<Stack gap="2">
+									<ShopHeading as="h2" size="md" color="red.fg">
+										{t("ordering.shopClosed")}
+									</ShopHeading>
+									<ShopMutedText>{t("ordering.preOrderMessage")}</ShopMutedText>
+									{storeStatus?.nextOpenTime && (
+										<ShopMutedText textStyle="sm">
+											{t("ordering.nextOpenTime", {
+												time: formatDateTime(storeStatus.nextOpenTime),
+											})}
+										</ShopMutedText>
+									)}
+								</Stack>
+							</ShopCard>
+						)}
 
-					{/* Order Type Selection - only show if more than one option available */}
-					{availableOrderTypes.length > 1 && (
-						<ShopCard padding="md" className="space-y-4">
-							<ShopHeading as="h2" size="md">
-								{t("ordering.orderType")}
-							</ShopHeading>
+						{/* Order Type Selection - only show if more than one option available */}
+						{availableOrderTypes.length > 1 && (
+							<CardSection title={t("ordering.orderType")}>
+								<Grid
+									templateColumns={{
+										base: "1fr",
+										sm:
+											availableOrderTypes.length === 2
+												? "repeat(2, 1fr)"
+												: "repeat(3, 1fr)",
+									}}
+									gap="3"
+								>
+									{availableOrderTypes.map((option) => {
+										const isSelected = orderType === option.value;
+										const isDisabled = option.disabled;
 
-							<div
-								className={cn(
-									"grid grid-cols-1 gap-3",
-									availableOrderTypes.length === 2
-										? "sm:grid-cols-2"
-										: "sm:grid-cols-3",
-								)}
-							>
-								{availableOrderTypes.map((option) => {
-									const isSelected = orderType === option.value;
-									const isDisabled = option.disabled;
-
-									return (
-										<ShopCard
-											key={option.value}
-											variant="interactive"
-											padding="md"
-											className={cn(
-												"cursor-pointer transition-all",
-												isSelected
-													? "border-2 border-primary bg-primary/10"
-													: "border border-border hover:border-primary/50 hover:bg-muted/50",
-												isDisabled && "cursor-not-allowed opacity-50",
-											)}
-											onClick={() =>
-												!isDisabled && setOrderType(option.value as OrderType)
-											}
-											onKeyDown={(e) => {
-												if (
-													!isDisabled &&
-													(e.key === "Enter" || e.key === " ")
-												) {
-													e.preventDefault();
-													setOrderType(option.value as OrderType);
+										return (
+											<ShopCard
+												key={option.value}
+												variant="interactive"
+												padding="md"
+												cursor={isDisabled ? "not-allowed" : "pointer"}
+												opacity={isDisabled ? 0.5 : 1}
+												borderWidth={isSelected ? "2px" : "1px"}
+												borderColor={isSelected ? "teal.solid" : "border"}
+												bg={isSelected ? "teal.subtle" : "bg.panel"}
+												_hover={
+													!isDisabled
+														? {
+																borderColor: isSelected
+																	? "teal.solid"
+																	: "teal.muted",
+																bg: isSelected ? "teal.subtle" : "bg.muted",
+															}
+														: undefined
 												}
-											}}
-											role="button"
-											tabIndex={isDisabled ? -1 : 0}
-											aria-pressed={isSelected}
-											aria-disabled={isDisabled}
-										>
-											<div className="flex items-center gap-3">
-												{/* Radio indicator */}
-												<div
-													className={cn(
-														"flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-all",
-														isSelected
-															? "border-primary bg-primary"
-															: "border-border",
-														isDisabled && "opacity-50",
-													)}
-												>
-													{isSelected && (
-														<div className="size-2 rounded-full bg-white" />
-													)}
-												</div>
-												{/* Label */}
-												<ShopText
-													className={cn(
-														"font-medium",
-														isSelected ? "text-foreground" : "text-foreground",
-														isDisabled && "opacity-50",
-													)}
-												>
-													{option.label}
-												</ShopText>
-											</div>
-										</ShopCard>
-									);
-								})}
-							</div>
-						</ShopCard>
-					)}
+												onClick={() =>
+													!isDisabled && setOrderType(option.value as OrderType)
+												}
+												onKeyDown={(e) => {
+													if (
+														!isDisabled &&
+														(e.key === "Enter" || e.key === " ")
+													) {
+														e.preventDefault();
+														setOrderType(option.value as OrderType);
+													}
+												}}
+												role="button"
+												tabIndex={isDisabled ? -1 : 0}
+												aria-pressed={isSelected}
+												aria-disabled={isDisabled}
+											>
+												<Flex align="center" gap="3">
+													{/* Radio indicator */}
+													<Center
+														w="5"
+														h="5"
+														flexShrink={0}
+														rounded="full"
+														borderWidth="2px"
+														borderColor={isSelected ? "teal.solid" : "border"}
+														bg={isSelected ? "teal.solid" : "transparent"}
+														opacity={isDisabled ? 0.5 : 1}
+													>
+														{isSelected && (
+															<Box w="2" h="2" rounded="full" bg="white" />
+														)}
+													</Center>
+													{/* Label */}
+													<ShopText
+														fontWeight="medium"
+														opacity={isDisabled ? 0.5 : 1}
+													>
+														{option.label}
+													</ShopText>
+												</Flex>
+											</ShopCard>
+										);
+									})}
+								</Grid>
+							</CardSection>
+						)}
 
-					{/* Pickup/Delivery Time Selection (for takeaway orders, or delivery when closed) */}
-					{(orderType === "takeaway" ||
-						(orderType === "delivery" && isClosed)) && (
-						<ShopCard padding="md" className="space-y-4">
-							<ShopHeading as="h2" size="md">
-								{orderType === "takeaway"
-									? t("ordering.pickupTime")
-									: t("ordering.deliveryTime")}
-							</ShopHeading>
-							<PickupTimeSelector
-								storeSlug={storeSlug}
-								value={scheduledPickupTime}
-								onChange={setScheduledPickupTime}
-								isRequired={true}
-								minDate={
-									isClosed && storeStatus?.nextOpenTime
-										? storeStatus.nextOpenTime
-										: undefined
-								}
-							/>
-						</ShopCard>
-					)}
-
-					{/* Customer Info */}
-					<ShopCard padding="md" className="space-y-4">
-						<ShopHeading as="h2" size="md">
-							{t("ordering.yourInfo")}
-						</ShopHeading>
-
-						<div>
-							<Label htmlFor="customerName">
-								<ShopText className="font-medium text-sm">
-									{t("ordering.yourName")}
-								</ShopText>
-							</Label>
-							<Input
-								id="customerName"
-								type="text"
-								value={customerName}
-								onChange={(e) => setCustomerName(e.target.value)}
-								placeholder={t("ordering.namePlaceholder")}
-								className="mt-1 w-full"
-								autoComplete="name"
-							/>
-						</div>
-
-						<div>
-							<Label htmlFor="customerNotes">
-								<ShopText className="font-medium text-sm">
-									{t("ordering.specialRequests")}
-									<span className="ms-1 font-normal text-muted-foreground">
-										({t("ordering.optional")})
-									</span>
-								</ShopText>
-							</Label>
-							<Textarea
-								id="customerNotes"
-								value={customerNotes}
-								onChange={(e) => setCustomerNotes(e.target.value)}
-								placeholder={t("ordering.specialRequestsPlaceholder")}
-								className="mt-1 min-h-[80px] w-full resize-none"
-								maxLength={500}
-							/>
-						</div>
-					</ShopCard>
-
-					{/* AI Recommendations */}
-					<RecommendationsSection
-						storeSlug={storeSlug}
-						cartItems={items}
-						languageCode={i18n.language ?? "de"}
-						onAddItem={handleAddRecommendation}
-					/>
-
-					{/* Order Summary */}
-					<ShopCard padding="md" className="space-y-4">
-						<ShopHeading as="h2" size="md">
-							{t("ordering.orderSummary")}
-						</ShopHeading>
-
-						{/* Cart items */}
-						<div className="space-y-3">
-							{items.map((item) => (
-								<div key={item.id} className="flex justify-between text-sm">
-									<div className="flex-1">
-										<span className="font-medium">
-											{item.quantity}x {item.name}
-										</span>
-										{item.selectedOptions.length > 0 && (
-											<ShopMutedText className="text-xs">
-												{item.selectedOptions
-													.flatMap((g) => g.choices.map((c) => c.name))
-													.join(", ")}
-											</ShopMutedText>
-										)}
-									</div>
-									<ShopPrice cents={item.totalPrice} />
-								</div>
-							))}
-						</div>
-
-						{/* Pickup/Delivery Time Display */}
+						{/* Pickup/Delivery Time Selection (for takeaway orders, or delivery when closed) */}
 						{(orderType === "takeaway" ||
-							(orderType === "delivery" && isClosed)) &&
-							scheduledPickupTime && (
-								<div className="space-y-2 border-border border-t pt-3">
-									<ShopMutedText className="text-sm">
-										{isClosed
-											? orderType === "takeaway"
-												? t("ordering.preOrderFor", {
-														time: formatDateTime(scheduledPickupTime),
-													})
-												: t("ordering.preOrderDeliveryFor", {
-														time: formatDateTime(scheduledPickupTime),
-													})
-											: orderType === "takeaway"
-												? t("ordering.scheduledPickup", {
-														time: formatDateTime(scheduledPickupTime),
-													})
-												: t("ordering.scheduledDelivery", {
-														time: formatDateTime(scheduledPickupTime),
-													})}
-									</ShopMutedText>
-								</div>
-							)}
+							(orderType === "delivery" && isClosed)) && (
+							<CardSection
+								title={
+									orderType === "takeaway"
+										? t("ordering.pickupTime")
+										: t("ordering.deliveryTime")
+								}
+							>
+								<PickupTimeSelector
+									storeSlug={storeSlug}
+									value={scheduledPickupTime}
+									onChange={setScheduledPickupTime}
+									isRequired={true}
+									minDate={
+										isClosed && storeStatus?.nextOpenTime
+											? storeStatus.nextOpenTime
+											: undefined
+									}
+								/>
+							</CardSection>
+						)}
 
-						{/* Totals */}
-						<div className="space-y-2 border-border border-t pt-3">
-							<ShopPriceRow
-								label={t("ordering.subtotal")}
-								cents={subtotal}
-								variant="total"
-							/>
-						</div>
-					</ShopCard>
+						{/* Customer Info */}
+						<CardSection title={t("ordering.yourInfo")}>
+							<Field.Root>
+								<Field.Label>
+									<ShopText fontWeight="medium" textStyle="sm">
+										{t("ordering.yourName")}
+									</ShopText>
+								</Field.Label>
+								<Input
+									id="customerName"
+									type="text"
+									value={customerName}
+									onChange={(e) => setCustomerName(e.target.value)}
+									placeholder={t("ordering.namePlaceholder")}
+									w="full"
+									autoComplete="name"
+								/>
+							</Field.Root>
 
-					{/* Submit Button */}
-					<ShopButton
-						type="submit"
-						variant="primary"
-						size="lg"
-						className="w-full"
-						disabled={isSubmitting || !isFormValid}
-					>
-						{isSubmitting
-							? t("ordering.submitting")
-							: t("ordering.proceedToPayment")}
-					</ShopButton>
+							<Field.Root>
+								<Field.Label>
+									<ShopText fontWeight="medium" textStyle="sm">
+										{t("ordering.specialRequests")}
+										<Box as="span" ms="1" fontWeight="normal" color="fg.muted">
+											({t("ordering.optional")})
+										</Box>
+									</ShopText>
+								</Field.Label>
+								<Textarea
+									id="customerNotes"
+									value={customerNotes}
+									onChange={(e) => setCustomerNotes(e.target.value)}
+									placeholder={t("ordering.specialRequestsPlaceholder")}
+									minH="80px"
+									w="full"
+									resize="none"
+									maxLength={500}
+								/>
+							</Field.Root>
+						</CardSection>
+
+						{/* AI Recommendations */}
+						<RecommendationsSection
+							storeSlug={storeSlug}
+							cartItems={items}
+							languageCode={i18n.language ?? "de"}
+							onAddItem={handleAddRecommendation}
+						/>
+
+						{/* Order Summary */}
+						<CardSection title={t("ordering.orderSummary")}>
+							{/* Cart items */}
+							<Stack gap="3">
+								{items.map((item) => (
+									<Flex key={item.id} justify="space-between" textStyle="sm">
+										<Box flex="1">
+											<Box as="span" fontWeight="medium">
+												{item.quantity}x {item.name}
+											</Box>
+											{item.selectedOptions.length > 0 && (
+												<ShopMutedText textStyle="xs">
+													{item.selectedOptions
+														.flatMap((g) => g.choices.map((c) => c.name))
+														.join(", ")}
+												</ShopMutedText>
+											)}
+										</Box>
+										<ShopPrice cents={item.totalPrice} />
+									</Flex>
+								))}
+							</Stack>
+
+							{/* Pickup/Delivery Time Display */}
+							{(orderType === "takeaway" ||
+								(orderType === "delivery" && isClosed)) &&
+								scheduledPickupTime && (
+									<Stack
+										gap="2"
+										borderTopWidth="1px"
+										borderColor="border"
+										pt="3"
+									>
+										<ShopMutedText textStyle="sm">
+											{isClosed
+												? orderType === "takeaway"
+													? t("ordering.preOrderFor", {
+															time: formatDateTime(scheduledPickupTime),
+														})
+													: t("ordering.preOrderDeliveryFor", {
+															time: formatDateTime(scheduledPickupTime),
+														})
+												: orderType === "takeaway"
+													? t("ordering.scheduledPickup", {
+															time: formatDateTime(scheduledPickupTime),
+														})
+													: t("ordering.scheduledDelivery", {
+															time: formatDateTime(scheduledPickupTime),
+														})}
+										</ShopMutedText>
+									</Stack>
+								)}
+
+							{/* Totals */}
+							<Stack gap="2" borderTopWidth="1px" borderColor="border" pt="3">
+								<ShopPriceRow
+									label={t("ordering.subtotal")}
+									cents={subtotal}
+									variant="total"
+								/>
+							</Stack>
+						</CardSection>
+
+						{/* Submit Button */}
+						<ShopButton
+							type="submit"
+							variant="primary"
+							size="lg"
+							w="full"
+							disabled={isSubmitting || !isFormValid}
+						>
+							{isSubmitting
+								? t("ordering.submitting")
+								: t("ordering.proceedToPayment")}
+						</ShopButton>
+					</Stack>
 				</form>
-			</div>
-		</div>
+			</PageContainer>
+		</Box>
 	);
 }

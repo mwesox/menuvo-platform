@@ -1,13 +1,5 @@
+import { Badge, Link as ChakraLink, Table, Text } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
-import {
-	Badge,
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@menuvo/ui";
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
 import { useTranslation } from "react-i18next";
@@ -33,56 +25,62 @@ export function VatGroupsTable({ vatGroups, storeId }: VatGroupsTableProps) {
 	};
 
 	return (
-		<Table>
-			<TableHeader>
-				<TableRow>
-					<TableHead className="w-[35%]">{t("table.name")}</TableHead>
-					<TableHead className="w-[20%]">{t("vat.table.code")}</TableHead>
-					<TableHead className="w-[15%] text-center">
+		<Table.Root size="sm">
+			<Table.Header>
+				<Table.Row>
+					<Table.ColumnHeader w="35%">{t("table.name")}</Table.ColumnHeader>
+					<Table.ColumnHeader w="20%">{t("vat.table.code")}</Table.ColumnHeader>
+					<Table.ColumnHeader w="15%" textAlign="center">
 						{t("vat.table.rate")}
-					</TableHead>
-					<TableHead className="w-[30%]">{t("table.description")}</TableHead>
-				</TableRow>
-			</TableHeader>
-			<TableBody>
+					</Table.ColumnHeader>
+					<Table.ColumnHeader w="30%">
+						{t("table.description")}
+					</Table.ColumnHeader>
+				</Table.Row>
+			</Table.Header>
+			<Table.Body>
 				{vatGroups.length === 0 ? (
-					<TableRow>
-						<TableCell colSpan={4} className="h-24 text-center">
+					<Table.Row>
+						<Table.Cell colSpan={4} h="24" textAlign="center">
 							{t("vat.emptyStates.noVatGroups")}
-						</TableCell>
-					</TableRow>
+						</Table.Cell>
+					</Table.Row>
 				) : (
 					vatGroups.map((group) => (
-						<TableRow
+						<Table.Row
 							key={group.id}
-							className="cursor-pointer"
+							cursor="pointer"
 							onClick={() => handleRowClick(group.id)}
 						>
-							<TableCell>
-								<Link
-									to="/stores/$storeId/menu/vat/$vatGroupId"
-									params={{ storeId, vatGroupId: group.id }}
-									className="font-medium text-primary hover:underline"
-									onClick={(e) => e.stopPropagation()}
+							<Table.Cell>
+								<ChakraLink
+									variant="underline"
+									colorPalette="primary"
+									fontWeight="medium"
+									asChild
 								>
-									{group.name}
-								</Link>
-							</TableCell>
-							<TableCell>
+									<Link
+										to="/stores/$storeId/menu/vat/$vatGroupId"
+										params={{ storeId, vatGroupId: group.id }}
+										onClick={(e) => e.stopPropagation()}
+									>
+										{group.name}
+									</Link>
+								</ChakraLink>
+							</Table.Cell>
+							<Table.Cell>
 								<Badge variant="outline">{group.code}</Badge>
-							</TableCell>
-							<TableCell className="text-center font-medium">
+							</Table.Cell>
+							<Table.Cell textAlign="center" fontWeight="medium">
 								{formatVatRate(group.rate)}
-							</TableCell>
-							<TableCell className="text-muted-foreground">
-								{group.description || (
-									<span className="text-muted-foreground">—</span>
-								)}
-							</TableCell>
-						</TableRow>
+							</Table.Cell>
+							<Table.Cell color="fg.muted">
+								{group.description || <Text color="fg.muted">—</Text>}
+							</Table.Cell>
+						</Table.Row>
 					))
 				)}
-			</TableBody>
-		</Table>
+			</Table.Body>
+		</Table.Root>
 	);
 }

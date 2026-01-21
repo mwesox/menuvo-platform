@@ -1,6 +1,7 @@
-import { Logo } from "@menuvo/ui";
+import { Button, Heading, Text, VStack } from "@chakra-ui/react";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { Logo } from "@/components/ui/logo";
 
 interface WelcomeSlideProps {
 	onContinue: () => void;
@@ -14,14 +15,22 @@ export function WelcomeSlide({ onContinue }: WelcomeSlideProps) {
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
 			exit={{ opacity: 0, y: -20 }}
-			className="flex min-h-dvh flex-col items-center justify-center px-6"
+			style={{
+				minHeight: "100dvh",
+				display: "flex",
+				flexDirection: "column",
+				alignItems: "center",
+				justifyContent: "center",
+				paddingLeft: "1.5rem",
+				paddingRight: "1.5rem",
+			}}
 		>
 			{/* Logo */}
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ delay: 0.2 }}
-				className="mb-10"
+				style={{ marginBottom: "2.5rem" }}
 			>
 				<Logo height={56} />
 			</motion.div>
@@ -31,30 +40,48 @@ export function WelcomeSlide({ onContinue }: WelcomeSlideProps) {
 				initial={{ opacity: 0, y: 30 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ delay: 0.4, duration: 0.6 }}
-				className="max-w-lg text-center"
+				style={{ maxWidth: "32rem", textAlign: "center", width: "100%" }}
 			>
-				<h1 className="font-body font-bold text-3xl text-foreground tracking-tight sm:text-4xl md:text-5xl">
-					{t("slides.welcome.title")}
-				</h1>
+				<VStack gap="6" align="stretch">
+					<Heading
+						as="h1"
+						fontWeight="bold"
+						textStyle={{ base: "3xl", sm: "4xl", md: "5xl" }}
+						letterSpacing="tight"
+					>
+						{t("slides.welcome.title")}
+					</Heading>
 
-				<p className="mt-6 font-body text-lg text-muted-foreground leading-relaxed sm:text-xl">
-					{t("slides.welcome.description")}
-				</p>
+					<Text
+						textStyle={{ base: "lg", sm: "xl" }}
+						color="fg.muted"
+						lineHeight="relaxed"
+					>
+						{t("slides.welcome.description")}
+					</Text>
+				</VStack>
 			</motion.div>
 
 			{/* CTA */}
-			<motion.button
+			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ delay: 0.6 }}
-				whileHover={{ scale: 1.02 }}
-				whileTap={{ scale: 0.98 }}
-				onClick={onContinue}
-				type="button"
-				className="mt-14 rounded-lg bg-primary px-10 py-4 font-body font-semibold text-base text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+				style={{ marginTop: "3.5rem" }}
 			>
-				{t("slides.welcome.cta")}
-			</motion.button>
+				<Button
+					onClick={onContinue}
+					type="button"
+					size="lg"
+					px="10"
+					py="4"
+					_hover={{ transform: "scale(1.02)" }}
+					_active={{ transform: "scale(0.98)" }}
+					transition="transform 0.2s"
+				>
+					{t("slides.welcome.cta")}
+				</Button>
+			</motion.div>
 		</motion.div>
 	);
 }

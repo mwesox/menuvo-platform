@@ -51,7 +51,11 @@
 	},
 	"titles": {
 		"storeDetails": "Filialdetails",
-		"contactSettings": "Kontaktinformationen"
+		"contactSettings": "Kontaktinformationen",
+		"business": "Geschäft",
+		"language": "Sprache",
+		"payments": "Zahlungen",
+		"upselling": "Upselling"
 	},
 	"sections": {
 		"merchantSettings": "Händlereinstellungen",

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, Skeleton } from "@menuvo/ui";
+import { Card, HStack, Skeleton, VStack } from "@chakra-ui/react";
 
 // Pre-generated stable keys for skeleton items (skeletons are static, never reorder)
 const MASTER_LIST_KEYS = ["ml-1", "ml-2", "ml-3", "ml-4", "ml-5"] as const;
@@ -12,19 +12,19 @@ export function PageActionBarSkeleton({
 	withTabs = false,
 }: PageActionBarSkeletonProps) {
 	return (
-		<div className="flex flex-col gap-4">
-			<div className="flex items-center justify-between">
-				<Skeleton className="h-8 w-48" />
-				<Skeleton className="h-10 w-32" />
-			</div>
+		<VStack gap="4" align="stretch">
+			<HStack justify="space-between" align="center">
+				<Skeleton h="8" w="48" />
+				<Skeleton h="10" w="32" />
+			</HStack>
 			{withTabs && (
-				<div className="flex gap-2">
-					<Skeleton className="h-9 w-24" />
-					<Skeleton className="h-9 w-24" />
-					<Skeleton className="h-9 w-24" />
-				</div>
+				<HStack gap="2">
+					<Skeleton h="9" w="24" />
+					<Skeleton h="9" w="24" />
+					<Skeleton h="9" w="24" />
+				</HStack>
 			)}
-		</div>
+		</VStack>
 	);
 }
 
@@ -37,61 +37,69 @@ export function CardFormSkeleton({ rows = 3 }: CardFormSkeletonProps) {
 	const rowKeys = Array.from({ length: rows }, (_, i) => `form-row-${i}`);
 
 	return (
-		<Card>
-			<CardHeader>
-				<Skeleton className="h-6 w-40" />
-				<Skeleton className="mt-1 h-4 w-64" />
-			</CardHeader>
-			<CardContent className="space-y-4">
-				{rowKeys.map((key) => (
-					<div key={key} className="space-y-2">
-						<Skeleton className="h-4 w-24" />
-						<Skeleton className="h-10 w-full" />
-					</div>
-				))}
-				<Skeleton className="mt-4 h-10 w-28" />
-			</CardContent>
-		</Card>
+		<Card.Root>
+			<Card.Header>
+				<VStack gap="1" align="stretch">
+					<Skeleton h="6" w="40" />
+					<Skeleton h="4" w="64" />
+				</VStack>
+			</Card.Header>
+			<Card.Body>
+				<VStack gap="4" align="stretch">
+					{rowKeys.map((key) => (
+						<VStack key={key} gap="2" align="stretch">
+							<Skeleton h="4" w="24" />
+							<Skeleton h="10" w="full" />
+						</VStack>
+					))}
+					<Skeleton mt="4" h="10" w="28" />
+				</VStack>
+			</Card.Body>
+		</Card.Root>
 	);
 }
 
 export function MasterListSkeleton() {
 	return (
-		<div className="space-y-3">
+		<VStack gap="3" align="stretch">
 			{MASTER_LIST_KEYS.map((key) => (
-				<div
+				<HStack
 					key={key}
-					className="flex items-center gap-4 rounded-lg border p-4"
+					align="center"
+					gap="4"
+					rounded="lg"
+					borderWidth="1px"
+					p="4"
 				>
-					<Skeleton className="h-10 w-10 rounded" />
-					<div className="flex-1 space-y-2">
-						<Skeleton className="h-4 w-32" />
-						<Skeleton className="h-3 w-24" />
-					</div>
-				</div>
+					<Skeleton h="10" w="10" rounded="md" />
+					<VStack flex="1" gap="2" align="stretch">
+						<Skeleton h="4" w="32" />
+						<Skeleton h="3" w="24" />
+					</VStack>
+				</HStack>
 			))}
-		</div>
+		</VStack>
 	);
 }
 
 export function DetailPanelSkeleton() {
 	return (
-		<div className="space-y-6">
-			<div className="flex items-center gap-4">
-				<Skeleton className="h-16 w-16 rounded-lg" />
-				<div className="space-y-2">
-					<Skeleton className="h-6 w-40" />
-					<Skeleton className="h-4 w-24" />
-				</div>
-			</div>
-			<div className="space-y-4">
+		<VStack gap="6" align="stretch">
+			<HStack align="center" gap="4">
+				<Skeleton h="16" w="16" rounded="lg" />
+				<VStack gap="2" align="stretch">
+					<Skeleton h="6" w="40" />
+					<Skeleton h="4" w="24" />
+				</VStack>
+			</HStack>
+			<VStack gap="4" align="stretch">
 				{DETAIL_PANEL_KEYS.map((key) => (
-					<div key={key} className="space-y-2">
-						<Skeleton className="h-4 w-20" />
-						<Skeleton className="h-5 w-full" />
-					</div>
+					<VStack key={key} gap="2" align="stretch">
+						<Skeleton h="4" w="20" />
+						<Skeleton h="5" w="full" />
+					</VStack>
 				))}
-			</div>
-		</div>
+			</VStack>
+		</VStack>
 	);
 }

@@ -1,3 +1,4 @@
+import { VStack } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -53,7 +54,7 @@ function NewItemPage() {
 	const categoryName = getDisplayName(category.translations, language);
 
 	return (
-		<div className="space-y-6">
+		<VStack gap="6" align="stretch">
 			<PageActionBar
 				breadcrumbs={[
 					{
@@ -74,6 +75,6 @@ function NewItemPage() {
 				storeId={store.id}
 				merchantId={store.merchantId}
 			/>
-		</div>
+		</VStack>
 	);
 }

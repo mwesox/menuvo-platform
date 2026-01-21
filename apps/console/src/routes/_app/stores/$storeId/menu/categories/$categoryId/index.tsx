@@ -1,4 +1,4 @@
-import { Button } from "@menuvo/ui";
+import { Button, HStack, Skeleton, VStack } from "@chakra-ui/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Pencil, Plus } from "lucide-react";
@@ -7,7 +7,6 @@ import { PageActionBar } from "@/components/layout/page-action-bar";
 import { useStore } from "@/contexts/store-context";
 import { ConsoleError } from "@/features/components/console-error";
 import { ItemsTable } from "@/features/menu/components/items-table";
-import { MenuTabs } from "@/features/menu/components/menu-tabs";
 import { getDisplayName } from "@/features/menu/logic/display";
 import { trpcUtils, useTRPC } from "@/lib/trpc";
 
@@ -26,14 +25,14 @@ export const Route = createFileRoute(
 
 function CategoryPageSkeleton() {
 	return (
-		<div className="space-y-6">
-			<div className="h-6 w-48 animate-pulse rounded bg-muted" />
-			<div className="space-y-2">
+		<VStack gap="6" align="stretch">
+			<Skeleton h="6" w="48" />
+			<VStack gap="2" align="stretch">
 				{Array.from({ length: 5 }).map((_, i) => (
-					<div key={i} className="h-12 animate-pulse rounded bg-muted" />
+					<Skeleton key={i} h="12" rounded="md" />
 				))}
-			</div>
-		</div>
+			</VStack>
+		</VStack>
 	);
 }
 
@@ -55,9 +54,7 @@ function CategoryPage() {
 	const categoryName = getDisplayName(category.translations, language);
 
 	return (
-		<div className="space-y-6">
-			<MenuTabs />
-
+		<>
 			<PageActionBar
 				breadcrumbs={[
 					{
@@ -67,13 +64,19 @@ function CategoryPage() {
 					{ label: categoryName || t("emptyStates.unnamed") },
 				]}
 				actions={
-					<>
+					<HStack gap="2">
 						<Button variant="outline" size="sm" asChild>
 							<Link
 								to="/stores/$storeId/menu/categories/$categoryId/edit"
 								params={{ storeId: store.id, categoryId }}
 							>
-								<Pencil className="mr-2 h-4 w-4" />
+								<Pencil
+									style={{
+										marginRight: "0.5rem",
+										height: "1rem",
+										width: "1rem",
+									}}
+								/>
 								{t("titles.editCategory")}
 							</Link>
 						</Button>
@@ -82,11 +85,17 @@ function CategoryPage() {
 								to="/stores/$storeId/menu/categories/$categoryId/items/new"
 								params={{ storeId: store.id, categoryId }}
 							>
-								<Plus className="mr-2 h-4 w-4" />
+								<Plus
+									style={{
+										marginRight: "0.5rem",
+										height: "1rem",
+										width: "1rem",
+									}}
+								/>
 								{t("titles.addItem")}
 							</Link>
 						</Button>
-					</>
+					</HStack>
 				}
 			/>
 
@@ -96,6 +105,6 @@ function CategoryPage() {
 				storeId={store.id}
 				language={language}
 			/>
-		</div>
+		</>
 	);
 }

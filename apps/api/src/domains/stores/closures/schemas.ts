@@ -21,7 +21,7 @@ const dateStringRegex = /^\d{4}-\d{2}-\d{2}$/;
 /**
  * Custom date string validator that ensures valid YYYY-MM-DD format
  */
-const dateString = z
+export const dateString = z
 	.string()
 	.regex(dateStringRegex, "Date must be in YYYY-MM-DD format")
 	.refine(
@@ -46,9 +46,10 @@ export const listClosuresSchema = z.object({
 export type ListClosuresInput = z.infer<typeof listClosuresSchema>;
 
 /**
- * Get closure by ID
+ * Get closure by ID - requires storeId for efficient lookup
  */
 export const getClosureByIdSchema = z.object({
+	storeId: z.string().uuid(),
 	id: z.string().uuid(),
 });
 
@@ -79,14 +80,15 @@ export const createClosureSchema = z
 export type CreateClosureInput = z.infer<typeof createClosureSchema>;
 
 /**
- * Update an existing store closure
+ * Update an existing store closure - requires storeId for efficient lookup
  */
 export const updateClosureSchema = z
 	.object({
+		storeId: z.string().uuid(),
 		id: z.string().uuid(),
 		startDate: dateString.optional(),
 		endDate: dateString.optional(),
-		reason: z.string().max(255).optional(),
+		reason: z.string().max(255).optional().nullable(),
 	})
 	.refine(
 		(data) => {
@@ -107,9 +109,10 @@ export const updateClosureSchema = z
 export type UpdateClosureInput = z.infer<typeof updateClosureSchema>;
 
 /**
- * Delete a store closure
+ * Delete a store closure - requires storeId for efficient lookup
  */
 export const deleteClosureSchema = z.object({
+	storeId: z.string().uuid(),
 	id: z.string().uuid(),
 });
 

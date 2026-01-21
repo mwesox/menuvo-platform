@@ -1,12 +1,19 @@
-import { Button } from "@menuvo/ui";
-import { useQuery } from "@tanstack/react-query";
+import {
+	Box,
+	Button,
+	Heading,
+	HStack,
+	Skeleton,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useStore } from "@/contexts/store-context";
 import { ConsoleError } from "@/features/components/console-error";
 import { CategoriesTable } from "@/features/menu/components/categories-table";
-import { MenuTabs } from "@/features/menu/components/menu-tabs";
 import { getCategoriesQueryOptions } from "@/features/menu/queries";
 import {
 	queryClient,
@@ -29,14 +36,14 @@ export const Route = createFileRoute("/_app/stores/$storeId/menu/")({
 
 function MenuPageSkeleton() {
 	return (
-		<div className="space-y-6">
-			<div className="h-6 w-48 animate-pulse rounded bg-muted" />
-			<div className="space-y-2">
+		<VStack gap="6" align="stretch">
+			<Skeleton h="6" w="48" />
+			<VStack gap="2" align="stretch">
 				{Array.from({ length: 5 }).map((_, i) => (
-					<div key={i} className="h-12 animate-pulse rounded bg-muted" />
+					<Skeleton key={i} h="12" rounded="md" />
 				))}
-			</div>
-		</div>
+			</VStack>
+		</VStack>
 	);
 }
 
@@ -46,41 +53,44 @@ function CategoriesPage() {
 	const trpc = useTRPC();
 	const trpcClient = useTRPCClient();
 
-	const { data: categories = [] } = useQuery(
+	const { data: categories } = useSuspenseQuery(
 		getCategoriesQueryOptions(trpc, trpcClient, store.id),
 	);
 
 	const language = "de";
 
 	return (
-		<div className="space-y-6">
-			<MenuTabs />
-
-			<div className="flex items-center justify-between">
-				<div>
-					<h1 className="font-semibold text-2xl tracking-tight">
+		<>
+			<HStack justify="space-between" align="center">
+				<Box>
+					<Heading
+						as="h1"
+						fontWeight="semibold"
+						textStyle="2xl"
+						letterSpacing="tight"
+					>
 						{t("titles.categories")}
-					</h1>
-					<p className="text-muted-foreground">
-						{t("pageHeaders.categoriesDescription")}
-					</p>
-				</div>
+					</Heading>
+					<Text color="fg.muted">{t("pageHeaders.categoriesDescription")}</Text>
+				</Box>
 				<Button asChild>
 					<Link
 						to="/stores/$storeId/menu/categories/new"
 						params={{ storeId: store.id }}
 					>
-						<Plus className="mr-2 h-4 w-4" />
+						<Plus
+							style={{ marginRight: "0.5rem", height: "1rem", width: "1rem" }}
+						/>
 						{t("titles.addCategory")}
 					</Link>
 				</Button>
-			</div>
+			</HStack>
 
 			<CategoriesTable
 				categories={categories}
 				storeId={store.id}
 				language={language}
 			/>
-		</div>
+		</>
 	);
 }

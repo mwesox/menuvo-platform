@@ -21,9 +21,9 @@
 			},
 			"cta": "Let's go"
 		},
-		"business": {
-			"title": "What's your business called?",
-			"why": "This appears on invoices and legal documents."
+		"legalEntity": {
+			"title": "Your Business",
+			"why": "We need this for invoices and legal documents."
 		},
 		"owner": {
 			"title": "Who is the business owner?",
@@ -48,12 +48,24 @@
 			"edit": "Edit",
 			"sections": {
 				"business": "Your business",
+				"legalEntity": "Legal details",
 				"contact": "Contact",
 				"store": "Your first store"
 			},
 			"createAccount": "Create Account",
 			"creating": "Creating account..."
 		}
+	},
+	"legalForms": {
+		"einzelunternehmen": "Sole Proprietorship",
+		"gbr": "GbR (Civil Law Partnership)",
+		"ug": "UG (Limited Liability)",
+		"gmbh": "GmbH (Limited Liability Company)",
+		"ohg": "OHG (General Partnership)",
+		"kg": "KG (Limited Partnership)",
+		"ag": "AG (Stock Corporation)",
+		"freiberufler": "Freelancer",
+		"other": "Other"
 	},
 	"titles": {
 		"welcome": "Welcome",
@@ -97,10 +109,18 @@
 		"postalCode": "Postal Code",
 		"country": "Country",
 		"timezone": "Timezone",
-		"currency": "Currency"
+		"currency": "Currency",
+		"legalForm": "Legal Form",
+		"legalFormOther": "Other Legal Form",
+		"companyName": "Official Company Name",
+		"representativeName": "Managing Director / Owner",
+		"registerCourt": "Register Court",
+		"registerNumber": "Register Number",
+		"vatId": "VAT ID",
+		"optional": "optional"
 	},
 	"placeholders": {
-		"businessName": "Your restaurant name",
+		"businessName": "e.g., Sample Restaurant LLC",
 		"ownerName": "First and last name",
 		"contactEmail": "Your email address",
 		"phone": "Your phone number",
@@ -112,7 +132,14 @@
 		"postalCode": "Your postal code",
 		"country": "Your country",
 		"selectTimezone": "Select timezone",
-		"selectCurrency": "Select currency"
+		"selectCurrency": "Select currency",
+		"legalForm": "Select legal form",
+		"legalFormOther": "e.g. Cooperative, Foundation...",
+		"companyName": "e.g. Sample Restaurant LLC",
+		"representativeName": "First and last name",
+		"registerCourt": "e.g. Local Court Munich",
+		"registerNumber": "e.g. HRB 229467",
+		"vatId": "e.g. DE123456789"
 	},
 	"toast": {
 		"successTitle": "Welcome to Menuvo!",

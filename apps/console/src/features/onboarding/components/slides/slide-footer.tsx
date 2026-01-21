@@ -1,7 +1,15 @@
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import {
+	Box,
+	Button,
+	HStack,
+	Icon,
+	Kbd,
+	Spinner,
+	Text,
+} from "@chakra-ui/react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
 
 interface SlideFooterProps {
 	onBack?: () => void;
@@ -23,62 +31,74 @@ export function SlideFooter({
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ delay: 0.5 }}
-			className="mt-12 flex items-center justify-between"
+			style={{ marginTop: "3rem" }}
 		>
-			{/* Back button - tabIndex={-1} to skip in tab order */}
-			{onBack ? (
-				<button
-					type="button"
-					tabIndex={-1}
-					onClick={onBack}
-					className="flex items-center gap-2 font-body font-medium text-muted-foreground text-sm transition-colors hover:text-foreground"
-				>
-					<ArrowLeft className="h-4 w-4" />
-					{t("slides.back")}
-				</button>
-			) : (
-				<div />
-			)}
+			<HStack justify="space-between" align="center">
+				{/* Back button - tabIndex={-1} to skip in tab order */}
+				{onBack ? (
+					<Button
+						variant="ghost"
+						size="sm"
+						tabIndex={-1}
+						onClick={onBack}
+						color="fg.muted"
+						_hover={{ color: "fg" }}
+					>
+						<Icon size="sm">
+							<ArrowLeft style={{ height: "1rem", width: "1rem" }} />
+						</Icon>
+						{t("slides.back")}
+					</Button>
+				) : (
+					<Box />
+				)}
 
-			{/* Continue/Submit */}
-			<div className="flex items-center gap-4">
-				{/* Keyboard hint - desktop only */}
-				<span className="hidden font-body text-muted-foreground text-xs sm:block">
-					{t("slides.pressEnter")} <kbd className="font-semibold">↵</kbd>
-				</span>
+				{/* Continue/Submit */}
+				<HStack gap="4" align="center">
+					{/* Keyboard hint - desktop only */}
+					<Text color="fg.muted" textStyle="xs" hideBelow="sm">
+						{t("slides.pressEnter")} <Kbd fontWeight="semibold">↵</Kbd>
+					</Text>
 
-				<motion.button
-					type="submit"
-					disabled={!canGoNext || isSubmitting}
-					whileHover={canGoNext && !isSubmitting ? { scale: 1.02 } : {}}
-					whileTap={canGoNext && !isSubmitting ? { scale: 0.98 } : {}}
-					className={cn(
-						"flex items-center gap-2 rounded-lg px-6 py-3",
-						"font-body font-semibold text-sm",
-						"transition-all duration-200",
-						canGoNext && !isSubmitting
-							? "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90"
-							: "cursor-not-allowed bg-muted text-muted-foreground",
-					)}
-				>
-					{isSubmitting ? (
-						<>
-							<Loader2 className="h-4 w-4 animate-spin" />
-							{t("slides.creating")}
-						</>
-					) : isLastQuestion ? (
-						<>
-							{t("slides.createAccount")}
-							<ArrowRight className="h-4 w-4" />
-						</>
-					) : (
-						<>
-							{t("slides.continue")}
-							<ArrowRight className="h-4 w-4" />
-						</>
-					)}
-				</motion.button>
-			</div>
+					<Button
+						type="submit"
+						disabled={!canGoNext || isSubmitting}
+						size="md"
+						px="6"
+						py="3"
+						_hover={
+							canGoNext && !isSubmitting ? { transform: "scale(1.02)" } : {}
+						}
+						_active={
+							canGoNext && !isSubmitting ? { transform: "scale(0.98)" } : {}
+						}
+						transition="transform 0.2s"
+						opacity={canGoNext && !isSubmitting ? 1 : 0.6}
+						cursor={canGoNext && !isSubmitting ? "pointer" : "not-allowed"}
+					>
+						{isSubmitting ? (
+							<>
+								<Spinner size="xs" mr="2" />
+								{t("slides.creating")}
+							</>
+						) : isLastQuestion ? (
+							<>
+								{t("slides.createAccount")}
+								<Icon size="sm" ml="2">
+									<ArrowRight style={{ height: "1rem", width: "1rem" }} />
+								</Icon>
+							</>
+						) : (
+							<>
+								{t("slides.continue")}
+								<Icon size="sm" ml="2">
+									<ArrowRight style={{ height: "1rem", width: "1rem" }} />
+								</Icon>
+							</>
+						)}
+					</Button>
+				</HStack>
+			</HStack>
 		</motion.div>
 	);
 }

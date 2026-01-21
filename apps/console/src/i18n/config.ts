@@ -7,6 +7,7 @@ import commonDe from "./locales/de/common.json";
 import consoleHelpDe from "./locales/de/console-help.json";
 import consoleKitchenDe from "./locales/de/console-kitchen.json";
 import consoleOrdersDe from "./locales/de/console-orders.json";
+import dashboardDe from "./locales/de/dashboard.json";
 import discoveryDe from "./locales/de/discovery.json";
 import formsDe from "./locales/de/forms.json";
 import legalDe from "./locales/de/legal.json";
@@ -25,6 +26,7 @@ import commonEn from "./locales/en/common.json";
 import consoleHelpEn from "./locales/en/console-help.json";
 import consoleKitchenEn from "./locales/en/console-kitchen.json";
 import consoleOrdersEn from "./locales/en/console-orders.json";
+import dashboardEn from "./locales/en/dashboard.json";
 import discoveryEn from "./locales/en/discovery.json";
 import formsEn from "./locales/en/forms.json";
 import legalEn from "./locales/en/legal.json";
@@ -61,6 +63,7 @@ const resources = {
 		discovery: discoveryEn,
 		shop: shopEn,
 		validation: validationEn,
+		dashboard: dashboardEn,
 	},
 	de: {
 		business: businessDe,
@@ -80,6 +83,7 @@ const resources = {
 		discovery: discoveryDe,
 		shop: shopDe,
 		validation: validationDe,
+		dashboard: dashboardDe,
 	},
 };
 
@@ -127,6 +131,7 @@ export function initI18n(detectedLanguage?: string) {
 				"discovery",
 				"shop",
 				"validation",
+				"dashboard",
 			],
 			interpolation: {
 				escapeValue: false,

@@ -1,34 +1,40 @@
-import type { AppRouter } from "@menuvo/api/trpc";
 import {
+	Box,
 	Button,
 	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@menuvo/ui";
+	Center,
+	Icon,
+	Spinner,
+	Steps,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
+import type { AppRouter } from "@menuvo/api/trpc";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { inferRouterInputs } from "@trpc/server";
-import { AlertCircle, Check, CheckCircle, Loader2, Upload } from "lucide-react";
+import { AlertCircle, Check, Upload } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Caption } from "@/components/ui/typography";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import type { ImportJobStatusResponse, MenuComparisonData } from "../schemas";
 import { ComparisonPanel } from "./comparison-panel";
 import { FileDropzone } from "./file-dropzone";
 import { ProcessingProgress } from "./processing-progress";
 
-type WizardStep = "upload" | "processing" | "review";
-
 interface ImportWizardProps {
 	storeId: string;
 	onClose: () => void;
 }
 
+const STEP_UPLOAD = 0;
+const STEP_PROCESSING = 1;
+const STEP_REVIEW = 2;
+
 export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 	const { t } = useTranslation("menu");
-	const [step, setStep] = useState<WizardStep>("upload");
+	const [step, setStep] = useState(STEP_UPLOAD);
 	const [file, setFile] = useState<File | null>(null);
 	const [jobId, setJobId] = useState<string | null>(null);
 	const [uploadError, setUploadError] = useState<string | null>(null);
@@ -109,8 +115,8 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 	});
 
 	// Auto-advance to review when job is ready
-	if (step === "processing" && jobStatus?.status === "READY") {
-		setStep("review");
+	if (step === STEP_PROCESSING && jobStatus?.status === "READY") {
+		setStep(STEP_REVIEW);
 		// Pre-select all items
 		if (jobStatus.comparisonData) {
 			const allKeys = getAllSelectableKeys(jobStatus.comparisonData);
@@ -136,7 +142,7 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 		try {
 			const result = await uploadMutation.mutateAsync(file);
 			setJobId(result.jobId);
-			setStep("processing");
+			setStep(STEP_PROCESSING);
 		} catch (error) {
 			setUploadError(
 				error instanceof Error
@@ -185,105 +191,124 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 		onClose();
 	};
 
+	const steps = [
+		{ title: t("import.steps.upload") },
+		{ title: t("import.steps.processing") },
+		{ title: t("import.steps.review") },
+	];
+
 	return (
-		<div className="w-full">
-			{/* Progress Steps */}
-			<div className="mb-8 flex items-center justify-center gap-4">
-				<StepIndicator
-					step={1}
-					label={t("import.steps.upload")}
-					isActive={step === "upload"}
-					isComplete={step !== "upload"}
-				/>
-				<div className="h-px w-12 bg-border" />
-				<StepIndicator
-					step={2}
-					label={t("import.steps.processing")}
-					isActive={step === "processing"}
-					isComplete={step === "review"}
-				/>
-				<div className="h-px w-12 bg-border" />
-				<StepIndicator
-					step={3}
-					label={t("import.steps.review")}
-					isActive={step === "review"}
-					isComplete={false}
-				/>
-			</div>
+		<VStack gap="8" w="full">
+			{/* Centered Stepper */}
+			<Center w="full">
+				<Steps.Root
+					step={step}
+					count={steps.length}
+					size="md"
+					w="full"
+					maxW="lg"
+				>
+					<Steps.List>
+						{steps.map((s, index) => (
+							<Steps.Item key={index} index={index}>
+								<Steps.Indicator>
+									<Steps.Status
+										incomplete={<Steps.Number />}
+										complete={<Check />}
+									/>
+								</Steps.Indicator>
+								<Steps.Title>{s.title}</Steps.Title>
+								<Steps.Separator />
+							</Steps.Item>
+						))}
+					</Steps.List>
+				</Steps.Root>
+			</Center>
 
 			{/* Step Content */}
-			<Card>
-				<CardHeader>
-					<CardTitle>
-						{step === "upload" && t("import.titles.uploadFile")}
-						{step === "processing" && t("import.titles.processing")}
-						{step === "review" && t("import.titles.reviewChanges")}
-					</CardTitle>
-					<CardDescription>
-						{step === "upload" && t("import.descriptions.upload")}
-						{step === "processing" && t("import.descriptions.processing")}
-						{step === "review" && t("import.descriptions.review")}
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					{step === "upload" && (
-						<div className="space-y-6">
+			<Box w="full">
+				{/* Upload Step */}
+				{step === STEP_UPLOAD && (
+					<Card.Root>
+						<Card.Header>
+							<Card.Title>{t("import.titles.uploadFile")}</Card.Title>
+							<Card.Description>
+								{t("import.descriptions.upload")}
+							</Card.Description>
+						</Card.Header>
+						<Card.Body>
 							<FileDropzone
 								onFileSelect={handleFileSelect}
 								selectedFile={file}
 								onClearFile={handleClearFile}
 								error={uploadError}
 							/>
-							<div className="flex justify-end gap-2">
-								<Button variant="outline" onClick={onClose}>
-									{t("import.buttons.cancel")}
-								</Button>
-								<Button
-									onClick={handleUpload}
-									disabled={!file || uploadMutation.isPending}
-								>
-									{uploadMutation.isPending ? (
-										<>
-											<Loader2 className="me-2 size-4 animate-spin" />
-											{t("import.status.uploading")}
-										</>
-									) : (
-										<>
-											<Upload className="me-2 size-4" />
-											{t("import.buttons.uploadProcess")}
-										</>
-									)}
-								</Button>
-							</div>
-						</div>
-					)}
+						</Card.Body>
+						<Card.Footer justifyContent="flex-end" gap="2">
+							<Button variant="outline" onClick={onClose}>
+								{t("import.buttons.cancel")}
+							</Button>
+							<Button
+								onClick={handleUpload}
+								disabled={!file || uploadMutation.isPending}
+							>
+								{uploadMutation.isPending ? (
+									<>
+										<Spinner size="sm" me="2" />
+										{t("import.status.uploading")}
+									</>
+								) : (
+									<>
+										<Icon w="4" h="4" me="2">
+											<Upload />
+										</Icon>
+										{t("import.buttons.uploadProcess")}
+									</>
+								)}
+							</Button>
+						</Card.Footer>
+					</Card.Root>
+				)}
 
-					{step === "processing" && (
-						<div className="py-8">
+				{/* Processing Step */}
+				{step === STEP_PROCESSING && (
+					<Card.Root>
+						<Card.Body py="12">
 							{jobStatus?.status === "FAILED" || jobError ? (
-								<div className="text-center">
-									<AlertCircle className="mx-auto mb-4 size-12 text-destructive" />
-									<p className="mb-2 font-medium text-destructive text-lg">
+								<VStack gap="4">
+									<Icon w="12" h="12" color="fg.error">
+										<AlertCircle />
+									</Icon>
+									<Text fontWeight="medium" color="fg.error" textStyle="lg">
 										{t("import.errors.processingFailed")}
-									</p>
-									<p className="mb-4 text-muted-foreground text-sm">
+									</Text>
+									<Caption textAlign="center">
 										{jobStatus?.errorMessage || t("import.errors.genericError")}
-									</p>
+									</Caption>
 									<Button variant="outline" onClick={onClose}>
 										{t("import.buttons.close")}
 									</Button>
-								</div>
+								</VStack>
 							) : (
 								<ProcessingProgress
 									isComplete={jobStatus?.status === "READY"}
 									isFailed={false}
 								/>
 							)}
-						</div>
-					)}
+						</Card.Body>
+					</Card.Root>
+				)}
 
-					{step === "review" && jobStatus?.comparisonData && (
-						<div className="space-y-6">
+				{/* Review Step */}
+				{step === STEP_REVIEW && jobStatus?.comparisonData && (
+					<Card.Root>
+						<Card.Header>
+							<Card.Title>{t("import.titles.reviewChanges")}</Card.Title>
+							<Card.Description>
+								{t("import.descriptions.review")}
+							</Card.Description>
+						</Card.Header>
+						<Card.Body>
 							<ComparisonPanel
 								comparison={jobStatus.comparisonData}
 								selectedItems={selectedItems}
@@ -291,69 +316,36 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 								onSelectAll={selectAll}
 								onClearSelection={clearSelection}
 							/>
-							<div className="flex justify-end gap-2">
-								<Button variant="outline" onClick={onClose}>
-									{t("import.buttons.cancel")}
-								</Button>
-								<Button
-									onClick={handleApply}
-									disabled={selectedItems.size === 0 || applyMutation.isPending}
-								>
-									{applyMutation.isPending ? (
-										<>
-											<Loader2 className="me-2 size-4 animate-spin" />
-											{t("import.status.applying")}
-										</>
-									) : (
-										<>
-											<Check className="me-2 size-4" />
-											{t("import.buttons.applyChanges", {
-												count: selectedItems.size,
-											})}
-										</>
-									)}
-								</Button>
-							</div>
-						</div>
-					)}
-				</CardContent>
-			</Card>
-		</div>
-	);
-}
-
-interface StepIndicatorProps {
-	step: number;
-	label: string;
-	isActive: boolean;
-	isComplete: boolean;
-}
-
-function StepIndicator({
-	step,
-	label,
-	isActive,
-	isComplete,
-}: StepIndicatorProps) {
-	return (
-		<div className="flex items-center gap-2">
-			<div
-				className={`flex size-8 items-center justify-center rounded-full font-medium text-sm ${
-					isComplete
-						? "bg-primary text-primary-foreground"
-						: isActive
-							? "bg-primary text-primary-foreground"
-							: "bg-muted text-muted-foreground"
-				}`}
-			>
-				{isComplete ? <CheckCircle className="size-4" /> : step}
-			</div>
-			<span
-				className={`text-sm ${isActive || isComplete ? "font-medium" : "text-muted-foreground"}`}
-			>
-				{label}
-			</span>
-		</div>
+						</Card.Body>
+						<Card.Footer justifyContent="flex-end" gap="2">
+							<Button variant="outline" onClick={onClose}>
+								{t("import.buttons.cancel")}
+							</Button>
+							<Button
+								onClick={handleApply}
+								disabled={selectedItems.size === 0 || applyMutation.isPending}
+							>
+								{applyMutation.isPending ? (
+									<>
+										<Spinner size="sm" me="2" />
+										{t("import.status.applying")}
+									</>
+								) : (
+									<>
+										<Icon w="4" h="4" me="2">
+											<Check />
+										</Icon>
+										{t("import.buttons.applyChanges", {
+											count: selectedItems.size,
+										})}
+									</>
+								)}
+							</Button>
+						</Card.Footer>
+					</Card.Root>
+				)}
+			</Box>
+		</VStack>
 	);
 }
 

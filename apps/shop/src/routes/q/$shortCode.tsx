@@ -1,3 +1,4 @@
+import { Box, Flex, Heading, Link, Text } from "@chakra-ui/react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { trpcClient } from "../../lib/trpc";
 
@@ -53,22 +54,26 @@ function QRCodeError() {
 		messages[status as keyof typeof messages] ?? messages.not_found;
 
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-background p-4">
-			<div className="max-w-md text-center">
-				<h1 className="font-semibold text-2xl text-foreground">
+		<Flex minH="100vh" align="center" justify="center" bg="bg" p="4">
+			<Box maxW="md" textAlign="center">
+				<Heading size="xl" fontWeight="semibold" color="fg">
 					{message.title}
-				</h1>
-				<p className="mt-2 text-muted-foreground">{message.description}</p>
-				<p className="mt-6 text-muted-foreground text-sm">
+				</Heading>
+				<Text mt="2" color="fg.muted">
+					{message.description}
+				</Text>
+				<Text mt="6" color="fg.muted" fontSize="sm">
 					Need help?{" "}
-					<a
+					<Link
 						href="mailto:support@menuvo.app"
-						className="text-primary underline hover:no-underline"
+						color="colorPalette.solid"
+						textDecoration="underline"
+						_hover={{ textDecoration: "none" }}
 					>
 						Contact support
-					</a>
-				</p>
-			</div>
-		</div>
+					</Link>
+				</Text>
+			</Box>
+		</Flex>
 	);
 }

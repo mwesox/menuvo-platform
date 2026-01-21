@@ -1,3 +1,4 @@
+import { Box, Flex } from "@chakra-ui/react";
 import {
 	createFileRoute,
 	notFound,
@@ -126,7 +127,7 @@ function StoreLayoutContent() {
 
 	return (
 		<CookieConsentProvider>
-			<div className="flex h-screen flex-col bg-background">
+			<Flex direction="column" h="100vh" bg="bg">
 				{/* Fixed header area */}
 				<ShopHeader />
 				<CategoryNav
@@ -135,17 +136,17 @@ function StoreLayoutContent() {
 					onCategoryClick={handleCategoryClick}
 				/>
 				{/* Scrollable content area */}
-				<main ref={scrollContainerRef} className="flex-1 overflow-y-auto">
+				<Box as="main" ref={scrollContainerRef} flex="1" overflowY="auto">
 					{/* Reserve right margin for fixed sidebar on desktop lg+ (when not collapsed and not on ordering) */}
-					<div
-						className={
-							!isCartSidebarCollapsed && !isOrderingRoute ? "lg:mr-80" : ""
-						}
+					<Box
+						mr={{
+							lg: !isCartSidebarCollapsed && !isOrderingRoute ? "80" : "0",
+						}}
 					>
 						<Outlet />
 						<ShopFooter />
-					</div>
-				</main>
+					</Box>
+				</Box>
 				{/* Cart drawer - handles both mobile (bottom sheet) and desktop (fixed sidebar) */}
 				{/* Hidden on ordering pages where cart is shown inline */}
 				{!isOrderingRoute && (
@@ -154,7 +155,7 @@ function StoreLayoutContent() {
 						onOpenChange={(open) => !open && closeCartDrawer()}
 					/>
 				)}
-			</div>
+			</Flex>
 			<CookieBanner />
 		</CookieConsentProvider>
 	);

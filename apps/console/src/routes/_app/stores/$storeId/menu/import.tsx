@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useStore } from "@/contexts/store-context";
 import { ConsoleError } from "@/features/components/console-error";
-import { MenuTabs } from "@/features/menu/components/menu-tabs";
 import { ImportWizard } from "@/features/menu-import/components/import-wizard";
 
 export const Route = createFileRoute("/_app/stores/$storeId/menu/import")({
@@ -20,10 +19,5 @@ function ImportPage() {
 		});
 	};
 
-	return (
-		<div className="space-y-6">
-			<MenuTabs />
-			<ImportWizard storeId={store.id} onClose={handleClose} />
-		</div>
-	);
+	return <ImportWizard storeId={store.id} onClose={handleClose} />;
 }

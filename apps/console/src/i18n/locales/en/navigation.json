@@ -5,6 +5,7 @@
 	"menu": "Menu",
 	"orders": "Orders",
 	"kitchen": "Kitchen",
+	"servicePoints": "Service Points",
 	"settings": "Settings",
 	"storeSettings": "Store Settings",
 	"toggleMenu": "Toggle menu",
@@ -15,5 +16,6 @@
 	"selectStore": "Select store",
 	"noStores": "No stores",
 	"profile": "Profile",
-	"logout": "Logout"
+	"logout": "Logout",
+	"support": "Support"
 }

@@ -1,23 +1,29 @@
-import { formatPrice } from "@menuvo/ui";
 import {
+	Box,
+	CloseButton,
 	Drawer,
-	DrawerContent,
-	DrawerDescription,
-	DrawerTitle,
-} from "@menuvo/ui/components/drawer";
-import { cn } from "@menuvo/ui/lib/utils";
+	Flex,
+	HStack,
+	Image,
+	Portal,
+	Spinner,
+	Stack,
+	Text,
+} from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, Loader2, Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { LuPlus, LuTriangleAlert } from "react-icons/lu";
 import {
 	OptionGroup,
 	QuantityStepper,
 	ShopButton,
 	ShopHeading,
+	ShopMutedText,
 } from "@/features";
 import { useTRPC } from "../../../lib/trpc";
 import { useCartStore } from "../../cart";
+import { formatPrice } from "../../utils";
 import { menuQueryDefaults, resolveMenuLanguageCode } from "../queries";
 import type {
 	MenuItemChoice,
@@ -220,14 +226,14 @@ export function ItemDrawer({
 	}, [open]);
 
 	// Move focus to drawer when it opens (fixes aria-hidden accessibility issue)
-	// This ensures focus is inside the drawer when vaul sets aria-hidden on root
+	// This ensures focus is inside the drawer when Chakra sets aria-hidden on root
 	useEffect(() => {
 		if (open) {
 			// Small delay to ensure drawer is fully rendered in DOM
 			const timeoutId = setTimeout(() => {
-				// Find the drawer content element (vaul renders it in a portal)
+				// Find the drawer content element
 				const drawerContent = document.querySelector(
-					'[data-slot="drawer-content"]',
+					'[data-scope="drawer"][data-part="content"]',
 				) as HTMLElement;
 				if (drawerContent) {
 					// Find first focusable element in drawer
@@ -395,127 +401,201 @@ export function ItemDrawer({
 	const showOptionsLoading = hasOptions && isLoadingOptions;
 
 	return (
-		<Drawer open={open} onOpenChange={onOpenChange}>
-			<DrawerContent
-				className="max-h-[90dvh] min-h-[75dvh] overflow-hidden md:mx-auto md:max-w-lg md:rounded-t-(--radius)"
-				hideHandle
-			>
-				{/* Handle */}
-				<div className="mx-auto mt-4 mb-2 h-1 w-10 shrink-0 rounded-full bg-border" />
-				{/* Scrollable content */}
-				<div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
-					{/* Hero image - full width, edge to edge */}
-					{item.imageUrl && (
-						<div className="relative h-56 overflow-hidden md:h-64">
-							<img
-								src={item.imageUrl}
-								alt={item.name}
-								className="h-full w-full object-cover"
-							/>
-							<div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
-						</div>
-					)}
-
-					{/* Content area */}
-					<div
-						className={cn(
-							"fade-in-0 slide-in-from-bottom-2 relative animate-in px-6 pb-4 duration-300",
-							item.imageUrl ? "-mt-8" : "pt-8",
-						)}
+		<Drawer.Root
+			open={open}
+			onOpenChange={(e) => onOpenChange(e.open)}
+			placement="bottom"
+		>
+			<Portal>
+				<Drawer.Backdrop />
+				<Drawer.Positioner>
+					<Drawer.Content
+						maxH="90dvh"
+						minH="75dvh"
+						roundedTop="xl"
+						overflow="hidden"
+						maxW={{ md: "lg" }}
+						mx={{ md: "auto" }}
 					>
-						{/* Title */}
-						<DrawerTitle asChild className="mb-3">
-							<ShopHeading
-								as="h2"
-								size="2xl"
-								className="leading-tight tracking-tight"
-							>
-								{item.name}
-							</ShopHeading>
-						</DrawerTitle>
+						{/* Handle */}
+						<Flex justify="center" pt="4" pb="2">
+							<Box h="1" w="10" rounded="full" bg="border" />
+						</Flex>
 
-						{/* Description */}
-						{item.description && (
-							<DrawerDescription className="mb-5 text-[17px] text-muted-foreground leading-relaxed">
-								{item.description}
-							</DrawerDescription>
-						)}
+						{/* Close button */}
+						<Drawer.CloseTrigger asChild position="absolute" top="3" right="3">
+							<CloseButton size="sm" />
+						</Drawer.CloseTrigger>
 
-						{/* Allergens - subtle inline style */}
-						{hasAllergens && (
-							<div className="mb-5 flex items-center gap-2 border-border/40 border-y py-3">
-								<AlertTriangle className="size-4 shrink-0 text-amber-600" />
-								<span className="text-muted-foreground text-sm">
-									{t("menu.contains")}:{" "}
-									<span className="text-foreground">
-										{item.allergens
-											?.map((allergen: string) =>
-												String(t(`menu:allergens.${allergen}`, allergen)),
-											)
-											.join(", ")}
-									</span>
-								</span>
-							</div>
-						)}
-
-						{/* Option Groups */}
-						{hasOptions && (
-							<div className="space-y-1 pb-4">
-								{showOptionsLoading ? (
-									<div className="flex items-center justify-center py-8">
-										<Loader2 className="size-6 animate-spin text-muted-foreground" />
-									</div>
-								) : (
-									optionGroups.map((group: MenuItemOptionGroup) => (
-										<OptionGroup
-											key={group.id}
-											group={group}
-											choices={group.choices}
-											selectedChoiceIds={selectedOptions.get(group.id) ?? []}
-											quantitySelections={
-												quantitySelections.get(group.id) ?? new Map()
-											}
-											onSelectionChange={(ids) =>
-												handleOptionChange(group.id, ids)
-											}
-											onQuantityChange={(choiceId, qty) =>
-												handleQuantityChange(group.id, choiceId, qty)
-											}
-										/>
-									))
-								)}
-							</div>
-						)}
-					</div>
-
-					{/* Spacer - pushes footer down when content is minimal */}
-					<div className="min-h-8 flex-1" />
-				</div>
-
-				{/* Sticky footer with shadow */}
-				<div className="relative border-border border-t bg-card px-6 py-5 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.08)]">
-					<div className="flex items-center gap-4">
-						<QuantityStepper value={quantity} onChange={setQuantity} />
-						<ShopButton
-							variant="primary"
-							size="lg"
-							onClick={handleAddToCart}
-							disabled={!isValid || !isStoreOpen}
-							className="h-14 flex-1 font-medium text-base shadow-lg shadow-primary/20 transition-transform active:scale-[0.98]"
+						{/* Scrollable content */}
+						<Drawer.Body
+							display="flex"
+							flexDir="column"
+							flex="1"
+							minH="0"
+							overflowY="auto"
+							overscrollBehavior="contain"
+							px="0"
+							pb="0"
 						>
-							{/* Mobile: icon + price only */}
-							<span className="flex items-center gap-2 md:hidden">
-								<Plus className="size-5" />
-								{formatPrice(calculateTotal)}
-							</span>
-							{/* Desktop: text + price */}
-							<span className="hidden md:inline">
-								{t("menu.addToOrder")} · {formatPrice(calculateTotal)}
-							</span>
-						</ShopButton>
-					</div>
-				</div>
-			</DrawerContent>
-		</Drawer>
+							{/* Hero image - full width, edge to edge */}
+							{item.imageUrl && (
+								<Box
+									position="relative"
+									h={{ base: "56", md: "64" }}
+									overflow="hidden"
+								>
+									<Image
+										src={item.imageUrl}
+										alt={item.name}
+										h="full"
+										w="full"
+										objectFit="cover"
+									/>
+									<Box
+										position="absolute"
+										inset="0"
+										bgGradient="to-t"
+										gradientFrom="bg.panel"
+										gradientVia="transparent"
+										gradientTo="transparent"
+									/>
+								</Box>
+							)}
+
+							{/* Content area */}
+							<Box
+								position="relative"
+								px="6"
+								pb="4"
+								mt={item.imageUrl ? "-8" : "0"}
+								pt={item.imageUrl ? "0" : "8"}
+							>
+								{/* Title */}
+								<Drawer.Title asChild>
+									<ShopHeading
+										as="h2"
+										size="2xl"
+										lineHeight="tight"
+										letterSpacing="tight"
+										mb="3"
+									>
+										{item.name}
+									</ShopHeading>
+								</Drawer.Title>
+
+								{/* Description */}
+								{item.description && (
+									<Drawer.Description asChild>
+										<ShopMutedText fontSize="17px" lineHeight="relaxed" mb="5">
+											{item.description}
+										</ShopMutedText>
+									</Drawer.Description>
+								)}
+
+								{/* Allergens - subtle inline style */}
+								{hasAllergens && (
+									<HStack
+										gap="2"
+										borderY="1px"
+										borderColor="border.muted"
+										py="3"
+										mb="5"
+									>
+										<Box
+											as={LuTriangleAlert}
+											boxSize="4"
+											flexShrink={0}
+											color="orange.500"
+										/>
+										<Text color="fg.muted" fontSize="sm">
+											{t("menu.contains")}:{" "}
+											<Text as="span" color="fg">
+												{item.allergens
+													?.map((allergen: string) =>
+														String(t(`menu:allergens.${allergen}`, allergen)),
+													)
+													.join(", ")}
+											</Text>
+										</Text>
+									</HStack>
+								)}
+
+								{/* Option Groups */}
+								{hasOptions && (
+									<Stack gap="1" pb="4">
+										{showOptionsLoading ? (
+											<Flex align="center" justify="center" py="8">
+												<Spinner size="md" color="fg.muted" />
+											</Flex>
+										) : (
+											optionGroups.map((group: MenuItemOptionGroup) => (
+												<OptionGroup
+													key={group.id}
+													group={group}
+													choices={group.choices}
+													selectedChoiceIds={
+														selectedOptions.get(group.id) ?? []
+													}
+													quantitySelections={
+														quantitySelections.get(group.id) ?? new Map()
+													}
+													onSelectionChange={(ids) =>
+														handleOptionChange(group.id, ids)
+													}
+													onQuantityChange={(choiceId, qty) =>
+														handleQuantityChange(group.id, choiceId, qty)
+													}
+												/>
+											))
+										)}
+									</Stack>
+								)}
+							</Box>
+
+							{/* Spacer - pushes footer down when content is minimal */}
+							<Box minH="8" flex="1" />
+						</Drawer.Body>
+
+						{/* Sticky footer with shadow */}
+						<Drawer.Footer
+							position="relative"
+							borderTop="1px"
+							borderColor="border"
+							bg="bg.panel"
+							px="6"
+							py="5"
+							shadow="0 -4px 20px -4px rgba(0,0,0,0.08)"
+						>
+							<HStack gap="4" w="full">
+								<QuantityStepper value={quantity} onChange={setQuantity} />
+								<ShopButton
+									variant="primary"
+									size="lg"
+									onClick={handleAddToCart}
+									disabled={!isValid || !isStoreOpen}
+									h="14"
+									flex="1"
+									fontWeight="medium"
+									fontSize="md"
+									shadow="lg"
+									_active={{ transform: "scale(0.98)" }}
+								>
+									{/* Mobile: icon + price only */}
+									<HStack gap="2" display={{ base: "flex", md: "none" }}>
+										<LuPlus />
+										{formatPrice(calculateTotal)}
+									</HStack>
+									{/* Desktop: text + price */}
+									<Text display={{ base: "none", md: "inline" }}>
+										{t("menu.addToOrder")} · {formatPrice(calculateTotal)}
+									</Text>
+								</ShopButton>
+							</HStack>
+						</Drawer.Footer>
+					</Drawer.Content>
+				</Drawer.Positioner>
+			</Portal>
+		</Drawer.Root>
 	);
 }

@@ -1,12 +1,14 @@
 import {
+	Box,
 	Card,
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
+	HStack,
+	Icon,
+	IconButton,
+	Menu,
+	Portal,
 	Switch,
-} from "@menuvo/ui";
+	Text,
+} from "@chakra-ui/react";
 import { Edit, MoreVertical, QrCode, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { ServicePoint } from "../types.ts";
@@ -29,60 +31,104 @@ export function ServicePointCard({
 	const { t } = useTranslation("servicePoints");
 
 	return (
-		<Card className="overflow-hidden transition-shadow hover:shadow-md">
-			<div className="flex items-center gap-3 p-3">
-				{/* QR Code Icon - clickable */}
-				<button
-					type="button"
-					onClick={() => onViewQR(servicePoint)}
-					className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 transition-colors hover:bg-primary/20"
-				>
-					<QrCode className="size-5 text-primary" />
-				</button>
+		<Card.Root overflow="hidden" transition="shadow" _hover={{ shadow: "md" }}>
+			<Card.Body>
+				<HStack gap="3" align="center">
+					{/* QR Code Icon - clickable */}
+					<IconButton
+						variant="ghost"
+						w="10"
+						h="10"
+						flexShrink={0}
+						onClick={() => onViewQR(servicePoint)}
+						rounded="lg"
+						bg="primary/10"
+						_hover={{ bg: "primary/20" }}
+						aria-label={t("labels.viewQrCode")}
+					>
+						<Icon w="5" h="5" color="primary">
+							<QrCode />
+						</Icon>
+					</IconButton>
 
-				{/* Name + Description */}
-				<div className="min-w-0 flex-1">
-					<h3 className="truncate font-medium">{servicePoint.name}</h3>
-					{servicePoint.description && (
-						<p className="truncate text-muted-foreground text-sm">
-							{servicePoint.description}
-						</p>
-					)}
-				</div>
+					{/* Name + Description */}
+					<Box minW="0" flex="1">
+						<Text fontWeight="medium" truncate>
+							{servicePoint.name}
+						</Text>
+						{servicePoint.description && (
+							<Text color="fg.muted" textStyle="sm" truncate>
+								{servicePoint.description}
+							</Text>
+						)}
+					</Box>
 
-				{/* Toggle */}
-				<Switch
-					checked={servicePoint.isActive}
-					onCheckedChange={(checked) =>
-						onToggleActive(servicePoint.id, checked)
-					}
-				/>
+					{/* Toggle */}
+					<Switch.Root
+						checked={servicePoint.isActive}
+						onCheckedChange={(details) =>
+							onToggleActive(servicePoint.id, details.checked)
+						}
+						colorPalette="red"
+					>
+						<Switch.HiddenInput />
+						<Switch.Control>
+							<Switch.Thumb />
+						</Switch.Control>
+					</Switch.Root>
 
-				{/* Actions Menu */}
-				<DropdownMenu>
-					<DropdownMenuTrigger className="-me-1 rounded p-1 hover:bg-muted">
-						<MoreVertical className="size-4 text-muted-foreground" />
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuItem onClick={() => onViewQR(servicePoint)}>
-							<QrCode className="me-2 size-4" />
-							{t("labels.viewQrCode")}
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => onEdit(servicePoint)}>
-							<Edit className="me-2 size-4" />
-							{t("buttons.edit")}
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
-							onClick={() => onDelete(servicePoint.id)}
-							className="text-destructive focus:text-destructive"
-						>
-							<Trash2 className="me-2 size-4" />
-							{t("buttons.delete")}
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			</div>
-		</Card>
+					{/* Actions Menu */}
+					<Menu.Root>
+						<Menu.Trigger asChild>
+							<IconButton
+								variant="ghost"
+								size="sm"
+								me="-1"
+								rounded="md"
+								p="1"
+								_hover={{ bg: "bg.muted" }}
+							>
+								<Icon w="4" h="4" color="fg.muted">
+									<MoreVertical />
+								</Icon>
+							</IconButton>
+						</Menu.Trigger>
+						<Portal>
+							<Menu.Positioner>
+								<Menu.Content>
+									<Menu.Item
+										value="view-qr"
+										onClick={() => onViewQR(servicePoint)}
+									>
+										<Icon w="4" h="4" me="2">
+											<QrCode />
+										</Icon>
+										{t("labels.viewQrCode")}
+									</Menu.Item>
+									<Menu.Item value="edit" onClick={() => onEdit(servicePoint)}>
+										<Icon w="4" h="4" me="2">
+											<Edit />
+										</Icon>
+										{t("buttons.edit")}
+									</Menu.Item>
+									<Menu.Separator />
+									<Menu.Item
+										value="delete"
+										onClick={() => onDelete(servicePoint.id)}
+										color="fg.error"
+										_hover={{ bg: "bg.error", color: "fg.error" }}
+									>
+										<Icon w="4" h="4" me="2">
+											<Trash2 />
+										</Icon>
+										{t("buttons.delete")}
+									</Menu.Item>
+								</Menu.Content>
+							</Menu.Positioner>
+						</Portal>
+					</Menu.Root>
+				</HStack>
+			</Card.Body>
+		</Card.Root>
 	);
 }

@@ -1,15 +1,17 @@
 import { useCallback, useState } from "react";
 import type {
 	AddressSlideInput,
-	BusinessSlideInput,
 	ContactSlideInput,
+	LegalEntitySlideInput,
+	LegalForm,
 	OwnerSlideInput,
 	StoreNameSlideInput,
 } from "../schemas";
+import { LEGAL_FORMS_REQUIRING_REGISTER } from "../schemas";
 
 // Slide indices:
 // 0 = Welcome
-// 1 = Business name
+// 1 = Legal entity (legal form, company name, representative, register, VAT)
 // 2 = Owner name
 // 3 = Contact (email + phone)
 // 4 = Store name
@@ -19,6 +21,17 @@ export type SlideIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 const TOTAL_SLIDES = 7;
 const TOTAL_QUESTIONS = 5; // Excluding welcome and review
+
+// Legal entity data
+export interface LegalEntityData {
+	legalForm: LegalForm;
+	legalFormOther: string;
+	companyName: string;
+	representativeName: string;
+	registerCourt: string;
+	registerNumber: string;
+	vatId: string;
+}
 
 // Collected data from all slides
 export interface OnboardingData {
@@ -35,6 +48,7 @@ export interface OnboardingData {
 		postalCode: string;
 		country: string;
 	};
+	legalEntity: LegalEntityData;
 }
 
 const initialData: OnboardingData = {
@@ -50,6 +64,15 @@ const initialData: OnboardingData = {
 		city: "",
 		postalCode: "",
 		country: "Deutschland",
+	},
+	legalEntity: {
+		legalForm: "einzelunternehmen",
+		legalFormOther: "",
+		companyName: "",
+		representativeName: "",
+		registerCourt: "",
+		registerNumber: "",
+		vatId: "",
 	},
 };
 
@@ -79,11 +102,22 @@ export function useOnboardingWizard() {
 	);
 
 	// Slide completion handlers - each slide calls its handler on successful validation
-	const completeBusinessSlide = useCallback(
-		(slideData: BusinessSlideInput) => {
+	const completeLegalEntitySlide = useCallback(
+		(slideData: LegalEntitySlideInput) => {
 			setData((prev) => ({
 				...prev,
-				merchant: { ...prev.merchant, name: slideData.name },
+				// Set merchant name from company name (merged slide)
+				merchant: { ...prev.merchant, name: slideData.companyName },
+				legalEntity: {
+					...prev.legalEntity,
+					legalForm: slideData.legalForm,
+					legalFormOther: slideData.legalFormOther || "",
+					companyName: slideData.companyName,
+					representativeName: slideData.representativeName,
+					registerCourt: slideData.registerCourt || "",
+					registerNumber: slideData.registerNumber || "",
+					vatId: slideData.vatId || "",
+				},
 			}));
 			goToNext();
 		},
@@ -95,6 +129,12 @@ export function useOnboardingWizard() {
 			setData((prev) => ({
 				...prev,
 				merchant: { ...prev.merchant, ownerName: slideData.ownerName },
+				// Auto-fill representative name if not already set
+				legalEntity: {
+					...prev.legalEntity,
+					representativeName:
+						prev.legalEntity.representativeName || slideData.ownerName,
+				},
 			}));
 			goToNext();
 		},
@@ -143,6 +183,11 @@ export function useOnboardingWizard() {
 		[goToNext],
 	);
 
+	// Check if current legal form requires register
+	const requiresRegister = LEGAL_FORMS_REQUIRING_REGISTER.includes(
+		data.legalEntity.legalForm,
+	);
+
 	// Question number (1-indexed, for display)
 	const questionNumber =
 		currentSlide > 0 && currentSlide < TOTAL_SLIDES - 1 ? currentSlide : 0;
@@ -167,8 +212,11 @@ export function useOnboardingWizard() {
 		// Collected data
 		data,
 
+		// Legal entity helpers
+		requiresRegister,
+
 		// Slide completion handlers
-		completeBusinessSlide,
+		completeLegalEntitySlide,
 		completeOwnerSlide,
 		completeContactSlide,
 		completeStoreNameSlide,

@@ -33,6 +33,37 @@ export type EntityTranslations = Record<
 export type ChoiceTranslations = Record<string, { name?: string }>;
 
 /**
+ * Store hours configuration.
+ * Array of opening hours per day of week.
+ */
+export type DayOfWeek =
+	| "monday"
+	| "tuesday"
+	| "wednesday"
+	| "thursday"
+	| "friday"
+	| "saturday"
+	| "sunday";
+
+export type StoreHoursConfig = Array<{
+	dayOfWeek: DayOfWeek;
+	openTime: string; // HH:MM
+	closeTime: string; // HH:MM
+	displayOrder: number;
+}>;
+
+/**
+ * Store closures configuration.
+ * Array of closure periods with optional reason.
+ */
+export type StoreClosuresConfig = Array<{
+	id: string; // UUID for individual management
+	startDate: string; // YYYY-MM-DD
+	endDate: string; // YYYY-MM-DD
+	reason: string | null;
+}>;
+
+/**
  * Category availability schedule configuration.
  * Controls when a category is visible to customers.
  */
@@ -113,6 +144,21 @@ export const merchants = pgTable("merchants", {
 	ownerName: varchar("owner_name", { length: 255 }).notNull(),
 	email: varchar({ length: 255 }).notNull().unique(),
 	phone: varchar({ length: 50 }),
+	// Legal entity fields (for Impressum and invoices)
+	/** Legal form (e.g., 'gmbh', 'ug', 'einzelunternehmen', 'other') */
+	legalForm: varchar("legal_form", { length: 50 }),
+	/** Free text if legal_form='other' */
+	legalFormOther: varchar("legal_form_other", { length: 100 }),
+	/** Official registered company name (e.g., "Muster GmbH") */
+	companyName: varchar("company_name", { length: 255 }),
+	/** Managing director / Geschäftsführer / legally responsible representative */
+	representativeName: varchar("representative_name", { length: 255 }),
+	/** Register court (e.g., "Amtsgericht München") */
+	registerCourt: varchar("register_court", { length: 100 }),
+	/** Commercial register number (e.g., "HRB 229467" or "HRA 12345") */
+	registerNumber: varchar("register_number", { length: 50 }),
+	/** VAT ID / USt-IdNr (e.g., "DE123456789") */
+	vatId: varchar("vat_id", { length: 30 }),
 	// Supported languages for menu translations (first is used as fallback)
 	supportedLanguages: text("supported_languages")
 		.array()
@@ -210,8 +256,6 @@ export const storesRelations = relations(stores, ({ one, many }) => ({
 	categories: many(categories),
 	items: many(items),
 	optionGroups: many(optionGroups),
-	hours: many(storeHours),
-	closures: many(storeClosures),
 	servicePoints: many(servicePoints),
 	orders: many(orders),
 	settings: one(storeSettings),
@@ -283,8 +327,10 @@ export const storeSettings = pgTable("store_settings", {
 	// AI Recommendations configuration
 	aiRecommendations:
 		jsonb("ai_recommendations").$type<AiRecommendationsConfig>(),
-	// Future: add more JSONB columns for other settings
-	// e.g., paymentConfig, notificationConfig, etc.
+	// Store hours configuration (JSONB)
+	hours: jsonb("hours").$type<StoreHoursConfig>(),
+	// Store closures configuration (JSONB)
+	closures: jsonb("closures").$type<StoreClosuresConfig>(),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -296,69 +342,6 @@ export const storeSettings = pgTable("store_settings", {
 export const storeSettingsRelations = relations(storeSettings, ({ one }) => ({
 	store: one(stores, {
 		fields: [storeSettings.storeId],
-		references: [stores.id],
-	}),
-}));
-
-// ============================================================================
-// STORE HOURS
-// ============================================================================
-
-export const storeHours = pgTable(
-	"store_hours",
-	{
-		id: uuid().primaryKey().defaultRandom(),
-		storeId: uuid("store_id")
-			.notNull()
-			.references(() => stores.id, { onDelete: "cascade" }),
-		dayOfWeek: text("day_of_week").notNull(),
-		openTime: varchar("open_time", { length: 5 }).notNull(), // HH:MM
-		closeTime: varchar("close_time", { length: 5 }).notNull(), // HH:MM
-		displayOrder: integer("display_order").notNull().default(0),
-		// Timestamps
-		createdAt: timestamp("created_at").notNull().defaultNow(),
-		updatedAt: timestamp("updated_at")
-			.notNull()
-			.defaultNow()
-			.$onUpdate(() => new Date()),
-	},
-	(table) => [index("idx_store_hours_store").on(table.storeId)],
-);
-
-export const storeHoursRelations = relations(storeHours, ({ one }) => ({
-	store: one(stores, {
-		fields: [storeHours.storeId],
-		references: [stores.id],
-	}),
-}));
-
-// ============================================================================
-// STORE CLOSURES
-// ============================================================================
-
-export const storeClosures = pgTable(
-	"store_closures",
-	{
-		id: uuid().primaryKey().defaultRandom(),
-		storeId: uuid("store_id")
-			.notNull()
-			.references(() => stores.id, { onDelete: "cascade" }),
-		startDate: varchar("start_date", { length: 10 }).notNull(), // YYYY-MM-DD
-		endDate: varchar("end_date", { length: 10 }).notNull(), // YYYY-MM-DD
-		reason: varchar("reason", { length: 255 }),
-		// Timestamps
-		createdAt: timestamp("created_at").notNull().defaultNow(),
-		updatedAt: timestamp("updated_at")
-			.notNull()
-			.defaultNow()
-			.$onUpdate(() => new Date()),
-	},
-	(table) => [index("idx_store_closures_store").on(table.storeId)],
-);
-
-export const storeClosuresRelations = relations(storeClosures, ({ one }) => ({
-	store: one(stores, {
-		fields: [storeClosures.storeId],
 		references: [stores.id],
 	}),
 }));
@@ -1119,14 +1102,6 @@ export type NewOptionChoice = InferInsertModel<typeof optionChoices>;
 // Item Option Group types (junction)
 export type ItemOptionGroup = InferSelectModel<typeof itemOptionGroups>;
 export type NewItemOptionGroup = InferInsertModel<typeof itemOptionGroups>;
-
-// Store Hours types
-export type StoreHour = InferSelectModel<typeof storeHours>;
-export type NewStoreHour = InferInsertModel<typeof storeHours>;
-
-// Store Closures types
-export type StoreClosure = InferSelectModel<typeof storeClosures>;
-export type NewStoreClosure = InferInsertModel<typeof storeClosures>;
 
 // Image types
 export type Image = InferSelectModel<typeof images>;

@@ -7,13 +7,15 @@
 
 import {
 	Accordion,
-	AccordionContent,
-	AccordionItem,
-	AccordionTrigger,
-} from "@menuvo/ui/components/accordion";
-import { cn } from "@menuvo/ui/lib/utils";
+	Box,
+	Flex,
+	Grid,
+	HStack,
+	Spinner,
+	Stack,
+	Text,
+} from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTRPC } from "../../../lib/trpc";
 import {
@@ -268,18 +270,16 @@ export function PickupTimeSelector({
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center py-8">
-				<Loader2 className="size-6 animate-spin text-muted-foreground" />
-				<ShopMutedText className="ms-2">
-					{t("ordering.loadingSlots")}
-				</ShopMutedText>
-			</div>
+			<Flex align="center" justify="center" py="8">
+				<Spinner size="md" color="fg.muted" />
+				<ShopMutedText ms="2">{t("ordering.loadingSlots")}</ShopMutedText>
+			</Flex>
 		);
 	}
 
 	if (error) {
 		return (
-			<ShopMutedText className="text-destructive">
+			<ShopMutedText color="red.fg">
 				{t("ordering.errorLoadingSlots")}
 			</ShopMutedText>
 		);
@@ -290,80 +290,88 @@ export function PickupTimeSelector({
 	}
 
 	return (
-		<div className="space-y-4">
+		<Stack gap="4">
 			{isRequired && (
-				<ShopMutedText className="text-sm">
+				<ShopMutedText textStyle="sm">
 					{t("ordering.pickupTimeRequired")}
 				</ShopMutedText>
 			)}
 
-			<div className="max-h-96 overflow-y-auto">
-				<Accordion
-					type="multiple"
+			<Box maxH="96" overflowY="auto">
+				<Accordion.Root
+					multiple
 					defaultValue={dayGroups[0]?.dayKey ? [dayGroups[0].dayKey] : []}
-					className="space-y-0"
 				>
 					{dayGroups.map((group) => (
-						<AccordionItem key={group.dayKey} value={group.dayKey}>
-							<AccordionTrigger className="hover:no-underline">
-								<div className="flex items-center gap-2">
-									<ShopHeading as="h3" size="sm" className="font-medium">
+						<Accordion.Item key={group.dayKey} value={group.dayKey}>
+							<Accordion.ItemTrigger _hover={{ textDecoration: "none" }}>
+								<HStack gap="2" flex="1">
+									<ShopHeading as="h3" size="sm" fontWeight="medium">
 										{group.dayLabel}
 									</ShopHeading>
 									{group.datetime && (
-										<ShopMutedText className="text-sm">
+										<ShopMutedText textStyle="sm">
 											{formatDateShort(group.datetime, i18n.language)}
 										</ShopMutedText>
 									)}
-								</div>
-							</AccordionTrigger>
-							<AccordionContent>
-								<div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
-									{group.slots.map((slot) => {
-										const isSelected = value === slot.datetime;
+								</HStack>
+								<Accordion.ItemIndicator />
+							</Accordion.ItemTrigger>
+							<Accordion.ItemContent>
+								<Accordion.ItemBody>
+									<Grid
+										templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)" }}
+										gap="2"
+										pt="2"
+									>
+										{group.slots.map((slot) => {
+											const isSelected = value === slot.datetime;
 
-										return (
-											<ShopCard
-												key={slot.datetime}
-												variant="interactive"
-												padding="sm"
-												className={cn(
-													"cursor-pointer transition-all",
-													isSelected
-														? "border-2 border-primary bg-primary/10"
-														: "border border-border hover:border-primary/50 hover:bg-muted/50",
-												)}
-												onClick={() => onChange(slot.datetime)}
-												onKeyDown={(e) => {
-													if (e.key === "Enter" || e.key === " ") {
-														e.preventDefault();
-														onChange(slot.datetime);
-													}
-												}}
-												role="button"
-												tabIndex={0}
-												aria-pressed={isSelected}
-												aria-label={`${group.dayLabel}, ${slot.time}`}
-											>
-												<div className="text-center">
-													<div
-														className={cn(
-															"font-medium",
-															isSelected ? "text-primary" : "text-foreground",
-														)}
-													>
-														{slot.time}
-													</div>
-												</div>
-											</ShopCard>
-										);
-									})}
-								</div>
-							</AccordionContent>
-						</AccordionItem>
+											return (
+												<ShopCard
+													key={slot.datetime}
+													variant="interactive"
+													padding="sm"
+													cursor="pointer"
+													borderWidth={isSelected ? "2px" : "1px"}
+													borderColor={isSelected ? "teal.solid" : "border"}
+													bg={isSelected ? "teal.subtle" : "bg.panel"}
+													_hover={{
+														borderColor: isSelected
+															? "teal.solid"
+															: "teal.muted",
+														bg: isSelected ? "teal.subtle" : "bg.muted",
+													}}
+													onClick={() => onChange(slot.datetime)}
+													onKeyDown={(e) => {
+														if (e.key === "Enter" || e.key === " ") {
+															e.preventDefault();
+															onChange(slot.datetime);
+														}
+													}}
+													role="button"
+													tabIndex={0}
+													aria-pressed={isSelected}
+													aria-label={`${group.dayLabel}, ${slot.time}`}
+												>
+													<Box textAlign="center">
+														<Text
+															fontWeight="medium"
+															color={isSelected ? "teal.fg" : "fg"}
+														>
+															{slot.time}
+														</Text>
+													</Box>
+												</ShopCard>
+											);
+										})}
+									</Grid>
+								</Accordion.ItemBody>
+							</Accordion.ItemContent>
+						</Accordion.Item>
 					))}
-				</Accordion>
-			</div>
-		</div>
+				</Accordion.Root>
+			</Box>
+		</Stack>
 	);
 }

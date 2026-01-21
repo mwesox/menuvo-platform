@@ -6,16 +6,16 @@
  * Shows dynamic, AI-generated section titles based on cart contents.
  */
 
-import { Skeleton } from "@menuvo/ui";
+import { Box, Flex, HStack, Skeleton, Stack, Text } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { LuPlus, LuSparkles } from "react-icons/lu";
 import { useTRPC } from "../../../lib/trpc";
 import type { CartItem } from "../../cart/stores/cart-store";
 import {
+	SectionHeader,
 	ShopButton,
 	ShopCard,
-	ShopHeading,
 	ShopImage,
 	ShopMutedText,
 	ShopPrice,
@@ -74,84 +74,96 @@ export function RecommendationsSection({
 		recommendationsData.sectionTitle || t("ordering.recommendations.title");
 
 	return (
-		<ShopCard padding="md" className="space-y-4">
-			<div className="flex items-center gap-2">
-				<Sparkles className="size-5 text-primary" />
-				<ShopHeading as="h2" size="md">
-					{sectionTitle}
-				</ShopHeading>
-			</div>
+		<ShopCard padding="md">
+			<Stack gap="4">
+				<SectionHeader title={sectionTitle} icon={LuSparkles} />
 
-			<div className="space-y-3">
-				{recommendationsData.suggestions.map((item) => (
-					<div
-						key={item.itemId}
-						className="flex items-center gap-3 rounded-lg border border-border p-3"
-					>
-						{/* Item Image */}
-						<ShopImage
-							src={item.imageUrl}
-							alt={item.name}
-							className="size-16 shrink-0"
-							aspectRatio="square"
-						/>
-
-						{/* Item Info */}
-						<div className="min-w-0 flex-1">
-							<p className="truncate font-medium text-sm">{item.name}</p>
-							<ShopMutedText className="text-xs">{item.reason}</ShopMutedText>
-							<ShopPrice cents={item.price} size="sm" className="mt-1" />
-						</div>
-
-						{/* Add Button */}
-						<ShopButton
-							variant="secondary"
-							size="icon-sm"
-							onClick={() =>
-								onAddItem({
-									itemId: item.itemId,
-									name: item.name,
-									price: item.price,
-									imageUrl: item.imageUrl,
-								})
-							}
-							aria-label={t("ordering.recommendations.addToCart", {
-								name: item.name,
-							})}
+				<Stack gap="3">
+					{recommendationsData.suggestions.map((item) => (
+						<Flex
+							key={item.itemId}
+							align="center"
+							gap="3"
+							rounded="lg"
+							borderWidth="1px"
+							borderColor="border"
+							p="3"
 						>
-							<Plus className="size-4" />
-						</ShopButton>
-					</div>
-				))}
-			</div>
+							{/* Item Image */}
+							<ShopImage
+								src={item.imageUrl}
+								alt={item.name}
+								boxSize="16"
+								flexShrink={0}
+								aspectRatio="square"
+							/>
+
+							{/* Item Info */}
+							<Box minW="0" flex="1">
+								<Text truncate fontWeight="medium" textStyle="sm">
+									{item.name}
+								</Text>
+								<ShopMutedText textStyle="xs">{item.reason}</ShopMutedText>
+								<ShopPrice cents={item.price} size="sm" mt="1" />
+							</Box>
+
+							{/* Add Button */}
+							<ShopButton
+								variant="secondary"
+								size="icon-sm"
+								onClick={() =>
+									onAddItem({
+										itemId: item.itemId,
+										name: item.name,
+										price: item.price,
+										imageUrl: item.imageUrl,
+									})
+								}
+								aria-label={t("ordering.recommendations.addToCart", {
+									name: item.name,
+								})}
+							>
+								<LuPlus />
+							</ShopButton>
+						</Flex>
+					))}
+				</Stack>
+			</Stack>
 		</ShopCard>
 	);
 }
 
 function RecommendationsSkeleton() {
 	return (
-		<ShopCard padding="md" className="space-y-4">
-			<div className="flex items-center gap-2">
-				<Skeleton className="size-5" />
-				<Skeleton className="h-5 w-40" />
-			</div>
+		<ShopCard padding="md">
+			<Stack gap="4">
+				<HStack gap="2">
+					<Skeleton boxSize="5" />
+					<Skeleton h="5" w="40" />
+				</HStack>
 
-			<div className="space-y-3">
-				{[1, 2].map((i) => (
-					<div
-						key={i}
-						className="flex items-center gap-3 rounded-lg border border-border p-3"
-					>
-						<Skeleton className="size-16 shrink-0 rounded-lg" />
-						<div className="flex-1 space-y-2">
-							<Skeleton className="h-4 w-32" />
-							<Skeleton className="h-3 w-24" />
-							<Skeleton className="h-4 w-16" />
-						</div>
-						<Skeleton className="size-8 rounded-lg" />
-					</div>
-				))}
-			</div>
+				<Stack gap="3">
+					{[1, 2].map((i) => (
+						<Flex
+							key={i}
+							align="center"
+							gap="3"
+							rounded="lg"
+							borderWidth="1px"
+							borderColor="border"
+							p="3"
+						>
+							<Skeleton boxSize="16" flexShrink={0} rounded="lg" />
+							<Stack flex="1" gap="2">
+								<Skeleton h="4" w="32" />
+								<Skeleton h="3" w="24" />
+								<Skeleton h="4" w="16" />
+							</Stack>
+							<Skeleton boxSize="8" rounded="lg" />
+						</Flex>
+					))}
+				</Stack>
+			</Stack>
 		</ShopCard>
 	);
 }

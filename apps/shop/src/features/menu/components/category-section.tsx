@@ -1,3 +1,5 @@
+import { Box, SimpleGrid } from "@chakra-ui/react";
+import { ShopHeading, ShopMutedText } from "../../shared/components/ui";
 import type { MenuCategory } from "../types";
 import { MenuItemCard } from "./menu-item-card";
 
@@ -19,27 +21,26 @@ export function CategorySection({
 	refSetter,
 }: CategorySectionProps) {
 	return (
-		<section ref={refSetter} data-category-id={category.id} className="mb-10">
+		<Box as="section" ref={refSetter} data-category-id={category.id} mb="10">
 			{/* Category header */}
-			<h2 className="mb-4 font-semibold text-2xl text-foreground">
+			<ShopHeading as="h2" size="xl" mb="4">
 				{category.name}
-			</h2>
+			</ShopHeading>
 
 			{/* Category description */}
 			{category.description && (
-				<p className="mb-4 max-w-lg text-muted-foreground text-sm">
+				<ShopMutedText mb="4" maxW="lg" textStyle="sm">
 					{category.description}
-				</p>
+				</ShopMutedText>
 			)}
 
 			{/*
 			Items grid - professional responsive approach:
-			- auto-fill (not auto-fit) keeps consistent column tracks
-			- Cards have max-width to prevent over-stretching
-			- justify-items-start ensures orphan cards stay left-aligned
+			- Uses SimpleGrid for consistent column tracks
+			- Responsive columns: 1 on mobile, 2 on sm, 3 on xl
 			- Consistent visual rhythm regardless of item count
 		*/}
-			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+			<SimpleGrid columns={{ base: 1, sm: 2, xl: 3 }} gap="4">
 				{category.items.map((item: CategoryItem) => (
 					<MenuItemCard
 						key={item.id}
@@ -47,7 +48,7 @@ export function CategorySection({
 						onSelect={() => onItemSelect(item)}
 					/>
 				))}
-			</div>
-		</section>
+			</SimpleGrid>
+		</Box>
 	);
 }

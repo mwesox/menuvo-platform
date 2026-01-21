@@ -1,8 +1,21 @@
-import { cn } from "@menuvo/ui/lib/utils";
-import { Check, Minus, Plus } from "lucide-react";
+import {
+	Box,
+	chakra,
+	Flex,
+	HStack,
+	Stack,
+	Text,
+	VisuallyHidden,
+} from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
+import { LuCheck, LuMinus, LuPlus } from "react-icons/lu";
+import { focusRingProps, ShopHeading } from "../../shared/components/ui";
 import { formatPriceModifier } from "../../utils";
 import type { MenuItemChoice, MenuItemOptionGroup } from "../types";
+
+// Styled native elements
+const StyledLabel = chakra("label");
+const StyledButton = chakra("button");
 
 // ============================================================================
 // Types
@@ -112,75 +125,86 @@ function SingleSelectGroup({
 	const { t } = useTranslation("shop");
 
 	return (
-		<div className="space-y-2">
+		<Stack gap="2">
 			{choices.map((choice) => {
 				const isSelected = selectedId === choice.id;
 				const isUnavailable = !choice.isAvailable;
 
 				return (
-					<label
+					<StyledLabel
 						key={choice.id}
 						htmlFor={`choice-${group.id}-${choice.id}`}
-						className={cn(
-							"flex cursor-pointer items-center justify-between rounded-xl p-3",
-							"border-2 transition-all duration-150",
-							isSelected
-								? "border-primary bg-primary/5"
-								: "border-border/60 bg-card hover:border-border",
-							isUnavailable && "cursor-not-allowed opacity-50",
-						)}
+						display="flex"
+						alignItems="center"
+						justifyContent="space-between"
+						cursor={isUnavailable ? "not-allowed" : "pointer"}
+						rounded="xl"
+						p="3"
+						borderWidth="2px"
+						borderColor={isSelected ? "teal.solid" : "border.muted"}
+						bg={isSelected ? "teal.subtle" : "bg.panel"}
+						opacity={isUnavailable ? 0.5 : 1}
+						transition="all 0.15s"
+						_hover={
+							!isUnavailable && !isSelected
+								? { borderColor: "border" }
+								: undefined
+						}
 					>
-						<div className="flex items-center gap-3">
-							<input
-								type="radio"
-								id={`choice-${group.id}-${choice.id}`}
-								name={`group-${group.id}`}
-								checked={isSelected}
-								disabled={isUnavailable}
-								onChange={() => onSelect(choice.id)}
-								className="peer sr-only"
-							/>
-							<div
-								className={cn(
-									"size-5 shrink-0 rounded-full border-2",
-									"flex items-center justify-center transition-all duration-150",
-									"peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
-									isSelected ? "border-primary bg-primary" : "border-border",
-								)}
+						<HStack gap="3">
+							<VisuallyHidden>
+								<input
+									type="radio"
+									id={`choice-${group.id}-${choice.id}`}
+									name={`group-${group.id}`}
+									checked={isSelected}
+									disabled={isUnavailable}
+									onChange={() => onSelect(choice.id)}
+								/>
+							</VisuallyHidden>
+							<Flex
+								w="5"
+								h="5"
+								flexShrink={0}
+								rounded="full"
+								borderWidth="2px"
+								borderColor={isSelected ? "teal.solid" : "border"}
+								bg={isSelected ? "teal.solid" : "transparent"}
+								align="center"
+								justify="center"
+								transition="all 0.15s"
+								{...focusRingProps}
 							>
-								{isSelected && <div className="size-2 rounded-full bg-white" />}
-							</div>
-							<span
-								className={cn(
-									"text-sm transition-colors",
-									isSelected
-										? "font-medium text-foreground"
-										: "text-foreground",
-									isUnavailable && "line-through",
-								)}
+								{isSelected && <Box w="2" h="2" rounded="full" bg="white" />}
+							</Flex>
+							<Text
+								fontSize="sm"
+								fontWeight={isSelected ? "medium" : "normal"}
+								color="fg"
+								textDecoration={isUnavailable ? "line-through" : undefined}
+								transition="colors 0.15s"
 							>
 								{choice.name}
-							</span>
+							</Text>
 							{isUnavailable && (
-								<span className="text-muted-foreground text-xs">
+								<Text color="fg.muted" fontSize="xs">
 									{t("menu.soldOut")}
-								</span>
+								</Text>
 							)}
-						</div>
+						</HStack>
 						{choice.priceModifier !== 0 && (
-							<span
-								className={cn(
-									"text-sm tabular-nums",
-									isSelected ? "text-foreground" : "text-muted-foreground",
-								)}
+							<Text
+								fontSize="sm"
+								fontVariantNumeric="tabular-nums"
+								color={isSelected ? "fg" : "fg.muted"}
 							>
 								{formatPriceModifier(choice.priceModifier)}
-							</span>
+							</Text>
 						)}
-					</label>
+					</StyledLabel>
 				);
 			})}
-		</div>
+		</Stack>
 	);
 }
 
@@ -204,7 +228,7 @@ function MultiSelectGroup({
 	const { t } = useTranslation("shop");
 
 	return (
-		<div className="space-y-2">
+		<Stack gap="2">
 			{choices.map((choice) => {
 				const isSelected = selectedIds.includes(choice.id);
 				const isUnavailable = !choice.isAvailable;
@@ -212,74 +236,83 @@ function MultiSelectGroup({
 					group.maxSelections !== null &&
 					selectedIds.length >= group.maxSelections &&
 					!isSelected;
+				const isDisabled = isAtMax || isUnavailable;
 
 				return (
-					<label
+					<StyledLabel
 						key={choice.id}
 						htmlFor={`choice-${group.id}-${choice.id}`}
-						className={cn(
-							"flex cursor-pointer items-center justify-between rounded-xl p-3",
-							"border-2 transition-all duration-150",
-							isSelected
-								? "border-primary bg-primary/5"
-								: "border-border/60 bg-card hover:border-border",
-							(isAtMax || isUnavailable) &&
-								"cursor-not-allowed opacity-50 hover:border-border/60",
-						)}
+						display="flex"
+						alignItems="center"
+						justifyContent="space-between"
+						cursor={isDisabled ? "not-allowed" : "pointer"}
+						rounded="xl"
+						p="3"
+						borderWidth="2px"
+						borderColor={isSelected ? "teal.solid" : "border.muted"}
+						bg={isSelected ? "teal.subtle" : "bg.panel"}
+						opacity={isDisabled ? 0.5 : 1}
+						transition="all 0.15s"
+						_hover={
+							!isDisabled && !isSelected ? { borderColor: "border" } : undefined
+						}
 					>
-						<div className="flex items-center gap-3">
-							<input
-								type="checkbox"
-								id={`choice-${group.id}-${choice.id}`}
-								checked={isSelected}
-								disabled={isAtMax || isUnavailable}
-								onChange={(e) => onToggle(choice.id, e.target.checked)}
-								className="peer sr-only"
-							/>
-							<div
-								className={cn(
-									"size-5 shrink-0 rounded-md border-2",
-									"flex items-center justify-center transition-all duration-150",
-									"peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2",
-									isSelected ? "border-primary bg-primary" : "border-border",
-									(isAtMax || isUnavailable) && "opacity-50",
-								)}
+						<HStack gap="3">
+							<VisuallyHidden>
+								<input
+									type="checkbox"
+									id={`choice-${group.id}-${choice.id}`}
+									checked={isSelected}
+									disabled={isDisabled}
+									onChange={(e) => onToggle(choice.id, e.target.checked)}
+								/>
+							</VisuallyHidden>
+							<Flex
+								w="5"
+								h="5"
+								flexShrink={0}
+								rounded="md"
+								borderWidth="2px"
+								borderColor={isSelected ? "teal.solid" : "border"}
+								bg={isSelected ? "teal.solid" : "transparent"}
+								align="center"
+								justify="center"
+								transition="all 0.15s"
+								opacity={isDisabled ? 0.5 : 1}
+								{...focusRingProps}
 							>
 								{isSelected && (
-									<Check className="size-3 stroke-[3] text-white" />
+									<Box as={LuCheck} boxSize="3" color="white" strokeWidth={3} />
 								)}
-							</div>
-							<span
-								className={cn(
-									"text-sm transition-colors",
-									isSelected
-										? "font-medium text-foreground"
-										: "text-foreground",
-									isUnavailable && "line-through",
-								)}
+							</Flex>
+							<Text
+								fontSize="sm"
+								fontWeight={isSelected ? "medium" : "normal"}
+								color="fg"
+								textDecoration={isUnavailable ? "line-through" : undefined}
+								transition="colors 0.15s"
 							>
 								{choice.name}
-							</span>
+							</Text>
 							{isUnavailable && (
-								<span className="text-muted-foreground text-xs">
+								<Text color="fg.muted" fontSize="xs">
 									{t("menu.soldOut")}
-								</span>
+								</Text>
 							)}
-						</div>
+						</HStack>
 						{choice.priceModifier !== 0 && (
-							<span
-								className={cn(
-									"text-sm tabular-nums",
-									isSelected ? "text-foreground" : "text-muted-foreground",
-								)}
+							<Text
+								fontSize="sm"
+								fontVariantNumeric="tabular-nums"
+								color={isSelected ? "fg" : "fg.muted"}
 							>
 								{formatPriceModifier(choice.priceModifier)}
-							</span>
+							</Text>
 						)}
-					</label>
+					</StyledLabel>
 				);
 			})}
-		</div>
+		</Stack>
 	);
 }
 
@@ -310,7 +343,7 @@ function QuantitySelectGroup({
 		totalQuantity >= group.aggregateMaxQuantity;
 
 	return (
-		<div className="space-y-2">
+		<Stack gap="2">
 			{choices.map((choice) => {
 				const quantity = quantities.get(choice.id) ?? 0;
 				const isUnavailable = !choice.isAvailable;
@@ -321,106 +354,125 @@ function QuantitySelectGroup({
 				const canDecrement = quantity > (choice.minQuantity ?? 0);
 
 				return (
-					<div
+					<Flex
 						key={choice.id}
-						className={cn(
-							"flex items-center justify-between rounded-xl p-3",
-							"border-2 transition-all duration-150",
-							quantity > 0
-								? "border-primary bg-primary/5"
-								: "border-border/60 bg-card",
-							isUnavailable && "opacity-50",
-						)}
+						align="center"
+						justify="space-between"
+						rounded="xl"
+						p="3"
+						borderWidth="2px"
+						borderColor={quantity > 0 ? "teal.solid" : "border.muted"}
+						bg={quantity > 0 ? "teal.subtle" : "bg.panel"}
+						opacity={isUnavailable ? 0.5 : 1}
+						transition="all 0.15s"
 					>
-						<div className="flex min-w-0 flex-1 items-center gap-3">
-							<span
-								className={cn(
-									"text-sm transition-colors",
-									quantity > 0
-										? "font-medium text-foreground"
-										: "text-foreground",
-									isUnavailable && "line-through",
-								)}
+						<HStack gap="3" minW="0" flex="1">
+							<Text
+								fontSize="sm"
+								fontWeight={quantity > 0 ? "medium" : "normal"}
+								color="fg"
+								textDecoration={isUnavailable ? "line-through" : undefined}
+								transition="colors 0.15s"
 							>
 								{choice.name}
-							</span>
+							</Text>
 							{isUnavailable && (
-								<span className="text-muted-foreground text-xs">
+								<Text color="fg.muted" fontSize="xs">
 									{t("menu.soldOut")}
-								</span>
+								</Text>
 							)}
-						</div>
+						</HStack>
 
-						<div className="flex items-center gap-3">
+						<HStack gap="3">
 							{choice.priceModifier !== 0 && (
-								<span
-									className={cn(
-										"text-sm tabular-nums",
-										quantity > 0 ? "text-foreground" : "text-muted-foreground",
-									)}
+								<Text
+									fontSize="sm"
+									fontVariantNumeric="tabular-nums"
+									color={quantity > 0 ? "fg" : "fg.muted"}
 								>
 									{formatPriceModifier(choice.priceModifier)}
-								</span>
+								</Text>
 							)}
 
 							{/* Quantity stepper */}
-							<div className="inline-flex items-center gap-1 rounded-xl bg-muted p-0.5">
-								<button
+							<HStack gap="1" rounded="xl" bg="bg.muted" p="0.5">
+								<StyledButton
 									type="button"
 									onClick={() => onQuantityChange(choice.id, quantity - 1)}
 									disabled={!canDecrement}
 									aria-label={t("menu.options.decreaseQuantity", {
 										name: choice.name,
 									})}
-									className={cn(
-										"flex size-8 items-center justify-center rounded-full transition-colors",
-										"hover:bg-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-										"active:scale-95",
-										!canDecrement &&
-											"cursor-not-allowed opacity-30 hover:bg-transparent",
-									)}
+									display="flex"
+									alignItems="center"
+									justifyContent="center"
+									w="8"
+									h="8"
+									rounded="full"
+									transition="colors 0.15s"
+									cursor={!canDecrement ? "not-allowed" : "pointer"}
+									opacity={!canDecrement ? 0.3 : 1}
+									_hover={canDecrement ? { bg: "border" } : undefined}
+									_active={
+										canDecrement ? { transform: "scale(0.95)" } : undefined
+									}
+									{...focusRingProps}
 								>
-									<Minus className="size-4" />
-								</button>
+									<Box as={LuMinus} boxSize="4" />
+								</StyledButton>
 
-								<span
-									className={cn(
-										"min-w-[2rem] text-center font-medium text-foreground text-sm tabular-nums",
-									)}
+								<Text
+									minW="8"
+									textAlign="center"
+									fontWeight="medium"
+									fontSize="sm"
+									fontVariantNumeric="tabular-nums"
+									color="fg"
 									aria-live="polite"
 									aria-atomic="true"
 								>
 									{quantity}
-								</span>
+								</Text>
 
-								<button
+								<StyledButton
 									type="button"
 									onClick={() => onQuantityChange(choice.id, quantity + 1)}
 									disabled={!canIncrement}
 									aria-label={t("menu.options.increaseQuantity", {
 										name: choice.name,
 									})}
-									className={cn(
-										"flex size-8 items-center justify-center rounded-full transition-colors",
-										"hover:bg-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-										"active:scale-95",
-										!canIncrement &&
-											"cursor-not-allowed opacity-30 hover:bg-transparent",
-									)}
+									display="flex"
+									alignItems="center"
+									justifyContent="center"
+									w="8"
+									h="8"
+									rounded="full"
+									transition="colors 0.15s"
+									cursor={!canIncrement ? "not-allowed" : "pointer"}
+									opacity={!canIncrement ? 0.3 : 1}
+									_hover={canIncrement ? { bg: "border" } : undefined}
+									_active={
+										canIncrement ? { transform: "scale(0.95)" } : undefined
+									}
+									{...focusRingProps}
 								>
-									<Plus className="size-4" />
-								</button>
-							</div>
-						</div>
-					</div>
+									<Box as={LuPlus} boxSize="4" />
+								</StyledButton>
+							</HStack>
+						</HStack>
+					</Flex>
 				);
 			})}
 
 			{/* Aggregate quantity indicator */}
 			{(group.aggregateMinQuantity !== null ||
 				group.aggregateMaxQuantity !== null) && (
-				<div className="flex justify-end px-1 pt-1">
-					<span className="text-muted-foreground text-xs tabular-nums">
+				<Flex justify="flex-end" px="1" pt="1">
+					<Text
+						color="fg.muted"
+						fontSize="xs"
+						fontVariantNumeric="tabular-nums"
+					>
 						{t("menu.options.selected", { count: totalQuantity })}
 						{group.aggregateMaxQuantity !== null && (
 							<>
@@ -428,10 +480,10 @@ function QuantitySelectGroup({
 								/ {t("menu.options.max", { count: group.aggregateMaxQuantity })}
 							</>
 						)}
-					</span>
-				</div>
+					</Text>
+				</Flex>
 			)}
-		</div>
+		</Stack>
 	);
 }
 
@@ -487,23 +539,22 @@ export function OptionGroup({
 	};
 
 	return (
-		<div className="py-4 first:pt-0">
+		<Box py="4" _first={{ pt: "0" }}>
 			{/* Group Header */}
-			<div className="mb-3 flex items-baseline justify-between">
-				<h3 className="font-semibold text-base text-foreground">
+			<Flex align="baseline" justify="space-between" mb="3">
+				<ShopHeading as="h3" size="sm">
 					{group.name}
-				</h3>
-				<span
-					className={cn(
-						"text-xs uppercase tracking-wide",
-						group.isRequired
-							? "font-medium text-primary"
-							: "text-muted-foreground",
-					)}
+				</ShopHeading>
+				<Text
+					fontSize="xs"
+					textTransform="uppercase"
+					letterSpacing="wide"
+					fontWeight={group.isRequired ? "medium" : "normal"}
+					color={group.isRequired ? "teal.solid" : "fg.muted"}
 				>
 					{helperText}
-				</span>
-			</div>
+				</Text>
+			</Flex>
 
 			{/* Type-specific rendering */}
 			{group.type === "single_select" && (
@@ -532,6 +583,6 @@ export function OptionGroup({
 					onQuantityChange={onQuantityChange}
 				/>
 			)}
-		</div>
+		</Box>
 	);
 }

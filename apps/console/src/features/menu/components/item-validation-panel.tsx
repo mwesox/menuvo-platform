@@ -1,13 +1,7 @@
-import {
-	Alert,
-	AlertDescription,
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@menuvo/ui";
+import { Alert, Card, HStack, VStack } from "@chakra-ui/react";
 import { AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Label } from "@/components/ui/typography";
 import type { ItemValidationResult } from "../validation.types";
 
 interface ItemValidationPanelProps {
@@ -29,40 +23,48 @@ export function ItemValidationPanel({ validation }: ItemValidationPanelProps) {
 	}
 
 	return (
-		<Card>
-			<CardHeader className="pb-3">
-				<CardTitle className="text-base">{t("validation.title")}</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-4 pt-0">
-				{/* Issues section */}
-				<div className="space-y-2">
-					<h4 className="flex items-center gap-2 font-medium text-amber-600 text-sm dark:text-amber-500">
-						<AlertTriangle className="h-4 w-4" />
-						{t("validation.issuesTitle")}
-					</h4>
-					<ul className="space-y-1.5">
-						{validation.issues.map((issue) => (
-							<li key={issue.code} className="text-muted-foreground text-sm">
-								<Alert className="border-amber-200 bg-amber-50 py-2 dark:border-amber-900 dark:bg-amber-950/20">
-									<AlertTriangle className="h-4 w-4 text-amber-600" />
-									<AlertDescription className="text-amber-700 dark:text-amber-400">
+		<Card.Root>
+			<Card.Header pb="3">
+				<Card.Title textStyle="base">{t("validation.title")}</Card.Title>
+			</Card.Header>
+			<Card.Body pt="0">
+				<VStack gap="4" align="stretch">
+					{/* Issues section */}
+					<VStack gap="2" align="stretch">
+						<HStack gap="2" alignItems="center">
+							<AlertTriangle
+								style={{ height: "1rem", width: "1rem" }}
+								color="var(--chakra-colors-fg-warning)"
+							/>
+							<Label color="fg.warning">{t("validation.issuesTitle")}</Label>
+						</HStack>
+						<VStack gap="1.5" align="stretch">
+							{validation.issues.map((issue) => (
+								<Alert.Root key={issue.code} status="warning" py="2">
+									<Alert.Indicator>
+										<AlertTriangle
+											style={{ height: "1rem", width: "1rem" }}
+											color="var(--chakra-colors-fg-warning)"
+										/>
+									</Alert.Indicator>
+									<Alert.Title>
 										{t(`validation.codes.${issue.code}`, {
 											defaultValue: issue.code,
 										})}
-									</AlertDescription>
-								</Alert>
-							</li>
-						))}
-					</ul>
-				</div>
+									</Alert.Title>
+								</Alert.Root>
+							))}
+						</VStack>
+					</VStack>
 
-				{/* Cannot publish message */}
-				{!validation.isPublishable && (
-					<p className="font-medium text-amber-600 text-sm">
-						{t("validation.cannotPublishWithIssues")}
-					</p>
-				)}
-			</CardContent>
-		</Card>
+					{/* Cannot publish message */}
+					{!validation.isPublishable && (
+						<Label color="fg.warning">
+							{t("validation.cannotPublishWithIssues")}
+						</Label>
+					)}
+				</VStack>
+			</Card.Body>
+		</Card.Root>
 	);
 }

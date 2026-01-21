@@ -1,13 +1,17 @@
+import { ChakraProvider } from "@chakra-ui/react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { I18nextProvider } from "react-i18next";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { i18n } from "../../../i18n";
+import { system } from "../../../theme";
 import { OptionGroup } from "./option-group";
 
-// Create a wrapper with I18nextProvider for tests
+// Create a wrapper with I18nextProvider and ChakraProvider for tests
 const createWrapper = () => {
 	return ({ children }: { children: React.ReactNode }) => (
-		<I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+		<ChakraProvider value={system}>
+			<I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+		</ChakraProvider>
 	);
 };
 
@@ -262,6 +266,7 @@ describe("OptionGroup", () => {
 					onSelectionChange={vi.fn()}
 					onQuantityChange={vi.fn()}
 				/>,
+				{ wrapper: createWrapper() },
 			);
 
 			const cheeseCheckbox = screen.getByRole("checkbox", {

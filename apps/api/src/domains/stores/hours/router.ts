@@ -3,8 +3,10 @@
  *
  * Handles store hours procedures:
  * - Get store hours (protected)
- * - Save store hours (store owner)
- * - Delete store hour entry (store owner)
+ * - Save store hours (store owner) - replaces all hours at once
+ *
+ * Note: Individual hour deletion is not supported with JSONB storage.
+ * Use save() to replace all hours at once.
  */
 
 import { TRPCError } from "@trpc/server";
@@ -13,11 +15,7 @@ import {
 	router,
 	storeOwnerProcedure,
 } from "../../../trpc/trpc.js";
-import {
-	deleteStoreHourSchema,
-	getStoreHoursSchema,
-	saveStoreHoursSchema,
-} from "./schemas.js";
+import { getStoreHoursSchema, saveStoreHoursSchema } from "./schemas.js";
 import type { SaveHoursInput } from "./types.js";
 
 export const hoursRouter = router({
@@ -68,35 +66,6 @@ export const hoursRouter = router({
 						code: "FORBIDDEN",
 						message: error.message,
 					});
-				}
-				throw error;
-			}
-		}),
-
-	/**
-	 * Delete a single store hour entry
-	 * Store Owner: requires store ownership
-	 */
-	delete: storeOwnerProcedure
-		.input(deleteStoreHourSchema)
-		.mutation(async ({ ctx, input }) => {
-			try {
-				await ctx.services.hours.delete(input.id, ctx.session.merchantId);
-				return { success: true };
-			} catch (error) {
-				if (error instanceof Error) {
-					if (error.message === "Store hour entry not found") {
-						throw new TRPCError({
-							code: "NOT_FOUND",
-							message: error.message,
-						});
-					}
-					if (error.message.includes("can only delete")) {
-						throw new TRPCError({
-							code: "FORBIDDEN",
-							message: error.message,
-						});
-					}
 				}
 				throw error;
 			}

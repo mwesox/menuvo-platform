@@ -11,25 +11,27 @@ For API integration tests, read: `apps/api/src/test/README.md`
 - **Domain**: `menuvo.app` (not menuvo.de)
 - **Apps never import `@menuvo/db`** - use tRPC
 - **Never `git reset`**
-- **Use ShadCN MCP** for component docs
 - **Subagents must read docs/** before code changes
-- Dont start DEV servers in sessions. usually there is a server already running.
-- Avoid too defensive fallback solutions. check bigger picture, sometimes failing is better , thatn implementing anothe
-  fallback.
-- Use Jetbrains MCP for navigating through codebase.
-- Use GH CLI to push changes. never skip --no-verify when pushign (only when user wants it)
-- always run bun run check-types to make sure we are on track.
-- Use fullstack-react-dev for subagent work in developement.
-- Enforce type safety. fields which are mandatory must be mandatory and dont fill it with fallback values or model it
-  optional or nullable.
-- On frontend design, consider consistent designs and reusable components. 
+- Don't start dev servers - usually already running
+- Avoid defensive fallbacks - sometimes failing is better
+- Enforce type safety - mandatory fields stay mandatory, no fallback values
+- Consistent frontend designs with reusable components
+
+## Tools
+
+- **Chakra MCP** - component docs and examples
+- **JetBrains MCP** - codebase navigation
+- **GH CLI** - push changes (never skip `--no-verify` unless user requests)
+- **fullstack-react-dev** - subagent for development work
+- Always run `bun run check-types` to verify
+
 ## Commands
 
 ```bash
 bun install                      # Install deps
 bun run dev                      # All apps (turbo)
 bun run check                    # Biome lint + format
-bun run check-types                    # Type checks
+bun run check-types              # Type checks
 bun run test                     # Vitest
 
 # Single app
@@ -38,20 +40,11 @@ bun --filter @menuvo/console dev
 bun --filter @menuvo/shop dev
 bun --filter @menuvo/business dev
 
-# Database (run from root, uses packages/db)
-bun run db:generate              # Generate migrations from schema changes
-bun run db:migrate               # Run pending migrations (production)
+# Database
+bun run db:generate              # Generate migrations from schema
+bun run db:migrate               # Run pending migrations
 bun run db:push                  # Push schema directly (dev only)
-bun run db:studio                # Open Drizzle Studio GUI
-
-# DB Workflow:
-# 1. Edit schema in packages/db/src/schema/
-# 2. Run `bun run db:generate` to create migration
-# 3. Run `bun run db:migrate` to apply migration
-# 4. Never use db:push in production
-
-# Shadcn
-cd packages/ui && bunx --bun shadcn@latest add <component>
+bun run db:studio                # Drizzle Studio GUI
 ```
 
 ## Where to Add Things
@@ -61,13 +54,13 @@ cd packages/ui && bunx --bun shadcn@latest add <component>
 | DB table/enum  | `packages/db/schema/`          |
 | tRPC procedure | `packages/trpc/routers/`       |
 | API schema     | `packages/trpc/schemas/`       |
-| UI primitive   | `packages/ui/components/`      |
+| UI component   | Use Chakra UI directly         |
 | Feature code   | `apps/{app}/src/features/{f}/` |
 | Business logic | `apps/api/src/services/`       |
 
 ## Tech
 
-Bun, Hono, tRPC v11, TanStack (Router/Query/Form), Zustand, Drizzle, Tailwind v4, shadcn, Biome, Zod v4
+Bun, Hono, tRPC v11, TanStack (Router/Query/Form), Zustand, Drizzle, Chakra UI v3, Biome, Zod v4
 
 ## State
 
@@ -75,3 +68,9 @@ Bun, Hono, tRPC v11, TanStack (Router/Query/Form), Zustand, Drizzle, Tailwind v4
 - Persistent client: Zustand + persist
 - Transient UI: Context/useState
 - Never store server data in Zustand/Context
+
+## Navigation
+
+- **Links**: Use TanStack Router's `<Link to="/path">` directly
+- **Programmatic**: Use `useNavigate()` hook - `navigate({ to: "/path" })`
+- **Avoid**: Don't use `asChild` with RouterLink in Chakra components (causes full page reloads)

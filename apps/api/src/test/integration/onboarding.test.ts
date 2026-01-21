@@ -17,6 +17,13 @@ import { setupTestDb, teardownTestDb } from "../db.js";
 import { cleanupTestData } from "../utils/cleanup.js";
 import { createTestRunId, uniqueEmail } from "../utils/test-id.js";
 
+// Default legal entity for tests
+const defaultLegalEntity = {
+	legalForm: "einzelunternehmen" as const,
+	companyName: "Test Company",
+	representativeName: "Test Representative",
+};
+
 describe("Onboarding Integration - VAT Group Templates", () => {
 	const testRunId = createTestRunId();
 	let db: Database;
@@ -57,6 +64,7 @@ describe("Onboarding Integration - VAT Group Templates", () => {
 				postalCode: "10115",
 				country: "Deutschland",
 			},
+			legalEntity: defaultLegalEntity,
 		});
 
 		// Wait for fire-and-forget VAT creation
@@ -87,6 +95,7 @@ describe("Onboarding Integration - VAT Group Templates", () => {
 				postalCode: "1010",
 				country: "Österreich",
 			},
+			legalEntity: defaultLegalEntity,
 		});
 
 		await new Promise((r) => setTimeout(r, 200));
@@ -115,6 +124,7 @@ describe("Onboarding Integration - VAT Group Templates", () => {
 				postalCode: "8001",
 				country: "Switzerland",
 			},
+			legalEntity: defaultLegalEntity,
 		});
 
 		await new Promise((r) => setTimeout(r, 200));
@@ -144,6 +154,7 @@ describe("Onboarding Integration - VAT Group Templates", () => {
 				country: "Unknown",
 				countryCode: "AT",
 			},
+			legalEntity: defaultLegalEntity,
 		});
 
 		await new Promise((r) => setTimeout(r, 200));
@@ -173,6 +184,7 @@ describe("Onboarding Integration - VAT Group Templates", () => {
 				postalCode: "12345",
 				country: "Narnia",
 			},
+			legalEntity: defaultLegalEntity,
 		});
 
 		await new Promise((r) => setTimeout(r, 200));

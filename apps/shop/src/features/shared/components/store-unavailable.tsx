@@ -1,7 +1,7 @@
-import { Button } from "@menuvo/ui/components/button";
-import { Link } from "@tanstack/react-router";
-import { Clock } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { LuClock } from "react-icons/lu";
+import { EmptyState } from "./ui";
 
 type StoreUnavailableProps = {
 	/** Custom title - defaults to i18n "errors.storeTemporarilyUnavailable" */
@@ -30,26 +30,22 @@ export function StoreUnavailable({
 	backLabel,
 }: StoreUnavailableProps) {
 	const { t } = useTranslation("shop");
+	const navigate = useNavigate();
 
 	return (
-		<div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-			<div
-				className="mb-4 flex size-16 items-center justify-center rounded-full"
-				style={{ backgroundColor: "var(--muted)" }}
-			>
-				<Clock className="size-8 text-muted-foreground" />
-			</div>
-			<h1 className="font-semibold text-2xl text-foreground">
-				{title ?? t("errors.storeTemporarilyUnavailable")}
-			</h1>
-			<p className="mt-2 max-w-sm text-muted-foreground">
-				{message ?? t("errors.storeUnavailableDescription")}
-			</p>
-			{backUrl && (
-				<Button asChild variant="outline" className="mt-6">
-					<Link to={backUrl}>{backLabel ?? t("errors.backToMenu")}</Link>
-				</Button>
-			)}
-		</div>
+		<EmptyState
+			variant="page"
+			icon={LuClock}
+			title={title ?? t("errors.storeTemporarilyUnavailable")}
+			description={message ?? t("errors.storeUnavailableDescription")}
+			action={
+				backUrl
+					? {
+							label: backLabel ?? t("errors.backToMenu"),
+							onClick: () => navigate({ to: backUrl }),
+						}
+					: undefined
+			}
+		/>
 	);
 }

@@ -1,3 +1,4 @@
+import { Box, Flex, Text } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { ShopHeading, ShopPrice } from "../../shared/components/ui";
 
@@ -10,14 +11,20 @@ export function CartSummary({ subtotal }: CartSummaryProps) {
 	const { t } = useTranslation("shop");
 
 	return (
-		<div className="border-border border-t pt-4">
+		<Box borderTopWidth="1px" borderColor="border" pt="4" w="full">
 			{/* Total row - prices include VAT (European style) */}
-			<div className="flex justify-between py-2 font-medium text-foreground text-lg">
-				<span>{t("cart.total")}</span>
+			<Flex
+				justify="space-between"
+				py="2"
+				fontWeight="medium"
+				color="fg"
+				textStyle="lg"
+			>
+				<Text as="span">{t("cart.total")}</Text>
 				<ShopHeading as="span" size="lg">
 					<ShopPrice cents={subtotal} size="lg" />
 				</ShopHeading>
-			</div>
-		</div>
+			</Flex>
+		</Box>
 	);
 }

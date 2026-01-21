@@ -1,6 +1,6 @@
+import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
 
 interface StepIndicatorProps {
 	current: number;
@@ -15,25 +15,28 @@ export function StepIndicator({ current, total }: StepIndicatorProps) {
 			initial={{ opacity: 0, y: -10 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ delay: 0.2 }}
-			className="mb-8 space-y-3"
+			style={{ marginBottom: "2rem" }}
 		>
-			{/* Step segments - full width */}
-			<div className="flex items-center gap-2">
-				{Array.from({ length: total }, (_, i) => (
-					<div
-						key={`step-${i + 1}`}
-						className={cn(
-							"h-1.5 flex-1 rounded-full transition-colors",
-							i + 1 <= current ? "bg-accent" : "bg-border",
-						)}
-					/>
-				))}
-			</div>
+			<VStack gap="3" align="stretch">
+				{/* Step segments - full width */}
+				<HStack gap="2" align="center">
+					{Array.from({ length: total }, (_, i) => (
+						<Box
+							key={`step-${i + 1}`}
+							h="1.5"
+							flex="1"
+							rounded="full"
+							bg={i + 1 <= current ? "primary" : "border.muted"}
+							transition="colors"
+						/>
+					))}
+				</HStack>
 
-			{/* Step text */}
-			<span className="font-body text-muted-foreground text-sm">
-				{t("slides.stepIndicator", { current, total })}
-			</span>
+				{/* Step text */}
+				<Text color="fg.muted" textStyle="sm">
+					{t("slides.stepIndicator", { current, total })}
+				</Text>
+			</VStack>
 		</motion.div>
 	);
 }
