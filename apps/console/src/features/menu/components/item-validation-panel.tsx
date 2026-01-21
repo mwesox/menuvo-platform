@@ -1,6 +1,7 @@
-import { Alert, Card, HStack, Text, VStack } from "@chakra-ui/react";
+import { Alert, Card, HStack, VStack } from "@chakra-ui/react";
 import { AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Label } from "@/components/ui/typography";
 import type { ItemValidationResult } from "../validation.types";
 
 interface ItemValidationPanelProps {
@@ -35,9 +36,7 @@ export function ItemValidationPanel({ validation }: ItemValidationPanelProps) {
 								style={{ height: "1rem", width: "1rem" }}
 								color="var(--chakra-colors-fg-warning)"
 							/>
-							<Text fontWeight="medium" color="fg.warning" textStyle="sm">
-								{t("validation.issuesTitle")}
-							</Text>
+							<Label color="fg.warning">{t("validation.issuesTitle")}</Label>
 						</HStack>
 						<VStack gap="1.5" align="stretch">
 							{validation.issues.map((issue) => (
@@ -60,9 +59,9 @@ export function ItemValidationPanel({ validation }: ItemValidationPanelProps) {
 
 					{/* Cannot publish message */}
 					{!validation.isPublishable && (
-						<Text fontWeight="medium" color="fg.warning" textStyle="sm">
+						<Label color="fg.warning">
 							{t("validation.cannotPublishWithIssues")}
-						</Text>
+						</Label>
 					)}
 				</VStack>
 			</Card.Body>

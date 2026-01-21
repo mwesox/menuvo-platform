@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { de, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
+import { Caption } from "@/components/ui/typography";
 import type { OrderStatus, OrderType } from "@/features/orders";
 import { formatPrice } from "@/features/orders/logic/order-pricing";
 import type { OrderDetail as OrderDetailType } from "@/features/orders/types";
@@ -116,13 +117,13 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 			<VStack gap="1" align="stretch" borderTopWidth="1px" pt="4">
 				{order.customerName && (
 					<Flex justify="space-between" textStyle="sm">
-						<Text color="fg.muted">{t("fields.name")}</Text>
+						<Caption>{t("fields.name")}</Caption>
 						<Text>{order.customerName}</Text>
 					</Flex>
 				)}
 				{order.customerEmail && (
 					<Flex justify="space-between" textStyle="sm">
-						<Text color="fg.muted">{t("fields.email")}</Text>
+						<Caption>{t("fields.email")}</Caption>
 						<Text ms="4" truncate>
 							{order.customerEmail}
 						</Text>
@@ -130,13 +131,13 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 				)}
 				{order.customerPhone && (
 					<Flex justify="space-between" textStyle="sm">
-						<Text color="fg.muted">{t("fields.phone")}</Text>
+						<Caption>{t("fields.phone")}</Caption>
 						<Text>{order.customerPhone}</Text>
 					</Flex>
 				)}
 				{order.servicePoint && (
 					<Flex justify="space-between" textStyle="sm">
-						<Text color="fg.muted">{t("fields.servicePoint")}</Text>
+						<Caption>{t("fields.servicePoint")}</Caption>
 						<Text>{order.servicePoint.name}</Text>
 					</Flex>
 				)}
@@ -192,18 +193,18 @@ export function OrderDetail({ orderId }: OrderDetailProps) {
 			<VStack gap="3" align="stretch" borderTopWidth="1px" pt="4">
 				<VStack gap="1" align="stretch" rounded="lg" bg="bg.muted/50" p="3">
 					<Flex justify="space-between" textStyle="sm">
-						<Text color="fg.muted">{t("fields.subtotal")}</Text>
+						<Caption>{t("fields.subtotal")}</Caption>
 						<Text>{formatPrice(order.subtotal)}</Text>
 					</Flex>
 					{order.taxAmount > 0 && (
 						<Flex justify="space-between" textStyle="sm">
-							<Text color="fg.muted">{t("fields.tax")}</Text>
+							<Caption>{t("fields.tax")}</Caption>
 							<Text>{formatPrice(order.taxAmount)}</Text>
 						</Flex>
 					)}
 					{order.tipAmount > 0 && (
 						<Flex justify="space-between" textStyle="sm">
-							<Text color="fg.muted">{t("fields.tip")}</Text>
+							<Caption>{t("fields.tip")}</Caption>
 							<Text>{formatPrice(order.tipAmount)}</Text>
 						</Flex>
 					)}

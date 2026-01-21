@@ -1,4 +1,12 @@
-import { Loader2 } from "lucide-react";
+import {
+	Box,
+	Center,
+	Flex,
+	Spinner,
+	Stack,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { ShopButton, ShopCard, ShopHeading } from "../../shared/components/ui";
 import { useCreatePayment } from "../queries";
@@ -39,59 +47,68 @@ export function MolliePayment({ orderId, storeSlug }: MolliePaymentProps) {
 	};
 
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="mx-auto max-w-lg px-4 py-6">
-				<ShopHeading as="h1" size="xl" className="mb-6">
+		<Box minH="100vh" bg="bg">
+			<Box maxW="lg" mx="auto" px="4" py="6">
+				<ShopHeading as="h1" size="xl" mb="6">
 					{t("ordering.payment")}
 				</ShopHeading>
 
-				<ShopCard padding="lg" className="space-y-6">
-					<div className="space-y-3 text-center">
-						<ShopHeading as="h2" size="md">
-							{t("ordering.payment.title")}
-						</ShopHeading>
-						<p className="text-muted-foreground text-sm">
-							{t("ordering.payment.description")}
-						</p>
-					</div>
+				<ShopCard padding="lg">
+					<Stack gap="6">
+						<VStack gap="3" textAlign="center">
+							<ShopHeading as="h2" size="md">
+								{t("ordering.payment.title")}
+							</ShopHeading>
+							<Text color="fg.muted" textStyle="sm">
+								{t("ordering.payment.description")}
+							</Text>
+						</VStack>
 
-					{/* Payment method icons */}
-					<div className="flex justify-center gap-4 py-4">
-						<PaymentMethodIcon name="iDEAL" />
-						<PaymentMethodIcon name="Card" />
-						<PaymentMethodIcon name="PayPal" />
-						<PaymentMethodIcon name="Bancontact" />
-					</div>
+						{/* Payment method icons */}
+						<Flex justify="center" gap="4" py="4">
+							<PaymentMethodIcon name="iDEAL" />
+							<PaymentMethodIcon name="Card" />
+							<PaymentMethodIcon name="PayPal" />
+							<PaymentMethodIcon name="Bancontact" />
+						</Flex>
 
-					{createPayment.isError && (
-						<div className="rounded-md bg-destructive/10 p-3 text-center text-destructive text-sm">
-							{t("ordering.payment.error")}
-						</div>
-					)}
-
-					<ShopButton
-						variant="primary"
-						size="lg"
-						className="w-full"
-						onClick={handlePayNow}
-						disabled={createPayment.isPending}
-					>
-						{createPayment.isPending ? (
-							<>
-								<Loader2 className="me-2 size-4 animate-spin" />
-								{t("ordering.payment.redirecting")}
-							</>
-						) : (
-							t("ordering.payment.payNow")
+						{createPayment.isError && (
+							<Box
+								rounded="md"
+								bg="red.subtle"
+								p="3"
+								textAlign="center"
+								textStyle="sm"
+								color="red.fg"
+							>
+								{t("ordering.payment.error")}
+							</Box>
 						)}
-					</ShopButton>
 
-					<p className="text-center text-muted-foreground text-xs">
-						{t("ordering.payment.securePayment")}
-					</p>
+						<ShopButton
+							variant="primary"
+							size="lg"
+							w="full"
+							onClick={handlePayNow}
+							disabled={createPayment.isPending}
+						>
+							{createPayment.isPending ? (
+								<>
+									<Spinner size="sm" me="2" />
+									{t("ordering.payment.redirecting")}
+								</>
+							) : (
+								t("ordering.payment.payNow")
+							)}
+						</ShopButton>
+
+						<Text textAlign="center" color="fg.muted" textStyle="xs">
+							{t("ordering.payment.securePayment")}
+						</Text>
+					</Stack>
 				</ShopCard>
-			</div>
-		</div>
+			</Box>
+		</Box>
 	);
 }
 
@@ -101,12 +118,19 @@ export function MolliePayment({ orderId, storeSlug }: MolliePaymentProps) {
  */
 function PaymentMethodIcon({ name }: { name: string }) {
 	return (
-		<div className="flex flex-col items-center gap-1">
-			<div className="flex h-8 w-12 items-center justify-center rounded border bg-muted">
-				<span className="font-medium text-[10px] text-muted-foreground">
+		<VStack gap="1">
+			<Center
+				h="8"
+				w="12"
+				rounded="sm"
+				borderWidth="1px"
+				borderColor="border"
+				bg="bg.muted"
+			>
+				<Text fontWeight="medium" textStyle="2xs" color="fg.muted">
 					{name}
-				</span>
-			</div>
-		</div>
+				</Text>
+			</Center>
+		</VStack>
 	);
 }

@@ -1,3 +1,4 @@
+import { Box, Center, Text } from "@chakra-ui/react";
 import {
 	useCallback,
 	useContext,
@@ -142,16 +143,16 @@ export function StoreMenuPage() {
 	}, []);
 
 	return (
-		<div className="pb-24">
-			<div className="mx-auto max-w-6xl px-4 py-4">
+		<Box pb="24">
+			<Box maxW="6xl" mx="auto" px="4" py="4">
 				{categories.length === 0 ? (
 					<EmptyMenuState />
 				) : isSearching && !hasResults ? (
-					<div className="py-12 text-center">
-						<p className="text-muted-foreground">
+					<Center py="12">
+						<Text color="fg.muted">
 							{t("menu.noSearchResults", "No items found")}
-						</p>
-					</div>
+						</Text>
+					</Center>
 				) : (
 					filteredCategories.map((category: (typeof categories)[number]) => (
 						<CategorySection
@@ -162,7 +163,7 @@ export function StoreMenuPage() {
 						/>
 					))
 				)}
-			</div>
+			</Box>
 
 			{selectedItem && (
 				<ItemDrawer
@@ -176,7 +177,7 @@ export function StoreMenuPage() {
 			)}
 
 			<FloatingCart />
-		</div>
+		</Box>
 	);
 }
 

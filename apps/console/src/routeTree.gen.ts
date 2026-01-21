@@ -24,6 +24,9 @@ import { Route as PublicLegalPrivacyRouteImport } from './routes/_public/legal/p
 import { Route as PublicLegalImpressumRouteImport } from './routes/_public/legal/impressum'
 import { Route as AppStoresNewRouteImport } from './routes/_app/stores/new'
 import { Route as AppStoresStoreIdRouteImport } from './routes/_app/stores/$storeId'
+import { Route as AppSettingsPaymentsRouteImport } from './routes/_app/settings/payments'
+import { Route as AppSettingsLanguageRouteImport } from './routes/_app/settings/language'
+import { Route as AppSettingsAiRouteImport } from './routes/_app/settings/ai'
 import { Route as PublicAuthMerchantLoginRouteImport } from './routes/_public/auth/merchant/login'
 import { Route as AppStoresStoreIdSettingsRouteImport } from './routes/_app/stores/$storeId/settings'
 import { Route as AppStoresStoreIdServicePointsRouteImport } from './routes/_app/stores/$storeId/service-points'
@@ -126,6 +129,21 @@ const AppStoresStoreIdRoute = AppStoresStoreIdRouteImport.update({
   id: '/stores/$storeId',
   path: '/stores/$storeId',
   getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsPaymentsRoute = AppSettingsPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppSettingsLanguageRoute = AppSettingsLanguageRouteImport.update({
+  id: '/language',
+  path: '/language',
+  getParentRoute: () => AppSettingsRoute,
+} as any)
+const AppSettingsAiRoute = AppSettingsAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => AppSettingsRoute,
 } as any)
 const PublicAuthMerchantLoginRoute = PublicAuthMerchantLoginRouteImport.update({
   id: '/auth/merchant/login',
@@ -307,6 +325,9 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AppSettingsRouteWithChildren
   '/onboarding': typeof PublicOnboardingRoute
   '/': typeof AppIndexRoute
+  '/settings/ai': typeof AppSettingsAiRoute
+  '/settings/language': typeof AppSettingsLanguageRoute
+  '/settings/payments': typeof AppSettingsPaymentsRoute
   '/stores/$storeId': typeof AppStoresStoreIdRouteWithChildren
   '/stores/new': typeof AppStoresNewRoute
   '/legal/impressum': typeof PublicLegalImpressumRoute
@@ -350,6 +371,9 @@ export interface FileRoutesByTo {
   '/orders': typeof AppOrdersRoute
   '/onboarding': typeof PublicOnboardingRoute
   '/': typeof AppIndexRoute
+  '/settings/ai': typeof AppSettingsAiRoute
+  '/settings/language': typeof AppSettingsLanguageRoute
+  '/settings/payments': typeof AppSettingsPaymentsRoute
   '/stores/$storeId': typeof AppStoresStoreIdRouteWithChildren
   '/stores/new': typeof AppStoresNewRoute
   '/legal/impressum': typeof PublicLegalImpressumRoute
@@ -394,6 +418,9 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRouteWithChildren
   '/_public/onboarding': typeof PublicOnboardingRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/settings/ai': typeof AppSettingsAiRoute
+  '/_app/settings/language': typeof AppSettingsLanguageRoute
+  '/_app/settings/payments': typeof AppSettingsPaymentsRoute
   '/_app/stores/$storeId': typeof AppStoresStoreIdRouteWithChildren
   '/_app/stores/new': typeof AppStoresNewRoute
   '/_public/legal/impressum': typeof PublicLegalImpressumRoute
@@ -440,6 +467,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/onboarding'
     | '/'
+    | '/settings/ai'
+    | '/settings/language'
+    | '/settings/payments'
     | '/stores/$storeId'
     | '/stores/new'
     | '/legal/impressum'
@@ -483,6 +513,9 @@ export interface FileRouteTypes {
     | '/orders'
     | '/onboarding'
     | '/'
+    | '/settings/ai'
+    | '/settings/language'
+    | '/settings/payments'
     | '/stores/$storeId'
     | '/stores/new'
     | '/legal/impressum'
@@ -526,6 +559,9 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_public/onboarding'
     | '/_app/'
+    | '/_app/settings/ai'
+    | '/_app/settings/language'
+    | '/_app/settings/payments'
     | '/_app/stores/$storeId'
     | '/_app/stores/new'
     | '/_public/legal/impressum'
@@ -675,6 +711,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/stores/$storeId'
       preLoaderRoute: typeof AppStoresStoreIdRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/_app/settings/payments': {
+      id: '/_app/settings/payments'
+      path: '/payments'
+      fullPath: '/settings/payments'
+      preLoaderRoute: typeof AppSettingsPaymentsRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/_app/settings/language': {
+      id: '/_app/settings/language'
+      path: '/language'
+      fullPath: '/settings/language'
+      preLoaderRoute: typeof AppSettingsLanguageRouteImport
+      parentRoute: typeof AppSettingsRoute
+    }
+    '/_app/settings/ai': {
+      id: '/_app/settings/ai'
+      path: '/ai'
+      fullPath: '/settings/ai'
+      preLoaderRoute: typeof AppSettingsAiRouteImport
+      parentRoute: typeof AppSettingsRoute
     }
     '/_public/auth/merchant/login': {
       id: '/_public/auth/merchant/login'
@@ -883,10 +940,16 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppSettingsRouteChildren {
+  AppSettingsAiRoute: typeof AppSettingsAiRoute
+  AppSettingsLanguageRoute: typeof AppSettingsLanguageRoute
+  AppSettingsPaymentsRoute: typeof AppSettingsPaymentsRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
 }
 
 const AppSettingsRouteChildren: AppSettingsRouteChildren = {
+  AppSettingsAiRoute: AppSettingsAiRoute,
+  AppSettingsLanguageRoute: AppSettingsLanguageRoute,
+  AppSettingsPaymentsRoute: AppSettingsPaymentsRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
 }
 

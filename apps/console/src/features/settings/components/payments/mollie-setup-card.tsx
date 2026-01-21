@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, CreditCard, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Label } from "@/components/ui/typography";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 /**
@@ -75,9 +76,9 @@ export function MollieSetupCard() {
 			<Card.Body>
 				<VStack gap="6" align="stretch">
 					<VStack gap="3" align="stretch">
-						<Text textAlign="center" fontWeight="medium" textStyle="sm">
+						<Label textAlign="center">
 							{t("payments.mollie.setup.benefitsTitle")}
-						</Text>
+						</Label>
 						<VStack gap="2" align="stretch">
 							{benefits.map((key) => (
 								<HStack key={key} gap="2">
@@ -115,9 +116,9 @@ export function MollieSetupCard() {
 							<title>PayPal</title>
 							<path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 1.994a.768.768 0 0 1 .757-.647h6.833c2.274 0 3.984.586 5.082 1.742.985 1.037 1.465 2.467 1.386 4.132-.026.551-.112 1.145-.263 1.778-.646 2.753-2.277 4.465-4.854 5.093-.626.153-1.309.23-2.032.23H9.857a.953.953 0 0 0-.941.804l-.846 5.326a.768.768 0 0 1-.757.647l-.237.038Z" />
 						</svg>
-						<Text fontWeight="medium" color="fg.info" textStyle="sm">
+						<Label color="fg.info">
 							{t("payments.mollie.setup.paypalIncluded")}
-						</Text>
+						</Label>
 					</HStack>
 
 					<Button

@@ -19,6 +19,11 @@ interface FormSectionProps {
 /**
  * Form section using Chakra UI Fieldset.
  * Provides semantic HTML <fieldset> element with consistent styling.
+ *
+ * Spacing:
+ * - Title and description grouped tightly (gap="0.5")
+ * - Minimal gap (mb="1" = 4px) between header and card - they belong together
+ * - Parent provides larger gap between sections (gap="8" = 32px)
  */
 export function FormSection({
 	title,
@@ -28,12 +33,12 @@ export function FormSection({
 }: FormSectionProps) {
 	return (
 		<Fieldset.Root>
-			<Stack gap="1" mb="3">
-				<Fieldset.Legend fontWeight="semibold" textStyle="base">
+			<Stack gap="0.5" mb="1.5">
+				<Fieldset.Legend as="h2" textStyle="sectionTitle">
 					{title}
 				</Fieldset.Legend>
 				{description && (
-					<Fieldset.HelperText color="fg.muted" textStyle="sm">
+					<Fieldset.HelperText textStyle="caption">
 						{description}
 					</Fieldset.HelperText>
 				)}

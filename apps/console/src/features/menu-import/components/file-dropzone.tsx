@@ -10,6 +10,7 @@ import {
 import { FileJson, FileSpreadsheet, FileText, Upload, X } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Caption, Label } from "@/components/ui/typography";
 import { type AllowedFileType, allowedFileTypes } from "../schemas";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -69,9 +70,7 @@ function DropzoneContent() {
 			<Icon w="10" h="10" mx="auto" color="fg.muted">
 				<Upload />
 			</Icon>
-			<Text color="fg.muted" textStyle="sm">
-				{t("import.dropzone.dragAndDrop")}
-			</Text>
+			<Caption>{t("import.dropzone.dragAndDrop")}</Caption>
 			<Text color="fg.muted" textStyle="xs">
 				{t("import.dropzone.supportedFormats")}
 			</Text>
@@ -180,30 +179,33 @@ export function FileDropzone({
 					handleClear();
 				}
 			}}
-			validate={(file) => {
-				const errors: Array<{ code: string; message: string }> = [];
+			validate={
+				((file: File) => {
+					const errors: Array<{ code: string; message: string }> = [];
 
-				// File size validation
-				if (file.size > MAX_FILE_SIZE) {
-					errors.push({
-						code: "file-too-large",
-						message: t("import.errors.fileTooLarge"),
-					});
-				}
+					// File size validation
+					if (file.size > MAX_FILE_SIZE) {
+						errors.push({
+							code: "file-too-large",
+							message: t("import.errors.fileTooLarge"),
+						});
+					}
 
-				// File type validation
-				const ext = getFileExtension(file.name);
-				if (!isValidFileType(ext)) {
-					errors.push({
-						code: "file-invalid-type",
-						message: t("import.errors.invalidFileType", {
-							types: allowedFileTypes.join(", "),
-						}),
-					});
-				}
+					// File type validation
+					const ext = getFileExtension(file.name);
+					if (!isValidFileType(ext)) {
+						errors.push({
+							code: "file-invalid-type",
+							message: t("import.errors.invalidFileType", {
+								types: allowedFileTypes.join(", "),
+							}),
+						});
+					}
 
-				return errors.length > 0 ? (errors as any) : null;
-			}}
+					return errors.length > 0 ? errors : null;
+					// biome-ignore lint/suspicious/noExplicitAny: FileError type from internal zag-js module
+				}) as any
+			}
 		>
 			<FileUpload.HiddenInput />
 			<VStack gap="4" align="stretch">
@@ -213,9 +215,7 @@ export function FileDropzone({
 							<HStack gap="3" align="center">
 								{getFileIcon(selectedFile.name)}
 								<VStack gap="0" align="start">
-									<Text fontWeight="medium" textStyle="sm">
-										{selectedFile.name}
-									</Text>
+									<Label>{selectedFile.name}</Label>
 									<Text color="fg.muted" textStyle="xs">
 										{formatFileSize(selectedFile.size)}
 									</Text>

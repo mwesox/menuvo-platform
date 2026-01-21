@@ -5,7 +5,6 @@ import {
 	Heading,
 	HStack,
 	Icon,
-	IconButton,
 	SimpleGrid,
 	Skeleton,
 	Stat,
@@ -14,14 +13,9 @@ import {
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-	DollarSign,
-	Plus,
-	RefreshCw,
-	ShoppingCart,
-	TrendingUp,
-} from "lucide-react";
+import { Coins, Plus, RefreshCw, ShoppingCart, TrendingUp } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
 	CartesianGrid,
 	Legend,
@@ -32,8 +26,8 @@ import {
 	YAxis,
 } from "recharts";
 import { useStoreSelection } from "@/contexts/store-selection-context";
-import { formatCurrency } from "@/lib/utils";
 import { trpcUtils, useTRPC } from "@/lib/trpc";
+import { formatCurrency } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/")({
 	loader: async () => {
@@ -43,21 +37,26 @@ export const Route = createFileRoute("/_app/")({
 });
 
 function DashboardPage() {
-	const { stores, isLoading: storesLoading, selectedStoreId } = useStoreSelection();
+	const { t } = useTranslation("dashboard");
+	const {
+		stores,
+		isLoading: storesLoading,
+		selectedStoreId,
+	} = useStoreSelection();
 	const trpc = useTRPC();
 
-	// Calculate start date (30 days ago)
+	// Calculate start date (30 days ago) - use UTC to avoid timezone issues
 	const startDate = useMemo(() => {
 		const date = new Date();
-		date.setDate(date.getDate() - 30);
-		date.setHours(0, 0, 0, 0);
+		date.setUTCDate(date.getUTCDate() - 29); // 29 days ago = 30 days including today
+		date.setUTCHours(0, 0, 0, 0);
 		return date;
 	}, []);
 
-	// Summary stats query
+	// Summary stats query - storeId is guaranteed when enabled
 	const statsQuery = useQuery({
 		...trpc.order.getStats.queryOptions({
-			storeId: selectedStoreId!,
+			storeId: selectedStoreId as string,
 			startDate,
 		}),
 		enabled: !!selectedStoreId,
@@ -65,10 +64,10 @@ function DashboardPage() {
 		refetchOnWindowFocus: false,
 	});
 
-	// Daily stats for chart
+	// Daily stats for chart - storeId is guaranteed when enabled
 	const dailyStatsQuery = useQuery({
 		...trpc.order.getDailyStats.queryOptions({
-			storeId: selectedStoreId!,
+			storeId: selectedStoreId as string,
 			startDate,
 		}),
 		enabled: !!selectedStoreId,
@@ -82,7 +81,8 @@ function DashboardPage() {
 		dailyStatsQuery.refetch();
 	};
 
-	const isLoading = storesLoading || statsQuery.isLoading || dailyStatsQuery.isLoading;
+	const isLoading =
+		storesLoading || statsQuery.isLoading || dailyStatsQuery.isLoading;
 	const isFetching = statsQuery.isFetching || dailyStatsQuery.isFetching;
 
 	// No stores state
@@ -95,18 +95,17 @@ function DashboardPage() {
 					textStyle="2xl"
 					letterSpacing="tight"
 				>
-					Dashboard
+					{t("title")}
 				</Heading>
 
 				<Card.Root>
 					<Card.Header>
-						<Card.Title>Getting Started</Card.Title>
+						<Card.Title>{t("gettingStarted.title")}</Card.Title>
 					</Card.Header>
 					<Card.Body>
 						<VStack align="stretch" gap="4">
 							<Text color="fg.muted" textStyle="sm">
-								Welcome to Menuvo! Start by creating your first store and adding
-								menu items.
+								{t("gettingStarted.description")}
 							</Text>
 							<Button
 								asChild
@@ -122,7 +121,7 @@ function DashboardPage() {
 											marginRight: "0.5rem",
 										}}
 									/>
-									Create Your First Store
+									{t("gettingStarted.createStore")}
 								</Link>
 							</Button>
 						</VStack>
@@ -142,13 +141,13 @@ function DashboardPage() {
 					textStyle="2xl"
 					letterSpacing="tight"
 				>
-					Dashboard
+					{t("title")}
 				</Heading>
 
 				<Card.Root>
 					<Card.Body>
 						<Text color="fg.muted" textStyle="sm">
-							Please select a store from the sidebar to view statistics.
+							{t("noStoreSelected")}
 						</Text>
 					</Card.Body>
 				</Card.Root>
@@ -168,17 +167,17 @@ function DashboardPage() {
 					textStyle="2xl"
 					letterSpacing="tight"
 				>
-					Dashboard
+					{t("title")}
 				</Heading>
-				<IconButton
-					variant="ghost"
+				<Button
+					variant="outline"
 					size="sm"
 					onClick={handleRefresh}
 					loading={isFetching}
-					aria-label="Refresh"
 				>
 					<RefreshCw style={{ height: "1rem", width: "1rem" }} />
-				</IconButton>
+					{t("refresh")}
+				</Button>
 			</HStack>
 
 			{/* Stats Cards */}
@@ -187,9 +186,11 @@ function DashboardPage() {
 					<Card.Body>
 						<Stat.Root>
 							<HStack justify="space-between" align="flex-start" mb="2">
-								<Stat.Label>Total Orders</Stat.Label>
+								<Stat.Label>{t("stats.totalOrders")}</Stat.Label>
 								<Icon color="fg.muted">
-									<ShoppingCart style={{ height: "1.25rem", width: "1.25rem" }} />
+									<ShoppingCart
+										style={{ height: "1.25rem", width: "1.25rem" }}
+									/>
 								</Icon>
 							</HStack>
 							{isLoading ? (
@@ -200,7 +201,7 @@ function DashboardPage() {
 								</Stat.ValueText>
 							)}
 							<Stat.HelpText color="fg.muted" mt="1">
-								Last 30 days
+								{t("stats.last30Days")}
 							</Stat.HelpText>
 						</Stat.Root>
 					</Card.Body>
@@ -210,9 +211,9 @@ function DashboardPage() {
 					<Card.Body>
 						<Stat.Root>
 							<HStack justify="space-between" align="flex-start" mb="2">
-								<Stat.Label>Total Revenue</Stat.Label>
+								<Stat.Label>{t("stats.totalRevenue")}</Stat.Label>
 								<Icon color="fg.muted">
-									<DollarSign style={{ height: "1.25rem", width: "1.25rem" }} />
+									<Coins style={{ height: "1.25rem", width: "1.25rem" }} />
 								</Icon>
 							</HStack>
 							{isLoading ? (
@@ -223,7 +224,7 @@ function DashboardPage() {
 								</Stat.ValueText>
 							)}
 							<Stat.HelpText color="fg.muted" mt="1">
-								Last 30 days
+								{t("stats.last30Days")}
 							</Stat.HelpText>
 						</Stat.Root>
 					</Card.Body>
@@ -233,7 +234,7 @@ function DashboardPage() {
 					<Card.Body>
 						<Stat.Root>
 							<HStack justify="space-between" align="flex-start" mb="2">
-								<Stat.Label>Avg Order Value</Stat.Label>
+								<Stat.Label>{t("stats.avgOrderValue")}</Stat.Label>
 								<Icon color="fg.muted">
 									<TrendingUp style={{ height: "1.25rem", width: "1.25rem" }} />
 								</Icon>
@@ -246,7 +247,7 @@ function DashboardPage() {
 								</Stat.ValueText>
 							)}
 							<Stat.HelpText color="fg.muted" mt="1">
-								Last 30 days
+								{t("stats.last30Days")}
 							</Stat.HelpText>
 						</Stat.Root>
 					</Card.Body>
@@ -256,7 +257,7 @@ function DashboardPage() {
 			{/* Line Chart */}
 			<Card.Root>
 				<Card.Header>
-					<Card.Title>Orders & Revenue (Last 30 Days)</Card.Title>
+					<Card.Title>{t("chart.title")}</Card.Title>
 				</Card.Header>
 				<Card.Body>
 					{isLoading ? (
@@ -277,11 +278,12 @@ interface ChartData {
 }
 
 function OrdersRevenueChart({ data }: { data: ChartData[] }) {
+	const { t } = useTranslation("dashboard");
 	const chart = useChart({
 		data,
 		series: [
-			{ name: "orders", color: "teal.solid", label: "Orders" },
-			{ name: "revenue", color: "purple.solid", label: "Revenue" },
+			{ name: "orders", color: "teal.solid", label: t("chart.orders") },
+			{ name: "revenue", color: "purple.solid", label: t("chart.revenue") },
 		],
 	});
 
@@ -301,7 +303,7 @@ function OrdersRevenueChart({ data }: { data: ChartData[] }) {
 		return (
 			<VStack py="12" gap="2">
 				<Text color="fg.muted" textStyle="sm">
-					No order data available for the selected period.
+					{t("chart.noData")}
 				</Text>
 			</VStack>
 		);
@@ -309,7 +311,10 @@ function OrdersRevenueChart({ data }: { data: ChartData[] }) {
 
 	return (
 		<Chart.Root maxH="sm" chart={chart}>
-			<LineChart data={chart.data} margin={{ left: 20, right: 20, top: 20, bottom: 20 }}>
+			<LineChart
+				data={chart.data}
+				margin={{ left: 20, right: 20, top: 20, bottom: 20 }}
+			>
 				<CartesianGrid stroke={chart.color("border")} vertical={false} />
 				<XAxis
 					axisLine={false}

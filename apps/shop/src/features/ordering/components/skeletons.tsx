@@ -1,4 +1,4 @@
-import { Skeleton } from "@menuvo/ui/components/skeleton";
+import { Box, Flex, HStack, Skeleton, Stack, VStack } from "@chakra-ui/react";
 
 /**
  * Skeleton for the ordering page.
@@ -6,63 +6,69 @@ import { Skeleton } from "@menuvo/ui/components/skeleton";
  */
 export function OrderingPageSkeleton() {
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="mx-auto max-w-lg px-4 py-6">
+		<Box minH="100vh" bg="bg">
+			<Box maxW="lg" mx="auto" px="4" py="6">
 				{/* Header */}
-				<Skeleton className="mb-6 h-8 w-32 bg-muted" />
+				<Skeleton h="8" w="32" mb="6" />
 
-				<div className="space-y-6">
+				<Stack gap="6">
 					{/* Order Type Selection Card */}
-					<div className="space-y-4 rounded-xl bg-card p-4">
-						<Skeleton className="h-5 w-24 bg-muted" />
-						<div className="space-y-3">
-							<div className="flex items-center gap-3">
-								<Skeleton className="size-4 rounded-full bg-muted" />
-								<Skeleton className="h-4 w-20 bg-muted" />
-							</div>
-							<div className="flex items-center gap-3">
-								<Skeleton className="size-4 rounded-full bg-muted" />
-								<Skeleton className="h-4 w-24 bg-muted" />
-							</div>
-							<div className="flex items-center gap-3">
-								<Skeleton className="size-4 rounded-full bg-muted" />
-								<Skeleton className="h-4 w-20 bg-muted" />
-							</div>
-						</div>
-					</div>
+					<Box rounded="xl" bg="bg.panel" p="4">
+						<Stack gap="4">
+							<Skeleton h="5" w="24" />
+							<Stack gap="3">
+								<HStack gap="3">
+									<Skeleton boxSize="4" rounded="full" />
+									<Skeleton h="4" w="20" />
+								</HStack>
+								<HStack gap="3">
+									<Skeleton boxSize="4" rounded="full" />
+									<Skeleton h="4" w="24" />
+								</HStack>
+								<HStack gap="3">
+									<Skeleton boxSize="4" rounded="full" />
+									<Skeleton h="4" w="20" />
+								</HStack>
+							</Stack>
+						</Stack>
+					</Box>
 
 					{/* Customer Name Card */}
-					<div className="space-y-3 rounded-xl bg-card p-4">
-						<Skeleton className="h-5 w-24 bg-muted" />
-						<Skeleton className="h-10 w-full rounded-md bg-muted" />
-					</div>
+					<Box rounded="xl" bg="bg.panel" p="4">
+						<Stack gap="3">
+							<Skeleton h="5" w="24" />
+							<Skeleton h="10" w="full" rounded="md" />
+						</Stack>
+					</Box>
 
 					{/* Order Summary Card */}
-					<div className="space-y-4 rounded-xl bg-card p-4">
-						<Skeleton className="h-5 w-32 bg-muted" />
-						<div className="space-y-3">
-							<div className="flex justify-between">
-								<Skeleton className="size-40 bg-muted" />
-								<Skeleton className="h-4 w-12 bg-muted" />
-							</div>
-							<div className="flex justify-between">
-								<Skeleton className="h-4 w-32 bg-muted" />
-								<Skeleton className="h-4 w-12 bg-muted" />
-							</div>
-						</div>
-						<div className="border-border border-t pt-3">
-							<div className="flex justify-between">
-								<Skeleton className="h-5 w-16 bg-muted" />
-								<Skeleton className="h-5 w-16 bg-muted" />
-							</div>
-						</div>
-					</div>
+					<Box rounded="xl" bg="bg.panel" p="4">
+						<Stack gap="4">
+							<Skeleton h="5" w="32" />
+							<Stack gap="3">
+								<Flex justify="space-between">
+									<Skeleton boxSize="40" />
+									<Skeleton h="4" w="12" />
+								</Flex>
+								<Flex justify="space-between">
+									<Skeleton h="4" w="32" />
+									<Skeleton h="4" w="12" />
+								</Flex>
+							</Stack>
+							<Box borderTopWidth="1px" borderColor="border" pt="3">
+								<Flex justify="space-between">
+									<Skeleton h="5" w="16" />
+									<Skeleton h="5" w="16" />
+								</Flex>
+							</Box>
+						</Stack>
+					</Box>
 
 					{/* Submit Button */}
-					<Skeleton className="h-12 w-full rounded-lg bg-muted" />
-				</div>
-			</div>
-		</div>
+					<Skeleton h="12" w="full" rounded="lg" />
+				</Stack>
+			</Box>
+		</Box>
 	);
 }
 
@@ -71,42 +77,44 @@ export function OrderingPageSkeleton() {
  */
 export function OrderConfirmationPageSkeleton() {
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="mx-auto max-w-lg px-4 py-6">
+		<Box minH="100vh" bg="bg">
+			<Box maxW="lg" mx="auto" px="4" py="6">
 				{/* Success icon placeholder */}
-				<div className="mb-6 flex flex-col items-center">
-					<Skeleton className="mb-4 size-16 rounded-full bg-muted" />
-					<Skeleton className="mb-2 h-8 w-48 bg-muted" />
-					<Skeleton className="h-4 w-64 bg-muted" />
-				</div>
+				<VStack gap="4" mb="6">
+					<Skeleton boxSize="16" rounded="full" />
+					<Skeleton h="8" w="48" />
+					<Skeleton h="4" w="64" />
+				</VStack>
 
 				{/* Order details card */}
-				<div className="space-y-4 rounded-xl bg-card p-4">
-					<div className="flex items-center justify-between">
-						<Skeleton className="h-5 w-20 bg-muted" />
-						<Skeleton className="h-6 w-16 rounded-lg bg-muted" />
-					</div>
-					<div className="space-y-3">
-						<div className="flex justify-between">
-							<Skeleton className="h-4 w-32 bg-muted" />
-							<Skeleton className="h-4 w-12 bg-muted" />
-						</div>
-						<div className="flex justify-between">
-							<Skeleton className="h-4 w-28 bg-muted" />
-							<Skeleton className="h-4 w-12 bg-muted" />
-						</div>
-					</div>
-					<div className="border-border border-t pt-3">
-						<div className="flex justify-between">
-							<Skeleton className="h-5 w-12 bg-muted" />
-							<Skeleton className="h-5 w-16 bg-muted" />
-						</div>
-					</div>
-				</div>
+				<Box rounded="xl" bg="bg.panel" p="4">
+					<Stack gap="4">
+						<Flex align="center" justify="space-between">
+							<Skeleton h="5" w="20" />
+							<Skeleton h="6" w="16" rounded="lg" />
+						</Flex>
+						<Stack gap="3">
+							<Flex justify="space-between">
+								<Skeleton h="4" w="32" />
+								<Skeleton h="4" w="12" />
+							</Flex>
+							<Flex justify="space-between">
+								<Skeleton h="4" w="28" />
+								<Skeleton h="4" w="12" />
+							</Flex>
+						</Stack>
+						<Box borderTopWidth="1px" borderColor="border" pt="3">
+							<Flex justify="space-between">
+								<Skeleton h="5" w="12" />
+								<Skeleton h="5" w="16" />
+							</Flex>
+						</Box>
+					</Stack>
+				</Box>
 
 				{/* Back to menu button */}
-				<Skeleton className="mt-6 h-12 w-full rounded-lg bg-muted" />
-			</div>
-		</div>
+				<Skeleton h="12" w="full" rounded="lg" mt="6" />
+			</Box>
+		</Box>
 	);
 }

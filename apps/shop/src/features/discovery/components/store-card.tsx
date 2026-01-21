@@ -1,9 +1,21 @@
-import { cn } from "@menuvo/ui/lib/utils";
+import {
+	Box,
+	Center,
+	Circle,
+	Flex,
+	HStack,
+	Image,
+	Text,
+} from "@chakra-ui/react";
 import { Link } from "@tanstack/react-router";
-import { MapPin } from "lucide-react";
 import type { CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
-import { focusRing } from "../../shared/components/ui";
+import { LuMapPin } from "react-icons/lu";
+import {
+	focusRingProps,
+	ShopHeading,
+	ShopMutedText,
+} from "../../shared/components/ui";
 
 interface StoreCardProps {
 	store: {
@@ -27,71 +39,124 @@ export function StoreCard({ store, style }: StoreCardProps) {
 		<Link
 			to="/$slug"
 			params={{ slug: store.slug }}
-			className={cn(
-				"group block overflow-hidden rounded-xl bg-card",
-				"ring-1 ring-border/50",
-				"transition-all duration-300 ease-out",
-				"hover:shadow-black/[0.04] hover:shadow-lg hover:ring-border",
-				"hover:-translate-y-0.5",
-				"animate-card-enter",
-				focusRing,
-			)}
-			style={style}
+			style={{ textDecoration: "none", ...style }}
 		>
-			{/* Image container - cinematic 16:10 aspect ratio */}
-			<div className="relative aspect-[16/10] overflow-hidden bg-muted">
-				{store.logoUrl ? (
-					<img
-						src={store.logoUrl}
-						alt={store.name}
-						className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-					/>
-				) : (
-					/* Placeholder for missing images */
-					<div className="flex h-full w-full items-center justify-center bg-muted">
-						<span className="font-semibold text-4xl text-muted-foreground/20">
-							{store.name.charAt(0)}
-						</span>
-					</div>
-				)}
+			<Box
+				display="block"
+				overflow="hidden"
+				rounded="xl"
+				bg="bg.panel"
+				borderWidth="1px"
+				borderColor="border.muted"
+				transition="all 0.3s ease-out"
+				_hover={{
+					shadow: "lg",
+					borderColor: "border",
+					transform: "translateY(-2px)",
+				}}
+				animation="card-enter 0.3s ease-out backwards"
+				css={{
+					"@keyframes card-enter": {
+						from: {
+							opacity: 0,
+							transform: "translateY(8px)",
+						},
+						to: {
+							opacity: 1,
+							transform: "translateY(0)",
+						},
+					},
+				}}
+				{...focusRingProps}
+			>
+				{/* Image container - cinematic 16:10 aspect ratio */}
+				<Box
+					position="relative"
+					aspectRatio="16 / 10"
+					overflow="hidden"
+					bg="bg.muted"
+				>
+					{store.logoUrl ? (
+						<Image
+							src={store.logoUrl}
+							alt={store.name}
+							w="full"
+							h="full"
+							objectFit="cover"
+							transition="transform 0.5s ease-out"
+							css={{
+								".group:hover &, a:hover &": {
+									transform: "scale(1.03)",
+								},
+							}}
+						/>
+					) : (
+						/* Placeholder for missing images */
+						<Center h="full" w="full" bg="bg.muted">
+							<Text
+								fontSize="4xl"
+								fontWeight="semibold"
+								color="fg.muted"
+								opacity={0.2}
+							>
+								{store.name.charAt(0)}
+							</Text>
+						</Center>
+					)}
 
-				{/* Status badge - positioned on image (only show if isOpen is defined) */}
-				{store.isOpen !== undefined && (
-					<div className="absolute bottom-3 left-3">
-						<span
-							className={cn(
-								"inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1",
-								"font-medium text-xs backdrop-blur-md",
-								store.isOpen
-									? "bg-emerald-500/90 text-white"
-									: "bg-black/60 text-white/90",
-							)}
+					{/* Status badge - positioned on image (only show if isOpen is defined) */}
+					{store.isOpen !== undefined && (
+						<Box position="absolute" bottom="3" left="3">
+							<HStack
+								gap="1.5"
+								rounded="lg"
+								px="2.5"
+								py="1"
+								fontSize="xs"
+								fontWeight="medium"
+								css={{ backdropFilter: "blur(12px)" }}
+								bg={store.isOpen ? "green.500/90" : "blackAlpha.600"}
+								color="white"
+							>
+								<Circle
+									size="1.5"
+									bg={store.isOpen ? "white" : "whiteAlpha.600"}
+									css={
+										store.isOpen
+											? { animation: "pulse 2s infinite" }
+											: undefined
+									}
+								/>
+								<Text color={store.isOpen ? "white" : "whiteAlpha.900"}>
+									{store.isOpen
+										? t("storeCard.openNow")
+										: t("storeCard.closed")}
+								</Text>
+							</HStack>
+						</Box>
+					)}
+				</Box>
+
+				{/* Content - more breathing room */}
+				<Box p={{ base: "4", sm: "5" }}>
+					<ShopHeading as="h3" size="lg" fontSize={{ base: "lg", sm: "xl" }}>
+						{store.name}
+					</ShopHeading>
+
+					{formattedAddress && (
+						<Flex
+							mt="1.5"
+							align="center"
+							gap="1.5"
+							fontSize="sm"
+							color="fg.muted"
 						>
-							<span
-								className={cn(
-									"h-1.5 w-1.5 rounded-full",
-									store.isOpen ? "animate-pulse bg-white" : "bg-white/60",
-								)}
-							/>
-							{store.isOpen ? t("storeCard.openNow") : t("storeCard.closed")}
-						</span>
-					</div>
-				)}
-			</div>
-
-			{/* Content - more breathing room */}
-			<div className="p-4 sm:p-5">
-				<h3 className="font-semibold text-foreground text-lg sm:text-xl">
-					{store.name}
-				</h3>
-
-				{formattedAddress && (
-					<p className="mt-1.5 flex items-center gap-1.5 text-muted-foreground text-sm">
-						<MapPin className="h-3.5 w-3.5 shrink-0 opacity-60" />
-						<span className="truncate">{formattedAddress}</span>
-					</p>
-				)}
-			</div>
+							<Box as={LuMapPin} boxSize="3.5" flexShrink={0} opacity={0.6} />
+							<ShopMutedText truncate>{formattedAddress}</ShopMutedText>
+						</Flex>
+					)}
+				</Box>
+			</Box>
 		</Link>
 	);
 }

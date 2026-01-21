@@ -1,12 +1,4 @@
-import {
-	Box,
-	Card,
-	HStack,
-	Icon,
-	Switch,
-	Text,
-	VStack,
-} from "@chakra-ui/react";
+import { HStack, Icon, Switch, Text, VStack } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,6 +9,10 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { SettingsFormFooter } from "@/components/layout/settings-form-footer";
 import { FormSection } from "@/components/ui/form-section";
+import {
+	SettingsRowGroup,
+	SettingsRowItem,
+} from "@/components/ui/settings-row";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 interface StoreOrderTypesFormProps {
@@ -144,87 +140,52 @@ export function StoreOrderTypesForm({ storeId }: StoreOrderTypesFormProps) {
 				form.handleSubmit();
 			}}
 		>
-			<VStack layerStyle="settingsContent">
+			<VStack gap="6" align="stretch" w="full">
 				<FormSection
 					title={t("orderTypes.title")}
 					description={t("orderTypes.description")}
+					variant="plain"
 				>
-					<VStack gap="3" align="stretch">
+					<SettingsRowGroup>
 						{ORDER_TYPE_CONFIG.map(({ key, icon: IconComponent }) => (
 							<form.Field key={key} name={key}>
 								{(field) => (
-									<Box asChild cursor="pointer">
-										<label htmlFor={`order-type-${key}`}>
-											<Card.Root
-												bg={
-													field.state.value
-														? "colorPalette.primary/5"
-														: "bg.panel"
-												}
-												borderColor={
-													field.state.value
-														? "colorPalette.primary/50"
-														: "border.emphasized"
-												}
-												_hover={{
-													bg: field.state.value
-														? "colorPalette.primary/5"
-														: "bg.muted/50",
-												}}
+									<SettingsRowItem
+										label={
+											<HStack gap="2">
+												<Icon
+													fontSize="md"
+													color={
+														field.state.value
+															? "colorPalette.primary"
+															: "fg.muted"
+													}
+												>
+													<IconComponent />
+												</Icon>
+												<Text fontWeight="medium" textStyle="sm">
+													{getOrderTypeLabel(key)}
+												</Text>
+											</HStack>
+										}
+										description={getOrderTypeDescription(key)}
+										action={
+											<Switch.Root
+												id={`order-type-${key}`}
+												aria-label={getOrderTypeLabel(key)}
+												checked={field.state.value}
+												onCheckedChange={(e) => field.handleChange(e.checked)}
+												colorPalette="red"
 											>
-												<Card.Body>
-													<HStack gap="4" align="center">
-														<Box
-															display="flex"
-															w="10"
-															h="10"
-															flexShrink="0"
-															alignItems="center"
-															justifyContent="center"
-															rounded="lg"
-															bg={
-																field.state.value
-																	? "colorPalette.primary/10"
-																	: "bg.muted"
-															}
-															color={
-																field.state.value
-																	? "colorPalette.primary"
-																	: "fg.muted"
-															}
-														>
-															<Icon fontSize="lg">
-																<IconComponent />
-															</Icon>
-														</Box>
-														<VStack align="start" gap="0" flex="1">
-															<Text fontWeight="medium">
-																{getOrderTypeLabel(key)}
-															</Text>
-															<Text color="fg.muted" textStyle="sm">
-																{getOrderTypeDescription(key)}
-															</Text>
-														</VStack>
-														<Switch.Root
-															id={`order-type-${key}`}
-															checked={field.state.value}
-															onCheckedChange={(e) =>
-																field.handleChange(e.checked)
-															}
-															colorPalette="red"
-														>
-															<Switch.HiddenInput />
-															<Switch.Control />
-														</Switch.Root>
-													</HStack>
-												</Card.Body>
-											</Card.Root>
-										</label>
-									</Box>
+												<Switch.HiddenInput />
+												<Switch.Control />
+											</Switch.Root>
+										}
+									/>
 								)}
 							</form.Field>
 						))}
-					</VStack>
+					</SettingsRowGroup>
 				</FormSection>
 
 				<form.Subscribe selector={(state) => state.isSubmitting}>

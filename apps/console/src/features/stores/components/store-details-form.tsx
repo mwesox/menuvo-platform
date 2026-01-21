@@ -1,12 +1,4 @@
-import {
-	Button,
-	Field,
-	HStack,
-	Input,
-	Separator,
-	SimpleGrid,
-	VStack,
-} from "@chakra-ui/react";
+import { Field, Input, SimpleGrid, VStack } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,6 +7,7 @@ import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { SettingsFormFooter } from "@/components/layout/settings-form-footer";
 import { FormField } from "@/components/ui/form-field";
 import { FormSection } from "@/components/ui/form-section";
 import { PhoneInput } from "@/components/ui/phone-input";
@@ -162,13 +155,14 @@ export function StoreDetailsForm({
 				title={t("titles.storeDetails")}
 				description={t("descriptions.storeDetails")}
 			>
-				<VStack gap="6" align="stretch">
+				<VStack gap="4" align="stretch">
 					<form.Field name="name">
 						{(field) => (
 							<FormField field={field} label={tForms("fields.storeName")}>
 								<Input
 									id={field.name}
 									name={field.name}
+									autoComplete="organization"
 									placeholder={tForms("placeholders.downtownLocation")}
 									value={field.state.value}
 									onBlur={field.handleBlur}
@@ -197,6 +191,7 @@ export function StoreDetailsForm({
 								<Input
 									id={field.name}
 									name={field.name}
+									autoComplete="street-address"
 									placeholder={tForms("placeholders.mainStreet")}
 									value={field.state.value}
 									onBlur={field.handleBlur}
@@ -213,6 +208,7 @@ export function StoreDetailsForm({
 									<Input
 										id={field.name}
 										name={field.name}
+										autoComplete="address-level2"
 										placeholder={tForms("placeholders.berlin")}
 										value={field.state.value}
 										onBlur={field.handleBlur}
@@ -227,6 +223,7 @@ export function StoreDetailsForm({
 									<Input
 										id={field.name}
 										name={field.name}
+										autoComplete="postal-code"
 										placeholder={tForms("placeholders.postalCode10115")}
 										value={field.state.value}
 										onBlur={field.handleBlur}
@@ -244,6 +241,7 @@ export function StoreDetailsForm({
 									<Input
 										id={field.name}
 										name={field.name}
+										autoComplete="country-name"
 										value={field.state.value}
 										readOnly
 										cursor="not-allowed"
@@ -268,6 +266,7 @@ export function StoreDetailsForm({
 								<PhoneInput
 									id={field.name}
 									defaultCountry="DE"
+									autoComplete="tel"
 									placeholder={tForms("placeholders.phoneExample")}
 									value={field.state.value}
 									onBlur={field.handleBlur}
@@ -283,6 +282,7 @@ export function StoreDetailsForm({
 									id={field.name}
 									name={field.name}
 									type="email"
+									autoComplete="email"
 									placeholder={tForms("placeholders.storeEmail")}
 									value={field.state.value}
 									onBlur={field.handleBlur}
@@ -313,44 +313,30 @@ export function StoreDetailsForm({
 				</FormSection>
 			)}
 
-			{/* Form Actions */}
-			<VStack gap="6" align="stretch">
-				<Separator />
-				<HStack justify="flex-end" gap="3">
-					<Button
-						type="button"
-						variant="outline"
-						onClick={() => navigate({ to: "/stores" })}
-					>
-						{tCommon("buttons.cancel")}
-					</Button>
-					<form.Subscribe
-						selector={(state) => ({
-							isSubmitting: state.isSubmitting,
-							canSubmit: state.canSubmit,
-						})}
-					>
-						{({ isSubmitting, canSubmit }) => (
-							<Button
-								type="submit"
-								disabled={!canSubmit}
-								loading={
-									isSubmitting || createStore.isPending || updateStore.isPending
-								}
-								loadingText={
-									isEditing
-										? tCommon("states.updating")
-										: tCommon("states.creating")
-								}
-							>
-								{isEditing
-									? tCommon("buttons.update")
-									: tCommon("buttons.create")}
-							</Button>
-						)}
-					</form.Subscribe>
-				</HStack>
-			</VStack>
+			<form.Subscribe
+				selector={(state) => ({
+					isSubmitting: state.isSubmitting,
+					canSubmit: state.canSubmit,
+				})}
+			>
+				{({ isSubmitting, canSubmit }) => (
+					<SettingsFormFooter
+						isSubmitting={
+							isSubmitting || createStore.isPending || updateStore.isPending
+						}
+						isDisabled={!canSubmit}
+						onCancel={() => navigate({ to: "/stores" })}
+						submitText={
+							isEditing ? tCommon("buttons.update") : tCommon("buttons.create")
+						}
+						submittingText={
+							isEditing
+								? tCommon("states.updating")
+								: tCommon("states.creating")
+						}
+					/>
+				)}
+			</form.Subscribe>
 		</>
 	);
 
@@ -362,7 +348,9 @@ export function StoreDetailsForm({
 			}}
 		>
 			{skipWrapper ? (
-				formContent
+				<VStack gap="8" align="stretch" w="full">
+					{formContent}
+				</VStack>
 			) : (
 				<VStack layerStyle="settingsContent">{formContent}</VStack>
 			)}

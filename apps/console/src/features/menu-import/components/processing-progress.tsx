@@ -11,6 +11,7 @@ import {
 import { Check, FileText, Search, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Caption } from "@/components/ui/typography";
 
 interface ProcessingProgressProps {
 	/** Whether processing is complete */
@@ -104,11 +105,11 @@ export function ProcessingProgress({
 						? t("import.progress.complete")
 						: t(`import.progress.${STAGES[currentStage]?.key ?? "analyzing"}`)}
 				</Text>
-				<Text mt="1" color="fg.muted" textStyle="sm">
+				<Caption mt="1">
 					{isComplete
 						? t("import.progress.reviewReady")
 						: t("import.status.pleaseWait")}
-				</Text>
+				</Caption>
 			</Box>
 
 			{/* Stage indicators */}

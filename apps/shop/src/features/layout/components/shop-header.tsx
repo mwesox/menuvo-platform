@@ -1,11 +1,17 @@
-import { Button } from "@menuvo/ui/components/button";
-import { Kbd } from "@menuvo/ui/components/kbd";
-import { useIsMobile } from "@menuvo/ui/hooks/use-media-query";
-import { cn } from "@menuvo/ui/lib/utils";
+import {
+	Box,
+	Flex,
+	HStack,
+	IconButton,
+	Image,
+	Input,
+	Kbd,
+	Text,
+} from "@chakra-ui/react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronLeft, Search, ShoppingCart, X } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { LuChevronLeft, LuSearch, LuShoppingCart, LuX } from "react-icons/lu";
 import { useCartStore } from "../../cart/stores/cart-store";
 import { StoreContext, useShopUIStore } from "../../shared";
 import { formatPrice } from "../../utils";
@@ -30,6 +36,22 @@ function useIsMac() {
 	return isMac;
 }
 
+/** Simple mobile detection hook */
+function useIsMobile() {
+	const [isMobile, setIsMobile] = useState(false);
+
+	useEffect(() => {
+		const checkMobile = () => {
+			setIsMobile(window.innerWidth < 768);
+		};
+		checkMobile();
+		window.addEventListener("resize", checkMobile);
+		return () => window.removeEventListener("resize", checkMobile);
+	}, []);
+
+	return isMobile;
+}
+
 function CartButton({ onClick }: { onClick: () => void }) {
 	const { t } = useTranslation("shop");
 	const isMobile = useIsMobile();
@@ -51,57 +73,83 @@ function CartButton({ onClick }: { onClick: () => void }) {
 	return (
 		<>
 			{/* Mobile: icon only */}
-			<Button
+			<IconButton
 				variant="ghost"
-				size="icon"
-				className="relative text-foreground hover:bg-accent hover:text-accent-foreground md:hidden"
+				size="sm"
+				color="fg"
+				display={{ base: "flex", md: "none" }}
 				onClick={handleClick}
 				aria-label={t("header.cartWithItems", { count: itemCount })}
+				position="relative"
 			>
-				<ShoppingCart className="size-5" />
+				<LuShoppingCart style={{ width: "1.25rem", height: "1.25rem" }} />
 				{itemCount > 0 && (
-					<span
-						className="absolute -end-1 -top-1 flex size-5 items-center justify-center rounded-full font-medium text-xs"
-						style={{
-							backgroundColor: "var(--primary)",
-							color: "var(--primary-foreground)",
-						}}
+					<Box
+						as="span"
+						position="absolute"
+						top="-1"
+						right="-1"
+						display="flex"
+						alignItems="center"
+						justifyContent="center"
+						w="5"
+						h="5"
+						rounded="full"
+						bg="colorPalette.solid"
+						color="colorPalette.contrast"
+						fontSize="xs"
+						fontWeight="medium"
+						colorPalette="teal"
 					>
 						{itemCount > 99 ? "99+" : itemCount}
-					</span>
+					</Box>
 				)}
-			</Button>
+			</IconButton>
 
 			{/* Desktop: full cart info */}
-			<Button
+			<IconButton
 				variant="ghost"
-				className={cn(
-					"hidden items-center gap-2 text-foreground hover:bg-accent hover:text-accent-foreground md:flex",
-					itemCount > 0 && "pe-3",
-				)}
+				color="fg"
+				display={{ base: "none", md: "flex" }}
 				onClick={handleClick}
 				aria-label={t("header.cartWithItems", { count: itemCount })}
+				pe={itemCount > 0 ? "3" : undefined}
+				w="auto"
+				gap="2"
 			>
-				<div className="relative flex items-center gap-1.5">
-					<ShoppingCart className="size-5" />
+				<Flex align="center" gap="1.5" position="relative">
+					<LuShoppingCart style={{ width: "1.25rem", height: "1.25rem" }} />
 					{itemCount > 0 && (
-						<span
-							className="flex size-4 items-center justify-center rounded-full font-semibold text-[10px] leading-none"
-							style={{
-								backgroundColor: "var(--primary)",
-								color: "var(--primary-foreground)",
-							}}
+						<Box
+							as="span"
+							display="flex"
+							alignItems="center"
+							justifyContent="center"
+							w="4"
+							h="4"
+							rounded="full"
+							bg="colorPalette.solid"
+							color="colorPalette.contrast"
+							fontSize="10px"
+							fontWeight="semibold"
+							lineHeight="1"
+							colorPalette="teal"
 						>
 							{itemCount > 99 ? "99+" : itemCount}
-						</span>
+						</Box>
 					)}
-				</div>
+				</Flex>
 				{itemCount > 0 && (
-					<span className="font-semibold text-sm tabular-nums">
+					<Text
+						as="span"
+						fontWeight="semibold"
+						fontSize="sm"
+						fontVariantNumeric="tabular-nums"
+					>
 						{formatPrice(subtotal)}
-					</span>
+					</Text>
 				)}
-			</Button>
+			</IconButton>
 		</>
 	);
 }
@@ -133,9 +181,18 @@ function SearchInput() {
 
 	// Always render - context should always be available in shop routes
 	return (
-		<div className="relative hidden md:block">
-			<Search className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-			<input
+		<Box position="relative" display={{ base: "none", md: "block" }}>
+			<Box
+				as={LuSearch}
+				position="absolute"
+				left="3"
+				top="50%"
+				transform="translateY(-50%)"
+				w="4"
+				h="4"
+				color="fg.muted"
+			/>
+			<Input
 				ref={inputRef}
 				type="text"
 				value={searchQuery}
@@ -143,30 +200,45 @@ function SearchInput() {
 				onFocus={() => setIsFocused(true)}
 				onBlur={() => setIsFocused(false)}
 				placeholder={t("header.searchPlaceholder")}
-				className="h-9 w-56 min-w-48 rounded-lg border border-transparent bg-muted/50 ps-9 pe-16 text-foreground text-sm placeholder:text-muted-foreground focus:border-border focus:bg-background focus:outline-none md:w-64 lg:w-80 xl:w-96"
+				h="9"
+				w={{ md: "64", lg: "80", xl: "96" }}
+				minW="48"
+				rounded="lg"
+				borderColor="transparent"
+				bg="bg.muted/50"
+				ps="9"
+				pe="16"
+				color="fg"
+				fontSize="sm"
+				_placeholder={{ color: "fg.muted" }}
+				_focus={{
+					borderColor: "border",
+					bg: "bg",
+					outline: "none",
+				}}
 			/>
 			{/* Keyboard shortcut hint or clear button */}
-			<div className="absolute end-2 top-1/2 -translate-y-1/2">
+			<Box position="absolute" right="2" top="50%" transform="translateY(-50%)">
 				{searchQuery ? (
-					<button
-						type="button"
+					<IconButton
+						variant="ghost"
+						size="xs"
 						onClick={() => setSearchQuery?.("")}
-						className="rounded p-0.5 text-muted-foreground hover:text-foreground"
+						color="fg.muted"
+						_hover={{ color: "fg" }}
+						aria-label="Clear search"
 					>
-						<X className="size-4" />
-					</button>
+						<LuX style={{ width: "1rem", height: "1rem" }} />
+					</IconButton>
 				) : (
 					!isFocused && (
-						<Kbd
-							className="bg-background text-foreground/80 shadow-sm"
-							suppressHydrationWarning
-						>
-							{isMac === null ? "⌘" : isMac ? "⌘" : "Ctrl"} K
+						<Kbd bg="bg" color="fg/80" shadow="sm" suppressHydrationWarning>
+							{isMac === null ? "\u2318" : isMac ? "\u2318" : "Ctrl"} K
 						</Kbd>
 					)
 				)}
-			</div>
-		</div>
+			</Box>
+		</Box>
 	);
 }
 
@@ -190,25 +262,41 @@ function StoreInfo() {
 	const storeAddress = addressParts.join(", ") || null;
 
 	return (
-		<Link
-			to="/$slug"
-			params={{ slug: store.slug }}
-			className="group flex min-w-0 flex-col items-center md:flex-row md:gap-2"
-		>
-			{/* Store name - always visible, with editorial hover underline */}
-			<span className="truncate font-semibold text-base text-foreground decoration-1 underline-offset-4 group-hover:underline">
-				{store.name}
-			</span>
+		<Link to="/$slug" params={{ slug: store.slug }}>
+			<Flex
+				direction={{ base: "column", md: "row" }}
+				align="center"
+				gap={{ md: "2" }}
+				minW="0"
+				role="group"
+			>
+				{/* Store name - always visible, with editorial hover underline */}
+				<Text
+					as="span"
+					truncate
+					fontWeight="semibold"
+					fontSize="md"
+					color="fg"
+					textDecoration="none"
+					_groupHover={{ textDecoration: "underline" }}
+					textDecorationThickness="1px"
+					textUnderlineOffset="4px"
+				>
+					{store.name}
+				</Text>
 
-			{/* Address - desktop only */}
-			{storeAddress && (
-				<div className="hidden items-center gap-2 md:flex">
-					<span className="text-muted-foreground">·</span>
-					<span className="truncate text-muted-foreground text-sm">
-						{storeAddress}
-					</span>
-				</div>
-			)}
+				{/* Address - desktop only */}
+				{storeAddress && (
+					<HStack display={{ base: "none", md: "flex" }} gap="2">
+						<Text as="span" color="fg.muted">
+							&middot;
+						</Text>
+						<Text as="span" truncate color="fg.muted" fontSize="sm">
+							{storeAddress}
+						</Text>
+					</HStack>
+				)}
+			</Flex>
 		</Link>
 	);
 }
@@ -222,43 +310,61 @@ export function ShopHeader() {
 	const isDeepPage = useIsDeepPage();
 
 	return (
-		<header className="sticky top-0 z-50 border-border border-b bg-background">
-			<div className="flex h-14 items-center gap-4 px-4">
+		<Box
+			as="header"
+			position="sticky"
+			top="0"
+			zIndex="50"
+			borderBottomWidth="1px"
+			borderColor="border"
+			bg="bg"
+		>
+			<Flex h="14" align="center" gap="4" px="4">
 				{/* Left: Context-aware back link */}
 				{isDeepPage && slug ? (
-					<Link
-						to="/$slug"
-						params={{ slug }}
-						className="flex shrink-0 items-center gap-1 text-muted-foreground text-sm transition-colors hover:text-foreground"
-					>
-						<ChevronLeft className="size-4" />
-						<span>{t("header.backToMenu")}</span>
+					<Link to="/$slug" params={{ slug }}>
+						<HStack
+							gap="1"
+							color="fg.muted"
+							fontSize="sm"
+							transition="colors"
+							_hover={{ color: "fg" }}
+							flexShrink="0"
+						>
+							<LuChevronLeft style={{ width: "1rem", height: "1rem" }} />
+							<Text as="span">{t("header.backToMenu")}</Text>
+						</HStack>
 					</Link>
 				) : (
-					<Link
-						to="/"
-						className="flex shrink-0 items-center gap-1 transition-opacity hover:opacity-80"
-					>
-						<ChevronLeft className="size-4 text-muted-foreground" />
-						<img
-							src="/menuvo-logo-horizontal.svg"
-							alt="Menuvo"
-							className="hidden h-8 sm:block"
-						/>
+					<Link to="/">
+						<HStack
+							gap="1"
+							flexShrink="0"
+							transition="opacity"
+							_hover={{ opacity: 0.8 }}
+						>
+							<Box as={LuChevronLeft} w="4" h="4" color="fg.muted" />
+							<Image
+								src="/menuvo-logo-horizontal.svg"
+								alt="Menuvo"
+								h="8"
+								display={{ base: "none", sm: "block" }}
+							/>
+						</HStack>
 					</Link>
 				)}
 
 				{/* Center: Store info - flexible space */}
-				<div className="flex min-w-0 flex-1 justify-center">
+				<Flex minW="0" flex="1" justify="center">
 					<StoreInfo />
-				</div>
+				</Flex>
 
 				{/* Right: Search + Cart */}
-				<div className="flex shrink-0 items-center gap-2">
+				<HStack gap="2" flexShrink="0">
 					<SearchInput />
 					<CartButton onClick={openCartDrawer} />
-				</div>
-			</div>
-		</header>
+				</HStack>
+			</Flex>
+		</Box>
 	);
 }

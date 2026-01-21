@@ -10,6 +10,7 @@ import {
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Caption } from "@/components/ui/typography";
 
 type AttributeValue = string | number | boolean;
 type Attributes = Record<string, AttributeValue>;
@@ -173,9 +174,7 @@ export function AttributesEditor({ value, onChange }: AttributesEditorProps) {
 			</HStack>
 
 			{entries.length === 0 && (
-				<Text color="fg.muted" textStyle="sm">
-					{t("emptyStates.noAttributes")}
-				</Text>
+				<Caption>{t("emptyStates.noAttributes")}</Caption>
 			)}
 		</VStack>
 	);

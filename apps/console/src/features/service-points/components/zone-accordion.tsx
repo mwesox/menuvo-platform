@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { CheckCircle, XCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Label } from "@/components/ui/typography";
 import type { ServicePoint } from "../types";
 import type { ZoneGroup } from "../utils/group-by-zone";
 import { getZoneDisplayName, isUnassignedZone } from "../utils/group-by-zone";
@@ -63,7 +64,7 @@ export function ZoneAccordion({
 										_hover={{ textDecoration: "none" }}
 									>
 										<HStack gap="2" align="center" flex="1">
-											<Text fontWeight="medium">{displayName}</Text>
+											<Label>{displayName}</Label>
 											<Text
 												color="fg.muted"
 												textStyle={{ base: "xs", sm: "sm" }}

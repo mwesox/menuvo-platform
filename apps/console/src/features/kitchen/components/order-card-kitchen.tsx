@@ -17,32 +17,31 @@ import {
 import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { OrderItem, OrderWithItems } from "@/features/orders/types";
-import {
-	FAR_AWAY_THRESHOLD_HOURS,
-	type KanbanColumnId,
-	type UrgencyLevel,
-} from "../constants";
+import { FAR_AWAY_THRESHOLD_HOURS, type KanbanColumnId } from "../constants";
 import { useUrgency } from "../hooks/use-urgency";
 import { isOrderTooFarAway } from "../logic/order-sorting";
 
-/** Header style based on ORDER TYPE (not urgency) */
+/** Header colors - HIGH CONTRAST for kitchen visibility */
+const headerColors = {
+	// Deep blue for dine-in (calm but visible)
+	dineIn: "oklch(0.4 0.2 255)",
+	dineInFar: "oklch(0.5 0.18 255)",
+	// Deep orange/rust for takeaway (urgent, action-oriented)
+	takeaway: "oklch(0.55 0.2 50)",
+	takeawayFar: "oklch(0.6 0.18 50)",
+} as const;
+
 const getHeaderBg = (orderType: string, isFarAway: boolean = false): string => {
 	if (orderType === "takeaway") {
-		// Amber = action, needs packaging
-		return isFarAway ? "amber.500" : "amber.600";
+		return isFarAway ? headerColors.takeawayFar : headerColors.takeaway;
 	}
-	// Blue = calm, seated, staying (default for dine_in and other types)
-	return isFarAway ? "blue.500" : "blue.700";
+	return isFarAway ? headerColors.dineInFar : headerColors.dineIn;
 };
 
-/**
- * Format pickup time for display.
- * Shows time only for today, "Tomorrow, HH:mm" for tomorrow, or full date for later.
- */
+/** Format pickup time - simple HH:mm or DD.MM HH:mm */
 function formatPickupTime(
 	scheduledPickupTime: Date | string | null,
 	now: number = Date.now(),
-	locale: string = "en",
 ): string | null {
 	if (!scheduledPickupTime) return null;
 
@@ -52,57 +51,19 @@ function formatPickupTime(
 			: scheduledPickupTime;
 
 	const nowDate = new Date(now);
-	const today = new Date(
-		nowDate.getFullYear(),
-		nowDate.getMonth(),
-		nowDate.getDate(),
-	);
-	const pickupDay = new Date(
-		pickupDate.getFullYear(),
-		pickupDate.getMonth(),
-		pickupDate.getDate(),
-	);
-	const tomorrow = new Date(today);
-	tomorrow.setDate(tomorrow.getDate() + 1);
+	const isToday =
+		pickupDate.getDate() === nowDate.getDate() &&
+		pickupDate.getMonth() === nowDate.getMonth() &&
+		pickupDate.getFullYear() === nowDate.getFullYear();
 
-	const isToday = pickupDay.getTime() === today.getTime();
-	const isTomorrow = pickupDay.getTime() === tomorrow.getTime();
+	const timeStr = `${String(pickupDate.getHours()).padStart(2, "0")}:${String(pickupDate.getMinutes()).padStart(2, "0")}`;
 
-	const timeStr = new Intl.DateTimeFormat(locale === "de" ? "de-DE" : "en-US", {
-		hour: "2-digit",
-		minute: "2-digit",
-		hour12: false,
-	}).format(pickupDate);
+	if (isToday) return timeStr;
 
-	if (isToday) return locale === "de" ? `${timeStr} Uhr` : timeStr;
-	if (isTomorrow) {
-		const tomorrowLabel = locale === "de" ? "Morgen" : "Tomorrow";
-		return locale === "de"
-			? `${tomorrowLabel}, ${timeStr} Uhr`
-			: `${tomorrowLabel}, ${timeStr}`;
-	}
-
-	// For later dates, show full date
-	const dateStr = new Intl.DateTimeFormat(locale === "de" ? "de-DE" : "en-US", {
-		day: "2-digit",
-		month: "2-digit",
-	}).format(pickupDate);
-	return locale === "de"
-		? `${dateStr}, ${timeStr} Uhr`
-		: `${dateStr}, ${timeStr}`;
+	// Not today: show date + time
+	const dateStr = `${String(pickupDate.getDate()).padStart(2, "0")}.${String(pickupDate.getMonth() + 1).padStart(2, "0")}`;
+	return `${dateStr} ${timeStr}`;
 }
-
-/** Time text style based on urgency - white text on colored backgrounds */
-const getTimeTextStyle = (level: UrgencyLevel) => {
-	switch (level) {
-		case "critical":
-			return { fontWeight: "bold", color: "white" };
-		case "warning":
-			return { fontWeight: "medium", color: "white", opacity: 0.9 };
-		default:
-			return { color: "white", opacity: 0.8 };
-	}
-};
 
 interface OrderCardKitchenProps {
 	order: OrderWithItems & {
@@ -124,7 +85,7 @@ export function OrderCardKitchen({
 	isLastMoved,
 	className,
 }: OrderCardKitchenProps) {
-	const { t, i18n } = useTranslation("console-kitchen");
+	const { t } = useTranslation("console-kitchen");
 	const { level, timeData } = useUrgency(order.confirmedAt);
 
 	const isTableOrder = order.orderType === "dine_in" && order.servicePoint;
@@ -146,11 +107,7 @@ export function OrderCardKitchen({
 			: t(`time.${timeData.type}`, { count: timeData.count });
 
 	// Format pickup time if available
-	const pickupTimeText = formatPickupTime(
-		order.scheduledPickupTime,
-		Date.now(),
-		i18n.language,
-	);
+	const pickupTimeText = formatPickupTime(order.scheduledPickupTime);
 
 	// Build order type label
 	const orderTypeLabel = isTakeaway
@@ -166,7 +123,7 @@ export function OrderCardKitchen({
 				overflow="hidden"
 				rounded="md"
 				bg="bg.panel"
-				opacity={0.6}
+				opacity={0.7}
 				shadow="sm"
 				className={className}
 			>
@@ -202,8 +159,6 @@ export function OrderCardKitchen({
 		);
 	}
 
-	const timeTextStyle = getTimeTextStyle(level);
-
 	return (
 		<Box
 			overflow="hidden"
@@ -211,51 +166,48 @@ export function OrderCardKitchen({
 			bg="bg.panel"
 			shadow="sm"
 			className={`${level === "critical" ? "animate-pulse-subtle" : ""} ${isLastMoved ? "animate-highlight-glow" : ""} ${className || ""}`}
-			opacity={isFarAway ? 0.65 : undefined}
+			opacity={isFarAway ? 0.75 : undefined}
 			css={isFarAway ? { filter: "grayscale(40%)" } : undefined}
 		>
-			{/* Header: Color by ORDER TYPE - Blue=DineIn, Amber=Takeaway */}
-			<Flex
-				alignItems="center"
-				justifyContent="space-between"
-				gap="1"
-				px="3"
-				py="2"
+			{/* Header: High contrast, scannable from across kitchen */}
+			<Box
 				bg={getHeaderBg(order.orderType, isFarAway)}
 				color="white"
+				px="3"
+				py="2"
 				opacity={isFarAway ? 0.9 : 1}
-				className="@[200px]:gap-2"
 			>
-				<Text minW="0" truncate fontWeight="semibold">
-					{orderTypeLabel}
-				</Text>
-				<HStack
-					gap="1"
-					flexShrink={0}
-					textStyle="sm"
-					className="@[200px]:gap-2"
-				>
-					{elapsedText && (
-						<Text display="none" className="@[240px]:inline" {...timeTextStyle}>
-							{elapsedText}
-						</Text>
-					)}
-					{pickupTimeText && (
-						<Text display="none" className="@[240px]:inline" {...timeTextStyle}>
-							{pickupTimeText}
-						</Text>
-					)}
+				{/* Row 1: Order type + Number */}
+				<Flex alignItems="center" justifyContent="space-between" gap="2">
+					<Text fontWeight="semibold" truncate>
+						{orderTypeLabel}
+					</Text>
 					<Text
-						minW="3ch"
-						textAlign="end"
 						fontWeight="bold"
 						fontFamily="mono"
 						fontSize="xl"
+						flexShrink={0}
 					>
 						#{String(order.pickupNumber).padStart(3, "0")}
 					</Text>
-				</HStack>
-			</Flex>
+				</Flex>
+				{/* Row 2: Pickup time + Elapsed time */}
+				{(pickupTimeText || elapsedText) && (
+					<HStack mt="1" gap="2">
+						{pickupTimeText && (
+							<Text fontWeight="semibold" fontSize="md">
+								{pickupTimeText}
+							</Text>
+						)}
+						{pickupTimeText && elapsedText && <Text opacity={0.7}>·</Text>}
+						{elapsedText && (
+							<Text textStyle="sm" opacity={0.8}>
+								{elapsedText}
+							</Text>
+						)}
+					</HStack>
+				)}
+			</Box>
 
 			{/* Customer name - subtle, for call-outs */}
 			{order.customerName && (
@@ -312,33 +264,29 @@ export function OrderCardKitchen({
 				))}
 			</VStack>
 
-			{/* Customer notes */}
+			{/* Customer notes - yellow bg signals it's a note, no label needed */}
 			{order.customerNotes && (
 				<Box
 					borderTopWidth="1px"
-					bg="bg.warning"
-					opacity={0.8}
+					bg="oklch(0.92 0.08 90)"
 					px="3"
 					py="2"
 					textStyle="sm"
+					color="oklch(0.35 0.1 70)"
 				>
-					<Text as="span" fontWeight="medium" color="fg.warning">
-						{t("labels.notes")}:
-					</Text>{" "}
-					<Text as="span" color="fg">
-						{order.customerNotes}
-					</Text>
+					{order.customerNotes}
 				</Box>
 			)}
 
-			{/* Next button - move to next column */}
+			{/* Next button - prominent, easy to tap */}
 			{showNextButton && (
 				<Box borderTopWidth="1px" p="2">
 					<Button
-						variant="subtle"
+						variant="solid"
+						colorPalette="gray"
 						size="sm"
 						width="100%"
-						className="pointer-coarse:h-11 pointer-coarse:text-base"
+						className="pointer-coarse:h-12 pointer-coarse:text-base"
 						onClick={(e) => {
 							e.stopPropagation();
 							onNext();
@@ -346,10 +294,8 @@ export function OrderCardKitchen({
 						onPointerDown={(e) => e.stopPropagation()}
 					>
 						<HStack gap="1">
-							<Text>{t("actions.next")}</Text>
-							<Box className="pointer-coarse:size-5">
-								<ChevronRight size={16} />
-							</Box>
+							<Text fontWeight="medium">{t("actions.next")}</Text>
+							<ChevronRight size={18} />
 						</HStack>
 					</Button>
 				</Box>

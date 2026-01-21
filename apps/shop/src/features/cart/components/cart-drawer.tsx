@@ -1,23 +1,22 @@
-import { Button } from "@menuvo/ui/components/button";
 import {
+	Box,
+	CloseButton,
 	Drawer,
-	DrawerContent,
-	DrawerDescription,
-	DrawerFooter,
-	DrawerHeader,
-	DrawerTitle,
-} from "@menuvo/ui/components/drawer";
-import { useIsMobile } from "@menuvo/ui/hooks/use-media-query";
-import { cn } from "@menuvo/ui/lib/utils";
+	Flex,
+	IconButton,
+	Portal,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, ShoppingBag } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { LuChevronLeft, LuShoppingBag } from "react-icons/lu";
 import { useShopUIStore } from "../../shared";
 import {
+	EmptyState,
 	ShopButton,
 	ShopHeading,
-	ShopMutedText,
 } from "../../shared/components/ui";
 import { useCartStore } from "../stores/cart-store";
 import { CartItem } from "./cart-item";
@@ -26,6 +25,22 @@ import { CartSummary } from "./cart-summary";
 interface CartDrawerProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+}
+
+/** Simple mobile detection hook */
+function useIsMobile() {
+	const [isMobile, setIsMobile] = useState(false);
+
+	useEffect(() => {
+		const checkMobile = () => {
+			setIsMobile(window.innerWidth < 768);
+		};
+		checkMobile();
+		window.addEventListener("resize", checkMobile);
+		return () => window.removeEventListener("resize", checkMobile);
+	}, []);
+
+	return isMobile;
 }
 
 export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
@@ -44,152 +59,181 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 	);
 	const toggleCartSidebar = useShopUIStore((s) => s.toggleCartSidebar);
 
-	// Move focus to drawer when it opens (fixes aria-hidden accessibility issue)
-	// This ensures focus is inside the drawer when vaul sets aria-hidden on root
-	useEffect(() => {
-		if (open && isMobile) {
-			// Small delay to ensure drawer is fully rendered in DOM
-			const timeoutId = setTimeout(() => {
-				// Find the drawer content element (vaul renders it in a portal)
-				const drawerContent = document.querySelector(
-					'[data-slot="drawer-content"]',
-				) as HTMLElement;
-				if (drawerContent) {
-					// Find first focusable element in drawer
-					const firstFocusable = drawerContent.querySelector(
-						'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-					) as HTMLElement;
-					firstFocusable?.focus();
-				}
-			}, 150);
-			return () => clearTimeout(timeoutId);
-		}
-	}, [open, isMobile]);
-
 	const handleOrdering = () => {
 		if (!storeSlug) return;
 		onOpenChange(false);
 		navigate({ to: "/$slug/ordering", params: { slug: storeSlug } });
 	};
 
-	// Mobile: Use Drawer component (existing behavior)
+	// Mobile: Use Chakra Drawer component
 	if (isMobile) {
 		return (
-			<Drawer open={open} onOpenChange={onOpenChange} direction="bottom">
-				<DrawerContent className={cn("flex flex-col", "max-h-[85dvh]")}>
-					<DrawerHeader className="border-border border-b pb-4 text-start">
-						<DrawerTitle asChild>
-							<ShopHeading as="h2" size="lg">
-								{t("cart.title")}
-							</ShopHeading>
-						</DrawerTitle>
-						<DrawerDescription className="text-muted-foreground">
-							{items.length === 0
-								? t("cart.empty")
-								: t("cart.itemCount", { count: itemCount })}
-						</DrawerDescription>
-					</DrawerHeader>
-
-					{/* Scrollable cart items */}
-					<div className="min-h-0 flex-1 overflow-y-auto px-4">
-						{items.length === 0 ? (
-							<div className="flex flex-col items-center justify-center py-16 text-center">
-								<ShoppingBag className="mb-4 size-16 text-border" />
-								<ShopHeading as="h3" size="lg" className="mb-1">
-									{t("cart.emptyTitle")}
-								</ShopHeading>
-								<ShopMutedText>{t("cart.emptyDescription")}</ShopMutedText>
-							</div>
-						) : (
-							<div>
-								{items.map((item) => (
-									<CartItem
-										key={item.id}
-										item={item}
-										onQuantityChange={(quantity) =>
-											updateQuantity(item.id, quantity)
-										}
-										onRemove={() => removeItem(item.id)}
-									/>
-								))}
-							</div>
-						)}
-					</div>
-
-					{/* Cart summary and ordering button */}
-					{items.length > 0 && (
-						<DrawerFooter className="border-border border-t bg-card pt-4">
-							<CartSummary subtotal={subtotal} />
-							<ShopButton
-								variant="primary"
-								size="lg"
-								onClick={handleOrdering}
-								className="w-full"
+			<Drawer.Root
+				open={open}
+				onOpenChange={(e) => onOpenChange(e.open)}
+				placement="bottom"
+			>
+				<Portal>
+					<Drawer.Backdrop />
+					<Drawer.Positioner>
+						<Drawer.Content
+							maxH="85dvh"
+							roundedTop="xl"
+							display="flex"
+							flexDirection="column"
+						>
+							<Drawer.Header
+								borderBottomWidth="1px"
+								borderColor="border"
+								pb="4"
+								textAlign="start"
 							>
-								{t("cart.ordering")}
-							</ShopButton>
-						</DrawerFooter>
-					)}
-				</DrawerContent>
-			</Drawer>
+								<Drawer.Title asChild>
+									<ShopHeading as="h2" size="lg">
+										{t("cart.title")}
+									</ShopHeading>
+								</Drawer.Title>
+								<Drawer.Description color="fg.muted">
+									{items.length === 0
+										? t("cart.empty")
+										: t("cart.itemCount", { count: itemCount })}
+								</Drawer.Description>
+								<Drawer.CloseTrigger
+									asChild
+									position="absolute"
+									top="2"
+									right="2"
+								>
+									<CloseButton size="sm" />
+								</Drawer.CloseTrigger>
+							</Drawer.Header>
+
+							{/* Scrollable cart items */}
+							<Drawer.Body minH="0" flex="1" overflowY="auto" px="4">
+								{items.length === 0 ? (
+									<EmptyState
+										variant="inline"
+										icon={LuShoppingBag}
+										title={t("cart.emptyTitle")}
+										description={t("cart.emptyDescription")}
+									/>
+								) : (
+									<Box>
+										{items.map((item) => (
+											<CartItem
+												key={item.id}
+												item={item}
+												onQuantityChange={(quantity) =>
+													updateQuantity(item.id, quantity)
+												}
+												onRemove={() => removeItem(item.id)}
+											/>
+										))}
+									</Box>
+								)}
+							</Drawer.Body>
+
+							{/* Cart summary and ordering button */}
+							{items.length > 0 && (
+								<Drawer.Footer
+									borderTopWidth="1px"
+									borderColor="border"
+									bg="bg.panel"
+									pt="4"
+								>
+									<VStack gap="4" w="full">
+										<CartSummary subtotal={subtotal} />
+										<ShopButton
+											variant="primary"
+											size="lg"
+											onClick={handleOrdering}
+											w="full"
+										>
+											{t("cart.ordering")}
+										</ShopButton>
+									</VStack>
+								</Drawer.Footer>
+							)}
+						</Drawer.Content>
+					</Drawer.Positioner>
+				</Portal>
+			</Drawer.Root>
 		);
 	}
 
 	// Desktop: Fixed sidebar - only show at lg (1024px+) to give tablets more content space
 	return (
-		<aside
-			className={cn(
-				"hidden lg:flex",
-				"fixed top-14 right-0 bottom-0 z-40", // Fixed to viewport edges (acts as containing block for absolute children)
-				"w-80 flex-col border-border border-l bg-background shadow-sm",
-				"transition-transform duration-300 ease-in-out",
-				"overflow-hidden",
-				isCartSidebarCollapsed && "translate-x-full", // Slide out when collapsed
-			)}
+		<Box
+			as="aside"
+			display={{ base: "none", lg: "flex" }}
+			position="fixed"
+			top="14"
+			right="0"
+			bottom="0"
+			zIndex="40"
+			w="80"
+			flexDirection="column"
+			borderLeftWidth="1px"
+			borderColor="border"
+			bg="bg"
+			shadow="sm"
+			transition="transform"
+			transitionDuration="300ms"
+			transitionTimingFunction="ease-in-out"
+			overflow="hidden"
+			transform={isCartSidebarCollapsed ? "translateX(100%)" : "translateX(0)"}
 		>
 			{/* Header - fixed at top */}
-			<div className="shrink-0 border-border border-b pb-4 text-start">
-				<div className="flex items-start justify-between gap-2 px-4 pt-4">
-					<div className="flex-1">
+			<Box
+				flexShrink="0"
+				borderBottomWidth="1px"
+				borderColor="border"
+				pb="4"
+				textAlign="start"
+			>
+				<Flex align="start" justify="space-between" gap="2" px="4" pt="4">
+					<Box flex="1">
 						<ShopHeading as="h2" size="lg">
 							{t("cart.title")}
 						</ShopHeading>
-						<p className="text-muted-foreground text-sm">
+						<Text color="fg.muted" textStyle="sm">
 							{items.length === 0
 								? t("cart.empty")
 								: t("cart.itemCount", { count: itemCount })}
-						</p>
-					</div>
+						</Text>
+					</Box>
 					{/* Collapse button */}
-					<Button
+					<IconButton
 						variant="ghost"
-						size="icon"
+						size="sm"
 						onClick={toggleCartSidebar}
-						className="h-8 w-8 shrink-0"
+						h="8"
+						w="8"
+						flexShrink="0"
 						aria-label={t("cart.collapseSidebar", "Collapse cart")}
 					>
-						<ChevronLeft className="size-4" />
-					</Button>
-				</div>
-			</div>
+						<LuChevronLeft />
+					</IconButton>
+				</Flex>
+			</Box>
 
 			{/* Cart items - no internal scroll, overflow clipped */}
-			<div
-				className={cn(
-					"min-h-0 flex-1 overflow-hidden px-4",
-					items.length > 0 && "pb-40",
-				)}
+			<Box
+				minH="0"
+				flex="1"
+				overflow="hidden"
+				px="4"
+				pb={items.length > 0 ? "40" : "0"}
 			>
 				{items.length === 0 ? (
-					<div className="flex flex-col items-center justify-center py-16 text-center">
-						<ShoppingBag className="mb-4 size-16 text-border" />
-						<ShopHeading as="h3" size="lg" className="mb-1">
-							{t("cart.emptyTitle")}
-						</ShopHeading>
-						<ShopMutedText>{t("cart.emptyDescription")}</ShopMutedText>
-					</div>
+					<EmptyState
+						variant="inline"
+						icon={LuShoppingBag}
+						title={t("cart.emptyTitle")}
+						description={t("cart.emptyDescription")}
+					/>
 				) : (
-					<div>
+					<Box>
 						{items.map((item) => (
 							<CartItem
 								key={item.id}
@@ -200,26 +244,35 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 								onRemove={() => removeItem(item.id)}
 							/>
 						))}
-					</div>
+					</Box>
 				)}
-			</div>
+			</Box>
 
 			{/* Footer - absolute positioned at bottom for sticky CTA */}
 			{items.length > 0 && (
-				<div className="absolute inset-x-0 bottom-0 border-border border-t bg-card">
-					<div className="px-4 py-4">
+				<Box
+					position="absolute"
+					left="0"
+					right="0"
+					bottom="0"
+					borderTopWidth="1px"
+					borderColor="border"
+					bg="bg.panel"
+				>
+					<Box px="4" py="4">
 						<CartSummary subtotal={subtotal} />
 						<ShopButton
 							variant="primary"
 							size="lg"
 							onClick={handleOrdering}
-							className="mt-4 w-full"
+							mt="4"
+							w="full"
 						>
 							{t("cart.ordering")}
 						</ShopButton>
-					</div>
-				</div>
+					</Box>
+				</Box>
 			)}
-		</aside>
+		</Box>
 	);
 }

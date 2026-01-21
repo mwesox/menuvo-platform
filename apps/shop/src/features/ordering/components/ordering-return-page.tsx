@@ -1,7 +1,7 @@
+import { Box, Center, Spinner, Text, VStack } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
-import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -52,17 +52,19 @@ export function OrderingReturnPage({ storeSlug }: OrderingReturnPageProps) {
 	// Show loading state during verification
 	if (isLoading) {
 		return (
-			<div className="min-h-screen bg-background">
-				<div className="mx-auto max-w-lg px-4 py-12">
-					<ShopCard padding="lg" className="space-y-4 text-center">
-						<Loader2 className="mx-auto size-12 animate-spin text-primary" />
-						<ShopHeading as="h1" size="lg">
-							{t("ordering.return.verifying")}
-						</ShopHeading>
-						<ShopMutedText>{t("ordering.return.pleaseWait")}</ShopMutedText>
+			<Box minH="100vh" bg="bg">
+				<Box maxW="lg" mx="auto" px="4" py="12">
+					<ShopCard padding="lg">
+						<VStack gap="4" textAlign="center">
+							<Spinner size="xl" color="teal.solid" />
+							<ShopHeading as="h1" size="lg">
+								{t("ordering.return.verifying")}
+							</ShopHeading>
+							<ShopMutedText>{t("ordering.return.pleaseWait")}</ShopMutedText>
+						</VStack>
 					</ShopCard>
-				</div>
-			</div>
+				</Box>
+			</Box>
 		);
 	}
 
@@ -74,18 +76,22 @@ export function OrderingReturnPage({ storeSlug }: OrderingReturnPageProps) {
 			: t("ordering.return.tryAgain");
 
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="mx-auto max-w-lg px-4 py-12">
-				<ShopCard padding="lg" className="space-y-4 text-center">
-					<div className="mx-auto flex size-12 items-center justify-center rounded-full bg-destructive/10">
-						<span className="text-2xl text-destructive">!</span>
-					</div>
-					<ShopHeading as="h1" size="lg">
-						{t("ordering.return.paymentFailed")}
-					</ShopHeading>
-					<ShopMutedText>{errorMessage}</ShopMutedText>
+		<Box minH="100vh" bg="bg">
+			<Box maxW="lg" mx="auto" px="4" py="12">
+				<ShopCard padding="lg">
+					<VStack gap="4" textAlign="center">
+						<Center boxSize="12" rounded="full" bg="red.subtle">
+							<Text textStyle="2xl" color="red.fg">
+								!
+							</Text>
+						</Center>
+						<ShopHeading as="h1" size="lg">
+							{t("ordering.return.paymentFailed")}
+						</ShopHeading>
+						<ShopMutedText>{errorMessage}</ShopMutedText>
+					</VStack>
 				</ShopCard>
-			</div>
-		</div>
+			</Box>
+		</Box>
 	);
 }

@@ -1,19 +1,26 @@
-import { Button } from "@menuvo/ui/components/button";
-import { LanguageSwitcher } from "@menuvo/ui/components/language-switcher";
-import { Separator } from "@menuvo/ui/components/separator";
+import {
+	Box,
+	Button,
+	HStack,
+	Image,
+	Separator,
+	Text,
+	VStack,
+} from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { useCookieConsentOptional } from "../../shared/contexts/cookie-consent-context";
+import { LanguageSwitcher } from "./language-switcher";
 
 function PoweredByMenuvo() {
 	const { t } = useTranslation("legal");
 
 	return (
-		<div className="flex items-center justify-center gap-2">
-			<span className="text-muted-foreground text-sm">
+		<HStack gap="2" justify="center">
+			<Text color="fg.muted" fontSize="sm">
 				{t("footer.poweredBy")}
-			</span>
-			<img src="/menuvo-logo.svg" alt="Menuvo" className="h-6" />
-		</div>
+			</Text>
+			<Image src="/menuvo-logo.svg" alt="Menuvo" h="6" />
+		</HStack>
 	);
 }
 
@@ -22,22 +29,28 @@ function FooterLegalLinks() {
 	const cookieConsent = useCookieConsentOptional();
 
 	return (
-		<div className="flex items-center justify-center gap-2 text-sm">
+		<HStack gap="2" justify="center" fontSize="sm">
 			<Button
-				variant="link"
+				variant="plain"
 				size="sm"
-				className="h-auto p-0 text-muted-foreground hover:text-foreground"
+				h="auto"
+				p="0"
+				color="fg.muted"
+				_hover={{ color: "fg" }}
 				asChild
 			>
 				<a href="/legal/impressum" target="_blank" rel="noopener noreferrer">
 					{t("footer.impressum")}
 				</a>
 			</Button>
-			<Separator orientation="vertical" className="h-4" />
+			<Separator orientation="vertical" h="4" />
 			<Button
-				variant="link"
+				variant="plain"
 				size="sm"
-				className="h-auto p-0 text-muted-foreground hover:text-foreground"
+				h="auto"
+				p="0"
+				color="fg.muted"
+				_hover={{ color: "fg" }}
 				asChild
 			>
 				<a href="/legal/privacy" target="_blank" rel="noopener noreferrer">
@@ -46,18 +59,21 @@ function FooterLegalLinks() {
 			</Button>
 			{cookieConsent && (
 				<>
-					<Separator orientation="vertical" className="h-4" />
+					<Separator orientation="vertical" h="4" />
 					<Button
-						variant="link"
+						variant="plain"
 						size="sm"
-						className="h-auto p-0 text-muted-foreground hover:text-foreground"
+						h="auto"
+						p="0"
+						color="fg.muted"
+						_hover={{ color: "fg" }}
 						onClick={cookieConsent.openSettings}
 					>
 						{t("footer.cookies")}
 					</Button>
 				</>
 			)}
-		</div>
+		</HStack>
 	);
 }
 
@@ -66,31 +82,30 @@ function FooterCopyright() {
 	const year = new Date().getFullYear();
 
 	return (
-		<p className="text-center text-muted-foreground text-xs">
+		<Text textAlign="center" color="fg.muted" fontSize="xs">
 			{t("footer.copyright", { year })}
-		</p>
+		</Text>
 	);
 }
 
 export function ShopFooter() {
 	return (
-		<footer
-			className="border-t px-4 py-6"
-			style={{
-				borderColor: "var(--border)",
-				backgroundColor: "var(--background)",
-			}}
+		<Box
+			as="footer"
+			borderTopWidth="1px"
+			borderColor="border"
+			bg="bg"
+			px="4"
+			py="6"
 		>
-			<div className="flex items-center justify-center gap-4">
-				<PoweredByMenuvo />
-				<LanguageSwitcher />
-			</div>
-			<div className="mt-4">
+			<VStack gap="4">
+				<HStack gap="4" justify="center">
+					<PoweredByMenuvo />
+					<LanguageSwitcher />
+				</HStack>
 				<FooterLegalLinks />
-			</div>
-			<div className="mt-4">
 				<FooterCopyright />
-			</div>
-		</footer>
+			</VStack>
+		</Box>
 	);
 }

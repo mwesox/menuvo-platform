@@ -23,9 +23,11 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Logo } from "@/components/ui/logo";
 import { useSidebar } from "@/contexts/sidebar-context";
 import { useStoreSelection } from "@/contexts/store-selection-context";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
+import { LanguageSwitcher } from "./language-switcher";
 
 function StoreSelector() {
 	const { t } = useTranslation("navigation");
@@ -235,14 +237,22 @@ export function TopBar() {
 				<MenuIcon style={{ height: "1.25rem", width: "1.25rem" }} />
 			</IconButton>
 
+			{/* Logo */}
+			<Link to="/">
+				<Logo height={28} />
+			</Link>
+
 			{/* Store selector */}
 			<StoreSelector />
 
 			{/* Spacer */}
 			<Box flex="1" />
 
-			{/* Help + User menu */}
-			<UserMenu />
+			{/* Language switcher + Help + User menu */}
+			<HStack gap="1">
+				<LanguageSwitcher />
+				<UserMenu />
+			</HStack>
 		</Box>
 	);
 }

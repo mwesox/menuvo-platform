@@ -1,9 +1,9 @@
-import { Badge, Box, Icon } from "@chakra-ui/react";
+import { Box, Icon } from "@chakra-ui/react";
 import {
 	createFileRoute,
 	Outlet,
 	useNavigate,
-	useRouter,
+	useRouterState,
 } from "@tanstack/react-router";
 import {
 	Building2,
@@ -28,20 +28,35 @@ export const Route = createFileRoute("/_app/settings")({
 	errorComponent: ConsoleError,
 });
 
+type TabValue = "business" | "language" | "payments" | "ai" | "staff" | "brand";
+
+const routes: Record<TabValue, string> = {
+	business: "/settings",
+	language: "/settings/language",
+	payments: "/settings/payments",
+	ai: "/settings/ai",
+	staff: "/settings",
+	brand: "/settings",
+};
+
+function getActiveTab(pathname: string): TabValue {
+	if (pathname.endsWith("/language")) return "language";
+	if (pathname.endsWith("/payments")) return "payments";
+	if (pathname.endsWith("/ai")) return "ai";
+	return "business";
+}
+
 function SettingsLayout() {
 	const { t } = useTranslation("settings");
 	const navigate = useNavigate();
-	const router = useRouter();
+	const routerState = useRouterState();
 
-	// Get tab from current route's search params
-	const currentMatch = router.state.matches[router.state.matches.length - 1];
-	const tab = (currentMatch?.search as { tab?: string })?.tab || "business";
+	// Derive active tab from pathname
+	const activeTab = getActiveTab(routerState.location.pathname);
 
 	const handleTabChange = (value: string) => {
-		navigate({
-			to: "/settings",
-			search: (prev: any) => ({ ...prev, tab: value }),
-		});
+		const tab = value as TabValue;
+		navigate({ to: routes[tab] });
 	};
 
 	const navItems = [
@@ -90,11 +105,6 @@ function SettingsLayout() {
 				</Icon>
 			),
 			disabled: true,
-			badge: (
-				<Badge variant="subtle" textStyle="xs" fontWeight="normal">
-					{t("hub.comingSoon")}
-				</Badge>
-			),
 		},
 		{
 			value: "brand",
@@ -105,11 +115,6 @@ function SettingsLayout() {
 				</Icon>
 			),
 			disabled: true,
-			badge: (
-				<Badge variant="subtle" textStyle="xs" fontWeight="normal">
-					{t("hub.comingSoon")}
-				</Badge>
-			),
 		},
 	];
 
@@ -121,7 +126,7 @@ function SettingsLayout() {
 					<Box display={{ base: "none", lg: "block" }}>
 						<SidebarNav
 							items={navItems}
-							value={tab}
+							value={activeTab}
 							onChange={handleTabChange}
 						/>
 					</Box>
@@ -129,7 +134,7 @@ function SettingsLayout() {
 					<Box display={{ base: "block", lg: "none" }}>
 						<SidebarNav
 							items={navItems}
-							value={tab}
+							value={activeTab}
 							onChange={handleTabChange}
 							layout="horizontal"
 						/>

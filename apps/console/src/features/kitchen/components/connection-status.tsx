@@ -13,7 +13,7 @@ interface ConnectionStatusProps {
 	className?: string;
 }
 
-export function ConnectionStatus({}: ConnectionStatusProps) {
+export function ConnectionStatus(_props: ConnectionStatusProps) {
 	const { t } = useTranslation("console-kitchen");
 	const { isOnline, justReconnected } = useConnectionStatus();
 

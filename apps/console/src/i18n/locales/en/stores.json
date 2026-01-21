@@ -5,7 +5,11 @@
 		"editStore": "Edit Store",
 		"storeDetails": "Store Details",
 		"contactSettings": "Contact & Settings",
-		"storeImages": "Store Images"
+		"storeImages": "Store Images",
+		"general": "General",
+		"openingHours": "Opening Hours",
+		"closures": "Closures",
+		"orderTypes": "Order Types"
 	},
 	"descriptions": {
 		"manageStores": "Manage your store locations",

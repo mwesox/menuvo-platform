@@ -18,6 +18,7 @@ interface PhoneInputProps {
 	invalid?: boolean;
 	id?: string;
 	name?: string;
+	autoComplete?: string;
 	size?: "xs" | "sm" | "md" | "lg" | "xl";
 }
 
@@ -41,13 +42,16 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 			invalid = false,
 			id,
 			name,
+			autoComplete,
 			size = "md",
 		},
 		ref,
 	) {
 		// Memoize default country to prevent unnecessary effect triggers
+		// COUNTRIES is a constant non-empty array, so COUNTRIES[0] is always defined
 		const defaultCountryOption = useMemo(
-			() => findCountryByCode(defaultCountry) ?? COUNTRIES[0]!,
+			() =>
+				findCountryByCode(defaultCountry) ?? (COUNTRIES[0] as CountryOption),
 			[defaultCountry],
 		);
 
@@ -145,6 +149,7 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 					name={name}
 					type="tel"
 					inputMode="tel"
+					autoComplete={autoComplete}
 					flex="1"
 					size={size}
 					placeholder={placeholder}

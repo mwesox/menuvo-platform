@@ -15,6 +15,7 @@ import { Loader2, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Caption, Label } from "@/components/ui/typography";
 import type { PaymentProvider } from "@/features/orders";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
@@ -184,10 +185,8 @@ export function RefundButton({
 									py="2"
 									w="full"
 								>
-									<Text color="fg.muted" textStyle="sm">
-										{t("refund.orderTotal")}
-									</Text>
-									<Text fontWeight="medium">{formatAmount(totalAmount)}</Text>
+									<Caption>{t("refund.orderTotal")}</Caption>
+									<Label>{formatAmount(totalAmount)}</Label>
 								</HStack>
 
 								{/* Partial refund toggle */}

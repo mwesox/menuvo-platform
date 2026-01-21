@@ -11,6 +11,7 @@ import {
 import { ArrowRight, Pencil } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { Caption, Label, Muted } from "@/components/ui/typography";
 import type {
 	OnboardingData,
 	SlideIndex,
@@ -147,9 +148,9 @@ export function ReviewSlide({
 					>
 						{t("slides.review.title")}
 					</Heading>
-					<Text mt="3" textAlign="center" textStyle="lg" color="fg.muted">
+					<Muted mt="3" textAlign="center" textStyle="lg">
 						{t("slides.review.subtitle")}
-					</Text>
+					</Muted>
 
 					{/* Data summary */}
 					<VStack gap="4" mt="10">
@@ -191,17 +192,10 @@ export function ReviewSlide({
 													justify="space-between"
 													gap="4"
 												>
-													<Text as="dt" color="fg.muted" textStyle="sm">
-														{item.label}
-													</Text>
-													<Text
-														as="dd"
-														textAlign="right"
-														fontWeight="medium"
-														textStyle="sm"
-													>
+													<Caption as="dt">{item.label}</Caption>
+													<Label as="dd" textAlign="right">
 														{item.value || "—"}
-													</Text>
+													</Label>
 												</HStack>
 											))}
 										</VStack>

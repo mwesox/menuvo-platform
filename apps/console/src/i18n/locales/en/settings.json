@@ -51,7 +51,11 @@
 	},
 	"titles": {
 		"storeDetails": "Store Details",
-		"contactSettings": "Contact Information"
+		"contactSettings": "Contact Information",
+		"business": "Business",
+		"language": "Language",
+		"payments": "Payments",
+		"upselling": "Upselling"
 	},
 	"sections": {
 		"merchantSettings": "Merchant Settings",

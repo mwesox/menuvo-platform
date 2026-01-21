@@ -8,8 +8,6 @@ import {
 	Input,
 	Popover,
 	Portal,
-	Separator,
-	Text,
 	VStack,
 } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
@@ -21,9 +19,11 @@ import { CalendarIcon, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { SettingsFormFooter } from "@/components/layout/settings-form-footer";
 import { Calendar } from "@/components/ui/calendar";
 import { FormField } from "@/components/ui/form-field";
 import { FormSection } from "@/components/ui/form-section";
+import { Caption, Label } from "@/components/ui/typography";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { closureFormSchema } from "../schemas";
 
@@ -44,16 +44,14 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 	const [editingId, setEditingId] = useState<string | null>(null);
 
 	return (
-		<VStack layerStyle="settingsContent">
+		<VStack gap="6" align="stretch" w="full">
 			<FormSection
 				title={t("sections.closures")}
 				description={t("descriptions.closures")}
 			>
 				<VStack gap="4" align="stretch">
 					{closures.length === 0 && !isAdding && (
-						<Text textAlign="center" color="fg.muted" textStyle="sm">
-							{t("emptyStates.noClosures")}
-						</Text>
+						<Caption textAlign="center">{t("emptyStates.noClosures")}</Caption>
 					)}
 
 					{closures.map((closure: StoreClosure) =>
@@ -86,17 +84,14 @@ export function StoreClosuresForm({ storeId }: StoreClosuresFormProps) {
 			</FormSection>
 
 			{!isAdding && editingId === null && (
-				<>
-					<Separator />
-					<HStack justify="flex-end">
-						<Button onClick={() => setIsAdding(true)}>
-							<Icon fontSize="md" me="2">
-								<Plus />
-							</Icon>
-							{t("actions.addClosure")}
-						</Button>
-					</HStack>
-				</>
+				<HStack justify="flex-end">
+					<Button onClick={() => setIsAdding(true)}>
+						<Icon fontSize="md" me="2">
+							<Plus />
+						</Icon>
+						{t("actions.addClosure")}
+					</Button>
+				</HStack>
 			)}
 		</VStack>
 	);
@@ -134,10 +129,13 @@ function ClosureListItem({ closure, storeId, onEdit }: ClosureListItemProps) {
 	const startDate = parseISO(closure.startDate);
 	const endDate = parseISO(closure.endDate);
 	const isSingleDay = closure.startDate === closure.endDate;
+	const dateFormatter = new Intl.DateTimeFormat(undefined, {
+		dateStyle: "medium",
+	});
 
-	const dateDisplay = isSingleDay
-		? format(startDate, "MMM d, yyyy")
-		: `${format(startDate, "MMM d, yyyy")} - ${format(endDate, "MMM d, yyyy")}`;
+	const startLabel = dateFormatter.format(startDate);
+	const endLabel = dateFormatter.format(endDate);
+	const dateDisplay = isSingleDay ? startLabel : `${startLabel} - ${endLabel}`;
 
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -147,12 +145,8 @@ function ClosureListItem({ closure, storeId, onEdit }: ClosureListItemProps) {
 				<Card.Body>
 					<HStack justify="space-between">
 						<VStack align="start" gap="0">
-							<Text fontWeight="medium">{dateDisplay}</Text>
-							{closure.reason && (
-								<Text color="fg.muted" textStyle="sm">
-									{closure.reason}
-								</Text>
-							)}
+							<Label>{dateDisplay}</Label>
+							{closure.reason && <Caption>{closure.reason}</Caption>}
 						</VStack>
 						<HStack gap="2">
 							<IconButton
@@ -370,26 +364,18 @@ function ClosureForm({
 							)}
 						</form.Field>
 
-						<HStack justify="flex-end" gap="2">
-							<Button type="button" variant="outline" onClick={onCancel}>
-								{tCommon("buttons.cancel")}
-							</Button>
-							<form.Subscribe selector={(state) => state.isSubmitting}>
-								{(isSubmitting) => (
-									<Button
-										type="submit"
-										disabled={isSubmitting}
-										loading={isSubmitting}
-									>
-										{isSubmitting
-											? tCommon("states.saving")
-											: closure
-												? tCommon("buttons.update")
-												: tCommon("buttons.add")}
-									</Button>
-								)}
-							</form.Subscribe>
-						</HStack>
+						<form.Subscribe selector={(state) => state.isSubmitting}>
+							{(isSubmitting) => (
+								<SettingsFormFooter
+									isSubmitting={isSubmitting}
+									onCancel={onCancel}
+									submitText={
+										closure ? tCommon("buttons.update") : tCommon("buttons.add")
+									}
+									submittingText={tCommon("states.saving")}
+								/>
+							)}
+						</form.Subscribe>
 					</VStack>
 				</Card.Body>
 			</Card.Root>
@@ -407,6 +393,9 @@ function DatePicker({ value, onChange, onBlur }: DatePickerProps) {
 	const { t } = useTranslation("settings");
 	const [open, setOpen] = useState(false);
 	const date = value ? parseISO(value) : undefined;
+	const dateFormatter = new Intl.DateTimeFormat(undefined, {
+		dateStyle: "medium",
+	});
 
 	const handleSelect = (selectedDate: Date | undefined) => {
 		if (selectedDate) {
@@ -434,7 +423,7 @@ function DatePicker({ value, onChange, onBlur }: DatePickerProps) {
 					<Icon fontSize="md" me="2">
 						<CalendarIcon />
 					</Icon>
-					{date ? format(date, "PPP") : t("placeholders.pickDate")}
+					{date ? dateFormatter.format(date) : t("placeholders.pickDate")}
 				</Button>
 			</Popover.Trigger>
 			<Portal>

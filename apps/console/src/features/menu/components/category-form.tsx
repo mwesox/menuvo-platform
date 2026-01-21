@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { FormField } from "@/components/ui/form-field";
 import { TimeInput } from "@/components/ui/time-input";
+import { Caption, Label } from "@/components/ui/typography";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { getLocalizedContent } from "../logic/localization";
 import { categoryFormSchema, formToTranslations } from "../schemas";
@@ -434,9 +435,7 @@ function AvailabilityScheduleSection({
 		<Box rounded="lg" borderWidth="1px">
 			<VStack gap="4" align="stretch" p="4">
 				<HStack justify="space-between" align="center">
-					<Text fontWeight="medium" textStyle="sm">
-						{t("availability.title", "Availability Schedule")}
-					</Text>
+					<Label>{t("availability.title", "Availability Schedule")}</Label>
 					<HStack gap="2" align="center">
 						<Switch.Root
 							checked={value.enabled}
@@ -453,12 +452,12 @@ function AvailabilityScheduleSection({
 					</HStack>
 				</HStack>
 
-				<Text color="fg.muted" textStyle="sm">
+				<Caption>
 					{t(
 						"availability.description",
 						"Control when this category is visible to customers. All rules must be satisfied for the category to show.",
 					)}
-				</Text>
+				</Caption>
 
 				{value.enabled && (
 					<>

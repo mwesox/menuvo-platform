@@ -1,10 +1,12 @@
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
 
 /**
- * Console Theme - "Editorial Gray + Red Accent"
+ * Console Theme - "Zinc/Stone + Red Accent"
  *
- * A sophisticated, brand-aligned palette using the Menuvo logo colors:
- * Dark gray (#2D2D2D) as primary, brand red (#D42027) as accent.
+ * A sophisticated, modern palette using:
+ * - Zinc/Stone neutrals (hue 270°) for backgrounds and surfaces
+ * - Dark gray (#2D2D2D) as primary
+ * - Brand red (#D42027) as accent
  *
  * Supports: Light mode and Dark mode
  */
@@ -13,21 +15,21 @@ const themeConfig = defineConfig({
 	theme: {
 		tokens: {
 			colors: {
-				// Core colors - Light mode
+				// Core colors - Light mode (Zinc/Stone palette)
 				background: {
-					value: "oklch(0.985 0.002 90)",
+					value: "oklch(0.985 0.002 270)",
 				},
 				foreground: {
 					value: "oklch(0.205 0.02 240)",
 				},
 				card: {
-					value: "oklch(0.995 0.001 90)",
+					value: "oklch(0.995 0.001 270)",
 				},
 				"card-foreground": {
 					value: "oklch(0.205 0.02 240)",
 				},
 				popover: {
-					value: "oklch(0.995 0.001 90)",
+					value: "oklch(0.995 0.001 270)",
 				},
 				"popover-foreground": {
 					value: "oklch(0.205 0.02 240)",
@@ -39,16 +41,16 @@ const themeConfig = defineConfig({
 				"primary-foreground": {
 					value: "oklch(0.99 0 0)",
 				},
-				// Secondary - Warm Sand
+				// Secondary - Cool Zinc
 				secondary: {
-					value: "oklch(0.94 0.02 85)",
+					value: "oklch(0.94 0.008 270)",
 				},
 				"secondary-foreground": {
 					value: "oklch(0.3 0.02 240)",
 				},
-				// Muted - Soft warm gray
+				// Muted - Soft zinc gray
 				muted: {
-					value: "oklch(0.94 0.01 90)",
+					value: "oklch(0.96 0.005 270)",
 				},
 				"muted-foreground": {
 					value: "oklch(0.5 0.02 240)",
@@ -69,10 +71,10 @@ const themeConfig = defineConfig({
 				},
 				// UI Elements
 				border: {
-					value: "oklch(0.88 0.01 90)",
+					value: "oklch(0.88 0.008 270)",
 				},
 				input: {
-					value: "oklch(0.4 0.05 90)",
+					value: "oklch(0.4 0.02 270)",
 				},
 				ring: {
 					value: "oklch(0.25 0.01 280)",
@@ -111,7 +113,7 @@ const themeConfig = defineConfig({
 				},
 				// Sidebar colors
 				sidebar: {
-					value: "oklch(0.97 0.005 90)",
+					value: "oklch(0.97 0.004 270)",
 				},
 				"sidebar-foreground": {
 					value: "oklch(0.25 0.02 240)",
@@ -129,7 +131,7 @@ const themeConfig = defineConfig({
 					value: "oklch(0.99 0 0)",
 				},
 				"sidebar-border": {
-					value: "oklch(0.9 0.01 90)",
+					value: "oklch(0.9 0.008 270)",
 				},
 				"sidebar-ring": {
 					value: "oklch(0.25 0.01 280)",
@@ -198,6 +200,50 @@ const themeConfig = defineConfig({
 				value: {
 					fontSize: "2.25rem", // 36px
 					lineHeight: "2.5rem", // 40px
+				},
+			},
+			// Page title - H1
+			pageTitle: {
+				value: {
+					fontSize: "1.25rem", // 20px (xl)
+					lineHeight: "1.75rem", // 28px
+					fontWeight: "600", // semibold
+				},
+			},
+			// Section title - H2 (uppercase label style, but bolder)
+			sectionTitle: {
+				value: {
+					fontSize: "0.75rem", // 12px (xs)
+					lineHeight: "1rem", // 16px
+					fontWeight: "700", // bold
+					textTransform: "uppercase",
+					letterSpacing: "0.05em", // wider
+					color: "var(--colors-fg-subtle)", // darker than fg.muted
+				},
+			},
+			// Label - form labels and settings row labels (medium weight)
+			label: {
+				value: {
+					fontSize: "0.875rem", // 14px (sm)
+					lineHeight: "1.25rem", // 20px
+					fontWeight: "500", // medium
+				},
+			},
+			// Label muted - secondary labels
+			"label.muted": {
+				value: {
+					fontSize: "0.875rem", // 14px (sm)
+					lineHeight: "1.25rem", // 20px
+					fontWeight: "500", // medium
+					color: "var(--colors-fg-muted)",
+				},
+			},
+			// Caption - helper text, descriptions
+			caption: {
+				value: {
+					fontSize: "0.875rem", // 14px (sm)
+					lineHeight: "1.25rem", // 20px
+					color: "var(--colors-fg-muted)",
 				},
 			},
 		},
@@ -276,7 +322,7 @@ const themeConfig = defineConfig({
 				},
 				"bg.subtle": {
 					value: {
-						_light: "oklch(0.97 0.005 90)",
+						_light: "oklch(0.97 0.004 270)",
 						_dark: "oklch(0.22 0.02 240)",
 					},
 				},
@@ -294,7 +340,7 @@ const themeConfig = defineConfig({
 				},
 				"border.muted": {
 					value: {
-						_light: "oklch(0.9 0.01 90)",
+						_light: "oklch(0.9 0.008 270)",
 						_dark: "oklch(0.32 0.02 240)",
 					},
 				},
@@ -307,19 +353,19 @@ const themeConfig = defineConfig({
 				},
 				"bg.pressed": {
 					value: {
-						_light: "oklch(0.92 0.01 90)",
+						_light: "oklch(0.92 0.006 270)",
 						_dark: "oklch(0.3 0.02 240)",
 					},
 				},
 				"bg.disabled": {
 					value: {
-						_light: "oklch(0.96 0.005 90)",
+						_light: "oklch(0.96 0.004 270)",
 						_dark: "oklch(0.24 0.02 240)",
 					},
 				},
 				"fg.disabled": {
 					value: {
-						_light: "oklch(0.65 0.01 90)",
+						_light: "oklch(0.65 0.008 270)",
 						_dark: "oklch(0.5 0.01 90)",
 					},
 				},
@@ -331,7 +377,7 @@ const themeConfig = defineConfig({
 				},
 				"border.hover": {
 					value: {
-						_light: "oklch(0.82 0.01 90)",
+						_light: "oklch(0.82 0.008 270)",
 						_dark: "oklch(0.35 0.02 240)",
 					},
 				},
@@ -415,7 +461,7 @@ const themeConfig = defineConfig({
 				// Switch unchecked track background - needs good contrast against card/panel backgrounds
 				"bg.emphasized": {
 					value: {
-						_light: "oklch(0.75 0.01 90)", // Visible gray for light mode
+						_light: "oklch(0.75 0.008 270)", // Visible zinc gray for light mode
 						_dark: "oklch(0.35 0.02 240)", // Visible gray for dark mode
 					},
 				},

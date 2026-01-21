@@ -11,6 +11,7 @@ import { Box, Flex, ScrollArea, Text, VStack } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import invariant from "tiny-invariant";
+import { Label } from "@/components/ui/typography";
 import type { OrderWithItems } from "@/features/orders/types";
 import type { KanbanColumnId } from "../constants";
 import { OrderCard } from "./order-card";
@@ -114,7 +115,6 @@ export function KanbanColumn({
 			borderTopWidth="4px"
 			borderTopColor={config.borderColor}
 			bg="bg.muted"
-			opacity={0.3}
 			outline={
 				isDraggedOver && isValidTarget
 					? "2px solid"
@@ -137,14 +137,10 @@ export function KanbanColumn({
 				alignItems="center"
 				justifyContent="space-between"
 				borderBottomWidth="1px"
-				bg="bg.muted"
-				opacity={0.5}
 				px="3"
 				py="2"
 			>
-				<Text fontWeight="semibold" color="fg" textStyle="sm">
-					{t(`columns.${id}`)}
-				</Text>
+				<Label color="fg">{t(`columns.${id}`)}</Label>
 				<Text
 					fontWeight="medium"
 					color="fg.muted"

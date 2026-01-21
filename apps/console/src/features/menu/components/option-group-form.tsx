@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { FormField } from "@/components/ui/form-field";
 import { formatPriceModifier } from "@/components/ui/price-input";
+import { Caption, Label } from "@/components/ui/typography";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import { getLocalizedContent } from "../logic/localization";
 import {
@@ -292,20 +293,13 @@ export function OptionGroupForm({
 					{/* Choices Section */}
 					<Box mt="6">
 						<VStack gap="4" align="stretch">
-							<Text fontWeight="medium" textStyle="sm">
-								{t("labels.choices")}
-							</Text>
+							<Label>{t("labels.choices")}</Label>
 
 							<form.Field name="choices" mode="array">
 								{(field) => (
 									<VStack gap="2" align="stretch">
 										{field.state.value.length === 0 ? (
-											<Text
-												py="4"
-												textAlign="center"
-												color="fg.muted"
-												textStyle="sm"
-											>
+											<Text py="4" textAlign="center" textStyle="caption">
 												{t("optionGroups.noChoices")}
 											</Text>
 										) : (
@@ -367,13 +361,10 @@ export function OptionGroupForm({
 																				onBlur={priceField.handleBlur}
 																				w="24"
 																			/>
-																			<Text color="fg.muted" textStyle="sm">
-																				ct
-																			</Text>
+																			<Caption>ct</Caption>
 																			<Text
 																				minW="70px"
-																				color="fg.muted"
-																				textStyle="sm"
+																				textStyle="caption"
 																				fontVariantNumeric="tabular-nums"
 																			>
 																				({formatPriceModifier(cents)})

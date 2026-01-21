@@ -1,5 +1,6 @@
 import {
 	Box,
+	Field,
 	HStack,
 	Icon,
 	IconButton,
@@ -7,7 +8,6 @@ import {
 	Spinner,
 	Text,
 	VisuallyHidden,
-	VStack,
 } from "@chakra-ui/react";
 import { AlertTriangle, Check, Copy, ExternalLink } from "lucide-react";
 import { useState } from "react";
@@ -59,21 +59,15 @@ export function ShopUrlDisplay({
 	};
 
 	return (
-		<VStack gap="3" align="stretch" rounded="lg" borderWidth="1px" p="4">
-			<VStack gap="0.5" align="stretch">
-				<Text fontWeight="medium" textStyle="sm">
-					{t("labels.shopUrl")}
-				</Text>
-				<Text color="fg.muted" textStyle="sm">
-					{t("descriptions.shopUrl")}
-				</Text>
-			</VStack>
-
+		<Field.Root>
+			<Field.Label>{t("labels.shopUrl")}</Field.Label>
+			<Field.HelperText mb="2">{t("descriptions.shopUrl")}</Field.HelperText>
 			<HStack gap="2" align="center">
 				<Box position="relative" flex="1">
 					<Input
 						value={shopUrl}
 						readOnly
+						minW="320px"
 						pr={isInteractive ? "10" : undefined}
 					/>
 					{isInteractive && (
@@ -141,7 +135,7 @@ export function ShopUrlDisplay({
 
 			{/* Show message when using alternative slug */}
 			{willUseAlternative && (
-				<Text textStyle="sm" color="warning">
+				<Text textStyle="sm" color="warning" mt="2">
 					{t("slugTaken", {
 						original: slug,
 						alternative: nextAvailable,
@@ -149,6 +143,6 @@ export function ShopUrlDisplay({
 					})}
 				</Text>
 			)}
-		</VStack>
+		</Field.Root>
 	);
 }

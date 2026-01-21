@@ -1,9 +1,9 @@
-import { Box, Card, DataList, Heading, Text } from "@chakra-ui/react";
+import { Box, Card, Heading, HStack, Text, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 
 interface SettingsRowGroupProps {
-	/** Section title */
-	title: string;
+	/** Optional section title */
+	title?: string;
 	/** Children should be SettingsRowItem components */
 	children: ReactNode;
 }
@@ -11,17 +11,23 @@ interface SettingsRowGroupProps {
 /**
  * A group of settings rows with a title and card wrapper.
  * Uses Chakra UI DataList for semantic structure.
+ *
+ * Spacing:
+ * - Minimal gap (mb="1" = 4px) between title and card - they belong together
+ * - Parent provides larger gap between sections (gap="8" = 32px)
  */
 export function SettingsRowGroup({ title, children }: SettingsRowGroupProps) {
 	return (
 		<Box>
-			<Heading as="h3" fontWeight="semibold" textStyle="base" mb="3">
-				{title}
-			</Heading>
+			{title && (
+				<Heading as="h2" textStyle="sectionTitle" mb="1.5">
+					{title}
+				</Heading>
+			)}
 			<Card.Root variant="outline">
-				<DataList.Root orientation="horizontal" divideY="1px">
+				<VStack align="stretch" gap="0" divideY="1px">
 					{children}
-				</DataList.Root>
+				</VStack>
 			</Card.Root>
 		</Box>
 	);
@@ -29,7 +35,7 @@ export function SettingsRowGroup({ title, children }: SettingsRowGroupProps) {
 
 interface SettingsRowItemProps {
 	/** Primary label for the row */
-	label: string;
+	label: ReactNode;
 	/** Optional description below the label */
 	description?: string;
 	/** Action element - typically a Switch, Button, or Badge */
@@ -39,6 +45,8 @@ interface SettingsRowItemProps {
 /**
  * A single settings row item with label, description, and action.
  * Should be used inside SettingsRowGroup.
+ *
+ * Layout: Label and description stack vertically on the left, action aligns to top-right.
  */
 export function SettingsRowItem({
 	label,
@@ -46,20 +54,16 @@ export function SettingsRowItem({
 	action,
 }: SettingsRowItemProps) {
 	return (
-		<DataList.Item px="4" py="3" alignItems="center" gap="4">
-			<DataList.ItemLabel flex="1" minW="0">
-				<Text fontWeight="medium" textStyle="sm">
-					{label}
-				</Text>
-				{description && (
-					<Text mt="0.5" color="fg.muted" textStyle="sm">
-						{description}
-					</Text>
+		<HStack px="4" py="3" gap="4" justify="space-between" align="flex-start">
+			<VStack align="start" gap="1" flex="1" minW="0">
+				{typeof label === "string" ? (
+					<Text textStyle="label">{label}</Text>
+				) : (
+					label
 				)}
-			</DataList.ItemLabel>
-			{action && (
-				<DataList.ItemValue flexShrink="0">{action}</DataList.ItemValue>
-			)}
-		</DataList.Item>
+				{description && <Text textStyle="caption">{description}</Text>}
+			</VStack>
+			{action && <Box flexShrink="0">{action}</Box>}
+		</HStack>
 	);
 }

@@ -632,11 +632,16 @@ export class OrderService implements IOrderService {
 		}
 
 		// Generate all dates in range and fill in missing days with zeros
+		// Use UTC consistently to avoid timezone issues
 		const result: DailyOrderStats[] = [];
 		const currentDate = new Date(startDate);
-		currentDate.setHours(0, 0, 0, 0);
+		currentDate.setUTCHours(0, 0, 0, 0);
 
-		while (currentDate <= effectiveEndDate) {
+		// Set end date to end of today (UTC) to ensure today is included
+		const endOfRange = new Date(effectiveEndDate);
+		endOfRange.setUTCHours(23, 59, 59, 999);
+
+		while (currentDate <= endOfRange) {
 			const dateStr = currentDate.toISOString().split("T")[0] as string;
 			const existing = statsMap.get(dateStr);
 
@@ -646,7 +651,7 @@ export class OrderService implements IOrderService {
 				revenue: existing?.revenue ?? 0,
 			});
 
-			currentDate.setDate(currentDate.getDate() + 1);
+			currentDate.setUTCDate(currentDate.getUTCDate() + 1);
 		}
 
 		return result;

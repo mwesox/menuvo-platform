@@ -1,9 +1,10 @@
+import { Box, Center, Spinner, Stack, VStack } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import type { inferRouterOutputs } from "@trpc/server";
-import { CheckCircle, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { LuCircleCheck } from "react-icons/lu";
 import { useTRPC } from "../../../lib/trpc";
 import {
 	ShopButton,
@@ -40,63 +41,70 @@ export function OrderConfirmationPage({
 	const formattedPickupNumber = String(pickupNumber).padStart(3, "0");
 
 	return (
-		<div className="min-h-screen bg-background">
-			<div className="mx-auto max-w-lg px-4 py-16">
-				<ShopCard padding="lg" className="space-y-6 text-center">
-					{/* Success Icon */}
-					<div className="flex justify-center">
-						<div className="flex size-16 items-center justify-center rounded-full bg-success/10">
-							<CheckCircle className="size-8 text-success" />
-						</div>
-					</div>
+		<Box minH="100vh" bg="bg">
+			<Box maxW="lg" mx="auto" px="4" py="16">
+				<ShopCard padding="lg">
+					<VStack gap="6" textAlign="center">
+						{/* Success Icon */}
+						<Center>
+							<Center boxSize="16" rounded="full" bg="green.subtle">
+								<Box as={LuCircleCheck} boxSize="8" color="green.fg" />
+							</Center>
+						</Center>
 
-					{/* Title */}
-					<div className="space-y-2">
-						<ShopHeading as="h1" size="xl">
-							{t("confirmation.title")}
-						</ShopHeading>
-						<ShopMutedText>{t("confirmation.subtitle")}</ShopMutedText>
-					</div>
-
-					{/* Pickup Number */}
-					<div className="rounded-lg bg-muted py-6">
-						<ShopMutedText className="text-sm">
-							{t("confirmation.orderNumber")}
-						</ShopMutedText>
-						{isLoading ? (
-							<Loader2 className="mx-auto mt-2 size-8 animate-spin text-muted-foreground" />
-						) : (
-							<ShopHeading as="p" size="2xl" className="text-4xl tabular-nums">
-								#{formattedPickupNumber}
+						{/* Title */}
+						<Stack gap="2">
+							<ShopHeading as="h1" size="xl">
+								{t("confirmation.title")}
 							</ShopHeading>
-						)}
-					</div>
+							<ShopMutedText>{t("confirmation.subtitle")}</ShopMutedText>
+						</Stack>
 
-					{/* Scheduled Pickup Time */}
-					{order?.scheduledPickupTime && (
-						<div className="rounded-lg bg-muted py-4">
-							<ShopMutedText className="text-sm">
-								{t("confirmation.scheduledPickup")}
+						{/* Pickup Number */}
+						<Box rounded="lg" bg="bg.muted" py="6" w="full">
+							<ShopMutedText textStyle="sm">
+								{t("confirmation.orderNumber")}
 							</ShopMutedText>
-							<ShopHeading as="p" size="md" className="mt-1">
-								{formatDateTime(order.scheduledPickupTime)}
-							</ShopHeading>
-						</div>
-					)}
+							{isLoading ? (
+								<Spinner size="lg" mt="2" color="fg.muted" />
+							) : (
+								<ShopHeading
+									as="p"
+									size="2xl"
+									textStyle="4xl"
+									fontVariantNumeric="tabular-nums"
+								>
+									#{formattedPickupNumber}
+								</ShopHeading>
+							)}
+						</Box>
 
-					{/* Instructions */}
-					<ShopMutedText className="text-sm">
-						{t("confirmation.instructions")}
-					</ShopMutedText>
+						{/* Scheduled Pickup Time */}
+						{order?.scheduledPickupTime && (
+							<Box rounded="lg" bg="bg.muted" py="4" w="full">
+								<ShopMutedText textStyle="sm">
+									{t("confirmation.scheduledPickup")}
+								</ShopMutedText>
+								<ShopHeading as="p" size="md" mt="1">
+									{formatDateTime(order.scheduledPickupTime)}
+								</ShopHeading>
+							</Box>
+						)}
 
-					{/* Back to Menu */}
-					<Link to="/$slug" params={{ slug: storeSlug }}>
-						<ShopButton variant="primary" size="lg" className="w-full">
-							{t("confirmation.backToMenu")}
-						</ShopButton>
-					</Link>
+						{/* Instructions */}
+						<ShopMutedText textStyle="sm">
+							{t("confirmation.instructions")}
+						</ShopMutedText>
+
+						{/* Back to Menu */}
+						<Link to="/$slug" params={{ slug: storeSlug }}>
+							<ShopButton variant="primary" size="lg" w="full">
+								{t("confirmation.backToMenu")}
+							</ShopButton>
+						</Link>
+					</VStack>
 				</ShopCard>
-			</div>
-		</div>
+			</Box>
+		</Box>
 	);
 }

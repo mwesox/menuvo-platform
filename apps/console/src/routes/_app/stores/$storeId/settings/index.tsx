@@ -1,4 +1,4 @@
-import { Switch, VStack } from "@chakra-ui/react";
+import { Heading, Switch, VStack } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Suspense } from "react";
@@ -69,7 +69,12 @@ function StoreSettingsDetailsContent({
 	};
 
 	return (
-		<VStack layerStyle="settingsContent">
+		<VStack gap="8" align="stretch" w="full">
+			{/* Page Title */}
+			<Heading as="h1" textStyle="pageTitle">
+				{t("titles.general")}
+			</Heading>
+
 			{/* Store Status Toggle */}
 			<SettingsRowGroup title={t("labels.storeStatus")}>
 				<SettingsRowItem

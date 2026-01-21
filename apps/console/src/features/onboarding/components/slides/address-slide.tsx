@@ -12,6 +12,7 @@ import { useForm } from "@tanstack/react-form";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { FieldError } from "@/components/ui/field-error";
+import { Label } from "@/components/ui/typography";
 import { type AddressSlideInput, addressSlideSchema } from "../../schemas";
 import { SlideFooter } from "./slide-footer";
 import { StepIndicator } from "./step-indicator";
@@ -246,14 +247,9 @@ export function AddressSlide({
 
 							{/* Country - hardcoded to Germany */}
 							<Box maxW="xs">
-								<Text
-									mb="2"
-									fontWeight="medium"
-									color="fg.muted"
-									textStyle="sm"
-								>
+								<Label muted mb="2">
 									{t("fields.country")}
-								</Text>
+								</Label>
 								<Input
 									h="12"
 									textStyle="lg"

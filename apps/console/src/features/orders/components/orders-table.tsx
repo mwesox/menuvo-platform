@@ -23,6 +23,7 @@ import { de, enUS } from "date-fns/locale";
 import { Calendar, Filter, Search } from "lucide-react";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Caption } from "@/components/ui/typography";
 import {
 	type OrderStatus,
 	type OrderType,
@@ -408,9 +409,7 @@ export function OrdersTable({
 											</Text>
 										</Table.Cell>
 										<Table.Cell>
-											<Text color="fg.muted" textStyle="sm">
-												{timeAgo}
-											</Text>
+											<Caption>{timeAgo}</Caption>
 										</Table.Cell>
 									</Table.Row>
 								);

@@ -1,0 +1,22 @@
+{
+	"title": "Dashboard",
+	"gettingStarted": {
+		"title": "Erste Schritte",
+		"description": "Willkommen bei Menuvo! Beginne damit, dein erstes Geschäft zu erstellen und Menüpunkte hinzuzufügen.",
+		"createStore": "Erstes Geschäft erstellen"
+	},
+	"noStoreSelected": "Bitte wähle ein Geschäft in der Seitenleiste aus, um Statistiken anzuzeigen.",
+	"refresh": "Aktualisieren",
+	"stats": {
+		"totalOrders": "Bestellungen gesamt",
+		"totalRevenue": "Gesamtumsatz",
+		"avgOrderValue": "Ø Bestellwert",
+		"last30Days": "Letzte 30 Tage"
+	},
+	"chart": {
+		"title": "Bestellungen & Umsatz (Letzte 30 Tage)",
+		"noData": "Keine Bestelldaten für den ausgewählten Zeitraum verfügbar.",
+		"orders": "Bestellungen",
+		"revenue": "Umsatz"
+	}
+}

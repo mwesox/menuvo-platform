@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Caption, Label } from "@/components/ui/typography";
 import type {
 	CategoryComparison,
 	DiffAction,
@@ -171,9 +172,7 @@ export function ComparisonPanel({
 
 							{comparison.optionGroups.length > 0 && (
 								<Box mt="6">
-									<Text mb="3" fontWeight="medium" textStyle="sm">
-										{t("import.comparison.optionGroups")}
-									</Text>
+									<Label mb="3">{t("import.comparison.optionGroups")}</Label>
 									<VStack gap="2" align="stretch">
 										{comparison.optionGroups.map((og) => (
 											<HStack
@@ -200,9 +199,7 @@ export function ComparisonPanel({
 													</Checkbox.Control>
 												</Checkbox.Root>
 												<Box flex="1">
-													<Text fontWeight="medium" textStyle="sm">
-														{og.extracted.name}
-													</Text>
+													<Label>{og.extracted.name}</Label>
 													<Text
 														ms="2"
 														color="fg.muted"
@@ -234,31 +231,31 @@ export function ComparisonPanel({
 			<Box borderTopWidth="1px" pt="4">
 				<SimpleGrid columns={3} gap="4" textStyle="sm">
 					<Box>
-						<Text color="fg.muted">{t("import.comparison.categories")}</Text>
-						<Text fontWeight="medium">
+						<Caption>{t("import.comparison.categories")}</Caption>
+						<Label>
 							{t("import.comparison.summary", {
 								newCount: comparison.summary.newCategories,
 								updateCount: comparison.summary.updatedCategories,
 							})}
-						</Text>
+						</Label>
 					</Box>
 					<Box>
-						<Text color="fg.muted">{t("import.comparison.items")}</Text>
-						<Text fontWeight="medium">
+						<Caption>{t("import.comparison.items")}</Caption>
+						<Label>
 							{t("import.comparison.summary", {
 								newCount: comparison.summary.newItems,
 								updateCount: comparison.summary.updatedItems,
 							})}
-						</Text>
+						</Label>
 					</Box>
 					<Box>
-						<Text color="fg.muted">{t("import.comparison.optionGroups")}</Text>
-						<Text fontWeight="medium">
+						<Caption>{t("import.comparison.optionGroups")}</Caption>
+						<Label>
 							{t("import.comparison.summary", {
 								newCount: comparison.summary.newOptionGroups,
 								updateCount: comparison.summary.updatedOptionGroups,
 							})}
-						</Text>
+						</Label>
 					</Box>
 				</SimpleGrid>
 			</Box>
@@ -317,7 +314,7 @@ function CategoryCard({
 					)}
 				</Button>
 				<Box flex="1">
-					<Text fontWeight="medium">{category.extracted.name}</Text>
+					<Label>{category.extracted.name}</Label>
 					{category.extracted.description && (
 						<Text lineClamp={1} color="fg.muted" textStyle="xs">
 							{category.extracted.description}
@@ -384,9 +381,7 @@ function ItemRow({ item, isSelected, onToggle, t }: ItemRowProps) {
 					</Text>
 				)}
 			</Box>
-			<Text fontWeight="medium" textStyle="sm">
-				{formatPrice(item.extracted.price)}
-			</Text>
+			<Label>{formatPrice(item.extracted.price)}</Label>
 			<ActionBadge action={item.action} t={t} />
 		</HStack>
 	);

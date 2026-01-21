@@ -1,3 +1,4 @@
+import { Box, Flex } from "@chakra-ui/react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	DiscoveryHeader,
@@ -91,13 +92,13 @@ export const Route = createFileRoute("/")({
 function DiscoveryLayout() {
 	return (
 		<CookieConsentProvider>
-			<div className="flex min-h-screen flex-col bg-background">
+			<Flex direction="column" minH="100vh" bg="bg">
 				<DiscoveryHeader />
-				<main className="flex-1">
+				<Box as="main" flex="1">
 					<DiscoveryPage />
-				</main>
+				</Box>
 				<ShopFooter />
-			</div>
+			</Flex>
 			<CookieBanner />
 		</CookieConsentProvider>
 	);
@@ -105,12 +106,12 @@ function DiscoveryLayout() {
 
 function DiscoveryLayoutSkeleton() {
 	return (
-		<div className="flex min-h-screen flex-col bg-background">
+		<Flex direction="column" minH="100vh" bg="bg">
 			<DiscoveryHeader />
-			<main className="flex-1">
+			<Box as="main" flex="1">
 				<DiscoveryPageSkeleton />
-			</main>
+			</Box>
 			<ShopFooter />
-		</div>
+		</Flex>
 	);
 }

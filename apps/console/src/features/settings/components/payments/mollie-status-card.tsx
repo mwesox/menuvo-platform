@@ -5,7 +5,6 @@ import {
 	Card,
 	HStack,
 	Icon,
-	Text,
 	VStack,
 } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
@@ -22,6 +21,7 @@ import {
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Caption, Label } from "@/components/ui/typography";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
@@ -178,9 +178,9 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 								p="3"
 							>
 								<Icon as={CheckCircle} fontSize="md" color="fg.success" />
-								<Text fontWeight="medium" color="fg.info" textStyle="sm">
+								<Label color="fg.info">
 									{t("payments.mollie.status.paypalEnabled")}
-								</Text>
+								</Label>
 							</HStack>
 							<Button
 								variant="outline"
@@ -291,14 +291,10 @@ function StatusRow({
 			py="2"
 			_last={{ borderBottomWidth: 0 }}
 		>
-			<Text textStyle="sm" color="fg.muted">
-				{label}
-			</Text>
+			<Caption>{label}</Caption>
 			<HStack gap="2">
 				<Icon as={StatusIcon} fontSize="md" color={iconColor} />
-				<Text fontWeight="medium" textStyle="sm">
-					{text}
-				</Text>
+				<Label>{text}</Label>
 			</HStack>
 		</HStack>
 	);

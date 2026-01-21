@@ -16,6 +16,7 @@ import { AlertCircle, Check, Upload } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { Caption } from "@/components/ui/typography";
 import { useTRPC, useTRPCClient } from "@/lib/trpc";
 import type { ImportJobStatusResponse, MenuComparisonData } from "../schemas";
 import { ComparisonPanel } from "./comparison-panel";
@@ -281,9 +282,9 @@ export function ImportWizard({ storeId, onClose }: ImportWizardProps) {
 									<Text fontWeight="medium" color="fg.error" textStyle="lg">
 										{t("import.errors.processingFailed")}
 									</Text>
-									<Text color="fg.muted" textStyle="sm" textAlign="center">
+									<Caption textAlign="center">
 										{jobStatus?.errorMessage || t("import.errors.genericError")}
-									</Text>
+									</Caption>
 									<Button variant="outline" onClick={onClose}>
 										{t("import.buttons.close")}
 									</Button>

@@ -1,0 +1,22 @@
+{
+	"title": "Dashboard",
+	"gettingStarted": {
+		"title": "Getting Started",
+		"description": "Welcome to Menuvo! Start by creating your first store and adding menu items.",
+		"createStore": "Create Your First Store"
+	},
+	"noStoreSelected": "Please select a store from the sidebar to view statistics.",
+	"refresh": "Refresh",
+	"stats": {
+		"totalOrders": "Total Orders",
+		"totalRevenue": "Total Revenue",
+		"avgOrderValue": "Avg Order Value",
+		"last30Days": "Last 30 days"
+	},
+	"chart": {
+		"title": "Orders & Revenue (Last 30 Days)",
+		"noData": "No order data available for the selected period.",
+		"orders": "Orders",
+		"revenue": "Revenue"
+	}
+}

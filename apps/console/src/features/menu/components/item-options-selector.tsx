@@ -1,6 +1,7 @@
-import { Badge, Box, Checkbox, Text, VStack } from "@chakra-ui/react";
+import { Badge, Box, Checkbox, VStack } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { Caption, Label } from "@/components/ui/typography";
 import { useDisplayLanguage } from "@/features/menu/contexts/display-language-context";
 import { getDisplayName } from "@/features/menu/logic/display";
 import { useTRPC } from "@/lib/trpc";
@@ -52,9 +53,7 @@ export function ItemOptionsSelector({
 				p="6"
 				textAlign="center"
 			>
-				<Text color="fg.muted" textStyle="sm">
-					{t("optionGroups.noOptionGroupsYet")}
-				</Text>
+				<Caption>{t("optionGroups.noOptionGroupsYet")}</Caption>
 			</Box>
 		);
 	}
@@ -75,9 +74,7 @@ export function ItemOptionsSelector({
 						<Checkbox.Control />
 						<Checkbox.Label>
 							<Box display="flex" alignItems="center" gap="2">
-								<Text fontWeight="medium">
-									{getDisplayName(group.translations, language)}
-								</Text>
+								<Label>{getDisplayName(group.translations, language)}</Label>
 								{group.isRequired && (
 									<Badge colorPalette="red">{t("optionGroups.required")}</Badge>
 								)}

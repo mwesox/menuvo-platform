@@ -1,5 +1,6 @@
-import { Store } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { LuStore } from "react-icons/lu";
+import { EmptyState } from "../../shared/components/ui";
 
 interface DiscoveryEmptyStateProps {
 	hasFilters: boolean;
@@ -13,29 +14,27 @@ export function DiscoveryEmptyState({
 	const { t } = useTranslation("discovery");
 
 	return (
-		<div className="flex flex-col items-center justify-center py-20 text-center">
-			<div className="mb-4 flex size-16 items-center justify-center rounded-full bg-muted">
-				<Store className="size-8 text-muted-foreground" />
-			</div>
-			<h2 className="font-semibold text-foreground text-xl">
-				{hasFilters
+		<EmptyState
+			variant="inline"
+			icon={LuStore}
+			title={
+				hasFilters
 					? t("emptyState.noResults.title")
-					: t("emptyState.noStores.title")}
-			</h2>
-			<p className="mt-1 max-w-sm text-muted-foreground">
-				{hasFilters
+					: t("emptyState.noStores.title")
+			}
+			description={
+				hasFilters
 					? t("emptyState.noResults.description")
-					: t("emptyState.noStores.description")}
-			</p>
-			{hasFilters && (
-				<button
-					type="button"
-					onClick={onClearFilters}
-					className="mt-4 rounded-lg bg-foreground px-5 py-2.5 font-medium text-background text-sm transition-colors hover:bg-foreground/90"
-				>
-					{t("emptyState.noResults.clearFilters")}
-				</button>
-			)}
-		</div>
+					: t("emptyState.noStores.description")
+			}
+			action={
+				hasFilters
+					? {
+							label: t("emptyState.noResults.clearFilters"),
+							onClick: onClearFilters,
+						}
+					: undefined
+			}
+		/>
 	);
 }

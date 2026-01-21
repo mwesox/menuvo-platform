@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 interface SettingsFormFooterProps {
 	/** Whether the form is currently submitting */
 	isSubmitting: boolean;
+	/** Optional disabled state (e.g., invalid form) */
+	isDisabled?: boolean;
 	/** Optional cancel handler - if provided, shows a cancel button */
 	onCancel?: () => void;
 	/** Optional custom submit button text */
@@ -18,6 +20,7 @@ interface SettingsFormFooterProps {
  */
 export function SettingsFormFooter({
 	isSubmitting,
+	isDisabled,
 	onCancel,
 	submitText,
 	submittingText,
@@ -32,7 +35,11 @@ export function SettingsFormFooter({
 						{t("buttons.cancel")}
 					</Button>
 				)}
-				<Button type="submit" disabled={isSubmitting} loading={isSubmitting}>
+				<Button
+					type="submit"
+					disabled={isDisabled || isSubmitting}
+					loading={isSubmitting}
+				>
 					{isSubmitting
 						? (submittingText ?? t("states.saving"))
 						: (submitText ?? t("buttons.saveChanges"))}

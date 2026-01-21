@@ -153,11 +153,10 @@ export function StoreHoursForm({ storeId }: StoreHoursFormProps) {
 				form.handleSubmit();
 			}}
 		>
-			<VStack layerStyle="settingsContent">
+			<VStack gap="6" align="stretch" w="full">
 				<FormSection
 					title={t("sections.openingHours")}
 					description={t("descriptions.openingHours")}
-					variant="plain"
 				>
 					{/* Days list */}
 					<VStack align="stretch" gap="0" separator={<Separator />}>
@@ -298,6 +297,7 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 									type="button"
 									variant="ghost"
 									size="xs"
+									aria-label={tCommon("buttons.delete")}
 									onClick={() => handleRemoveSlot(slotIndex)}
 								>
 									<Icon fontSize="sm">
@@ -311,6 +311,7 @@ function DayRow({ day, value, onChange }: DayRowProps) {
 						type="button"
 						variant="ghost"
 						size="sm"
+						aria-label={t("actions.addTimeSlot")}
 						onClick={handleAddSlot}
 						alignSelf="flex-start"
 					>

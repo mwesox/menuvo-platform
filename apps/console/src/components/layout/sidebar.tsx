@@ -1,12 +1,4 @@
-import {
-	Box,
-	Button,
-	HStack,
-	Icon,
-	Separator,
-	Text,
-	VStack,
-} from "@chakra-ui/react";
+import { Box, Button, Icon, Separator, Text, VStack } from "@chakra-ui/react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
 	ChefHat,
@@ -19,10 +11,8 @@ import {
 	UtensilsCrossed,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Logo } from "@/components/ui/logo";
 import { useSidebar } from "@/contexts/sidebar-context";
 import { useStoreSelection } from "@/contexts/store-selection-context";
-import { LanguageSwitcher } from "./language-switcher";
 
 type NavItem = {
 	href: string;
@@ -208,19 +198,6 @@ export function AppSidebar() {
 			bg="sidebar"
 			color="sidebar-foreground"
 		>
-			<HStack
-				justify="space-between"
-				align="center"
-				borderBottomWidth="1px"
-				px="4"
-				py="3"
-			>
-				<Link to="/">
-					<Logo height={28} />
-				</Link>
-				<LanguageSwitcher />
-			</HStack>
-
 			<VStack flex="1" align="stretch" overflowY="auto">
 				{/* Dashboard - ungrouped at top */}
 				<VStack gap="0" align="stretch" p="2">
