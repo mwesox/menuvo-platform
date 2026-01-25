@@ -33,8 +33,8 @@ function OrderingRouteComponent() {
 	// Build MerchantCapabilities from API response
 	const merchantCapabilities: MerchantCapabilities = {
 		canAcceptPayments: capabilities?.canAcceptOnlinePayment ?? false,
-		hasMollie: capabilities?.canAcceptOnlinePayment ?? false,
-		paymentMethods: capabilities?.canAcceptOnlinePayment ? ["mollie"] : [],
+		hasPayPal: capabilities?.canAcceptOnlinePayment ?? false,
+		paymentMethods: capabilities?.canAcceptOnlinePayment ? ["paypal"] : [],
 		canPlaceOrders: capabilities?.canAcceptOnlinePayment ?? false,
 		isOpen: store.status?.isOpen ?? true,
 	};

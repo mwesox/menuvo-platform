@@ -9,7 +9,7 @@
 		"emptyDescription": "Fügen Sie köstliche Artikel hinzu, um zu beginnen",
 		"ordering": "Zur Kasse",
 		"orderingComingSoon": "Kasse kommt bald!",
-		"orderingDescription": "Online-Zahlung ist über Mollie verfügbar.",
+		"orderingDescription": "Online-Zahlung ist über PayPal verfügbar.",
 		"total": "Gesamt",
 		"removeItem": "{{name}} aus dem Warenkorb entfernen",
 		"openCart": "Warenkorb öffnen mit {{count}} Artikeln im Wert von {{total}}"

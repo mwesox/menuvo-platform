@@ -11,38 +11,41 @@ import { useTranslation } from "react-i18next";
 import { ShopButton, ShopCard, ShopHeading } from "../../shared/components/ui";
 import { useCreatePayment } from "../queries";
 
-interface MolliePaymentProps {
+interface PayPalPaymentProps {
 	orderId: string;
 	storeSlug: string;
 }
 
 /**
- * Mollie payment component.
- * Handles redirect-based payment where customer is sent to Mollie hosted page.
+ * PayPal payment component.
+ * Handles redirect-based payment where customer is sent to PayPal hosted page.
  *
  * Flow:
  * 1. Customer clicks "Pay Now" button
- * 2. Create Mollie payment via server function
- * 3. Redirect to Mollie hosted payment page
- * 4. Customer completes payment on Mollie
+ * 2. Create PayPal order via server function
+ * 3. Redirect to PayPal approval page
+ * 4. Customer completes payment on PayPal
  * 5. Customer redirects back to return URL
  * 6. Webhook updates order status
  */
-export function MolliePayment({ orderId, storeSlug }: MolliePaymentProps) {
+export function PayPalPayment({ orderId, storeSlug }: PayPalPaymentProps) {
 	const { t } = useTranslation("shop");
 	const createPayment = useCreatePayment();
 
 	const handlePayNow = async () => {
-		const returnUrl = `${window.location.origin}/${storeSlug}/ordering/return`;
+		const baseUrl = window.location.origin;
+		const returnUrl = `${baseUrl}/${storeSlug}/ordering/return`;
+		const cancelUrl = `${baseUrl}/${storeSlug}/ordering/cancel`;
 
 		const result = await createPayment.mutateAsync({
 			orderId,
 			returnUrl,
+			cancelUrl,
 		});
 
-		if (result.checkoutUrl) {
-			// Redirect to Mollie hosted payment page
-			window.location.href = result.checkoutUrl;
+		if (result.approvalUrl) {
+			// Redirect to PayPal approval page
+			window.location.href = result.approvalUrl;
 		}
 	};
 
@@ -66,10 +69,9 @@ export function MolliePayment({ orderId, storeSlug }: MolliePaymentProps) {
 
 						{/* Payment method icons */}
 						<Flex justify="center" gap="4" py="4">
-							<PaymentMethodIcon name="iDEAL" />
-							<PaymentMethodIcon name="Card" />
 							<PaymentMethodIcon name="PayPal" />
-							<PaymentMethodIcon name="Bancontact" />
+							<PaymentMethodIcon name="Card" />
+							<PaymentMethodIcon name="Pay Later" />
 						</Flex>
 
 						{createPayment.isError && (
@@ -114,7 +116,7 @@ export function MolliePayment({ orderId, storeSlug }: MolliePaymentProps) {
 
 /**
  * Payment method icon placeholder.
- * In production, use actual payment method logos from Mollie.
+ * Shows available PayPal payment methods.
  */
 function PaymentMethodIcon({ name }: { name: string }) {
 	return (

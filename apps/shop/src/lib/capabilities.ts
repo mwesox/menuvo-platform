@@ -9,8 +9,8 @@ export interface MerchantCapabilities {
 	/** Whether the merchant can accept payments */
 	canAcceptPayments: boolean;
 
-	/** Whether the merchant has Mollie enabled */
-	hasMollie: boolean;
+	/** Whether the merchant has PayPal enabled */
+	hasPayPal: boolean;
 
 	/** Available payment methods */
 	paymentMethods: string[];
@@ -27,7 +27,7 @@ export interface MerchantCapabilities {
  */
 export const defaultCapabilities: MerchantCapabilities = {
 	canAcceptPayments: false,
-	hasMollie: false,
+	hasPayPal: false,
 	paymentMethods: [],
 	canPlaceOrders: false,
 	isOpen: false,

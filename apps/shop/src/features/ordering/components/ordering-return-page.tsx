@@ -19,12 +19,11 @@ interface OrderingReturnPageProps {
 }
 
 /**
- * Handles post-payment redirect from Mollie.
+ * Handles post-payment redirect from PayPal.
  *
- * For synchronous payment methods (credit cards, PayPal), the status is immediately
- * final when the user returns from Mollie - no polling needed.
+ * For PayPal payments, the status is immediately final when the user returns.
  *
- * The backend verifies payment status with Mollie API and updates the order.
+ * The backend verifies payment status with PayPal API and updates the order.
  * We only pass orderId - backend handles looking up the payment ID internally.
  */
 export function OrderingReturnPage({ storeSlug }: OrderingReturnPageProps) {
@@ -35,7 +34,7 @@ export function OrderingReturnPage({ storeSlug }: OrderingReturnPageProps) {
 	// Order ID from query params (passed in return URL)
 	const orderId = search.order_id ?? null;
 
-	// Verify payment status - backend checks Mollie API and updates order
+	// Verify payment status - backend checks PayPal API and updates order
 	const { data, isLoading, isError } = useVerifyPayment(orderId);
 	const paymentData = data as PaymentStatus | undefined;
 

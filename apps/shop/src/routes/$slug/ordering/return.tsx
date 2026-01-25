@@ -9,7 +9,7 @@ import { StoreError } from "../../../features/shared";
 import { trpcUtils } from "../../../lib/trpc";
 
 const searchSchema = z.object({
-	order_id: z.coerce.string().optional(), // Mollie order ID (passed in return URL)
+	order_id: z.coerce.string().optional(), // Order ID (passed in return URL from PayPal)
 });
 
 export const Route = createFileRoute("/$slug/ordering/return")({

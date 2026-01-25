@@ -178,27 +178,16 @@ export const merchants = pgTable("merchants", {
 	subscriptionPriceId: text("subscription_price_id"),
 	subscriptionTrialEndsAt: timestamp("subscription_trial_ends_at"),
 	subscriptionCurrentPeriodEnd: timestamp("subscription_current_period_end"),
-	// Mollie Connect (OAuth tokens for M2M operations)
-	mollieCustomerId: text("mollie_customer_id"), // cst_xxx (for subscriptions)
-	mollieOrganizationId: text("mollie_organization_id"), // org_xxx
-	mollieProfileId: text("mollie_profile_id"), // pfl_xxx
-	mollieAccessToken: text("mollie_access_token"), // OAuth access token (encrypted)
-	mollieRefreshToken: text("mollie_refresh_token"), // OAuth refresh token (encrypted)
-	mollieTokenExpiresAt: timestamp("mollie_token_expires_at"),
-	mollieOnboardingStatus: text("mollie_onboarding_status"),
-	mollieCanReceivePayments: boolean("mollie_can_receive_payments").default(
+	// PayPal Marketplace (Platform integration for connected sellers)
+	paypalMerchantId: text("paypal_merchant_id"), // Merchant ID in PayPal
+	paypalTrackingId: text("paypal_tracking_id"), // Partner referral tracking ID
+	paypalOnboardingStatus: text("paypal_onboarding_status"), // pending | in_review | completed
+	paypalPaymentsReceivable: boolean("paypal_payments_receivable").default(
 		false,
 	),
-	mollieCanReceiveSettlements: boolean(
-		"mollie_can_receive_settlements",
+	paypalPrimaryEmailConfirmed: boolean(
+		"paypal_primary_email_confirmed",
 	).default(false),
-	// Mollie Subscriptions (mandate-based)
-	mollieMandateId: text("mollie_mandate_id"), // mdt_xxx
-	mollieMandateStatus: text("mollie_mandate_status"),
-	mollieSubscriptionId: text("mollie_subscription_id"), // sub_xxx
-	mollieSubscriptionStatus: text("mollie_subscription_status"),
-	// Payment provider tracking
-	paymentProvider: text("payment_provider").default("stripe"),
 	// Timestamps
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
@@ -606,29 +595,28 @@ export type StripeEvent = InferSelectModel<typeof stripeEvents>;
 export type NewStripeEvent = InferInsertModel<typeof stripeEvents>;
 
 // ============================================================================
-// MOLLIE EVENTS
+// PAYPAL EVENTS
 // ============================================================================
 
 /**
- * Stores all incoming Mollie webhook events for:
+ * Stores all incoming PayPal webhook events for:
  * - Idempotency (prevent duplicate processing)
  * - Audit trail
  * - Debugging and replay capability
  *
- * Mollie webhooks only send the resource ID - we must fetch full data from API.
- * The payload field stores the fetched resource data.
+ * PayPal sends event IDs and full payload in webhooks.
  */
-export const mollieEvents = pgTable(
-	"mollie_events",
+export const paypalEvents = pgTable(
+	"paypal_events",
 	{
-		// Generated event ID (Mollie doesn't send event IDs, we generate them)
+		// PayPal event ID (e.g., "WH-xxx")
 		id: text("id").primaryKey(),
-		// Event type (e.g., "payment.paid", "subscription.created")
+		// Event type (e.g., "PAYMENT.CAPTURE.COMPLETED", "MERCHANT.ONBOARDING.COMPLETED")
 		eventType: text("event_type").notNull(),
-		// Resource ID from webhook (e.g., "tr_xxx", "sub_xxx")
-		resourceId: text("resource_id").notNull(),
-		// Resource type (e.g., "payment", "subscription", "refund")
-		resourceType: text("resource_type").notNull(),
+		// Resource type (e.g., "capture", "checkout-order")
+		resourceType: text("resource_type"),
+		// Resource ID from webhook
+		resourceId: text("resource_id"),
 		// Merchant ID for this event (from payment metadata or context)
 		merchantId: uuid("merchant_id").references(() => merchants.id),
 		// When we received the webhook
@@ -636,24 +624,24 @@ export const mollieEvents = pgTable(
 		// When we finished processing (null if pending)
 		processedAt: timestamp("processed_at"),
 		// Current processing status
-		processingStatus: text("processing_status").notNull().default("PENDING"),
+		processingStatus: text("processing_status").default("PENDING"),
 		// Retry count for failed processing attempts
-		retryCount: integer("retry_count").notNull().default(0),
-		// Full resource data fetched from Mollie API as JSONB
-		payload: jsonb("payload").notNull(),
+		retryCount: integer("retry_count").default(0),
+		// Full event payload from PayPal as JSONB
+		payload: jsonb("payload"),
 	},
 	(table) => [
-		index("idx_mollie_events_type").on(table.eventType),
-		index("idx_mollie_events_status").on(table.processingStatus),
-		index("idx_mollie_events_resource").on(table.resourceId),
-		index("idx_mollie_events_received").on(table.receivedAt),
-		index("idx_mollie_events_merchant").on(table.merchantId),
+		index("idx_paypal_events_type").on(table.eventType),
+		index("idx_paypal_events_status").on(table.processingStatus),
+		index("idx_paypal_events_resource").on(table.resourceId),
+		index("idx_paypal_events_received").on(table.receivedAt),
+		index("idx_paypal_events_merchant").on(table.merchantId),
 	],
 );
 
-// Mollie Event types
-export type MollieEvent = InferSelectModel<typeof mollieEvents>;
-export type NewMollieEvent = InferInsertModel<typeof mollieEvents>;
+// PayPal Event types
+export type PayPalEvent = InferSelectModel<typeof paypalEvents>;
+export type NewPayPalEvent = InferInsertModel<typeof paypalEvents>;
 
 // ============================================================================
 // IMAGES
@@ -853,11 +841,9 @@ export const orders = pgTable(
 			length: 255,
 		}),
 		stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }),
-		// Mollie payment fields
-		molliePaymentId: text("mollie_payment_id"), // tr_xxx
-		mollieCheckoutUrl: text("mollie_checkout_url"),
-		// Payment provider tracking (per-order, overrides merchant default)
-		orderPaymentProvider: text("order_payment_provider"),
+		// PayPal payment fields
+		paypalOrderId: text("paypal_order_id"), // PayPal order ID
+		paypalCaptureId: text("paypal_capture_id"), // PayPal capture ID after payment
 
 		// Notes
 		customerNotes: text("customer_notes"), // Special requests from customer
@@ -886,7 +872,7 @@ export const orders = pgTable(
 		index("idx_orders_created_at").on(table.createdAt),
 		index("idx_orders_store_status").on(table.storeId, table.status),
 		index("idx_orders_stripe_session").on(table.stripeCheckoutSessionId),
-		index("idx_orders_mollie_payment").on(table.molliePaymentId),
+		index("idx_orders_paypal_order").on(table.paypalOrderId),
 		index("idx_orders_store_pickup").on(table.storeId, table.pickupNumber),
 		unique("idx_orders_idempotency_key").on(table.idempotencyKey),
 		// Polling optimization indexes

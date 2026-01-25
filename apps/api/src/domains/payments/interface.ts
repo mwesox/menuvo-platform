@@ -5,10 +5,11 @@
  */
 
 import type {
+	CaptureResult,
 	CreatePaymentInput,
-	MollieStatus,
 	OnboardingResult,
 	OnboardingStatus,
+	PaymentAccountStatus,
 	PaymentResult,
 	PaymentStatus,
 } from "./types.js";
@@ -20,18 +21,18 @@ export interface IPaymentService {
 	/** Create a payment for an order */
 	createPayment(input: CreatePaymentInput): Promise<PaymentResult>;
 
+	/** Capture a payment after customer approval */
+	capturePayment(orderId: string): Promise<CaptureResult>;
+
 	/** Get payment status by order ID */
 	getPaymentStatus(orderId: string): Promise<PaymentStatus>;
 
-	/** Start merchant Mollie onboarding */
+	/** Start merchant payment onboarding */
 	startOnboarding(merchantId: string): Promise<OnboardingResult>;
 
-	/** Get merchant onboarding status */
+	/** Get merchant onboarding status from payment provider */
 	getOnboardingStatus(merchantId: string): Promise<OnboardingStatus>;
 
-	/** Get Mollie dashboard URL for merchant */
-	getDashboardUrl(merchantId: string): Promise<string | undefined>;
-
-	/** Get full Mollie status from database */
-	getMollieStatus(merchantId: string): Promise<MollieStatus>;
+	/** Get full payment account status from database */
+	getAccountStatus(merchantId: string): Promise<PaymentAccountStatus>;
 }

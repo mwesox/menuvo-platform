@@ -31,20 +31,13 @@ export const env = createEnv({
 		S3_FILES_BUCKET: z.string().min(1).optional(),
 		// Encryption (for OAuth tokens) - 64 hex chars = 32 bytes = 256 bits
 		ENCRYPTION_KEY: z.string().length(64),
-		// Mollie
-		MOLLIE_API_KEY: z.string().min(1).optional(),
-		MOLLIE_CLIENT_ID: z.string().min(1).optional(),
-		MOLLIE_CLIENT_SECRET: z.string().min(1).optional(),
-		MOLLIE_REDIRECT_URI: z.string().url().optional(),
-		MOLLIE_ORG_ACCESS_TOKEN: z.string().min(1).optional(),
-		MOLLIE_TEST_MODE: z
-			.enum(["true", "false"])
-			.default("true")
-			.transform((v) => v === "true"),
-		MOLLIE_SKIP_ONBOARDING_CHECK: z
-			.enum(["true", "false"])
-			.default("false")
-			.transform((v) => v === "true"),
+		// PayPal Marketplace
+		PAYPAL_CLIENT_ID: z.string().min(1).optional(),
+		PAYPAL_CLIENT_SECRET: z.string().min(1).optional(),
+		PAYPAL_MODE: z.enum(["sandbox", "live"]).default("sandbox"),
+		PAYPAL_PARTNER_MERCHANT_ID: z.string().min(1).optional(),
+		PAYPAL_BN_CODE: z.string().optional(),
+		PAYPAL_WEBHOOK_ID: z.string().optional(),
 		// SMTP Email
 		SMTP_HOST: z.string().min(1).optional(),
 		SMTP_PORT: z.coerce.number().default(587),
@@ -85,14 +78,13 @@ export const env = createEnv({
 		S3_FILES_BUCKET: process.env.S3_FILES_BUCKET,
 		// Encryption
 		ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
-		// Mollie
-		MOLLIE_API_KEY: process.env.MOLLIE_API_KEY,
-		MOLLIE_CLIENT_ID: process.env.MOLLIE_CLIENT_ID,
-		MOLLIE_CLIENT_SECRET: process.env.MOLLIE_CLIENT_SECRET,
-		MOLLIE_REDIRECT_URI: process.env.MOLLIE_REDIRECT_URI,
-		MOLLIE_ORG_ACCESS_TOKEN: process.env.MOLLIE_ORG_ACCESS_TOKEN,
-		MOLLIE_TEST_MODE: process.env.MOLLIE_TEST_MODE,
-		MOLLIE_SKIP_ONBOARDING_CHECK: process.env.MOLLIE_SKIP_ONBOARDING_CHECK,
+		// PayPal Marketplace
+		PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID,
+		PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET,
+		PAYPAL_MODE: process.env.PAYPAL_MODE,
+		PAYPAL_PARTNER_MERCHANT_ID: process.env.PAYPAL_PARTNER_MERCHANT_ID,
+		PAYPAL_BN_CODE: process.env.PAYPAL_BN_CODE,
+		PAYPAL_WEBHOOK_ID: process.env.PAYPAL_WEBHOOK_ID,
 		// SMTP Email
 		SMTP_HOST: process.env.SMTP_HOST,
 		SMTP_PORT: process.env.SMTP_PORT,

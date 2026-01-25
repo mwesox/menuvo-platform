@@ -257,17 +257,20 @@ export function OrderingPage({
 		try {
 			const order = await createOrderMutation.mutateAsync(orderInput);
 
-			const returnUrl = `${window.location.origin}/${storeSlug}/ordering/return`;
+			const baseUrl = window.location.origin;
+			const returnUrl = `${baseUrl}/${storeSlug}/ordering/return`;
+			const cancelUrl = `${baseUrl}/${storeSlug}/ordering/cancel`;
 
-			// Create payment and redirect to hosted payment page
+			// Create payment and redirect to PayPal approval page
 			setIsPaymentRedirecting(true);
 
 			const payment = await createPaymentMutation.mutateAsync({
 				orderId: order.id,
 				returnUrl,
+				cancelUrl,
 			});
 
-			if (!payment.checkoutUrl) {
+			if (!payment.approvalUrl) {
 				toast.error("Payment provider did not return payment URL");
 				setIsPaymentRedirecting(false);
 				return;
@@ -276,8 +279,8 @@ export function OrderingPage({
 			// Clear cart and idempotency key before redirect
 			clearCart();
 			sessionStorage.removeItem(`order-idempotency-key-${storeId}`);
-			// Redirect to hosted payment page
-			window.location.href = payment.checkoutUrl;
+			// Redirect to PayPal approval page
+			window.location.href = payment.approvalUrl;
 		} catch {
 			setIsPaymentRedirecting(false);
 			// Error toast handled by mutation

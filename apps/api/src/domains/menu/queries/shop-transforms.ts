@@ -65,7 +65,7 @@ export function transformMenuToShop(
 			})),
 		})),
 		capabilities: {
-			canAcceptOnlinePayment: store.merchant?.mollieCanReceivePayments === true,
+			canAcceptOnlinePayment: store.merchant?.paypalPaymentsReceivable === true,
 		},
 	};
 }

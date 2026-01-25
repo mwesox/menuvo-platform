@@ -8,7 +8,7 @@ import {
 	VStack,
 } from "@chakra-ui/react";
 import type { AppRouter } from "@menuvo/api/trpc";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
 import {
 	AlertTriangle,
@@ -22,24 +22,23 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Caption, Label } from "@/components/ui/typography";
-import { useTRPC, useTRPCClient } from "@/lib/trpc";
+import { useTRPC } from "@/lib/trpc";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
-type MollieStatus = RouterOutput["payments"]["getMollieStatus"];
+type PaymentAccountStatus = RouterOutput["payments"]["getAccountStatus"];
 
-interface MollieStatusCardProps {
-	mollieStatus: MollieStatus;
+interface PayPalStatusCardProps {
+	paymentStatus: PaymentAccountStatus;
 }
 
 /**
- * Shows Mollie payment account status after initial setup.
- * Displays onboarding progress, capabilities, and PayPal badge.
+ * Shows PayPal payment account status after initial setup.
+ * Displays onboarding progress and capabilities.
  */
-export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
+export function PayPalStatusCard({ paymentStatus }: PayPalStatusCardProps) {
 	const { t } = useTranslation("settings");
 	const { t: tToasts } = useTranslation("toasts");
 	const trpc = useTRPC();
-	const trpcClient = useTRPCClient();
 	const queryClient = useQueryClient();
 	const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -49,34 +48,13 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 				trpc.payments.getOnboardingStatus.queryOptions(),
 			);
 			queryClient.invalidateQueries({
-				queryKey: trpc.payments.getMollieStatus.queryKey(),
+				queryKey: trpc.payments.getAccountStatus.queryKey(),
 			});
 			toast.success(tToasts("success.paymentStatusRefreshed"));
 		} catch {
 			toast.error(tToasts("error.refreshPaymentStatus"));
 		}
 	}, [queryClient, tToasts, trpc]);
-
-	const getDashboardUrl = useMutation({
-		mutationKey: ["payments", "getMollieDashboardUrl"],
-		mutationFn: async () => {
-			const result = (await trpcClient.payments.getDashboardUrl.query()) as {
-				dashboardUrl?: string;
-			};
-			return result;
-		},
-		onSuccess: (data) => {
-			if (data?.dashboardUrl) {
-				window.open(data.dashboardUrl, "_blank");
-			} else {
-				// Dashboard URL unavailable (token expired or invalid)
-				toast.error(tToasts("error.getMollieDashboardUrl"));
-			}
-		},
-		onError: () => {
-			toast.error(tToasts("error.getMollieDashboardUrl"));
-		},
-	});
 
 	const handleRefresh = async () => {
 		setIsRefreshing(true);
@@ -87,13 +65,14 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 		}
 	};
 
-	const handleCompleteVerification = () => {
-		getDashboardUrl.mutate();
+	const handleOpenDashboard = () => {
+		// PayPal Business Dashboard URL
+		window.open("https://www.paypal.com/businesswallet/", "_blank");
 	};
 
-	const isComplete = mollieStatus.onboardingStatus === "completed";
-	const isInReview = mollieStatus.onboardingStatus === "in-review";
-	const needsData = mollieStatus.onboardingStatus === "needs-data";
+	const isComplete = paymentStatus.onboardingStatus === "completed";
+	const isInReview = paymentStatus.onboardingStatus === "in_review";
+	const isPending = paymentStatus.onboardingStatus === "pending";
 
 	return (
 		<Card.Root>
@@ -101,20 +80,20 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 				<HStack justify="space-between" align="flex-start">
 					<VStack gap="2" align="flex-start">
 						<HStack gap="2">
-							<Card.Title>{t("payments.mollie.status.title")}</Card.Title>
+							<Card.Title>{t("payments.paypal.status.title")}</Card.Title>
 							{isComplete && (
 								<Badge colorPalette="green">
-									{t("payments.mollie.status.complete")}
+									{t("payments.paypal.status.complete")}
 								</Badge>
 							)}
 							{isInReview && (
 								<Badge variant="outline" colorPalette="amber">
-									{t("payments.mollie.status.inReview")}
+									{t("payments.paypal.status.inReview")}
 								</Badge>
 							)}
 						</HStack>
 						<Card.Description>
-							{t("payments.mollie.status.description")}
+							{t("payments.paypal.status.description")}
 						</Card.Description>
 					</VStack>
 					<Button
@@ -138,35 +117,29 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 					{/* Status list */}
 					<VStack gap="3" align="stretch">
 						<StatusRow
-							label={t("payments.mollie.status.account.label")}
-							status={mollieStatus.organizationId ? "active" : "inactive"}
-							activeText={t("payments.mollie.status.account.connected")}
-							inactiveText={t("payments.mollie.status.account.notConnected")}
+							label={t("payments.paypal.status.account.label")}
+							status={paymentStatus.merchantId ? "active" : "inactive"}
+							activeText={t("payments.paypal.status.account.connected")}
+							inactiveText={t("payments.paypal.status.account.notConnected")}
 						/>
 						<StatusRow
-							label={t("payments.mollie.status.onboarding.label")}
+							label={t("payments.paypal.status.onboarding.label")}
 							status={
 								isComplete ? "active" : isInReview ? "pending" : "inactive"
 							}
-							activeText={t("payments.mollie.status.onboarding.complete")}
-							pendingText={t("payments.mollie.status.onboarding.inReview")}
-							inactiveText={t("payments.mollie.status.onboarding.needsData")}
+							activeText={t("payments.paypal.status.onboarding.complete")}
+							pendingText={t("payments.paypal.status.onboarding.inReview")}
+							inactiveText={t("payments.paypal.status.onboarding.pending")}
 						/>
 						<StatusRow
-							label={t("payments.mollie.status.payments.label")}
-							status={mollieStatus.canReceivePayments ? "active" : "pending"}
-							activeText={t("payments.mollie.status.payments.enabled")}
-							pendingText={t("payments.mollie.status.payments.pending")}
-						/>
-						<StatusRow
-							label={t("payments.mollie.status.settlements.label")}
-							status={mollieStatus.canReceiveSettlements ? "active" : "pending"}
-							activeText={t("payments.mollie.status.settlements.enabled")}
-							pendingText={t("payments.mollie.status.settlements.pending")}
+							label={t("payments.paypal.status.payments.label")}
+							status={paymentStatus.canReceivePayments ? "active" : "pending"}
+							activeText={t("payments.paypal.status.payments.enabled")}
+							pendingText={t("payments.paypal.status.payments.pending")}
 						/>
 					</VStack>
 
-					{/* PayPal included badge */}
+					{/* PayPal enabled badge */}
 					{isComplete && (
 						<VStack gap="3" align="stretch">
 							<HStack
@@ -179,21 +152,12 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 							>
 								<Icon as={CheckCircle} fontSize="md" color="fg.success" />
 								<Label color="fg.info">
-									{t("payments.mollie.status.paypalEnabled")}
+									{t("payments.paypal.status.paymentsEnabled")}
 								</Label>
 							</HStack>
-							<Button
-								variant="outline"
-								onClick={handleCompleteVerification}
-								disabled={getDashboardUrl.isPending}
-								w="full"
-							>
-								{getDashboardUrl.isPending ? (
-									<Icon as={RefreshCw} animation="spin" me="2" fontSize="md" />
-								) : (
-									<Icon as={ExternalLink} me="2" fontSize="md" />
-								)}
-								{t("payments.mollie.actions.manageDashboard")}
+							<Button variant="outline" onClick={handleOpenDashboard} w="full">
+								<Icon as={ExternalLink} me="2" fontSize="md" />
+								{t("payments.paypal.actions.manageDashboard")}
 							</Button>
 						</VStack>
 					)}
@@ -206,17 +170,17 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 							</Alert.Indicator>
 							<Alert.Content>
 								<Alert.Title>
-									{t("payments.mollie.alerts.inReview.title")}
+									{t("payments.paypal.alerts.inReview.title")}
 								</Alert.Title>
 								<Alert.Description>
-									{t("payments.mollie.alerts.inReview.description")}
+									{t("payments.paypal.alerts.inReview.description")}
 								</Alert.Description>
 							</Alert.Content>
 						</Alert.Root>
 					)}
 
-					{/* Needs data warning with action button */}
-					{needsData && (
+					{/* Pending warning with action button */}
+					{isPending && (
 						<VStack gap="3" align="stretch">
 							<Alert.Root status="warning" variant="outline">
 								<Alert.Indicator>
@@ -224,24 +188,16 @@ export function MollieStatusCard({ mollieStatus }: MollieStatusCardProps) {
 								</Alert.Indicator>
 								<Alert.Content>
 									<Alert.Title>
-										{t("payments.mollie.alerts.needsData.title")}
+										{t("payments.paypal.alerts.pending.title")}
 									</Alert.Title>
 									<Alert.Description>
-										{t("payments.mollie.alerts.needsData.description")}
+										{t("payments.paypal.alerts.pending.description")}
 									</Alert.Description>
 								</Alert.Content>
 							</Alert.Root>
-							<Button
-								onClick={handleCompleteVerification}
-								disabled={getDashboardUrl.isPending}
-								w="full"
-							>
-								{getDashboardUrl.isPending ? (
-									<Icon as={RefreshCw} animation="spin" me="2" fontSize="md" />
-								) : (
-									<Icon as={ExternalLink} me="2" fontSize="md" />
-								)}
-								{t("payments.mollie.actions.completeVerification")}
+							<Button onClick={handleOpenDashboard} w="full">
+								<Icon as={ExternalLink} me="2" fontSize="md" />
+								{t("payments.paypal.actions.completeSetup")}
 							</Button>
 						</VStack>
 					)}

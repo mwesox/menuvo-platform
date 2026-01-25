@@ -7,7 +7,7 @@
 
 import type { Database } from "@menuvo/db";
 import { db } from "@menuvo/db";
-import { getServerUrl } from "./domains/payments/mollie.js";
+import { getServerUrl } from "./domains/payments/paypal.js";
 import { DomainServices } from "./domains/services.js";
 import { extractSession } from "./infrastructure/auth/session.service.js";
 

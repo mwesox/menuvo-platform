@@ -12,7 +12,8 @@ import { logger } from "hono/logger";
 import { createContext } from "./context.js";
 import { appRouter } from "./domains/router.js";
 import { env } from "./env.js";
-import { mollie } from "./routes/mollie.js";
+import { paypal } from "./routes/paypal.js";
+import { paypalWebhook } from "./routes/webhooks/paypal.js";
 
 // Parse allowed origins from environment (comma-separated list)
 const allowedOrigins = new Set(
@@ -39,8 +40,9 @@ app.get("/health", (c) => {
 	return c.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// Mollie OAuth callback routes
-app.route("/api/mollie", mollie);
+// PayPal routes (onboarding return and webhooks)
+app.route("/api/paypal", paypal);
+app.route("/webhooks/paypal", paypalWebhook);
 
 // tRPC handler
 app.use(

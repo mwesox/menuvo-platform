@@ -2,30 +2,35 @@
  * Payment Service
  *
  * Domain service for payment operations.
- * Uses Mollie as the payment provider.
+ * Uses PayPal Marketplace Solutions as the payment provider.
  */
 
 import type { Database } from "@menuvo/db";
-import { merchants } from "@menuvo/db/schema";
+import { merchants, orders } from "@menuvo/db/schema";
 import { eq } from "drizzle-orm";
+import { config } from "../../config.js";
+import { env } from "../../env.js";
 import type { IPaymentService } from "./interface.js";
 import {
-	createClientLink,
-	createPayment as createMolliePayment,
-	getOnboardingStatus as getMollieOnboardingStatus,
-	getPayment,
-} from "./mollie.js";
+	captureOrder as capturePayPalOrder,
+	createPartnerReferral,
+	createOrder as createPayPalOrder,
+	getMerchantStatus,
+	getOrderStatus,
+	PAYPAL_CONFIG,
+} from "./paypal.js";
 import type {
+	CaptureResult,
 	CreatePaymentInput,
-	MollieStatus,
 	OnboardingResult,
 	OnboardingStatus,
+	PaymentAccountStatus,
 	PaymentResult,
 	PaymentStatus,
 } from "./types.js";
 
 /**
- * Payment service implementation.
+ * Payment service implementation using PayPal Marketplace.
  */
 export class PaymentService implements IPaymentService {
 	private readonly db: Database;
@@ -35,34 +40,164 @@ export class PaymentService implements IPaymentService {
 	}
 
 	async createPayment(input: CreatePaymentInput): Promise<PaymentResult> {
-		// Create payment via Mollie adapter
-		// merchantId is inferred internally from orderId (security: never from input)
-		const result = await createMolliePayment({
+		// Get order with merchant info (security: merchantId inferred from orderId)
+		const order = await this.db.query.orders.findFirst({
+			where: eq(orders.id, input.orderId),
+			columns: { merchantId: true, totalAmount: true },
+			with: {
+				store: {
+					columns: { id: true, currency: true },
+					with: {
+						merchant: {
+							columns: {
+								id: true,
+								paypalMerchantId: true,
+								paypalPaymentsReceivable: true,
+							},
+						},
+					},
+				},
+			},
+		});
+
+		if (!order) {
+			throw new Error("Order not found");
+		}
+
+		const merchant = order.store.merchant;
+		if (!merchant) {
+			throw new Error("Merchant not found for order");
+		}
+
+		if (!merchant.paypalMerchantId) {
+			throw new Error(
+				"PayPal account not connected. Please complete PayPal onboarding in settings.",
+			);
+		}
+
+		if (!merchant.paypalPaymentsReceivable) {
+			throw new Error(
+				"PayPal account cannot receive payments yet. Please complete verification.",
+			);
+		}
+
+		// Calculate platform fee (5% default)
+		const platformFeeAmount = Math.round(
+			order.totalAmount * config.platformFeePercent,
+		);
+
+		// Create PayPal order
+		const result = await createPayPalOrder({
 			orderId: input.orderId,
-			storeId: input.storeId,
-			amount: input.amount,
+			amount: {
+				value: input.amount.value,
+				currency_code: input.amount.currency.toUpperCase(),
+			},
 			description: input.description,
-			redirectUrl: input.redirectUrl,
+			returnUrl: input.returnUrl,
+			cancelUrl: input.cancelUrl,
+			sellerMerchantId: merchant.paypalMerchantId,
+			platformFee: {
+				value: (platformFeeAmount / 100).toFixed(2),
+				currency_code: input.amount.currency.toUpperCase(),
+			},
 		});
 
 		return {
-			paymentId: result.paymentId,
-			checkoutUrl: result.checkoutUrl ?? "",
+			paymentId: result.paypalOrderId,
+			approvalUrl: result.approvalUrl,
+			status: result.status,
+		};
+	}
+
+	async capturePayment(orderId: string): Promise<CaptureResult> {
+		// Get order with merchant info
+		const order = await this.db.query.orders.findFirst({
+			where: eq(orders.id, orderId),
+			columns: { paypalOrderId: true, merchantId: true },
+			with: {
+				store: {
+					with: {
+						merchant: {
+							columns: { paypalMerchantId: true },
+						},
+					},
+				},
+			},
+		});
+
+		if (!order) {
+			throw new Error("Order not found");
+		}
+
+		if (!order.paypalOrderId) {
+			throw new Error("PayPal order ID not found");
+		}
+
+		const sellerMerchantId = order.store.merchant?.paypalMerchantId;
+		if (!sellerMerchantId) {
+			throw new Error("Merchant PayPal ID not found");
+		}
+
+		// Capture the PayPal order
+		const captureResult = await capturePayPalOrder(
+			order.paypalOrderId,
+			sellerMerchantId,
+		);
+
+		return {
+			captureId: captureResult.captureId,
+			status: captureResult.status,
 		};
 	}
 
 	async getPaymentStatus(orderId: string): Promise<PaymentStatus> {
-		// merchantId and paymentId are inferred internally from orderId (security: never from input)
-		const payment = await getPayment(orderId);
+		// Get order with PayPal order ID
+		const order = await this.db.query.orders.findFirst({
+			where: eq(orders.id, orderId),
+			columns: { paypalOrderId: true },
+			with: {
+				store: {
+					with: {
+						merchant: {
+							columns: { paypalMerchantId: true },
+						},
+					},
+				},
+			},
+		});
+
+		if (!order) {
+			throw new Error("Order not found");
+		}
+
+		if (!order.paypalOrderId) {
+			// No PayPal order created yet
+			return {
+				status: "NOT_CREATED",
+				isPaid: false,
+				isApproved: false,
+				isFailed: false,
+			};
+		}
+
+		const sellerMerchantId = order.store.merchant?.paypalMerchantId;
+
+		// Get status from PayPal
+		const status = await getOrderStatus(
+			order.paypalOrderId,
+			sellerMerchantId ?? undefined,
+		);
 
 		return {
-			status: payment.status,
-			isPaid: payment.status === "paid",
+			status: status.status,
+			isPaid: status.isPaid || status.isCaptured,
+			isApproved: status.isApproved,
 			isFailed:
-				payment.status === "failed" ||
-				payment.status === "canceled" ||
-				payment.status === "expired",
-			isExpired: payment.status === "expired",
+				status.status === "VOIDED" ||
+				status.status === "DECLINED" ||
+				status.status === "EXPIRED",
+			captureId: status.captureId,
 		};
 	}
 
@@ -73,7 +208,7 @@ export class PaymentService implements IPaymentService {
 				id: true,
 				name: true,
 				email: true,
-				mollieOrganizationId: true,
+				paypalMerchantId: true,
 			},
 		});
 
@@ -81,135 +216,86 @@ export class PaymentService implements IPaymentService {
 			throw new Error("Merchant not found");
 		}
 
-		if (merchant.mollieOrganizationId) {
-			throw new Error("Merchant already has a Mollie organization");
+		if (merchant.paypalMerchantId) {
+			throw new Error("Merchant already has a PayPal account connected");
 		}
 
-		// Create state parameter with merchantId for callback verification
-		const state = Buffer.from(JSON.stringify({ merchantId })).toString(
-			"base64url",
-		);
+		// Build return URL for after PayPal onboarding
+		const returnUrl = `${env.SERVER_URL}${PAYPAL_CONFIG.RETURN_PATH}`;
 
-		const { onboardingUrl } = await createClientLink({
-			name: merchant.name,
+		// Create partner referral
+		const { onboardingUrl, trackingId } = await createPartnerReferral({
+			merchantId: merchant.id,
 			email: merchant.email,
-			state,
+			businessName: merchant.name,
+			returnUrl,
 		});
 
-		// Update merchant status
+		// Update merchant with tracking ID and pending status
 		await this.db
 			.update(merchants)
-			.set({ mollieOnboardingStatus: "needs-data" })
+			.set({
+				paypalTrackingId: trackingId,
+				paypalOnboardingStatus: "pending",
+			})
 			.where(eq(merchants.id, merchantId));
 
-		return { onboardingUrl };
+		return { onboardingUrl, trackingId };
 	}
 
 	async getOnboardingStatus(merchantId: string): Promise<OnboardingStatus> {
 		const merchant = await this.db.query.merchants.findFirst({
 			where: eq(merchants.id, merchantId),
 			columns: {
-				mollieOrganizationId: true,
-				mollieAccessToken: true,
-				mollieRefreshToken: true,
-				mollieTokenExpiresAt: true,
+				paypalMerchantId: true,
+				paypalTrackingId: true,
 			},
 		});
 
-		if (!merchant?.mollieOrganizationId) {
+		if (!merchant?.paypalMerchantId) {
 			return {
 				connected: false,
-				canReceivePayments: false,
-				canReceiveSettlements: false,
-				status: "not_connected",
+				merchantId: null,
+				paymentsReceivable: false,
+				primaryEmailConfirmed: false,
+				onboardingStatus: "not_connected",
 			};
 		}
 
-		if (!merchant.mollieAccessToken || !merchant.mollieRefreshToken) {
-			throw new Error("Mollie tokens not configured");
-		}
-
-		// Get valid access token (refreshes if expired)
-		const { getValidAccessToken } = await import("./mollie.js");
-		const accessToken = await getValidAccessToken(
-			merchantId,
-			merchant.mollieAccessToken,
-			merchant.mollieRefreshToken,
-			merchant.mollieTokenExpiresAt,
-			this.db,
+		// Get fresh status from PayPal
+		const status = await getMerchantStatus(
+			merchant.paypalMerchantId,
+			merchant.paypalTrackingId ?? undefined,
 		);
-
-		const status = await getMollieOnboardingStatus(accessToken);
 
 		// Update DB with fresh status
 		await this.db
 			.update(merchants)
 			.set({
-				mollieOnboardingStatus: status.canReceivePayments
-					? "completed"
-					: status.status === "in-review"
-						? "in-review"
-						: "needs-data",
-				mollieCanReceivePayments: status.canReceivePayments,
-				mollieCanReceiveSettlements: status.canReceiveSettlements,
+				paypalOnboardingStatus: status.onboardingStatus,
+				paypalPaymentsReceivable: status.paymentsReceivable,
+				paypalPrimaryEmailConfirmed: status.primaryEmailConfirmed,
 			})
 			.where(eq(merchants.id, merchantId));
 
 		return {
 			connected: true,
-			canReceivePayments: status.canReceivePayments,
-			canReceiveSettlements: status.canReceiveSettlements,
-			status: status.canReceivePayments
-				? "completed"
-				: status.status === "in-review"
-					? "in-review"
-					: "needs-data",
-			dashboardUrl: status.dashboardUrl,
+			merchantId: status.merchantId,
+			paymentsReceivable: status.paymentsReceivable,
+			primaryEmailConfirmed: status.primaryEmailConfirmed,
+			onboardingStatus: status.onboardingStatus,
 		};
 	}
 
-	async getDashboardUrl(merchantId: string): Promise<string | undefined> {
-		const merchant = await this.db.query.merchants.findFirst({
-			where: eq(merchants.id, merchantId),
-			columns: {
-				mollieAccessToken: true,
-				mollieRefreshToken: true,
-				mollieTokenExpiresAt: true,
-			},
-		});
-
-		if (!merchant?.mollieAccessToken || !merchant?.mollieRefreshToken) {
-			return undefined;
-		}
-
-		try {
-			// Use the same token refresh logic as getMerchantMollieClient
-			const { getValidAccessToken } = await import("./mollie.js");
-			const accessToken = await getValidAccessToken(
-				merchantId,
-				merchant.mollieAccessToken,
-				merchant.mollieRefreshToken,
-				merchant.mollieTokenExpiresAt,
-				this.db,
-			);
-			const status = await getMollieOnboardingStatus(accessToken);
-			return status.dashboardUrl;
-		} catch {
-			// Token may be invalid - return undefined gracefully
-			return undefined;
-		}
-	}
-
-	async getMollieStatus(merchantId: string): Promise<MollieStatus> {
+	async getAccountStatus(merchantId: string): Promise<PaymentAccountStatus> {
 		const merchant = await this.db.query.merchants.findFirst({
 			where: eq(merchants.id, merchantId),
 			columns: {
 				id: true,
-				mollieOrganizationId: true,
-				mollieProfileId: true,
-				mollieOnboardingStatus: true,
-				mollieCanReceivePayments: true,
-				mollieCanReceiveSettlements: true,
+				paypalMerchantId: true,
+				paypalTrackingId: true,
+				paypalOnboardingStatus: true,
+				paypalPaymentsReceivable: true,
 			},
 		});
 
@@ -218,12 +304,11 @@ export class PaymentService implements IPaymentService {
 		}
 
 		return {
-			connected: !!merchant.mollieOrganizationId,
-			organizationId: merchant.mollieOrganizationId,
-			profileId: merchant.mollieProfileId,
-			onboardingStatus: merchant.mollieOnboardingStatus,
-			canReceivePayments: merchant.mollieCanReceivePayments ?? false,
-			canReceiveSettlements: merchant.mollieCanReceiveSettlements ?? false,
+			connected: !!merchant.paypalMerchantId,
+			merchantId: merchant.paypalMerchantId,
+			trackingId: merchant.paypalTrackingId,
+			onboardingStatus: merchant.paypalOnboardingStatus,
+			canReceivePayments: merchant.paypalPaymentsReceivable ?? false,
 		};
 	}
 }

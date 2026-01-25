@@ -3,7 +3,7 @@
  *
  * Provides hooks for ordering flow:
  * - useCreateOrder: Create order via tRPC
- * - useCreatePayment: Create Mollie payment via tRPC
+ * - useCreatePayment: Create PayPal payment via tRPC
  * - useVerifyPayment: Check payment status
  * - useStorePaymentCapability: Check store payment capabilities
  */
@@ -43,7 +43,7 @@ export function useCreateOrder() {
 }
 
 /**
- * Hook to create a Mollie payment.
+ * Hook to create a PayPal payment.
  * Calls order.createPayment tRPC procedure and returns payment URL for redirect.
  */
 export function useCreatePayment() {
@@ -63,7 +63,7 @@ export function useCreatePayment() {
 
 /**
  * Hook to verify payment status.
- * Checks Mollie API via backend and updates order if payment is confirmed.
+ * Checks PayPal API via backend and updates order if payment is confirmed.
  *
  * @param orderId - The order ID to verify (orderId is the only input needed)
  */

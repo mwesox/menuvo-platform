@@ -183,99 +183,30 @@
 	"payments": {
 		"pageTitle": "Payment Settings",
 		"pageDescription": "Set up your payment account to receive payments from customers",
-		"setup": {
-			"title": "Set Up Payment Account",
-			"description": "To accept payments and receive payouts, you need to connect your payment account.",
-			"benefitsTitle": "What you'll get:",
-			"benefits": {
-				"trial": "30-day free trial — no credit card required",
-				"payments": "Accept card payments from customers",
-				"payouts": "Receive payouts to your bank account"
-			},
-			"button": "Set Up Payment Account",
-			"creating": "Setting up..."
-		},
-		"status": {
-			"title": "Payment Account Status",
-			"description": "Your payment account connection and capabilities",
-			"complete": "Complete",
-			"account": {
-				"label": "Account",
-				"connected": "Connected",
-				"notConnected": "Not Connected"
-			},
-			"onboarding": {
-				"label": "Onboarding",
-				"complete": "Complete",
-				"incomplete": "Incomplete"
-			},
-			"capabilities": {
-				"label": "Capabilities",
-				"active": "Active",
-				"pending": "Pending",
-				"inactive": "Inactive"
-			}
-		},
-		"trial": {
-			"title": "Trial Active",
-			"daysRemaining": "{{days}} days remaining in your trial"
-		},
-		"onboarding": {
-			"title": "Complete Your Account Setup",
-			"description": "To receive payouts and accept live payments, you need to complete your Stripe account verification.",
-			"whyNeeded": "What you'll need to provide:",
-			"requirements": {
-				"identity": {
-					"title": "Identity Verification",
-					"description": "Verify your identity with a government-issued ID"
-				},
-				"banking": {
-					"title": "Bank Account",
-					"description": "Add your bank account details to receive payouts"
-				},
-				"business": {
-					"title": "Business Details",
-					"description": "Provide business information for tax purposes"
-				}
-			},
-			"button": "Complete Onboarding",
-			"redirecting": "Redirecting...",
-			"skipNote": "You can complete this later, but you won't receive payouts until done."
-		},
-		"alerts": {
-			"requirementsDue": {
-				"title": "Action Required",
-				"description": "Complete your account requirements to continue accepting payments."
-			},
-			"requirementsPastDue": {
-				"title": "Urgent Action Required",
-				"description": "Your requirements are overdue. Payouts may be paused until completed."
-			}
-		},
 		"actions": {
 			"refresh": "Refresh Status"
 		},
-		"mollie": {
+		"paypal": {
 			"setup": {
 				"title": "Accept Online Payments",
-				"description": "Set up Mollie to accept credit cards, PayPal, iDEAL, and more from your customers.",
+				"description": "Set up PayPal to accept credit cards, PayPal, and Pay Later from your customers.",
 				"benefitsTitle": "What's included:",
-				"paypalIncluded": "PayPal included — no separate setup needed",
-				"button": "Set Up Mollie Payments",
+				"trustedPayments": "Trusted by millions worldwide",
+				"button": "Set Up PayPal Payments",
 				"creating": "Creating account..."
 			},
 			"benefits": {
 				"paypal": "PayPal payments built-in",
-				"ideal": "iDEAL for Dutch customers",
-				"lowFees": "Competitive transaction fees",
+				"cards": "Credit and debit cards",
+				"payLater": "Pay Later options for customers",
 				"fastPayout": "Fast payouts to your bank"
 			},
 			"status": {
-				"title": "Mollie Payments",
+				"title": "PayPal Payments",
 				"description": "Your payment account status and capabilities",
 				"complete": "Active",
 				"inReview": "In Review",
-				"paypalEnabled": "PayPal payments are enabled",
+				"paymentsEnabled": "PayPal payments are enabled",
 				"account": {
 					"label": "Account",
 					"connected": "Connected",
@@ -285,15 +216,10 @@
 					"label": "Verification",
 					"complete": "Verified",
 					"inReview": "Under Review",
-					"needsData": "Action Required"
+					"pending": "Pending"
 				},
 				"payments": {
 					"label": "Accept Payments",
-					"enabled": "Enabled",
-					"pending": "Pending Verification"
-				},
-				"settlements": {
-					"label": "Receive Payouts",
 					"enabled": "Enabled",
 					"pending": "Pending Verification"
 				}
@@ -301,16 +227,16 @@
 			"alerts": {
 				"inReview": {
 					"title": "Verification In Progress",
-					"description": "Mollie is reviewing your account. This usually takes 1-2 business days. You can already accept payments during this time."
+					"description": "PayPal is reviewing your account. This usually takes 1-2 business days."
 				},
-				"needsData": {
-					"title": "Additional Information Required",
-					"description": "Please complete your account verification in the Mollie dashboard to enable payouts."
+				"pending": {
+					"title": "Setup Incomplete",
+					"description": "Please complete your account setup in the PayPal dashboard to start accepting payments."
 				}
 			},
 			"actions": {
-				"completeVerification": "Complete Verification",
-				"manageDashboard": "Open Mollie Dashboard"
+				"completeSetup": "Complete Setup",
+				"manageDashboard": "Open PayPal Dashboard"
 			}
 		}
 	},

@@ -6,13 +6,13 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { z } from "zod/v4";
 import { ConsoleError } from "@/features/components/console-error";
-import { MollieSetupCard } from "@/features/settings/components/payments/mollie-setup-card";
-import { MollieStatusCard } from "@/features/settings/components/payments/mollie-status-card";
+import { PayPalSetupCard } from "@/features/settings/components/payments/paypal-setup-card";
+import { PayPalStatusCard } from "@/features/settings/components/payments/paypal-status-card";
 import { useTRPC } from "@/lib/trpc";
 
 const searchSchema = z.object({
-	// For Mollie callback
-	from: z.literal("mollie").optional(),
+	// For PayPal callback
+	from: z.literal("paypal").optional(),
 	refresh: z.boolean().optional(),
 	error: z.string().optional(),
 });
@@ -24,25 +24,25 @@ export const Route = createFileRoute("/_app/settings/payments")({
 });
 
 function PaymentsSettingsPage() {
-	const { from, refresh } = Route.useSearch();
+	const { from, refresh, error } = Route.useSearch();
 	const { t } = useTranslation("settings");
 	const { t: tToasts } = useTranslation("toasts");
 	const navigate = useNavigate();
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
 
-	// Mollie payment status
-	const { data: mollieStatus } = useQuery({
-		...trpc.payments.getMollieStatus.queryOptions(),
+	// PayPal payment status
+	const { data: paymentStatus } = useQuery({
+		...trpc.payments.getAccountStatus.queryOptions(),
 	});
 
-	const refreshMollieStatus = useCallback(async () => {
+	const refreshPaymentStatus = useCallback(async () => {
 		try {
 			await queryClient.fetchQuery(
 				trpc.payments.getOnboardingStatus.queryOptions(),
 			);
 			queryClient.invalidateQueries({
-				queryKey: trpc.payments.getMollieStatus.queryKey(),
+				queryKey: trpc.payments.getAccountStatus.queryKey(),
 			});
 			toast.success(tToasts("success.paymentStatusRefreshed"));
 		} catch {
@@ -53,13 +53,20 @@ function PaymentsSettingsPage() {
 	// Track if we've already triggered a refresh for this URL to prevent double-triggers
 	const hasTriggeredRefresh = useRef(false);
 
-	// Auto-refresh status when returning from Mollie
+	// Handle error from PayPal
 	useEffect(() => {
-		const shouldRefresh = from === "mollie" || refresh;
+		if (error && !hasTriggeredRefresh.current) {
+			toast.error(tToasts("error.paypalCallback"));
+		}
+	}, [error, tToasts]);
+
+	// Auto-refresh status when returning from PayPal
+	useEffect(() => {
+		const shouldRefresh = from === "paypal" || refresh;
 
 		if (shouldRefresh && !hasTriggeredRefresh.current) {
 			hasTriggeredRefresh.current = true;
-			void refreshMollieStatus();
+			void refreshPaymentStatus();
 
 			// Clear URL params to prevent re-triggering on page refresh
 			navigate({
@@ -67,7 +74,7 @@ function PaymentsSettingsPage() {
 				replace: true,
 			});
 		}
-	}, [from, refresh, navigate, refreshMollieStatus]);
+	}, [from, refresh, navigate, refreshPaymentStatus]);
 
 	// Reset the ref when URL params are cleared
 	useEffect(() => {
@@ -77,21 +84,21 @@ function PaymentsSettingsPage() {
 	}, [from, refresh]);
 
 	// Early return after all hooks are called
-	if (!mollieStatus) {
+	if (!paymentStatus) {
 		return null;
 	}
 
-	const hasMollieAccount = !!mollieStatus.organizationId;
+	const hasPayPalAccount = !!paymentStatus.merchantId;
 
 	return (
 		<VStack gap="8" align="stretch" w="full">
 			<Heading as="h1" textStyle="pageTitle">
 				{t("titles.payments")}
 			</Heading>
-			{!hasMollieAccount ? (
-				<MollieSetupCard />
+			{!hasPayPalAccount ? (
+				<PayPalSetupCard />
 			) : (
-				<MollieStatusCard mollieStatus={mollieStatus} />
+				<PayPalStatusCard paymentStatus={paymentStatus} />
 			)}
 		</VStack>
 	);

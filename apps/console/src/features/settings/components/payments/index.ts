@@ -1,2 +1,2 @@
-export { MollieSetupCard } from "./mollie-setup-card";
-export { MollieStatusCard } from "./mollie-status-card";
+export { PayPalSetupCard } from "./paypal-setup-card";
+export { PayPalStatusCard } from "./paypal-status-card";

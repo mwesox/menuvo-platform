@@ -9,7 +9,7 @@
 		"emptyDescription": "Add some delicious items to get started",
 		"ordering": "Checkout",
 		"orderingComingSoon": "Checkout coming soon!",
-		"orderingDescription": "Online payment is available via Mollie.",
+		"orderingDescription": "Online payment is available via PayPal.",
 		"total": "Total",
 		"removeItem": "Remove {{name}} from cart",
 		"openCart": "Open cart with {{count}} items totaling {{total}}"

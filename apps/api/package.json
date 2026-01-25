@@ -26,7 +26,6 @@
   "dependencies": {
     "@hono/trpc-server": "catalog:",
     "@menuvo/db": "workspace:*",
-    "@mollie/api-client": "^4.3.3",
     "@openrouter/sdk": "catalog:",
     "@sindresorhus/slugify": "^2.2.1",
     "@t3-oss/env-core": "catalog:",

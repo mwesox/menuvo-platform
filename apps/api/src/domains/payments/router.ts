@@ -2,7 +2,7 @@
  * Payment Router
  *
  * Thin wrappers around the PaymentService for payment-related procedures:
- * - Mollie payment setup and management
+ * - PayPal payment setup and management
  * - Payment status queries
  *
  * Architecture:
@@ -12,7 +12,7 @@
  */
 
 import { protectedProcedure, router } from "../../trpc/trpc.js";
-import type { MollieStatus } from "./types.js";
+import type { PaymentAccountStatus } from "./types.js";
 
 export const paymentRouter = router({
 	// ============================================================================
@@ -20,12 +20,12 @@ export const paymentRouter = router({
 	// ============================================================================
 
 	/**
-	 * Get Mollie account status for current merchant
+	 * Get PayPal account status for current merchant
 	 * Returns the current onboarding and payment status from the database
 	 */
-	getMollieStatus: protectedProcedure.query(
-		async ({ ctx }): Promise<MollieStatus> => {
-			return ctx.services.payments.getMollieStatus(ctx.session.merchantId);
+	getAccountStatus: protectedProcedure.query(
+		async ({ ctx }): Promise<PaymentAccountStatus> => {
+			return ctx.services.payments.getAccountStatus(ctx.session.merchantId);
 		},
 	),
 
@@ -34,28 +34,18 @@ export const paymentRouter = router({
 	// ============================================================================
 
 	/**
-	 * Start Mollie onboarding for current merchant
-	 * Creates a client link and returns the onboarding URL
+	 * Start PayPal onboarding for current merchant
+	 * Creates a partner referral and returns the onboarding URL
 	 */
 	startOnboarding: protectedProcedure.mutation(async ({ ctx }) => {
 		return ctx.services.payments.startOnboarding(ctx.session.merchantId);
 	}),
 
 	/**
-	 * Get onboarding status from Mollie API
+	 * Get onboarding status from PayPal API
 	 * Returns fresh status and updates DB
 	 */
 	getOnboardingStatus: protectedProcedure.query(async ({ ctx }) => {
 		return ctx.services.payments.getOnboardingStatus(ctx.session.merchantId);
-	}),
-
-	/**
-	 * Get Mollie dashboard URL for current merchant
-	 */
-	getDashboardUrl: protectedProcedure.query(async ({ ctx }) => {
-		const dashboardUrl = await ctx.services.payments.getDashboardUrl(
-			ctx.session.merchantId,
-		);
-		return { dashboardUrl };
 	}),
 });

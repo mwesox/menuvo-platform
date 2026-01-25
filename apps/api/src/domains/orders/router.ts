@@ -34,6 +34,12 @@ import {
 const createPaymentSchema = z.object({
 	orderId: z.string().uuid(),
 	returnUrl: z.string().url(),
+	cancelUrl: z.string().url(),
+});
+
+// Schema for capturePayment input
+const capturePaymentSchema = z.object({
+	orderId: z.string().uuid(),
 });
 
 export const orderRouter = router({
@@ -113,7 +119,7 @@ export const orderRouter = router({
 
 	/**
 	 * Create a payment for an order (public - for checkout)
-	 * Returns the Mollie checkout URL for redirect.
+	 * Returns the PayPal approval URL for redirect.
 	 *
 	 * Security: merchantId is derived from order→store→merchant relationship,
 	 * NOT from client input.
@@ -135,7 +141,7 @@ export const orderRouter = router({
 							merchant: {
 								columns: {
 									id: true,
-									mollieCanReceivePayments: true,
+									paypalPaymentsReceivable: true,
 								},
 							},
 						},
@@ -151,7 +157,7 @@ export const orderRouter = router({
 			}
 
 			// 2. Validate merchant can accept payments
-			if (!order.store.merchant?.mollieCanReceivePayments) {
+			if (!order.store.merchant?.paypalPaymentsReceivable) {
 				throw new TRPCError({
 					code: "PRECONDITION_FAILED",
 					message: "Store cannot accept online payments",
@@ -164,7 +170,8 @@ export const orderRouter = router({
 				currency: order.store.currency.toUpperCase(),
 			};
 			const description = `Order #${String(order.pickupNumber).padStart(3, "0")} - ${order.store.name}`;
-			const redirectUrl = `${input.returnUrl}?order_id=${order.id}`;
+			const returnUrl = `${input.returnUrl}?order_id=${order.id}`;
+			const cancelUrl = `${input.cancelUrl}?order_id=${order.id}`;
 
 			// 4. Create payment via PaymentService
 			// NOTE: merchantId is inferred from orderId internally (security: never from client input!)
@@ -173,13 +180,14 @@ export const orderRouter = router({
 				storeId: order.storeId,
 				amount,
 				description,
-				redirectUrl,
+				returnUrl,
+				cancelUrl,
 			});
 
-			if (!paymentResult.checkoutUrl) {
+			if (!paymentResult.approvalUrl) {
 				throw new TRPCError({
 					code: "INTERNAL_SERVER_ERROR",
-					message: "Payment provider did not return checkout URL",
+					message: "Payment provider did not return approval URL",
 				});
 			}
 
@@ -187,34 +195,31 @@ export const orderRouter = router({
 			await ctx.db
 				.update(orders)
 				.set({
-					molliePaymentId: paymentResult.paymentId,
-					mollieCheckoutUrl: paymentResult.checkoutUrl,
+					paypalOrderId: paymentResult.paymentId,
 					paymentStatus: "awaiting_confirmation",
-					orderPaymentProvider: "mollie",
 				})
 				.where(eq(orders.id, order.id));
 
-			return { checkoutUrl: paymentResult.checkoutUrl };
+			return { approvalUrl: paymentResult.approvalUrl };
 		}),
 
 	/**
-	 * Verify payment status for an order (public - for checkout return)
+	 * Capture a payment after customer approval (public - for checkout)
 	 *
-	 * Called when customer returns from Mollie payment page.
-	 * Checks Mollie API for payment status and updates order if needed.
+	 * Called after customer approves the payment on PayPal.
+	 * This actually processes the payment and confirms the order.
 	 *
 	 * Input: orderId only (security: no payment IDs from frontend)
-	 * Returns: paymentStatus only (no internal IDs exposed)
 	 */
-	verifyPayment: publicProcedure
-		.input(z.object({ orderId: z.string().uuid() }))
-		.query(async ({ ctx, input }) => {
+	capturePayment: publicProcedure
+		.input(capturePaymentSchema)
+		.mutation(async ({ ctx, input }) => {
 			// 1. Get order from database
 			const order = await ctx.db.query.orders.findFirst({
 				where: eq(orders.id, input.orderId),
 				columns: {
 					id: true,
-					molliePaymentId: true,
+					paypalOrderId: true,
 					paymentStatus: true,
 					status: true,
 				},
@@ -227,8 +232,85 @@ export const orderRouter = router({
 				});
 			}
 
-			// 2. If no payment ID, return current status
-			if (!order.molliePaymentId) {
+			if (!order.paypalOrderId) {
+				throw new TRPCError({
+					code: "BAD_REQUEST",
+					message: "No PayPal order found for this order",
+				});
+			}
+
+			// 2. Already paid - return success
+			if (order.paymentStatus === "paid") {
+				return { paymentStatus: "paid" as const, success: true };
+			}
+
+			// 3. Capture the payment
+			try {
+				const captureResult = await ctx.services.payments.capturePayment(
+					input.orderId,
+				);
+
+				// 4. Update order with capture info
+				await ctx.db
+					.update(orders)
+					.set({
+						paypalCaptureId: captureResult.captureId,
+						paymentStatus: "paid",
+						status: "confirmed",
+						confirmedAt: new Date(),
+					})
+					.where(eq(orders.id, input.orderId));
+
+				return { paymentStatus: "paid" as const, success: true };
+			} catch (_error) {
+				// Capture failed
+				await ctx.db
+					.update(orders)
+					.set({
+						paymentStatus: "failed",
+						status: "cancelled",
+					})
+					.where(eq(orders.id, input.orderId));
+
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to capture payment",
+				});
+			}
+		}),
+
+	/**
+	 * Verify payment status for an order (public - for checkout return)
+	 *
+	 * Called when customer returns from PayPal payment page.
+	 * Checks PayPal API for payment status and updates order if needed.
+	 *
+	 * Input: orderId only (security: no payment IDs from frontend)
+	 * Returns: paymentStatus only (no internal IDs exposed)
+	 */
+	verifyPayment: publicProcedure
+		.input(z.object({ orderId: z.string().uuid() }))
+		.query(async ({ ctx, input }) => {
+			// 1. Get order from database
+			const order = await ctx.db.query.orders.findFirst({
+				where: eq(orders.id, input.orderId),
+				columns: {
+					id: true,
+					paypalOrderId: true,
+					paymentStatus: true,
+					status: true,
+				},
+			});
+
+			if (!order) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Order not found",
+				});
+			}
+
+			// 2. If no PayPal order ID, return current status
+			if (!order.paypalOrderId) {
 				return { paymentStatus: order.paymentStatus };
 			}
 
@@ -238,7 +320,7 @@ export const orderRouter = router({
 				input.orderId,
 			);
 
-			// 4. Update database if payment confirmed
+			// 4. Update database if payment confirmed/captured
 			if (providerStatus.isPaid && order.paymentStatus !== "paid") {
 				await ctx.db
 					.update(orders)
@@ -246,13 +328,43 @@ export const orderRouter = router({
 						paymentStatus: "paid",
 						status: "confirmed",
 						confirmedAt: new Date(),
+						...(providerStatus.captureId && {
+							paypalCaptureId: providerStatus.captureId,
+						}),
 					})
 					.where(eq(orders.id, input.orderId));
 
 				return { paymentStatus: "paid" as const };
 			}
 
-			// 5. Update database if payment failed
+			// 5. If approved but not captured, auto-capture
+			if (
+				providerStatus.isApproved &&
+				!providerStatus.isPaid &&
+				order.paymentStatus !== "paid"
+			) {
+				try {
+					const captureResult = await ctx.services.payments.capturePayment(
+						input.orderId,
+					);
+
+					await ctx.db
+						.update(orders)
+						.set({
+							paypalCaptureId: captureResult.captureId,
+							paymentStatus: "paid",
+							status: "confirmed",
+							confirmedAt: new Date(),
+						})
+						.where(eq(orders.id, input.orderId));
+
+					return { paymentStatus: "paid" as const };
+				} catch {
+					// Capture failed - leave status as is
+				}
+			}
+
+			// 6. Update database if payment failed
 			if (providerStatus.isFailed && order.paymentStatus !== "failed") {
 				await ctx.db
 					.update(orders)
@@ -263,19 +375,6 @@ export const orderRouter = router({
 					.where(eq(orders.id, input.orderId));
 
 				return { paymentStatus: "failed" as const };
-			}
-
-			// 6. Update database if payment expired
-			if (providerStatus.isExpired && order.paymentStatus !== "expired") {
-				await ctx.db
-					.update(orders)
-					.set({
-						paymentStatus: "expired",
-						status: "cancelled",
-					})
-					.where(eq(orders.id, input.orderId));
-
-				return { paymentStatus: "expired" as const };
 			}
 
 			// 7. No status change needed
@@ -538,9 +637,9 @@ export const orderRouter = router({
 
 	/**
 	 * Create a refund (store owner only)
-	 * Initiates a refund through Mollie for the order
+	 * Initiates a refund through the payment provider for the order
 	 *
-	 * Note: The actual Mollie API call should be made by the API layer.
+	 * Note: The actual API call should be made by the API layer.
 	 * This procedure validates the request and returns the necessary info.
 	 */
 	createRefund: storeOwnerProcedure
@@ -555,9 +654,8 @@ export const orderRouter = router({
 					status: true,
 					paymentStatus: true,
 					totalAmount: true,
-					molliePaymentId: true,
+					paypalCaptureId: true,
 					stripePaymentIntentId: true,
-					orderPaymentProvider: true,
 				},
 				with: {
 					store: {
@@ -598,11 +696,8 @@ export const orderRouter = router({
 			}
 
 			// Determine payment provider and return info for API layer
-			const paymentProvider = order.orderPaymentProvider ?? "stripe";
-			const paymentId =
-				paymentProvider === "mollie"
-					? order.molliePaymentId
-					: order.stripePaymentIntentId;
+			const paymentProvider = order.paypalCaptureId ? "paypal" : "stripe";
+			const paymentId = order.paypalCaptureId ?? order.stripePaymentIntentId;
 
 			if (!paymentId) {
 				throw new TRPCError({

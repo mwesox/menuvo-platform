@@ -183,99 +183,30 @@
 	"payments": {
 		"pageTitle": "Zahlungseinstellungen",
 		"pageDescription": "Richten Sie Ihr Zahlungskonto ein, um Zahlungen von Kunden zu erhalten",
-		"setup": {
-			"title": "Zahlungskonto einrichten",
-			"description": "Um Zahlungen zu akzeptieren und Auszahlungen zu erhalten, müssen Sie Ihr Zahlungskonto verbinden.",
-			"benefitsTitle": "Was Sie erhalten:",
-			"benefits": {
-				"trial": "30-tägige kostenlose Testphase — keine Kreditkarte erforderlich",
-				"payments": "Kartenzahlungen von Kunden akzeptieren",
-				"payouts": "Auszahlungen auf Ihr Bankkonto erhalten"
-			},
-			"button": "Zahlungskonto einrichten",
-			"creating": "Wird eingerichtet..."
-		},
-		"status": {
-			"title": "Status des Zahlungskontos",
-			"description": "Ihre Zahlungskontoverbindung und Funktionen",
-			"complete": "Abgeschlossen",
-			"account": {
-				"label": "Konto",
-				"connected": "Verbunden",
-				"notConnected": "Nicht verbunden"
-			},
-			"onboarding": {
-				"label": "Einrichtung",
-				"complete": "Abgeschlossen",
-				"incomplete": "Unvollständig"
-			},
-			"capabilities": {
-				"label": "Funktionen",
-				"active": "Aktiv",
-				"pending": "Ausstehend",
-				"inactive": "Inaktiv"
-			}
-		},
-		"trial": {
-			"title": "Testphase aktiv",
-			"daysRemaining": "{{days}} Tage verbleiben in Ihrer Testphase"
-		},
-		"onboarding": {
-			"title": "Kontoeinrichtung abschließen",
-			"description": "Um Auszahlungen zu erhalten und Live-Zahlungen zu akzeptieren, müssen Sie Ihre Stripe-Kontoverifizierung abschließen.",
-			"whyNeeded": "Was Sie bereitstellen müssen:",
-			"requirements": {
-				"identity": {
-					"title": "Identitätsverifizierung",
-					"description": "Verifizieren Sie Ihre Identität mit einem amtlichen Ausweis"
-				},
-				"banking": {
-					"title": "Bankkonto",
-					"description": "Fügen Sie Ihre Bankverbindung für Auszahlungen hinzu"
-				},
-				"business": {
-					"title": "Geschäftsdaten",
-					"description": "Geben Sie Geschäftsinformationen für Steuerzwecke an"
-				}
-			},
-			"button": "Einrichtung abschließen",
-			"redirecting": "Weiterleitung...",
-			"skipNote": "Sie können dies später abschließen, erhalten aber erst Auszahlungen, wenn es erledigt ist."
-		},
-		"alerts": {
-			"requirementsDue": {
-				"title": "Handlung erforderlich",
-				"description": "Vervollständigen Sie Ihre Kontoanforderungen, um weiterhin Zahlungen zu akzeptieren."
-			},
-			"requirementsPastDue": {
-				"title": "Dringende Handlung erforderlich",
-				"description": "Ihre Anforderungen sind überfällig. Auszahlungen können pausiert werden, bis sie abgeschlossen sind."
-			}
-		},
 		"actions": {
 			"refresh": "Status aktualisieren"
 		},
-		"mollie": {
+		"paypal": {
 			"setup": {
 				"title": "Online-Zahlungen akzeptieren",
-				"description": "Richten Sie Mollie ein, um Kreditkarten, PayPal, iDEAL und mehr von Ihren Kunden zu akzeptieren.",
+				"description": "Richten Sie PayPal ein, um Kreditkarten, PayPal und Später Bezahlen von Ihren Kunden zu akzeptieren.",
 				"benefitsTitle": "Was enthalten ist:",
-				"paypalIncluded": "PayPal inklusive — keine separate Einrichtung nötig",
-				"button": "Mollie-Zahlungen einrichten",
+				"trustedPayments": "Weltweit von Millionen vertraut",
+				"button": "PayPal-Zahlungen einrichten",
 				"creating": "Konto wird erstellt..."
 			},
 			"benefits": {
 				"paypal": "PayPal-Zahlungen integriert",
-				"ideal": "iDEAL für niederländische Kunden",
-				"lowFees": "Wettbewerbsfähige Transaktionsgebühren",
+				"cards": "Kredit- und Debitkarten",
+				"payLater": "Später Bezahlen für Kunden",
 				"fastPayout": "Schnelle Auszahlungen auf Ihr Konto"
 			},
 			"status": {
-				"title": "Mollie-Zahlungen",
+				"title": "PayPal-Zahlungen",
 				"description": "Status und Funktionen Ihres Zahlungskontos",
 				"complete": "Aktiv",
 				"inReview": "In Prüfung",
-				"paypalEnabled": "PayPal-Zahlungen sind aktiviert",
+				"paymentsEnabled": "PayPal-Zahlungen sind aktiviert",
 				"account": {
 					"label": "Konto",
 					"connected": "Verbunden",
@@ -285,15 +216,10 @@
 					"label": "Verifizierung",
 					"complete": "Verifiziert",
 					"inReview": "Wird geprüft",
-					"needsData": "Handlung erforderlich"
+					"pending": "Ausstehend"
 				},
 				"payments": {
 					"label": "Zahlungen empfangen",
-					"enabled": "Aktiviert",
-					"pending": "Verifizierung ausstehend"
-				},
-				"settlements": {
-					"label": "Auszahlungen erhalten",
 					"enabled": "Aktiviert",
 					"pending": "Verifizierung ausstehend"
 				}
@@ -301,16 +227,16 @@
 			"alerts": {
 				"inReview": {
 					"title": "Verifizierung läuft",
-					"description": "Mollie prüft Ihr Konto. Dies dauert in der Regel 1-2 Werktage. Sie können in dieser Zeit bereits Zahlungen akzeptieren."
+					"description": "PayPal prüft Ihr Konto. Dies dauert in der Regel 1-2 Werktage."
 				},
-				"needsData": {
-					"title": "Zusätzliche Informationen erforderlich",
-					"description": "Bitte vervollständigen Sie Ihre Kontoverifizierung im Mollie-Dashboard, um Auszahlungen zu aktivieren."
+				"pending": {
+					"title": "Einrichtung unvollständig",
+					"description": "Bitte vervollständigen Sie Ihre Kontoeinrichtung im PayPal-Dashboard, um Zahlungen zu akzeptieren."
 				}
 			},
 			"actions": {
-				"completeVerification": "Verifizierung abschließen",
-				"manageDashboard": "Mollie-Dashboard öffnen"
+				"completeSetup": "Einrichtung abschließen",
+				"manageDashboard": "PayPal-Dashboard öffnen"
 			}
 		}
 	},

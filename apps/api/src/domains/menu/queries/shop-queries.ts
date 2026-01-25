@@ -25,7 +25,7 @@ export async function getMenuDataForShop(db: Database, storeSlug: string) {
 		with: {
 			merchant: {
 				columns: {
-					mollieCanReceivePayments: true,
+					paypalPaymentsReceivable: true,
 					supportedLanguages: true,
 				},
 			},

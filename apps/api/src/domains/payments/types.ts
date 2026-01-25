@@ -25,7 +25,8 @@ export interface CreatePaymentInput {
 	storeId: string;
 	amount: Amount;
 	description: string;
-	redirectUrl: string;
+	returnUrl: string;
+	cancelUrl: string;
 }
 
 /**
@@ -33,7 +34,16 @@ export interface CreatePaymentInput {
  */
 export interface PaymentResult {
 	paymentId: string;
-	checkoutUrl: string;
+	approvalUrl: string;
+	status: string;
+}
+
+/**
+ * Result of capturing a payment.
+ */
+export interface CaptureResult {
+	captureId: string;
+	status: string;
 }
 
 /**
@@ -42,8 +52,9 @@ export interface PaymentResult {
 export interface PaymentStatus {
 	status: string;
 	isPaid: boolean;
+	isApproved: boolean;
 	isFailed: boolean;
-	isExpired: boolean;
+	captureId?: string;
 }
 
 // =============================================================================
@@ -55,6 +66,7 @@ export interface PaymentStatus {
  */
 export interface OnboardingResult {
 	onboardingUrl: string;
+	trackingId: string;
 }
 
 /**
@@ -62,20 +74,19 @@ export interface OnboardingResult {
  */
 export interface OnboardingStatus {
 	connected: boolean;
-	canReceivePayments: boolean;
-	canReceiveSettlements: boolean;
-	status: "needs-data" | "in-review" | "completed" | "not_connected" | string;
-	dashboardUrl?: string;
+	merchantId: string | null;
+	paymentsReceivable: boolean;
+	primaryEmailConfirmed: boolean;
+	onboardingStatus: "pending" | "in_review" | "completed" | "not_connected";
 }
 
 /**
- * Full Mollie status from database.
+ * Full payment account status from database.
  */
-export interface MollieStatus {
+export interface PaymentAccountStatus {
 	connected: boolean;
-	organizationId: string | null;
-	profileId: string | null;
+	merchantId: string | null;
+	trackingId: string | null;
 	onboardingStatus: string | null;
 	canReceivePayments: boolean;
-	canReceiveSettlements: boolean;
 }
