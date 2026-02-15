@@ -135,7 +135,7 @@ export const listOrdersSchema = z.object({
 	startDate: z.coerce.date().optional(),
 	endDate: z.coerce.date().optional(),
 	limit: z.number().int().min(1).max(100).default(50),
-	cursor: z.string().uuid().optional(),
+	cursor: z.string().optional(),
 });
 
 export type ListOrdersInput = z.infer<typeof listOrdersSchema>;

@@ -529,6 +529,7 @@ export async function captureOrder(
 				Authorization: `Bearer ${accessToken}`,
 				"Content-Type": "application/json",
 				"PayPal-Auth-Assertion": authAssertion,
+				"PayPal-Request-Id": `capture_${paypalOrderId}`,
 			},
 		},
 	);
@@ -663,10 +664,17 @@ export async function verifyWebhookSignature(
 	const webhookId = env.PAYPAL_WEBHOOK_ID;
 
 	if (!webhookId) {
+		if (env.NODE_ENV === "production") {
+			paypalLogger.error(
+				"PAYPAL_WEBHOOK_ID not configured in production; rejecting webhook",
+			);
+			return false;
+		}
+
 		paypalLogger.warn(
-			"PAYPAL_WEBHOOK_ID not configured, skipping verification",
+			"PAYPAL_WEBHOOK_ID not configured, skipping verification in non-production",
 		);
-		return true; // Skip verification in development
+		return true;
 	}
 
 	const accessToken = await getAccessToken();

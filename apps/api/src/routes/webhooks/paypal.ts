@@ -59,14 +59,23 @@ paypalWebhook.post("/", async (c) => {
 	);
 
 	// Verify webhook signature (in production)
+	let isValidSignature = false;
 	try {
-		const isValid = await verifyWebhookSignature(headers, body);
-		if (!isValid) {
-			paypalLogger.warn("Webhook signature verification failed");
-			// Still store the event but mark as unverified
-		}
+		isValidSignature = await verifyWebhookSignature(headers, body);
 	} catch (err) {
 		paypalLogger.error({ error: err }, "Webhook signature verification error");
+		return c.json(
+			{ status: "error", message: "Webhook verification failed" },
+			503,
+		);
+	}
+
+	if (!isValidSignature) {
+		paypalLogger.warn("Webhook signature verification failed");
+		return c.json(
+			{ status: "error", message: "Invalid webhook signature" },
+			400,
+		);
 	}
 
 	// Parse the event
@@ -88,8 +97,9 @@ paypalWebhook.post("/", async (c) => {
 	);
 
 	// Store event for idempotency and audit trail
+	let insertedEvent: Array<{ id: string }>;
 	try {
-		await db
+		insertedEvent = await db
 			.insert(paypalEvents)
 			.values({
 				id: event.id,
@@ -99,12 +109,23 @@ paypalWebhook.post("/", async (c) => {
 				payload: event,
 				processingStatus: "PENDING",
 			})
-			.onConflictDoNothing();
+			.onConflictDoNothing()
+			.returning({ id: paypalEvents.id });
 	} catch (err) {
 		paypalLogger.error(
 			{ error: err, eventId: event.id },
 			"Failed to store event",
 		);
+		return c.json(
+			{ status: "error", message: "Failed to store webhook event" },
+			500,
+		);
+	}
+
+	// Duplicate webhook delivery - already processed (or being processed)
+	if (insertedEvent.length === 0) {
+		paypalLogger.info({ eventId: event.id }, "Duplicate webhook event ignored");
+		return c.json({ status: "ok", duplicate: true });
 	}
 
 	// Process the event

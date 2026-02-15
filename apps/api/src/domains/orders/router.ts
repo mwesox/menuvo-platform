@@ -11,7 +11,7 @@
 
 import { orderItems, orders, stores } from "@menuvo/db/schema";
 import { TRPCError } from "@trpc/server";
-import { and, asc, desc, eq, gte, inArray, lte } from "drizzle-orm";
+import { and, asc, desc, eq, gt, gte, inArray, lt, lte, or } from "drizzle-orm";
 import { z } from "zod";
 import {
 	publicProcedure,
@@ -41,6 +41,28 @@ const createPaymentSchema = z.object({
 const capturePaymentSchema = z.object({
 	orderId: z.string().uuid(),
 });
+
+const ORDER_CURSOR_SEPARATOR = "|";
+
+function encodeOrderCursor(date: Date, orderId: string): string {
+	return `${date.toISOString()}${ORDER_CURSOR_SEPARATOR}${orderId}`;
+}
+
+function decodeOrderCursor(
+	cursor: string,
+): { date: Date; orderId: string } | null {
+	const [datePart, orderId] = cursor.split(ORDER_CURSOR_SEPARATOR);
+	if (!datePart || !orderId) {
+		return null;
+	}
+
+	const date = new Date(datePart);
+	if (Number.isNaN(date.getTime())) {
+		return null;
+	}
+
+	return { date, orderId };
+}
 
 export const orderRouter = router({
 	// ============================================================================
@@ -244,13 +266,53 @@ export const orderRouter = router({
 				return { paymentStatus: "paid" as const, success: true };
 			}
 
-			// 3. Capture the payment
+			// 3. Fetch provider status first to avoid duplicate/invalid captures
+			const providerStatus = await ctx.services.payments.getPaymentStatus(
+				input.orderId,
+			);
+
+			// Already paid/captured on provider side - just sync local state
+			if (providerStatus.isPaid) {
+				await ctx.db
+					.update(orders)
+					.set({
+						paymentStatus: "paid",
+						status: "confirmed",
+						confirmedAt: new Date(),
+						...(providerStatus.captureId && {
+							paypalCaptureId: providerStatus.captureId,
+						}),
+					})
+					.where(eq(orders.id, input.orderId));
+
+				return { paymentStatus: "paid" as const, success: true };
+			}
+
+			// Provider marks order as failed/voided/expired
+			if (providerStatus.isFailed) {
+				await ctx.db
+					.update(orders)
+					.set({
+						paymentStatus: "failed",
+						status: "cancelled",
+					})
+					.where(eq(orders.id, input.orderId));
+
+				return { paymentStatus: "failed" as const, success: false };
+			}
+
+			// Not approved yet; do not mutate order state
+			if (!providerStatus.isApproved) {
+				return { paymentStatus: order.paymentStatus, success: false };
+			}
+
+			// 4. Capture approved payment
 			try {
 				const captureResult = await ctx.services.payments.capturePayment(
 					input.orderId,
 				);
 
-				// 4. Update order with capture info
+				// 5. Update order with capture info
 				await ctx.db
 					.update(orders)
 					.set({
@@ -262,19 +324,11 @@ export const orderRouter = router({
 					.where(eq(orders.id, input.orderId));
 
 				return { paymentStatus: "paid" as const, success: true };
-			} catch (_error) {
-				// Capture failed
-				await ctx.db
-					.update(orders)
-					.set({
-						paymentStatus: "failed",
-						status: "cancelled",
-					})
-					.where(eq(orders.id, input.orderId));
-
+			} catch {
+				// Do not cancel locally on transient capture/provider failures.
 				throw new TRPCError({
 					code: "INTERNAL_SERVER_ERROR",
-					message: "Failed to capture payment",
+					message: "Payment approved but capture is not finalized yet",
 				});
 			}
 		}),
@@ -433,12 +487,29 @@ export const orderRouter = router({
 
 			// Add cursor condition if provided
 			if (input.cursor) {
-				conditions.push(lte(orders.id, input.cursor));
+				const decodedCursor = decodeOrderCursor(input.cursor);
+				if (!decodedCursor) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Invalid cursor",
+					});
+				}
+
+				const cursorCondition = or(
+					lt(orders.createdAt, decodedCursor.date),
+					and(
+						eq(orders.createdAt, decodedCursor.date),
+						lt(orders.id, decodedCursor.orderId),
+					),
+				);
+				if (cursorCondition) {
+					conditions.push(cursorCondition);
+				}
 			}
 
 			const storeOrders = await ctx.db.query.orders.findMany({
 				where: and(...conditions),
-				orderBy: [desc(orders.createdAt)],
+				orderBy: [desc(orders.createdAt), desc(orders.id)],
 				limit: input.limit + 1, // Fetch one extra to determine if there's more
 				with: {
 					servicePoint: {
@@ -461,9 +532,11 @@ export const orderRouter = router({
 			const ordersToReturn = hasMore
 				? storeOrders.slice(0, input.limit)
 				: storeOrders;
-			const nextCursor = hasMore
-				? ordersToReturn[ordersToReturn.length - 1]?.id
-				: null;
+			const lastOrder = ordersToReturn[ordersToReturn.length - 1];
+			const nextCursor =
+				hasMore && lastOrder
+					? encodeOrderCursor(lastOrder.createdAt, lastOrder.id)
+					: null;
 
 			return {
 				orders: ordersToReturn,
@@ -750,12 +823,29 @@ export const orderRouter = router({
 
 			// Add cursor condition if provided
 			if (input.cursor) {
-				conditions.push(lte(orders.id, input.cursor));
+				const decodedCursor = decodeOrderCursor(input.cursor);
+				if (!decodedCursor) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Invalid cursor",
+					});
+				}
+
+				const cursorCondition = or(
+					gt(orders.createdAt, decodedCursor.date),
+					and(
+						eq(orders.createdAt, decodedCursor.date),
+						gt(orders.id, decodedCursor.orderId),
+					),
+				);
+				if (cursorCondition) {
+					conditions.push(cursorCondition);
+				}
 			}
 
 			const kitchenOrders = await ctx.db.query.orders.findMany({
 				where: and(...conditions),
-				orderBy: [asc(orders.createdAt)], // FIFO for kitchen
+				orderBy: [asc(orders.createdAt), asc(orders.id)], // FIFO for kitchen
 				limit: input.limit + 1, // Fetch one extra to determine if there's more
 				with: {
 					servicePoint: {
@@ -775,9 +865,11 @@ export const orderRouter = router({
 			const ordersToReturn = hasMore
 				? kitchenOrders.slice(0, input.limit)
 				: kitchenOrders;
-			const nextCursor = hasMore
-				? ordersToReturn[ordersToReturn.length - 1]?.id
-				: null;
+			const lastOrder = ordersToReturn[ordersToReturn.length - 1];
+			const nextCursor =
+				hasMore && lastOrder
+					? encodeOrderCursor(lastOrder.createdAt, lastOrder.id)
+					: null;
 
 			return {
 				orders: ordersToReturn,
@@ -821,12 +913,29 @@ export const orderRouter = router({
 
 			// Add cursor condition if provided
 			if (input.cursor) {
-				conditions.push(lte(orders.id, input.cursor));
+				const decodedCursor = decodeOrderCursor(input.cursor);
+				if (!decodedCursor) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Invalid cursor",
+					});
+				}
+
+				const cursorCondition = or(
+					lt(orders.completedAt, decodedCursor.date),
+					and(
+						eq(orders.completedAt, decodedCursor.date),
+						lt(orders.id, decodedCursor.orderId),
+					),
+				);
+				if (cursorCondition) {
+					conditions.push(cursorCondition);
+				}
 			}
 
 			const doneOrders = await ctx.db.query.orders.findMany({
 				where: and(...conditions),
-				orderBy: [desc(orders.completedAt)], // Most recent first
+				orderBy: [desc(orders.completedAt), desc(orders.id)], // Most recent first
 				limit: input.limit + 1, // Fetch one extra to determine if there's more
 				with: {
 					servicePoint: {
@@ -846,9 +955,11 @@ export const orderRouter = router({
 			const ordersToReturn = hasMore
 				? doneOrders.slice(0, input.limit)
 				: doneOrders;
-			const nextCursor = hasMore
-				? ordersToReturn[ordersToReturn.length - 1]?.id
-				: null;
+			const lastOrder = ordersToReturn[ordersToReturn.length - 1];
+			const nextCursor =
+				hasMore && lastOrder?.completedAt
+					? encodeOrderCursor(lastOrder.completedAt, lastOrder.id)
+					: null;
 
 			return {
 				orders: ordersToReturn,
@@ -879,9 +990,31 @@ export const orderRouter = router({
 			}
 
 			// Now get the orders
+			const conditions = [eq(orders.storeId, input.storeId)];
+			if (input.cursor) {
+				const decodedCursor = decodeOrderCursor(input.cursor);
+				if (!decodedCursor) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Invalid cursor",
+					});
+				}
+
+				const cursorCondition = or(
+					lt(orders.createdAt, decodedCursor.date),
+					and(
+						eq(orders.createdAt, decodedCursor.date),
+						lt(orders.id, decodedCursor.orderId),
+					),
+				);
+				if (cursorCondition) {
+					conditions.push(cursorCondition);
+				}
+			}
+
 			const storeOrders = await ctx.db.query.orders.findMany({
-				where: eq(orders.storeId, input.storeId),
-				orderBy: [desc(orders.createdAt)],
+				where: and(...conditions),
+				orderBy: [desc(orders.createdAt), desc(orders.id)],
 				limit: input.limit + 1, // Fetch one extra to determine if there's more
 				with: {
 					servicePoint: {
@@ -904,9 +1037,11 @@ export const orderRouter = router({
 			const ordersToReturn = hasMore
 				? storeOrders.slice(0, input.limit)
 				: storeOrders;
-			const nextCursor = hasMore
-				? ordersToReturn[ordersToReturn.length - 1]?.id
-				: null;
+			const lastOrder = ordersToReturn[ordersToReturn.length - 1];
+			const nextCursor =
+				hasMore && lastOrder
+					? encodeOrderCursor(lastOrder.createdAt, lastOrder.id)
+					: null;
 
 			return {
 				orders: ordersToReturn,
